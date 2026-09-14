@@ -25,8 +25,8 @@ const METHOD_LABEL: Record<string, string> = {
   card: "Card (Visa / Mastercard)",
   eft: "Instant EFT",
   bank_transfer: "Bank Transfer / Manual EFT",
-  snapscan: "SnapScan",
-  zapper: "Zapper",
+  ecocash: "EcoCash",
+  onemoney: "OneMoney",
 };
 
 type Outcome = "auto" | "approve" | "insufficient" | "declined";
@@ -120,7 +120,7 @@ export default function ParentSubscribe() {
     setMethod(m); setError(null);
     if (m === "card") setStep("card");
     else if (m === "eft") setStep("gateway");
-    else if (m === "snapscan" || m === "zapper") setStep("qr");
+    else if (m === "ecocash" || m === "onemoney") setStep("qr");
     else setStep("eft");
   }
 
@@ -338,7 +338,7 @@ export default function ParentSubscribe() {
             <QrView plan={plan} method={method} processing={processing} onConfirm={processQrGateway} forceOutcome={forceOutcome} setForceOutcome={setForceOutcome} />
           )}
           {step === "failed" && (
-            <FailedView reason={failureReason} onRetry={() => setStep(method === "card" ? "card" : method === "snapscan" || method === "zapper" ? "qr" : "gateway")} onChangeMethod={() => setStep("method")} />
+            <FailedView reason={failureReason} onRetry={() => setStep(method === "card" ? "card" : method === "ecocash" || method === "onemoney" ? "qr" : "gateway")} onChangeMethod={() => setStep("method")} />
           )}
           {step === "success" && completed && (
             <SuccessView
@@ -439,8 +439,8 @@ function MethodView({ plan, onPick }: any) {
   const methods = [
     { id: "card", label: "Card Payment", icon: CreditCard, note: "Visa / Mastercard — Paynow Zimbabwe" },
     { id: "eft", label: "Instant EFT", icon: Building2, note: "FNB, Standard Bank, ABSA, Nedbank, Capitec" },
-    { id: "snapscan", label: "SnapScan", icon: CreditCard, note: "Scan QR with the SnapScan app" },
-    { id: "zapper", label: "Zapper", icon: CreditCard, note: "Scan QR with the Zapper app" },
+    { id: "ecocash", label: "SnapScan", icon: CreditCard, note: "Scan QR with the SnapScan app" },
+    { id: "onemoney", label: "Zapper", icon: CreditCard, note: "Scan QR with the Zapper app" },
     { id: "bank_transfer", label: "Bank Transfer", icon: Building2, note: "Manual EFT — upload proof of payment" },
   ];
   return (
@@ -567,8 +567,8 @@ function GatewayView({ plan, processing, onStart, forceOutcome, setForceOutcome 
 }
 
 function QrView({ plan, method, processing, onConfirm, forceOutcome, setForceOutcome }: any) {
-  const brand = method === "snapscan" ? "SnapScan" : "Zapper";
-  const brandColor = method === "snapscan" ? "from-sky-500 to-blue-600" : "from-emerald-500 to-teal-600";
+  const brand = method === "ecocash" ? "EcoCash" : "OneMoney";
+  const brandColor = method === "ecocash" ? "from-sky-500 to-blue-600" : "from-emerald-500 to-teal-600";
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-md mx-auto">
       <Card className="p-6 text-center">

@@ -29,8 +29,8 @@ interface Props {
 const METHOD_LABEL: Record<string, string> = {
   card: "Card (Visa / Mastercard)",
   eft: "Instant EFT",
-  snapscan: "SnapScan",
-  zapper: "Zapper",
+  ecocash: "EcoCash",
+  onemoney: "OneMoney",
 };
 
 export default function PayInvoiceDialog({ open, onOpenChange, invoice, student, outstanding, onPaid }: Props) {
@@ -233,9 +233,9 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
             <div className="grid grid-cols-2 gap-2">
               {[
                 { id: "card", label: "Card", icon: CreditCard, note: "Visa / Mastercard" },
-                { id: "eft", label: "Instant EFT", icon: Building2, note: "FNB, ABSA, Std Bank…" },
-                { id: "snapscan", label: "SnapScan", icon: CreditCard, note: "Scan QR" },
-                { id: "zapper", label: "Zapper", icon: CreditCard, note: "Scan QR" },
+                { id: "eft", label: "Instant EFT", icon: Building2, note: "CBZ, Stanbic, Steward…" },
+                { id: "ecocash", label: "EcoCash", icon: CreditCard, note: "Mobile money" },
+                { id: "onemoney", label: "OneMoney", icon: CreditCard, note: "Mobile money" },
               ].map((m) => (
                 <button key={m.id} onClick={() => pickMethod(m.id)}
                   className="p-4 rounded-lg border-2 border-border hover:border-teal-500 hover:bg-teal-50/40 text-left transition">
@@ -311,7 +311,7 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
 
         {step === "qr" && (
           <div className="text-center space-y-3">
-            <h3 className="font-semibold">Paynow Zimbabwe — {method === "snapscan" ? "SnapScan" : "Zapper"}</h3>
+            <h3 className="font-semibold">Paynow Zimbabwe — {method === "ecocash" ? "EcoCash" : "OneMoney"}</h3>
             <p className="text-sm text-muted-foreground">
               Scan to pay {formatMoney(payAmount)}
             </p>
