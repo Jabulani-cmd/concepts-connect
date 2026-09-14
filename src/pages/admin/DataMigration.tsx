@@ -121,7 +121,7 @@ export default function DataMigration() {
       // Target-specific validation
       if (target === "students") {
         if (row.guardian_phone && !/^(\+263|0)7[0-9]{8}$/.test(String(row.guardian_phone))) {
-          issues.push({ row: idx + 2, field: "guardian_phone", value: String(row.guardian_phone), issue: "Invalid South Africa phone format", severity: "warning" });
+          issues.push({ row: idx + 2, field: "guardian_phone", value: String(row.guardian_phone), issue: "Invalid Zimbabwe phone format", severity: "warning" });
           warningCount++;
         }
         if (row.guardian_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(row.guardian_email))) {

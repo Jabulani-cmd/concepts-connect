@@ -163,7 +163,7 @@ export default function UserManual() {
             <Step n={1} text="Go to Admin Dashboard → Data Migration tab." />
             <Step n={2} text="Select 'Students' as the data type." />
             <Step n={3} text="Upload an Excel/CSV file with columns matching the template." />
-            <Step n={4} text="Review validation results (phone numbers must be South Africa format: 07XXXXXXXX or +263XXXXXXXX)." />
+            <Step n={4} text="Review validation results (phone numbers must be Zimbabwe format: 07XXXXXXXX or +2637XXXXXXXX)." />
             <Step n={5} text="Confirm to import all valid records." />
           </ManualSection>
           <Tip>Medical alerts are highlighted with a red warning banner on the student's profile for quick identification.</Tip>
@@ -231,7 +231,7 @@ export default function UserManual() {
             <Step n={1} text="Go to Finance → Payments." />
             <Step n={2} text="Click 'Record Payment'." />
             <Step n={3} text="Select the student and their outstanding invoice." />
-            <Step n={4} text="Enter payment amount (USD and/or ZiG), method (cash, bank transfer, SnapScan), and reference number." />
+            <Step n={4} text="Enter payment amount (USD and/or ZiG), method (cash, bank transfer, EcoCash), and reference number." />
             <Step n={5} text="A receipt number is auto-generated. Click 'Save' to record." />
           </ManualSection>
           <ManualSection title="Fee Restrictions">
