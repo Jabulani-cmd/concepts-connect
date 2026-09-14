@@ -438,7 +438,7 @@ function OutcomeSelect({ value, onChange, includeAuto = true }: { value: Outcome
 function MethodView({ plan, onPick }: any) {
   const methods = [
     { id: "card", label: "Card Payment", icon: CreditCard, note: "Visa / Mastercard — Paynow Zimbabwe" },
-    { id: "eft", label: "Instant EFT", icon: Building2, note: "FNB, Standard Bank, ABSA, Nedbank, Capitec" },
+    { id: "eft", label: "Instant EFT", icon: Building2, note: "CBZ, Stanbic, Steward, ZB Bank" },
     { id: "ecocash", label: "EcoCash", icon: CreditCard, note: "Pay from your EcoCash wallet" },
     { id: "onemoney", label: "OneMoney", icon: CreditCard, note: "Pay from your OneMoney wallet" },
     { id: "bank_transfer", label: "Bank Transfer", icon: Building2, note: "Manual EFT — upload proof of payment" },
