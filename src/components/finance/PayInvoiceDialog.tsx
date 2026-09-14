@@ -29,8 +29,8 @@ interface Props {
 const METHOD_LABEL: Record<string, string> = {
   card: "Card (Visa / Mastercard)",
   eft: "Instant EFT",
-  snapscan: "SnapScan",
-  zapper: "Zapper",
+  ecocash: "EcoCash",
+  onemoney: "OneMoney",
 };
 
 export default function PayInvoiceDialog({ open, onOpenChange, invoice, student, outstanding, onPaid }: Props) {
@@ -120,7 +120,7 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
         payment_status: "paid",
         reference_number: txId,
         payment_date: payDate,
-        notes: `SecurePay SA (${METHOD_LABEL[method]}) — parent portal`,
+        notes: `Paynow Zimbabwe (${METHOD_LABEL[method]}) — parent portal`,
       }).select("id").single();
       if (payErr) throw payErr;
 
@@ -233,9 +233,9 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
             <div className="grid grid-cols-2 gap-2">
               {[
                 { id: "card", label: "Card", icon: CreditCard, note: "Visa / Mastercard" },
-                { id: "eft", label: "Instant EFT", icon: Building2, note: "FNB, ABSA, Std Bank…" },
-                { id: "snapscan", label: "SnapScan", icon: CreditCard, note: "Scan QR" },
-                { id: "zapper", label: "Zapper", icon: CreditCard, note: "Scan QR" },
+                { id: "eft", label: "Instant EFT", icon: Building2, note: "CBZ, Stanbic, Steward…" },
+                { id: "ecocash", label: "EcoCash", icon: CreditCard, note: "Mobile money" },
+                { id: "onemoney", label: "OneMoney", icon: CreditCard, note: "Mobile money" },
               ].map((m) => (
                 <button key={m.id} onClick={() => pickMethod(m.id)}
                   className="p-4 rounded-lg border-2 border-border hover:border-teal-500 hover:bg-teal-50/40 text-left transition">
@@ -246,7 +246,7 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
               ))}
             </div>
             <div className="text-xs text-muted-foreground flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4" /> Processed by SecurePay SA (demo).
+              <ShieldCheck className="w-4 h-4" /> Processed by Paynow Zimbabwe (demo).
             </div>
           </div>
         )}
@@ -255,7 +255,7 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <Lock className="w-5 h-5 text-teal-600" />
-              <h3 className="font-semibold">SecurePay SA — Card</h3>
+              <h3 className="font-semibold">Paynow Zimbabwe — Card</h3>
             </div>
             {!processing ? (
               <>
@@ -296,7 +296,7 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
         {step === "gateway" && (
           <div className="text-center space-y-3">
             <Building2 className="w-12 h-12 mx-auto text-teal-600" />
-            <h3 className="font-semibold">SecurePay SA — Instant EFT</h3>
+            <h3 className="font-semibold">Paynow Zimbabwe — Instant EFT</h3>
             <p className="text-sm text-muted-foreground">
               Authorise a {formatMoney(payAmount)} payment with your bank.
             </p>
@@ -311,7 +311,7 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
 
         {step === "qr" && (
           <div className="text-center space-y-3">
-            <h3 className="font-semibold">SecurePay SA — {method === "snapscan" ? "SnapScan" : "Zapper"}</h3>
+            <h3 className="font-semibold">Paynow Zimbabwe — {method === "ecocash" ? "EcoCash" : "OneMoney"}</h3>
             <p className="text-sm text-muted-foreground">
               Scan to pay {formatMoney(payAmount)}
             </p>

@@ -82,7 +82,7 @@ const boardingOptions = [
   { value: "day", label: "Day Scholar" },
   { value: "boarding", label: "Boarding" },
 ];
-const paymentMethods = ["Cash", "SnapScan", "Zapper", "Bank Transfer", "EFT", "Swipe"];
+const paymentMethods = ["Cash", "EcoCash", "OneMoney", "Bank Transfer", "EFT", "Swipe"];
 const expenseCategories = [
   "Salaries",
   "Utilities",
@@ -3944,8 +3944,8 @@ export default function FinanceManagement() {
                     <SelectItem value="Cash">Cash</SelectItem>
                     <SelectItem value="EFT">EFT</SelectItem>
                     <SelectItem value="Card">Card</SelectItem>
-                    <SelectItem value="SnapScan">SnapScan</SelectItem>
-                    <SelectItem value="Zapper">Zapper</SelectItem>
+                    <SelectItem value="EcoCash">EcoCash</SelectItem>
+                    <SelectItem value="OneMoney">OneMoney</SelectItem>
                     <SelectItem value="Cheque">Cheque</SelectItem>
                   </SelectContent>
                 </Select>

@@ -25,13 +25,13 @@ const METHOD_LABEL: Record<string, string> = {
   card: "Card (Visa / Mastercard)",
   eft: "Instant EFT",
   bank_transfer: "Bank Transfer / Manual EFT",
-  snapscan: "SnapScan",
-  zapper: "Zapper",
+  ecocash: "EcoCash",
+  onemoney: "OneMoney",
 };
 
 type Outcome = "auto" | "approve" | "insufficient" | "declined";
 
-// Mock SecurePay SA test cards — a card number ending in an odd digit fails.
+// Mock Paynow Zimbabwe test cards — a card number ending in an odd digit fails.
 function isTestCardApproved(number: string) {
   const digits = number.replace(/\s/g, "");
   if (digits.length < 12) return false;
@@ -120,7 +120,7 @@ export default function ParentSubscribe() {
     setMethod(m); setError(null);
     if (m === "card") setStep("card");
     else if (m === "eft") setStep("gateway");
-    else if (m === "snapscan" || m === "zapper") setStep("qr");
+    else if (m === "ecocash" || m === "onemoney") setStep("qr");
     else setStep("eft");
   }
 
@@ -338,7 +338,7 @@ export default function ParentSubscribe() {
             <QrView plan={plan} method={method} processing={processing} onConfirm={processQrGateway} forceOutcome={forceOutcome} setForceOutcome={setForceOutcome} />
           )}
           {step === "failed" && (
-            <FailedView reason={failureReason} onRetry={() => setStep(method === "card" ? "card" : method === "snapscan" || method === "zapper" ? "qr" : "gateway")} onChangeMethod={() => setStep("method")} />
+            <FailedView reason={failureReason} onRetry={() => setStep(method === "card" ? "card" : method === "ecocash" || method === "onemoney" ? "qr" : "gateway")} onChangeMethod={() => setStep("method")} />
           )}
           {step === "success" && completed && (
             <SuccessView
@@ -437,10 +437,10 @@ function OutcomeSelect({ value, onChange, includeAuto = true }: { value: Outcome
 
 function MethodView({ plan, onPick }: any) {
   const methods = [
-    { id: "card", label: "Card Payment", icon: CreditCard, note: "Visa / Mastercard — SecurePay SA" },
-    { id: "eft", label: "Instant EFT", icon: Building2, note: "FNB, Standard Bank, ABSA, Nedbank, Capitec" },
-    { id: "snapscan", label: "SnapScan", icon: CreditCard, note: "Scan QR with the SnapScan app" },
-    { id: "zapper", label: "Zapper", icon: CreditCard, note: "Scan QR with the Zapper app" },
+    { id: "card", label: "Card Payment", icon: CreditCard, note: "Visa / Mastercard — Paynow Zimbabwe" },
+    { id: "eft", label: "Instant EFT", icon: Building2, note: "CBZ, Stanbic, Steward, ZB Bank" },
+    { id: "ecocash", label: "EcoCash", icon: CreditCard, note: "Pay from your EcoCash wallet" },
+    { id: "onemoney", label: "OneMoney", icon: CreditCard, note: "Pay from your OneMoney wallet" },
     { id: "bank_transfer", label: "Bank Transfer", icon: Building2, note: "Manual EFT — upload proof of payment" },
   ];
   return (
@@ -472,7 +472,7 @@ function MethodView({ plan, onPick }: any) {
         ))}
       </div>
       <div className="text-xs text-muted-foreground flex items-center gap-2 mt-4">
-        <ShieldCheck className="w-4 h-4" /> Processed by SecurePay SA. Demo environment — no real money is moved.
+        <ShieldCheck className="w-4 h-4" /> Processed by Paynow Zimbabwe. Demo environment — no real money is moved.
       </div>
     </motion.div>
   );
@@ -484,7 +484,7 @@ function CardView({ plan, cardNumber, setCardNumber, cardName, setCardName, card
       <Card className="p-6">
         <div className="flex items-center gap-2 mb-1">
           <Lock className="w-5 h-5 text-teal-600" />
-          <h3 className="font-semibold text-lg">SecurePay SA — Card Payment</h3>
+          <h3 className="font-semibold text-lg">Paynow Zimbabwe — Card Payment</h3>
         </div>
         <p className="text-xs text-muted-foreground mb-4">3D Secure protected · PCI-DSS Level 1</p>
 
@@ -542,7 +542,7 @@ function GatewayView({ plan, processing, onStart, forceOutcome, setForceOutcome 
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-md mx-auto">
       <Card className="p-6 text-center">
         <Building2 className="w-12 h-12 mx-auto mb-3 text-teal-600" />
-        <h3 className="font-semibold text-lg">SecurePay SA — Instant EFT</h3>
+        <h3 className="font-semibold text-lg">Paynow Zimbabwe — Instant EFT</h3>
         <p className="text-sm text-muted-foreground mt-1 mb-5">
           You will be redirected to your bank to authorise a {formatMoney(plan.amount_usd)} payment.
         </p>
@@ -567,15 +567,15 @@ function GatewayView({ plan, processing, onStart, forceOutcome, setForceOutcome 
 }
 
 function QrView({ plan, method, processing, onConfirm, forceOutcome, setForceOutcome }: any) {
-  const brand = method === "snapscan" ? "SnapScan" : "Zapper";
-  const brandColor = method === "snapscan" ? "from-sky-500 to-blue-600" : "from-emerald-500 to-teal-600";
+  const brand = method === "ecocash" ? "EcoCash" : "OneMoney";
+  const brandColor = method === "ecocash" ? "from-sky-500 to-blue-600" : "from-emerald-500 to-teal-600";
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-md mx-auto">
       <Card className="p-6 text-center">
         <div className={`inline-block bg-gradient-to-br ${brandColor} text-white text-xs font-bold px-3 py-1 rounded-full mb-3`}>
           {brand}
         </div>
-        <h3 className="font-semibold text-lg">SecurePay SA — {brand}</h3>
+        <h3 className="font-semibold text-lg">Paynow Zimbabwe — {brand}</h3>
         <p className="text-sm text-muted-foreground mt-1 mb-4">
           Open your {brand} app and scan the QR code to pay {formatMoney(plan.amount_usd)}.
         </p>

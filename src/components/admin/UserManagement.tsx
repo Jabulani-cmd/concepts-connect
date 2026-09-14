@@ -289,7 +289,7 @@ export default function UserManagement() {
 
       const staffUsersFromTable: ManagedUser[] = (staffData || []).map((s: any) => ({
         id: s.user_id,
-        email: s.email || `${s.staff_number}@mbsmavingtech.ac.za`,
+        email: s.email || `${s.staff_number}@mbsmavingtech.ac.zw`,
         full_name: s.full_name,
         portal_role: portalRoleMap[s.user_id] || "teacher",
         staff_role: s.role,
@@ -308,7 +308,7 @@ export default function UserManagement() {
 
       const studentUsers: ManagedUser[] = (studentsData || []).map((s: any) => ({
         id: s.user_id,
-        email: `mhs${(s.admission_number || "").toLowerCase().replace(/^mhs/, "")}@mbsmavingtech.ac.za`,
+        email: `mhs${(s.admission_number || "").toLowerCase().replace(/^mhs/, "")}@mbsmavingtech.ac.zw`,
         full_name: s.full_name,
         portal_role: "student",
         staff_role: undefined,

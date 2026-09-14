@@ -9,7 +9,7 @@ import { buildReceiptHtml, SCHOOL_LOGO_URL, type ReceiptPrintInput } from "./pdf
 // Payment methods that self-verify (instant gateway) — bank transfer requires
 // a clerk to review the uploaded proof-of-payment.
 const INSTANT_METHODS = new Set([
-  "card", "eft", "snapscan", "zapper", "online", "cash", "mobile_money", "paynow",
+  "card", "eft", "ecocash", "onemoney", "telecash", "paynow_web", "snapscan", "zapper", "online", "cash", "mobile_money", "paynow",
 ]);
 
 export function isInstantMethod(method?: string | null): boolean {

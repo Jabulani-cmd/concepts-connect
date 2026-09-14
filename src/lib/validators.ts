@@ -1,71 +1,60 @@
 import { z } from "zod";
 
-// South African phone: +27XXXXXXXXX or 0XXXXXXXXX (10 digits starting with 0)
-export const saPhoneRegex = /^(\+?27|0)[6-8][0-9]{8}$/;
-export const saPhoneSchemaRequired = z.string().regex(saPhoneRegex, "Invalid South African phone number (0XXXXXXXXX or +27XXXXXXXXX)");
-export const saPhoneSchema = saPhoneSchemaRequired.or(z.literal(""));
+// Zimbabwean phone: +263XXXXXXXXX or 0XXXXXXXXX (10 digits starting with 0)
+export const zimPhoneRegex = /^(\+?263|0)(7[1-8]|8[6-8]|2[0-9])[0-9]{6,7}$/;
+export const zimPhoneSchemaRequired = z.string().regex(zimPhoneRegex, "Invalid Zimbabwean phone number (07XXXXXXXX or +2637XXXXXXXX)");
+export const zimPhoneSchema = zimPhoneSchemaRequired.or(z.literal(""));
 
-// Back-compat aliases (legacy imports named zimPhone*)
-export const zimPhoneRegex = saPhoneRegex;
-export const zimPhoneSchemaRequired = saPhoneSchemaRequired;
-export const zimPhoneSchema = saPhoneSchema;
+// Back-compat aliases (legacy imports named saPhone*)
+export const saPhoneRegex = zimPhoneRegex;
+export const saPhoneSchemaRequired = zimPhoneSchemaRequired;
+export const saPhoneSchema = zimPhoneSchema;
 
-// South African ID: 13-digit numeric with Luhn checksum
-export const saIdRegex = /^\d{13}$/;
+// Zimbabwean national ID: 63-123456-A-00 (digits/dashes/spaces tolerated)
+export const zimNationalIdRegex = /^\d{2}[-\s]?\d{6,7}[-\s]?[A-Za-z][-\s]?\d{2}$/;
 
-function luhnValidSaId(id: string): boolean {
-  if (!saIdRegex.test(id)) return false;
-  // South African ID uses a modified Luhn on 13 digits
-  let sum = 0;
-  for (let i = 0; i < 13; i++) {
-    let d = parseInt(id[i], 10);
-    if ((i + 1) % 2 === 0) {
-      d *= 2;
-      if (d > 9) d -= 9;
-    }
-    sum += d;
-  }
-  return sum % 10 === 0;
-}
-
-export const saIdSchema = z
+export const zimNationalIdSchema = z
   .string()
-  .refine((v) => v === "" || luhnValidSaId(v), "Invalid South African ID number (13 digits, Luhn checksum)")
+  .refine((v) => v === "" || zimNationalIdRegex.test(v.trim()), "Invalid national ID (e.g. 63-123456-A-00)")
   .or(z.literal(""));
 
-// Back-compat alias
-export const zimNationalIdRegex = saIdRegex;
-export const zimNationalIdSchema = saIdSchema;
+// Back-compat aliases
+export const saIdRegex = zimNationalIdRegex;
+export const saIdSchema = zimNationalIdSchema;
 
-// App is scoped to KwaZulu-Natal and Gauteng only.
-export const SA_PROVINCES = ["KwaZulu-Natal", "Gauteng"] as const;
+export const ZIM_PROVINCES = [
+  "Harare",
+  "Bulawayo",
+  "Manicaland",
+  "Mashonaland Central",
+  "Mashonaland East",
+  "Mashonaland West",
+  "Masvingo",
+  "Matabeleland North",
+  "Matabeleland South",
+  "Midlands",
+] as const;
 
-export const SA_CITIES_BY_PROVINCE: Record<(typeof SA_PROVINCES)[number], string[]> = {
-  "KwaZulu-Natal": [
-    "Durban",
-    "Pietermaritzburg",
-    "Richards Bay",
-    "Empangeni",
-    "Mandeni",
-    "Stanger (KwaDukuza)",
-    "Newcastle",
-    "Ladysmith",
-    "Umhlanga",
-    "Pinetown",
-  ],
-  Gauteng: [
-    "Johannesburg",
-    "Pretoria",
-    "Soweto",
-    "Sandton",
-    "Centurion",
-    "Midrand",
-    "Benoni",
-    "Kempton Park",
-  ],
+export const SA_PROVINCES = ZIM_PROVINCES;
+
+export const ZIM_CITIES_BY_PROVINCE: Record<string, string[]> = {
+  Harare: ["Harare", "Chitungwiza", "Epworth", "Ruwa", "Norton"],
+  Bulawayo: ["Bulawayo"],
+  Manicaland: ["Mutare", "Rusape", "Chipinge", "Nyanga"],
+  "Mashonaland Central": ["Bindura", "Mount Darwin", "Mvurwi"],
+  "Mashonaland East": ["Marondera", "Murehwa", "Mutoko"],
+  "Mashonaland West": ["Chinhoyi", "Kariba", "Kadoma", "Chegutu"],
+  Masvingo: ["Masvingo", "Chiredzi", "Triangle"],
+  "Matabeleland North": ["Hwange", "Victoria Falls", "Lupane"],
+  "Matabeleland South": ["Gwanda", "Beitbridge", "Plumtree"],
+  Midlands: ["Gweru", "Kwekwe", "Zvishavane", "Shurugwi"],
 };
 
-export const SA_CITIES = Object.values(SA_CITIES_BY_PROVINCE).flat();
+export const SA_CITIES_BY_PROVINCE = ZIM_CITIES_BY_PROVINCE;
+
+export const ZIM_CITIES = Object.values(ZIM_CITIES_BY_PROVINCE).flat();
+export const SA_CITIES = ZIM_CITIES;
+
 
 export const studentFormSchema = z.object({
   admission_number: z.string().optional().default(""),

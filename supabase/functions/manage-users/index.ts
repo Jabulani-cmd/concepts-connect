@@ -725,7 +725,7 @@ Deno.serve(async (req) => {
       }
 
       // Canonical school email (always derived from admission number)
-      const studentEmail = `${admission_number.toLowerCase()}@mbsmavingtech.ac.za`;
+      const studentEmail = `${admission_number.toLowerCase()}@mbsmavingtech.ac.zw`;
       const tempPassword = `${admission_number}@Mbs2026`;
 
       // List auth users once and reuse for both student + parent dedupe
@@ -925,7 +925,7 @@ Deno.serve(async (req) => {
         generatedEmail = useEmail;
       } else {
         const nameParts = full_name.toLowerCase().replace(/[^a-z\s]/g, "").trim().split(/\s+/);
-        generatedEmail = `${nameParts.join(".")}@mbsmavingtech.ac.za`;
+        generatedEmail = `${nameParts.join(".")}@mbsmavingtech.ac.zw`;
       }
 
       // Generate temporary password
