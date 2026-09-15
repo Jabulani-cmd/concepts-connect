@@ -1,0 +1,487 @@
+{
+  "common": {
+    "loading": "Kurodha...",
+    "save": "Chengetedza",
+    "cancel": "Kanzura",
+    "submit": "Tumira",
+    "delete": "Bvisa",
+    "edit": "Gadzirisa",
+    "close": "Vhara",
+    "back": "Dzokera",
+    "next": "Zvinotevera",
+    "continue": "Enderera",
+    "confirm": "Simbisa",
+    "search": "Tsvaga",
+    "filter": "Sefa",
+    "yes": "Hongu",
+    "no": "Kwete",
+    "actions": "Zviito",
+    "status": "Mamiriro",
+    "date": "Zuva",
+    "name": "Zita",
+    "email": "Email",
+    "phone": "Runhare",
+    "address": "Kero",
+    "amount": "Mari",
+    "total": "Huwandu hwose",
+    "download": "Dhaunirodha",
+    "print": "Dhinda",
+    "retry": "Edza zvakare",
+    "success": "Zvabudirira",
+    "error": "Kukanganisa",
+    "required": "Zvinodiwa",
+    "language": "Chinja mutauro",
+    "logout": "Buda",
+    "login": "Pinda",
+    "welcome": "Mauya",
+    "learnMore": "Dzidza zvimwe",
+    "applyNow": "Nyorera Izvozvi",
+    "readMore": "Verenga zvimwe",
+    "comingSoon": "Zvichauya munguva pfupi",
+    "noData": "Hapana data riripo",
+    "all": "Zvose",
+    "sending": "Kutumira...",
+    "submitting": "Kutumira...",
+    "sendAnother": "Tumira Imwe",
+    "bookAnother": "Bhuka Rimwe"
+  },
+  "nav": {
+    "home": "Kumba",
+    "about": "Nezvedu",
+    "news": "Nhau",
+    "projects": "Mapurojekiti eChikoro",
+    "facilities": "Zvivakwa",
+    "boarding": "Kugara Pachikoro",
+    "academics": "Dzidzo",
+    "downloads": "Zvinodhaunirodhwa",
+    "admissions": "Kunyoresa",
+    "fees": "Mari yeChikoro",
+    "activities": "Zviitiko",
+    "schoolLife": "Upenyu hweChikoro",
+    "awards": "Mibairo",
+    "staff": "Vashandi",
+    "vacancies": "Nzvimbo dzeBasa",
+    "alumni": "Vakambodzidza",
+    "contact": "Taura Nesu",
+    "portalLogin": "Pinda muPortal",
+    "menu": "Menyu",
+    "sportsCulture": "Mitambo neTsika"
+  },
+  "auth": {
+    "signIn": "Pinda",
+    "signUp": "Nyoresa",
+    "register": "Nyoresa",
+    "emailLabel": "Kero yeemail",
+    "passwordLabel": "Password",
+    "forgotPassword": "Wakanganwa password?",
+    "createAccount": "Gadzira account",
+    "haveAccount": "Une account here?",
+    "noAccount": "Hauna account here?",
+    "signInFailed": "Kupinda kwatadza",
+    "signInSuccess": "Wapinda zvakanaka",
+    "province": "Dunhu",
+    "city": "Guta",
+    "idNumber": "Nhamba yeChitupa (National ID)"
+  },
+  "login": {
+    "title": "Pinda muPortal",
+    "tagline": "Tinosimbisa Bhizinesi Rako neTekinoroji",
+    "subtitle": "Pinda muportal yako yeMavingTech",
+    "emailPlaceholder": "iwe@mavingtech.com",
+    "signingIn": "Kupinda...",
+    "signIn": "Pinda",
+    "demoNote": "Wapinda kekutanga? Tanga nekugadzira account yemutungamiri, wobva wapinda. Mudashboard yemutungamiri shandisa \"Load Demo Data\" kuisa vadzidzisi, vadzidzi nevabereki.",
+    "provisioning": "Kugadzirira…",
+    "provisionAdmin": "Gadzira admin yedemo (admin@schooldemo.com)",
+    "forgot": "Wakanganwa password yako?",
+    "parentPrompt": "Uri mubereki?",
+    "registerHere": "Nyoresa pano",
+    "studentTeacherNote": "Vadzidzi nevadzidzisi: mashoko ekupinda anopiwa nemutungamiri",
+    "backHome": "Dzokera Kumba",
+    "loginFailed": "Kupinda kwatadza",
+    "loginSuccess": "Wapinda zvakanaka!"
+  },
+  "portal": {
+    "dashboard": "Dashboard",
+    "timetable": "Purogiramu yeNguva",
+    "results": "Mhedzisiro",
+    "attendance": "Kuvapo",
+    "fees": "Mari yeChikoro",
+    "payments": "Mibhadharo",
+    "messages": "Mameseji",
+    "profile": "Purofairo",
+    "children": "Vana Vangu",
+    "linkChild": "Batanidza mwana",
+    "admissionNumber": "Nhamba yekunyoresa",
+    "notifications": "Zviziviso",
+    "outstanding": "Chikwereti chasara",
+    "paid": "Yabhadharwa",
+    "pending": "Yakamirira",
+    "overdue": "Yadarika nguva",
+    "invoice": "Invoice",
+    "receipt": "Risiti",
+    "statement": "Chitatemendi"
+  },
+  "payment": {
+    "title": "Vhura mukana weParent Portal",
+    "choosePlan": "Sarudza chirongwa",
+    "chooseMethod": "Sarudza nzira yekubhadhara",
+    "card": "Kubhadhara neKadhi",
+    "cardNote": "Visa / Mastercard",
+    "instantEft": "EFT Yekukurumidza",
+    "instantEftNote": "CBZ, Stanbic, FBC, ZB Bank, Steward Bank",
+    "bankTransfer": "Kutumira Kubhengi",
+    "bankTransferNote": "EFT yemaoko — isa uchapupu hwekubhadhara",
+    "snapscan": "EcoCash",
+    "snapscanNote": "Bhadhara uchishandisa EcoCash",
+    "zapper": "OneMoney",
+    "zapperNote": "Bhadhara uchishandisa OneMoney",
+    "demoBadge": "Demo Mode — hapana mari chaiyo inobhadharwa",
+    "processing": "Kugadzirisa…",
+    "contactingBank": "Tiri kubata bhengi rako…",
+    "authenticating": "Kusimbisa 3D Secure",
+    "redirecting": "Kuendesa kubhengi rako…",
+    "cardNumber": "Nhamba yekadhi",
+    "cardholder": "Zita romuridzi wekadhi",
+    "expiry": "Rinopera",
+    "cvv": "CVV",
+    "payNow": "Bhadhara",
+    "chargeNotice": "Uchabhadhariswa {{amount}}.",
+    "demoOutcomeLabel": "Edza mhedzisiro",
+    "outcomeSuccess": "Zvabudirira",
+    "outcomeInsufficient": "Mari Haina Kukwana",
+    "outcomeDeclined": "Kadhi Rarambwa",
+    "outcomeAuto": "Otomatiki (maererano nenhamba yekadhi)",
+    "success": "Mubhadharo Wabudirira",
+    "declined": "Mubhadharo Warambwa",
+    "declinedInsufficient": "Mubhadharo Warambwa — Mari Haina Kukwana",
+    "declinedCard": "Kutengeserana Kwatadza — Kadhi Rarambwa",
+    "declinedEft": "Bhengi rako harina kubvumira mubhadharo weEFT.",
+    "retry": "Edza Zvakare",
+    "changeMethod": "Chinja Nzira",
+    "downloadReceipt": "Dhaunirodha Risiti",
+    "goToPortal": "Enda kuPortal",
+    "portalActivated": "Mukana weportal wavhurwa kuna {{name}}.",
+    "receipt": "Risiti",
+    "plan": "Chirongwa",
+    "method": "Nzira",
+    "accessUntil": "Mukana kusvika",
+    "paidVia": "Yabhadharwa kuburikidza ne{{gateway}}",
+    "referenceNumber": "Nhamba yereferenzi"
+  },
+  "brand": {
+    "schoolName": "MavingTech High School",
+    "schoolShort": "MavingTech",
+    "schoolSuffix": "High School",
+    "tagline": "Hunyanzvi muDzidzo"
+  },
+  "home": {
+    "hero": {
+      "title": "Mauya kuMavingTech High School",
+      "subtitle": "Apo pfungwa dzechidiki dzinorerwa kuva vatungamiri, vagadziri nevashanduri veramangwana.",
+      "cta": "Dzidzo Yedu"
+    },
+    "learning": {
+      "title": "Kudzidza Kunotanga Nesu",
+      "p1": "KuMavingTech High School, tinopa nzvimbo inotsigira uye inokurudzira vadzidzi kuti vadzidze, vakure uye vabudirire. Rudo rwedu rwedzidzo runopfuura mhedzisiro yakanaka — tinovaka vafungi vane chivimbo, vanogadzira, vakagadzirira ramangwana.",
+      "p2": "Kubva kuForm 1 kusvika kuA Level, vadzidzi vedu vanobuda vaine hunhu, tsika neunyanzvi hwekushandura nyika.",
+      "cta": "Ziva Zvimwe Nezvedu"
+    },
+    "stats": {
+      "enrollments": "Vakanyoresa Izvozvi",
+      "staff": "Vashandi Vakadzidziswa",
+      "clubs": "Makirabhu neZviitiko",
+      "ptfa": "Nhengo dzePTFA Dzinoshanda"
+    },
+    "director": {
+      "eyebrow": "Shoko Kubva Kumukuru weChikoro",
+      "title": "Kubva Padesk RaHeadmaster",
+      "quote": "KuMavingTech High School, tinotenda kuti mudzidzi wose ane chipo chakakosha. Basa redu nderekurera chipo ichocho netsika, kutenda, kushanda nesimba nerudo rwekuziva.",
+      "body": "Mauya munharaunda yedu yechikoro. Pamwe chete nevadzidzisi vedu vakazvipira, vabereki vanotsigira nevadzidzi vane tariro, tinovaka chikoro apo hunyanzvi hwedzidzo hunofamba pamwe nehunhu hwakasimba.",
+      "signature": "VaS.M. Moyo",
+      "signatureRole": "— Headmaster, MavingTech High School"
+    },
+    "curriculum": {
+      "eyebrow": "Zvirongwa Zvekudzidza",
+      "title": "Ongororo yeKarikulamu",
+      "intro": "MavingTech inopa vadzidzi vose karikulamu yakafara uye yakaenzana inovagadzirira upenyu hwavo.",
+      "cs": { "title": "Computer Science", "desc": "Ruzivo rwekunyora purogiramu netekinoroji itsva." },
+      "math": { "title": "Masvomhu", "desc": "Kuvaka hwaro hwakasimba hwekuongorora nekugadzirisa matambudziko chaiwo." },
+      "lit": { "title": "Hunyanzvi neMitauro", "desc": "Kuvaka kutaura, kunzwisisa uye rudo rwekuverenga nekunyora." },
+      "sci": { "title": "Sayenzi", "desc": "Kudzidza nemibvunzo muphysics, chemistry nebiology mumaraboratari azvino." },
+      "arts": { "title": "Hunyanzvi Hwekuona", "desc": "Masitudiyo ekugadzira apo vadzidzi vanoongorora kudhirowa, kupenda nedhizaini." },
+      "perf": { "title": "Hunyanzvi Hwekuita", "desc": "Zvirongwa zvemimhanzi, mitambo nekutamba zvinovaka chivimbo." }
+    },
+    "activities": {
+      "eyebrow": "Kunze kweKirasi",
+      "title": "Zviitiko",
+      "sports": "Mitambo",
+      "music": "Mimhanzi",
+      "arts": "Hunyanzvi neMabasa eMaoko",
+      "clubs": "Makirabhu"
+    },
+    "news": {
+      "eyebrow": "Nhau Dzazvino",
+      "title": "Nhau neZviziviso"
+    },
+    "cta": {
+      "title": "Tanga Rwendo Rwako Nesu",
+      "desc": "Pinda munharaunda yakazvipira kuhunyanzvi hwedzidzo, hunhu nekugadzira. Kunyoresa kwakavhurwa.",
+      "button": "Nyorera Izvozvi"
+    }
+  },
+  "about": {
+    "eyebrow": "Nyaya Yedu",
+    "title": "Nezve MavingTech",
+    "subtitle": "Makore ekurera pfungwa dzechidiki kuti dzive vatungamiri vane chivimbo nevagadziri.",
+    "heritage": "Nhaka",
+    "historyTitle": "Nhoroondo Yedu",
+    "history1": "MavingTech High School, chikoro chine mukurumbira, chakavambwa muna Ndira 1927 sechikoro chekutanga chetekinoroji munyika.",
+    "history2": "Chikoro chakawana chinzvimbo chesekondari muna 1931 uye chakatamira kunzvimbo yacho yazvino muna 1953. Chakatumidzwa zita rekuti MavingTech Technical High School musi wa19 Nyamavhuvhu 1961, chikazopfupikiswa kuva MavingTech High School muna 1974.",
+    "history3": "Nhasi, nevadzidzi vanopfuura mazana masere, tinoenderera nenhaka yehunyanzvi mudzidzo nemitambo.",
+    "stats": {
+      "students": "Vadzidzi Vakanyoreswa",
+      "passRate": "Chiyero cheKupasa",
+      "alumni": "Vakambodzidza Pasi Rose"
+    },
+    "values": {
+      "eyebrow": "Zvatinomirira",
+      "title": "Tsika Dzedu",
+      "excellence": { "title": "Hunyanzvi", "desc": "Kuedza kusvika pamwero wepamusoro mune zvose — dzidzo, mitambo nehunhu." },
+      "integrity": { "title": "Kuvimbika", "desc": "Chokwadi, hunhu nekuzvidavirira zviri pamwoyo wenharaunda yedu." },
+      "innovation": { "title": "Kugadzira", "desc": "Kutsvaga ruzivo nekugadzira kunogadzirira vadzidzi vedu nyika iri kukurumidza kuchinja." }
+    },
+    "alumni": {
+      "eyebrow": "Kwakaenda Vakapedza",
+      "title": "Vakambodzidza Vane Mukurumbira"
+    }
+  },
+  "academics": {
+    "eyebrow": "Kudzidza neHunyanzvi",
+    "title": "Dzidzo",
+    "subtitle": "Karikulamu yakafara uye yakaenzana yakagadzirirwa kugadzirira mudzidzi wese ramangwana.",
+    "programmesEyebrow": "Zvirongwa Zvekudzidza",
+    "programmesTitle": "Karikulamu Yedu",
+    "intro": "MavingTech inopa zvirongwa zvebvunzo zveZIMSEC neCambridge, ichipa vadzidzi sarudzo paO Level neA Level.",
+    "tabs": { "curriculum": "Karikulamu", "results": "Mhedzisiro neBudiriro" },
+    "subjects": {
+      "math": { "name": "Masvomhu", "desc": "Pure Mathematics, Statistics" },
+      "sciences": { "name": "Sayenzi", "desc": "Physics, Chemistry, Biology, Combined Science" },
+      "languages": { "name": "Mitauro", "desc": "Chirungu, ChiShona, IsiNdebele, French" },
+      "humanities": { "name": "Humanities", "desc": "Nhoroondo, Jogirafi, Chitendero, Hunyanzvi" },
+      "technical": { "name": "Tekinikari", "desc": "Computer Science, Accounts, Commerce" },
+      "arts": { "name": "Hunyanzvi", "desc": "Art, Mimhanzi, Mitambo, Fashion and Fabrics" }
+    },
+    "results": {
+      "title": "Budiriro yeDzidzo",
+      "body": "Vadzidzi vedu vanogara vachiita zvakanaka mudunhu nemunyika yose, vazhinji vachiwana distinctions.",
+      "year": "Gore", "level": "Level", "passRate": "Chiyero cheKupasa", "distinctions": "Distinctions"
+    }
+  },
+  "admissions": {
+    "eyebrow": "Pinda muNharaunda Yedu",
+    "title": "Kunyoresa",
+    "subtitle": "Pinda mumhuri yeMavingTech. Tinogamuchira vadzidzi vanoda kudzidza nekukura.",
+    "processEyebrow": "Nzira Yekunyorera",
+    "processTitle": "Maitiro Ekunyoresa",
+    "steps": {
+      "apply": { "title": "Tumira Chikumbiro", "desc": "Zadza fomu repaindaneti nemashoko emudzidzi nevabereki." },
+      "assess": { "title": "Bvunzo Yekupinda", "desc": "Vanyoreri vakasarudzwa vanokokwa kubvunzo." },
+      "interview": { "title": "Hurukuro", "desc": "Sangana nechikwata chekunyoresa uye ushanyire chikoro." },
+      "accept": { "title": "Kugamuchirwa", "desc": "Vanyoreri vanobudirira vanowana tsamba yekugamuchirwa." }
+    },
+    "stepLabel": "Danho",
+    "form": {
+      "eyebrow": "Tanga Rwendo Rwako",
+      "title": "Chikumbiro chePaindaneti",
+      "received": "Chikumbiro Chagamuchirwa!",
+      "receivedBody": "Tinotenda nekunyorera kuMavingTech High School. Tichabata newe mumazuva mashanu ebasa.",
+      "submittedToast": "Chikumbiro Chatumirwa!",
+      "submittedToastDesc": "Tichabata newe munguva pfupi.",
+      "firstName": "Zita reMudzidzi",
+      "lastName": "Surname yeMudzidzi",
+      "dob": "Zuva Rekuzvarwa",
+      "grade": "Kunyorera Fomu",
+      "gradePlaceholder": "Sarudza fomu",
+      "prevSchool": "Chikoro Chekare",
+      "parentName": "Zita reMubereki/Mubati",
+      "parentPhone": "Runhare rweMubereki",
+      "parentEmail": "Email yeMubereki",
+      "notes": "Mamwe Mashoko",
+      "submit": "Tumira Chikumbiro"
+    }
+  },
+  "staff": {
+    "title": "Vashandi Vedu",
+    "groupCaption": "Vashandi veMavingTech High School",
+    "empty": "Rondedzero yevashandi ichauya munguva pfupi.",
+    "categories": {
+      "leadership": "Utungamiri hweChikoro",
+      "teaching": "Vadzidzisi",
+      "admin": "Vashandi veHofisi",
+      "general": "Vashandi veKazhinji"
+    }
+  },
+  "contact": {
+    "eyebrow": "Taura Nesu",
+    "title": "Taura Nesu",
+    "subtitle": "Tinoda kunzwa kubva kwauri. Tibate nemibvunzo kana kubhuka musangano nevatungamiri vechikoro.",
+    "detailsEyebrow": "Matisvikirwo",
+    "detailsTitle": "Mashoko Edu",
+    "cards": {
+      "address": "Kero", "addressText": "MavingTech High School, Harare, Zimbabwe",
+      "phone": "Runhare",
+      "email": "Email",
+      "hours": "Nguva dzeHofisi", "hoursText": "Muvhuro – Chishanu: 07:30 – 16:30"
+    },
+    "formsEyebrow": "Tinokuteerera",
+    "formsTitle": "Tumira Meseji Kana Kubhuka Kushanya",
+    "tabs": { "message": "Tumira Meseji", "appointment": "Bhuka Musangano" },
+    "message": {
+      "cardTitle": "Titumire Meseji",
+      "sent": "Meseji Yatumirwa!",
+      "sentBody": "Tinotenda nekubata nesu. Tichapindura nekukurumidza.",
+      "fullName": "Zita Rakazara",
+      "namePlaceholder": "Zita rako",
+      "email": "Email",
+      "emailPlaceholder": "iwe@email.com",
+      "subject": "Musoro",
+      "subjectPlaceholder": "Zvine chekuita nei?",
+      "message": "Meseji",
+      "messagePlaceholder": "Nyora meseji yako...",
+      "send": "Tumira Meseji"
+    },
+    "appointment": {
+      "cardTitle": "Bhuka Musangano",
+      "cardSubtitle": "Ronga musangano nevatungamiri vechikoro. Tichasimbisa neemail.",
+      "submitted": "Chikumbiro cheMusangano Chatumirwa!",
+      "submittedBody": "Tichaongorora chikumbiro chako tosimbisa neemail mumazuva 1-2 ebasa.",
+      "phone": "Nhamba yeRunhare",
+      "authority": "Ndiani waungade kuona?",
+      "authorityPlaceholder": "Sarudza mukuru",
+      "department": "Dhipatimendi (hazvimanikidzwe)",
+      "departmentPlaceholder": "semuenzaniso Sayenzi, Hofisi",
+      "date": "Zuva Raunoda",
+      "pickDate": "Sarudza zuva",
+      "time": "Nguva Yaunoda",
+      "timePlaceholder": "Sarudza nguva",
+      "reason": "Chikonzero cheKushanya",
+      "reasonPlaceholder": "Tsanangura muchidimbu chinangwa chekushanya kwako...",
+      "request": "Kumbira Musangano"
+    }
+  },
+  "news": {
+    "title": "Nhau neZviziviso",
+    "back": "Dzokera kuNhau"
+  },
+  "fees": {
+    "title": "Mari yeChikoro",
+    "intro": "Dhaunirodha chirongwa chemari chazvino, mashoko ekubhadhara nemagwaro emari pazasi.",
+    "payOnline": "Bhadhara Mari Paindaneti",
+    "empty": "Magwaro emari achawanikwa munguva pfupi."
+  },
+  "facilities": {
+    "title": "Zvivakwa Zvedu",
+    "intro": "MavingTech High School inopa zvivakwa zvakanaka zvinotsigira hunyanzvi hwedzidzo, budiriro yemitambo nekukura kwakazara.",
+    "empty": "Mifananidzo yezvivakwa ichauya munguva pfupi.",
+    "lifeTitle": "Upenyu kuMavingTech",
+    "types": {
+      "boarding": "Zvivakwa Zvekugara",
+      "classrooms": "Makirasi",
+      "sports": "Nzvimbo dzeMitambo",
+      "labs": "Maraboratari",
+      "library": "Raibhurari",
+      "clubs": "Makirabhu neSangano",
+      "ict": "ICT neMakomputa",
+      "dining": "Imba Yekudyira",
+      "assembly": "Hoolo yeMusangano neChechi",
+      "general": "Zvakajairika"
+    }
+  },
+  "schoolLife": {
+    "title": "Upenyu hweChikoro",
+    "tabs": {
+      "sports": "Mitambo",
+      "clubs": "Makirabhu neZviitiko",
+      "sdc": "SDC",
+      "pt": "Mubereki-Mudzidzisi",
+      "gallery": "Gareri"
+    },
+    "sdc": {
+      "title": "Komiti Yekusimudzira Chikoro (SDC)",
+      "body": "SDC inomiririra zvido zvevabereki, vashandi nenharaunda, ichishanda nevatungamiri vechikoro.",
+      "empty": "Hapana misangano yeSDC yakarongwa parizvino.",
+      "badge": "Musangano weSDC"
+    },
+    "pt": {
+      "title": "Misangano yeVabereki neVadzidzisi",
+      "body": "Misangano yenguva nenguva pakati pevabereki nevadzidzisi kukurukura budiriro yemudzidzi.",
+      "empty": "Hapana misangano yevabereki nevadzidzisi yakarongwa parizvino.",
+      "badge": "Mubereki-Mudzidzisi"
+    },
+    "galleryEmpty": "Mifananidzo yegareri ichauya munguva pfupi."
+  },
+  "boarding": {
+    "title": "Kugara Pachikoro",
+    "subtitle": "Musha uri kure nemusha — hostel dzedu dzinopa nzvimbo yakachengeteka inorera.",
+    "features": {
+      "accommodation": { "title": "Nzvimbo Yakanaka Yekugara", "desc": "Makamuri azvino ane hostel dzakaparadzana dzevakomana nevasikana." },
+      "safety": { "title": "Kuchengeteka", "desc": "Chengetedzo ya24 maawa nevachengeti vemba vakadzidziswa." },
+      "meals": { "title": "Chikafu Chine Simba", "desc": "Chikafu chakaenzana katatu pazuva chinobikwa nevashandi vedu." },
+      "study": { "title": "Nguva Yekudzidza Yakarongwa", "desc": "Nguva dzemanheru dzekudzidza dzinotsigira hunyanzvi hwedzidzo." },
+      "community": { "title": "Upenyu hweNharaunda", "desc": "Kuvaka hushamwari hweupenyu hwose nekusimudzira unyanzvi hwekugarisana." },
+      "pastoral": { "title": "Kutarisirwa Kwemweya", "desc": "Rutsigiro rwepfungwa nemweya kubva kuvashandi vemahostel." }
+    }
+  },
+  "alumni": {
+    "title": "Vakambodzidza Vane Mukurumbira",
+    "subtitle": "Vakapedza kuMavingTech vari kuita mutsauko pasi rose."
+  },
+  "vacancies": {
+    "title": "Nzvimbo dzeBasa",
+    "intro": "Tarisa mikana yebasa iripo kuMavingTech High School.",
+    "empty": "Hapana mikana yebasa iripo parizvino. Dzoka utarise zvakare."
+  },
+  "downloads": {
+    "title": "Zvinodhaunirodhwa",
+    "empty": "Hapana magwaro ekudhaunirodha parizvino.",
+    "categories": {
+      "fees": "Mari neZvemari",
+      "forms": "Mafomu neZvikumbiro",
+      "policies": "Mitemo",
+      "vacancies": "Nzvimbo dzeBasa",
+      "general": "Zvakajairika"
+    }
+  },
+  "awards": {
+    "title": "Mibairo neKuremekedzwa",
+    "subtitle": "Tichipemberera hunyanzvi nebudiriro kuMavingTech High School",
+    "galleryTitle": "Gareri yeMibairo",
+    "recipientsTitle": "Vagamuchiri veMibairo",
+    "empty": "Hapana mibairo yakaburitswa parizvino.",
+    "studentName": "Zita reMudzidzi",
+    "award": "Mubairo",
+    "year": "Gore"
+  },
+  "projectsPage": {
+    "title": "Mapurojekiti eChikoro",
+    "subtitle": "Ona mapurojekiti matsva ari kuitwa nevadzidzi nevashandi vedu.",
+    "empty": "Hapana mapurojekiti ekuratidza parizvino.",
+    "donate": "Ipa Rubatsiro"
+  },
+  "sportsCulture": {
+    "title": "Mitambo neTsika",
+    "subtitle": "Kusimudzira munhu akazara kuburikidza nemitambo, hunyanzvi nezviitiko zvetsika.",
+    "tabs": { "sports": "Mitambo", "culture": "Makirabhu neTsika" }
+  },
+  "footer": {
+    "affiliations": "Tinoshanda Ne",
+    "moe": "Gurukota reDzidzo Yepuraimari neSekondari",
+    "description": "Tiri chikoro chinotarisa pakuvaka hunhu, kudzidza kwekutanga nemasvomhu. Vadzidzi vedu vanobuda vaine hunhu nechivimbo chekushandura nyika.",
+    "quickLinks": "Zvinongokurumidza",
+    "programs": "Zvirongwa",
+    "contact": "Taura Nesu",
+    "aboutUs": "Nezvedu",
+    "rights": "Kodzero dzose dzakachengetedzwa."
+  }
+}
