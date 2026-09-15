@@ -1,0 +1,487 @@
+{
+  "common": {
+    "loading": "Iyalayisha...",
+    "save": "Gcina",
+    "cancel": "Khansela",
+    "submit": "Thumela",
+    "delete": "Susa",
+    "edit": "Lungisa",
+    "close": "Vala",
+    "back": "Buyela emuva",
+    "next": "Okulandelayo",
+    "continue": "Qhubeka",
+    "confirm": "Qinisekisa",
+    "search": "Dinga",
+    "filter": "Hlungula",
+    "yes": "Yebo",
+    "no": "Hatshi",
+    "actions": "Izenzo",
+    "status": "Isimo",
+    "date": "Ilanga",
+    "name": "Ibizo",
+    "email": "I-imeyili",
+    "phone": "Ucingo",
+    "address": "Ikheli",
+    "amount": "Imali",
+    "total": "Isamba",
+    "download": "Landa",
+    "print": "Phrinta",
+    "retry": "Zama futhi",
+    "success": "Kuphumelele",
+    "error": "Iphutha",
+    "required": "Kuyadingeka",
+    "language": "Tshintsha ulimi",
+    "logout": "Phuma",
+    "login": "Ngena",
+    "welcome": "Siyalemukela",
+    "learnMore": "Funda okunengi",
+    "applyNow": "Faka Isicelo Khathesi",
+    "readMore": "Bala okunengi",
+    "comingSoon": "Kuyeza masinyane",
+    "noData": "Akulalwazi olukhona",
+    "all": "Konke",
+    "sending": "Iyathunyelwa...",
+    "submitting": "Iyathunyelwa...",
+    "sendAnother": "Thumela Omunye",
+    "bookAnother": "Bhuka Omunye"
+  },
+  "nav": {
+    "home": "Ekhaya",
+    "about": "Ngathi",
+    "news": "Izindaba",
+    "projects": "Amaphrojekthi Esikolo",
+    "facilities": "Izakhiwo",
+    "boarding": "Ukuhlala Esikolweni",
+    "academics": "Imfundo",
+    "downloads": "Okulandwayo",
+    "admissions": "Ukubhalisa",
+    "fees": "Imali Yesikolo",
+    "activities": "Imisebenzi",
+    "schoolLife": "Impilo Yesikolo",
+    "awards": "Imiklomelo",
+    "staff": "Abasebenzi",
+    "vacancies": "Amathuba Omsebenzi",
+    "alumni": "Abafunde Lapha",
+    "contact": "Xhumana Lathi",
+    "portalLogin": "Ngena Kuportal",
+    "menu": "Imenyu",
+    "sportsCulture": "Ezemidlalo Lamasiko"
+  },
+  "auth": {
+    "signIn": "Ngena",
+    "signUp": "Bhalisa",
+    "register": "Bhalisa",
+    "emailLabel": "Ikheli le-imeyili",
+    "passwordLabel": "Iphasiwedi",
+    "forgotPassword": "Ukhohlwe iphasiwedi?",
+    "createAccount": "Yenza i-akhawunti",
+    "haveAccount": "Usulayo i-akhawunti?",
+    "noAccount": "Awulayo i-akhawunti?",
+    "signInFailed": "Ukungena kwehlulekile",
+    "signInSuccess": "Ungenile kuhle",
+    "province": "Isabelo",
+    "city": "Idolobho",
+    "idNumber": "Inombolo Yesitupa (National ID)"
+  },
+  "login": {
+    "title": "Ngena Kuportal",
+    "tagline": "Siqinisa Ibhizimusi Lakho Ngobuchwepheshe",
+    "subtitle": "Ngena kuportal yakho yeMavingTech",
+    "emailPlaceholder": "wena@mavingtech.com",
+    "signingIn": "Iyangena...",
+    "signIn": "Ngena",
+    "demoNote": "Ungena okokuqala? Qala ngokwakha i-akhawunti yomphathi, ubusungena. Kudeshibhodi yomphathi sebenzisa u-\"Load Demo Data\" ukufaka abafundisi, abafundi labazali.",
+    "provisioning": "Kuyalungiswa…",
+    "provisionAdmin": "Yenza umphathi wedemo (admin@schooldemo.com)",
+    "forgot": "Ukhohlwe iphasiwedi yakho?",
+    "parentPrompt": "Ungumzali?",
+    "registerHere": "Bhalisela lapha",
+    "studentTeacherNote": "Abafundi labafundisi: imininingwane iphiwa ngumphathi",
+    "backHome": "Buyela Ekhaya",
+    "loginFailed": "Ukungena kwehlulekile",
+    "loginSuccess": "Ungenile kuhle!"
+  },
+  "portal": {
+    "dashboard": "Ideshibhodi",
+    "timetable": "Uhlelo Lwesikhathi",
+    "results": "Imiphumela",
+    "attendance": "Ukuza Esikolweni",
+    "fees": "Imali Yesikolo",
+    "payments": "Inhlawulo",
+    "messages": "Imilayezo",
+    "profile": "Iphrofayili",
+    "children": "Abantwana Bami",
+    "linkChild": "Xhuma umntwana",
+    "admissionNumber": "Inombolo yokubhalisa",
+    "notifications": "Izaziso",
+    "outstanding": "Isikweleti esiseleyo",
+    "paid": "Kuhlawuliwe",
+    "pending": "Kusalindwe",
+    "overdue": "Sesidlulile isikhathi",
+    "invoice": "I-invoyisi",
+    "receipt": "Irisidi",
+    "statement": "Isitatimende"
+  },
+  "payment": {
+    "title": "Vula ukungena kweParent Portal",
+    "choosePlan": "Khetha uhlelo",
+    "chooseMethod": "Khetha indlela yokuhlawula",
+    "card": "Ukuhlawula Ngekhadi",
+    "cardNote": "Visa / Mastercard",
+    "instantEft": "I-EFT Esheshayo",
+    "instantEftNote": "CBZ, Stanbic, FBC, ZB Bank, Steward Bank",
+    "bankTransfer": "Ukuthumela Ebhanga",
+    "bankTransferNote": "I-EFT yesandla — layisha ubufakazi bokuhlawula",
+    "snapscan": "I-EcoCash",
+    "snapscanNote": "Hlawula ngeEcoCash",
+    "zapper": "I-OneMoney",
+    "zapperNote": "Hlawula ngeOneMoney",
+    "demoBadge": "Imodi Yedemo — akulamali yeqiniso ehlawulwayo",
+    "processing": "Kuyacutshungulwa…",
+    "contactingBank": "Sixhumana lebhanga lakho…",
+    "authenticating": "Kuqinisekiswa i-3D Secure",
+    "redirecting": "Kuqondiswa ebhanga lakho…",
+    "cardNumber": "Inombolo yekhadi",
+    "cardholder": "Ibizo lomnikazi wekhadi",
+    "expiry": "Iphelelwa",
+    "cvv": "I-CVV",
+    "payNow": "Hlawula",
+    "chargeNotice": "Uzahlawuliswa {{amount}}.",
+    "demoOutcomeLabel": "Zama umphumela",
+    "outcomeSuccess": "Kuphumelele",
+    "outcomeInsufficient": "Imali Kayanelanga",
+    "outcomeDeclined": "Ikhadi Laliwe",
+    "outcomeAuto": "Okuzenzakalelayo (ngenombolo yekhadi)",
+    "success": "Inhlawulo Iphumelele",
+    "declined": "Inhlawulo Yaliwe",
+    "declinedInsufficient": "Inhlawulo Yaliwe — Imali Kayanelanga",
+    "declinedCard": "Ukuthengiselana Kwehlulekile — Ikhadi Laliwe",
+    "declinedEft": "Ibhanga lakho kalivumanga inhlawulo ye-EFT.",
+    "retry": "Zama Futhi",
+    "changeMethod": "Tshintsha Indlela",
+    "downloadReceipt": "Landa Irisidi",
+    "goToPortal": "Yana Kuportal",
+    "portalActivated": "Ukungena kuportal kuvuliwe ku-{{name}}.",
+    "receipt": "Irisidi",
+    "plan": "Uhlelo",
+    "method": "Indlela",
+    "accessUntil": "Ukungena kuze kube",
+    "paidVia": "Kuhlawulwe nge-{{gateway}}",
+    "referenceNumber": "Inombolo yereferensi"
+  },
+  "brand": {
+    "schoolName": "MavingTech High School",
+    "schoolShort": "MavingTech",
+    "schoolSuffix": "High School",
+    "tagline": "Ubungcweti Emfundweni"
+  },
+  "home": {
+    "hero": {
+      "title": "Siyalemukela eMavingTech High School",
+      "subtitle": "Lapho ingqondo zabatsha zikhuliswa zibe ngabakhokheli, abasunguli labaguquli bakusasa.",
+      "cta": "Imfundo Yethu"
+    },
+    "learning": {
+      "title": "Ukufunda Kuqala Lathi",
+      "p1": "EMavingTech High School, sinika indawo esekelayo lekhuthazayo ukuze abafundi bafunde, bakhule njalo baphumelele. Uthando lwethu lwemfundo ludlula imiphumela emihle — sakha abacabangi abalesibindi, abadalayo, abalungele ikusasa.",
+      "p2": "Kusukela kuForm 1 kusiya ku-A Level, abafundi bethu baphuma belesimilo, ukuziphatha lamakhono okuguqula umhlaba.",
+      "cta": "Yazi Okunengi Ngathi"
+    },
+    "stats": {
+      "enrollments": "Ababhalisile Khathesi",
+      "staff": "Abasebenzi Abaqeqetshiweyo",
+      "clubs": "Amakilabhu Lemisebenzi",
+      "ptfa": "Amalunga e-PTFA Asebenzayo"
+    },
+    "director": {
+      "eyebrow": "Ilizwi Elivela Kumphathisikolo",
+      "title": "Kusuka Etafuleni Lomphathisikolo",
+      "quote": "EMavingTech High School, sikholwa ukuthi umfundi ngamunye ulesipho esikhethekileyo. Umsebenzi wethu yikondla lesosipho ngokuziphatha, ukholo, ukusebenza nzima lothando lolwazi.",
+      "body": "Uyemukelwa emphakathini wethu wesikolo. Kanye labafundisi bethu abazinikeleyo, abazali abasekelayo labafundi abalethemba, sakha isikolo lapho ubungcweti bemfundo buhamba lesimilo esiqinileyo.",
+      "signature": "Mnu. S.M. Moyo",
+      "signatureRole": "— Umphathisikolo, MavingTech High School"
+    },
+    "curriculum": {
+      "eyebrow": "Izinhlelo Zokufunda",
+      "title": "Ukubuka Ikharikhulamu",
+      "intro": "IMavingTech inika bonke abafundi bethu ikharikhulamu ebanzi lelinganisiweyo ebalungiselela impilo.",
+      "cs": { "title": "I-Computer Science", "desc": "Ulwazi lokubhala izinhlelo lobuchwepheshe obutsha." },
+      "math": { "title": "Izibalo", "desc": "Ukwakha isisekelo esiqinileyo sokuhlaziya ngokuxazulula inkinga zeqiniso." },
+      "lit": { "title": "Ubuciko Lezindimi", "desc": "Ukwakha ukukhuluma, ukuzwisisa lothando lokubala lokubhala." },
+      "sci": { "title": "Isayensi", "desc": "Ukufunda okuqhutshwa yimibuzo ku-physics, chemistry le-biology." },
+      "arts": { "title": "Ubuciko Bokubuka", "desc": "Amastudiyo okudala lapho abafundi bedweba, bependa njalo bedizayina." },
+      "perf": { "title": "Ubuciko Bokwenza", "desc": "Izinhlelo zomculo, umdlalo lokugida ezakha isibindi." }
+    },
+    "activities": {
+      "eyebrow": "Ngaphandle Kwekilasi",
+      "title": "Imisebenzi",
+      "sports": "Ezemidlalo",
+      "music": "Umculo",
+      "arts": "Ubuciko Lemisebenzi Yezandla",
+      "clubs": "Amakilabhu"
+    },
+    "news": {
+      "eyebrow": "Izindaba Zakamuva",
+      "title": "Izindaba Lezaziso"
+    },
+    "cta": {
+      "title": "Qala Uhambo Lwakho Lathi",
+      "desc": "Ngena emphakathini ozinikele ebungcwetini bemfundo, isimilo lokusungula. Ukubhalisa kuvuliwe.",
+      "button": "Faka Isicelo Khathesi"
+    }
+  },
+  "about": {
+    "eyebrow": "Indaba Yethu",
+    "title": "Nge-MavingTech",
+    "subtitle": "Iminyaka yokukhulisa ingqondo zabatsha zibe ngabakhokheli labasunguli.",
+    "heritage": "Ilifa",
+    "historyTitle": "Umlando Wethu",
+    "history1": "IMavingTech High School, isikolo esidumileyo, sasungulwa ngoJanuwari 1927 njengesikolo sokuqala sobuchwepheshe elizweni.",
+    "history2": "Isikolo sathola isimo sesekondari ngo-1931 sasusela endaweni yaso yakhathesi ngo-1953. Saqanjwa kutsha ngokuthi yiMavingTech Technical High School ngo-19 Agasti 1961, sabuya safinyezwa saba yiMavingTech High School ngo-1974.",
+    "history3": "Lamuhla, silabafundi abangaphezu kuka-800, siqhubeka lelifa lobungcweti kwezemfundo lezemidlalo.",
+    "stats": {
+      "students": "Abafundi Ababhalisiweyo",
+      "passRate": "Izinga Lokuphumelela",
+      "alumni": "Abafunde Lapha Emhlabeni Wonke"
+    },
+    "values": {
+      "eyebrow": "Esikumeleyo",
+      "title": "Amagugu Ethu",
+      "excellence": { "title": "Ubungcweti", "desc": "Ukuzama izinga eliphezulu kukho konke — imfundo, imidlalo lesimilo." },
+      "integrity": { "title": "Ubuqotho", "desc": "Iqiniso, ukuziphatha lokuziphendulela kusenhliziyweni yomphakathi wethu." },
+      "innovation": { "title": "Ukusungula", "desc": "Ukudinga ulwazi lokudala okulungisela abafundi bethu umhlaba otshintsha masinyane." }
+    },
+    "alumni": {
+      "eyebrow": "Lapho Abaphothuleyo Bakhona",
+      "title": "Abafunde Lapha Abadumileyo"
+    }
+  },
+  "academics": {
+    "eyebrow": "Ukufunda Lobungcweti",
+    "title": "Imfundo",
+    "subtitle": "Ikharikhulamu ebanzi lelinganisiweyo eyakhelwe ukulungiselela wonke umfundi ikusasa.",
+    "programmesEyebrow": "Izinhlelo Zokufunda",
+    "programmesTitle": "Ikharikhulamu Yethu",
+    "intro": "IMavingTech inika izinhlelo zezivivinyo zeZIMSEC leCambridge, inika abafundi ukukhetha ku-O Level le-A Level.",
+    "tabs": { "curriculum": "Ikharikhulamu", "results": "Imiphumela Lempumelelo" },
+    "subjects": {
+      "math": { "name": "Izibalo", "desc": "Pure Mathematics, Statistics" },
+      "sciences": { "name": "Isayensi", "desc": "Physics, Chemistry, Biology, Combined Science" },
+      "languages": { "name": "Izindimi", "desc": "IsiNgisi, IsiNdebele, ChiShona, French" },
+      "humanities": { "name": "Humanities", "desc": "Umlando, Ijografi, Ezenkolo, Ubuciko" },
+      "technical": { "name": "Ezobuchwepheshe", "desc": "Computer Science, Accounts, Commerce" },
+      "arts": { "name": "Ubuciko", "desc": "Ubuciko, Umculo, Umdlalo, Fashion and Fabrics" }
+    },
+    "results": {
+      "title": "Impumelelo Yemfundo",
+      "body": "Abafundi bethu bahlala besenza kuhle esabelweni lelizweni lonke, abanengi bethola ama-distinctions.",
+      "year": "Umnyaka", "level": "Ileveli", "passRate": "Izinga Lokuphumelela", "distinctions": "Ama-distinctions"
+    }
+  },
+  "admissions": {
+    "eyebrow": "Ngena Emphakathini Wethu",
+    "title": "Ukubhalisa",
+    "subtitle": "Ngena emulini yeMavingTech. Semukela abafundi abafisa ukufunda lokukhula.",
+    "processEyebrow": "Indlela Yokufaka Isicelo",
+    "processTitle": "Inqubo Yokubhalisa",
+    "steps": {
+      "apply": { "title": "Thumela Isicelo", "desc": "Gcwalisa ifomu le-inthanethi ngemininingwane yomfundi leyabazali." },
+      "assess": { "title": "Isivivinyo Sokungena", "desc": "Abaceli abakhethiweyo bayanxuswa esivivinyweni." },
+      "interview": { "title": "Ingxoxo", "desc": "Hlangana leqembu lokwemukela njalo uvakatshele isikolo." },
+      "accept": { "title": "Ukwemukelwa", "desc": "Abaceli abaphumelelayo bathola incwadi yesiphakamiso." }
+    },
+    "stepLabel": "Isinyathelo",
+    "form": {
+      "eyebrow": "Qala Uhambo Lwakho",
+      "title": "Isicelo Se-inthanethi",
+      "received": "Isicelo Samukelwe!",
+      "receivedBody": "Siyabonga ngokufakela isicelo eMavingTech High School. Sizaxhumana lawe phakathi kwensuku ezinhlanu zomsebenzi.",
+      "submittedToast": "Isicelo Sithunyelwe!",
+      "submittedToastDesc": "Sizaxhumana lawe masinyane.",
+      "firstName": "Ibizo Lomfundi",
+      "lastName": "Isibongo Somfundi",
+      "dob": "Ilanga Lokuzalwa",
+      "grade": "Ubhalisela iForm",
+      "gradePlaceholder": "Khetha iform",
+      "prevSchool": "Isikolo Sakuqala",
+      "parentName": "Ibizo Lomzali/Umnakekeli",
+      "parentPhone": "Ucingo Lomzali",
+      "parentEmail": "I-imeyili Yomzali",
+      "notes": "Amanye Amanothi",
+      "submit": "Thumela Isicelo"
+    }
+  },
+  "staff": {
+    "title": "Abasebenzi Bethu",
+    "groupCaption": "Abasebenzi beMavingTech High School",
+    "empty": "Uluhlu lwabasebenzi luyeza masinyane.",
+    "categories": {
+      "leadership": "Ubukhokheli Besikolo",
+      "teaching": "Abafundisi",
+      "admin": "Abasebenzi Behhovisi",
+      "general": "Abasebenzi Abavamileyo"
+    }
+  },
+  "contact": {
+    "eyebrow": "Xhumana Lathi",
+    "title": "Xhumana Lathi",
+    "subtitle": "Singathanda ukuzwa kuwe. Xhumana lathi ngemibuzo kumbe ubhuke umhlangano labakhokheli besikolo.",
+    "detailsEyebrow": "Indlela Yokusifinyelela",
+    "detailsTitle": "Imininingwane Yethu",
+    "cards": {
+      "address": "Ikheli", "addressText": "MavingTech High School, Harare, Zimbabwe",
+      "phone": "Ucingo",
+      "email": "I-imeyili",
+      "hours": "Amahola Ehhovisi", "hoursText": "Mvulo – Lwesihlanu: 07:30 – 16:30"
+    },
+    "formsEyebrow": "Siyakulalela",
+    "formsTitle": "Thumela Umlayezo Kumbe Ubhuke Ukuvakatsha",
+    "tabs": { "message": "Thumela Umlayezo", "appointment": "Bhuka Umhlangano" },
+    "message": {
+      "cardTitle": "Sithumele Umlayezo",
+      "sent": "Umlayezo Uthunyelwe!",
+      "sentBody": "Siyabonga ngokuxhumana lathi. Sizaphendula masinyane.",
+      "fullName": "Ibizo Eligcweleyo",
+      "namePlaceholder": "Ibizo lakho",
+      "email": "I-imeyili",
+      "emailPlaceholder": "wena@email.com",
+      "subject": "Isihloko",
+      "subjectPlaceholder": "Kumayelana lani lokhu?",
+      "message": "Umlayezo",
+      "messagePlaceholder": "Bhala umlayezo wakho...",
+      "send": "Thumela Umlayezo"
+    },
+    "appointment": {
+      "cardTitle": "Bhuka Umhlangano",
+      "cardSubtitle": "Hlela umhlangano labakhokheli besikolo. Sizaqinisekisa nge-imeyili.",
+      "submitted": "Isicelo Somhlangano Sithunyelwe!",
+      "submittedBody": "Sizahlola isicelo sakho siqinisekise nge-imeyili phakathi kwensuku ezi-1-2 zomsebenzi.",
+      "phone": "Inombolo Yocingo",
+      "authority": "Ngubani ongathanda ukumbona?",
+      "authorityPlaceholder": "Khetha isikhulu",
+      "department": "Umnyango (ngokukhetha)",
+      "departmentPlaceholder": "isib. Isayensi, Ihhovisi",
+      "date": "Ilanga Olikhethayo",
+      "pickDate": "Khetha ilanga",
+      "time": "Isikhathi Osikhethayo",
+      "timePlaceholder": "Khetha isikhathi",
+      "reason": "Isizatho Sokuvakatsha",
+      "reasonPlaceholder": "Chaza kafitshane injongo yokuvakatsha kwakho...",
+      "request": "Cela Umhlangano"
+    }
+  },
+  "news": {
+    "title": "Izindaba Lezaziso",
+    "back": "Buyela Ezindabeni"
+  },
+  "fees": {
+    "title": "Imali Yesikolo",
+    "intro": "Landa uhlelo lwemali lwakamuva, imininingwane yenhlawulo lamadokhumenti emali ngaphansi.",
+    "payOnline": "Hlawula Imali Nge-inthanethi",
+    "empty": "Amadokhumenti emali azatholakala masinyane."
+  },
+  "facilities": {
+    "title": "Izakhiwo Zethu",
+    "intro": "IMavingTech High School inika izakhiwo ezinhle ezisekela ubungcweti bemfundo, impumelelo yemidlalo lokukhula okugcweleyo.",
+    "empty": "Izithombe zezakhiwo ziyeza masinyane.",
+    "lifeTitle": "Impilo eMavingTech",
+    "types": {
+      "boarding": "Izakhiwo Zokuhlala",
+      "classrooms": "Amakilasi",
+      "sports": "Izakhiwo Zemidlalo",
+      "labs": "Amalabhorethri",
+      "library": "Umtapo Wolwazi",
+      "clubs": "Amakilabhu Lezinhlangano",
+      "ict": "I-ICT Lamakhompiyutha",
+      "dining": "Iholo Lokudlela",
+      "assembly": "Iholo Lomhlangano Lesonto",
+      "general": "Okuvamileyo"
+    }
+  },
+  "schoolLife": {
+    "title": "Impilo Yesikolo",
+    "tabs": {
+      "sports": "Ezemidlalo",
+      "clubs": "Amakilabhu Lemisebenzi",
+      "sdc": "I-SDC",
+      "pt": "Umzali-Umfundisi",
+      "gallery": "Igalari"
+    },
+    "sdc": {
+      "title": "Ikomiti Yokuthuthukisa Isikolo (SDC)",
+      "body": "I-SDC imela izifiso zabazali, abasebenzi lomphakathi, isebenza labakhokheli besikolo.",
+      "empty": "Akulamihlangano ye-SDC ehleliweyo khathesi.",
+      "badge": "Umhlangano we-SDC"
+    },
+    "pt": {
+      "title": "Imihlangano Yabazali Labafundisi",
+      "body": "Imihlangano evamileyo phakathi kwabazali labafundisi ukukhuluma ngenqubekela phambili yomfundi.",
+      "empty": "Akulamihlangano yabazali labafundisi ehleliweyo khathesi.",
+      "badge": "Umzali-Umfundisi"
+    },
+    "galleryEmpty": "Izithombe zegalari ziyeza masinyane."
+  },
+  "boarding": {
+    "title": "Ukuhlala Esikolweni",
+    "subtitle": "Ikhaya elikhatshana lekhaya — amahostela ethu anika indawo ephephileyo lenakekelayo.",
+    "features": {
+      "accommodation": { "title": "Indawo Enhle Yokuhlala", "desc": "Amakamelo amatsha lamahostela ehlukanisiweyo abafana lamantombazana." },
+      "safety": { "title": "Ukuphepha", "desc": "Ukuphepha kwamahola angu-24 labanakekeli bendlu abaqeqetshiweyo." },
+      "meals": { "title": "Ukudla Okulempilo", "desc": "Ukudla okulinganisiweyo kathathu ngelanga okuphekwa ngabasebenzi bethu." },
+      "study": { "title": "Isikhathi Sokufunda Esihleliweyo", "desc": "Izikhathi zakusihlwa zokufunda ezisekela ubungcweti bemfundo." },
+      "community": { "title": "Impilo Yomphakathi", "desc": "Ukwakha ubungane bempilo yonke lokuthuthukisa amakhono okuphila labanye." },
+      "pastoral": { "title": "Ukunakekelwa Komoya", "desc": "Usekelo lwemizwa lolomoya luvela kubasebenzi behostela." }
+    }
+  },
+  "alumni": {
+    "title": "Abafunde Lapha Abadumileyo",
+    "subtitle": "Abaphothule beMavingTech benza umehluko emhlabeni wonke."
+  },
+  "vacancies": {
+    "title": "Amathuba Omsebenzi",
+    "intro": "Khangela amathuba omsebenzi akhona eMavingTech High School.",
+    "empty": "Akulamathuba omsebenzi akhona khathesi. Buya uzokhangela."
+  },
+  "downloads": {
+    "title": "Okulandwayo",
+    "empty": "Akulamadokhumenti okulanda khathesi.",
+    "categories": {
+      "fees": "Imali Lezezimali",
+      "forms": "Amafomu Lezicelo",
+      "policies": "Imithetho",
+      "vacancies": "Amathuba Omsebenzi",
+      "general": "Okuvamileyo"
+    }
+  },
+  "awards": {
+    "title": "Imiklomelo Lodumo",
+    "subtitle": "Sigubha ubungcweti lempumelelo eMavingTech High School",
+    "galleryTitle": "Igalari Yemiklomelo",
+    "recipientsTitle": "Abemukeli Bemiklomelo",
+    "empty": "Akulamiklomelo etshicilelweyo khathesi.",
+    "studentName": "Ibizo Lomfundi",
+    "award": "Umklomelo",
+    "year": "Umnyaka"
+  },
+  "projectsPage": {
+    "title": "Amaphrojekthi Esikolo",
+    "subtitle": "Bona amaphrojekthi amatsha enziwa ngabafundi labasebenzi bethu.",
+    "empty": "Akulamaphrojekthi okubonisa khathesi.",
+    "donate": "Nikela"
+  },
+  "sportsCulture": {
+    "title": "Ezemidlalo Lamasiko",
+    "subtitle": "Ukuthuthukisa umuntu ogcweleyo ngemidlalo, ubuciko lemisebenzi yamasiko.",
+    "tabs": { "sports": "Ezemidlalo", "culture": "Amakilabhu Lamasiko" }
+  },
+  "footer": {
+    "affiliations": "Sisebenza Labo",
+    "moe": "UMnyango Wemfundo Yamabanga Aphansi Lasekhulu",
+    "description": "Siyisikolo esigxile ekwakheni isimilo, ukufunda kwakuqala lezibalo. Abafundi bethu baphuma belesimilo lesibindi sokwenza umehluko.",
+    "quickLinks": "Izixhumanisi Ezisheshayo",
+    "programs": "Izinhlelo",
+    "contact": "Xhumana Lathi",
+    "aboutUs": "Ngathi",
+    "rights": "Wonke amalungelo agodliwe."
+  }
+}
