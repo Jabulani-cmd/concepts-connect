@@ -2,11 +2,13 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import en from "./locales/en.json";
-import zu from "./locales/zu.json";
+import sn from "./locales/sn.json";
+import nd from "./locales/nd.json";
 
 export const SUPPORTED_LANGUAGES = [
   { code: "en", label: "English", short: "EN" },
-  { code: "zu", label: "isiZulu", short: "ZU" },
+  { code: "sn", label: "chiShona", short: "SN" },
+  { code: "nd", label: "isiNdebele", short: "ND" },
 ] as const;
 
 export type LangCode = (typeof SUPPORTED_LANGUAGES)[number]["code"];
@@ -18,10 +20,11 @@ if (!i18n.isInitialized) {
     .init({
       resources: {
         en: { translation: en },
-        zu: { translation: zu },
+        sn: { translation: sn },
+        nd: { translation: nd },
       },
       fallbackLng: "en",
-      supportedLngs: ["en", "zu"],
+      supportedLngs: ["en", "sn", "nd"],
       interpolation: { escapeValue: false },
       detection: {
         order: ["localStorage", "navigator"],
