@@ -69,6 +69,7 @@ const App = () => (
           <AllocationProvider>
           <DemoPeopleProvider>
           <ScrollToTop />
+          <SiteTranslator />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/about" element={<About />} />
