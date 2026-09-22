@@ -12,6 +12,7 @@ import { Search, Loader2, TrendingUp, TrendingDown, BarChart3 } from "lucide-rea
 import DocActionButtons from "@/components/finance/DocActionButtons";
 import { incomeExpenditureActions } from "@/lib/finance/documentActions";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
+import { formatMoney } from "@/lib/currency";
 
 const fmt = (n: any): string => { const v=Number(n); return `US$ ${new Intl.NumberFormat("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number.isFinite(v)?v:0)}`; };
 const fmtZ = (n: any): string => { const v=Number(n); return `ZiG ${new Intl.NumberFormat("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number.isFinite(v)?v:0)}`; };
@@ -279,7 +280,7 @@ export default function IncomeExpenditureReport() {
                     <TableHead>Receipt #</TableHead>
                     <TableHead>Student</TableHead>
                     <TableHead>Method</TableHead>
-                    <TableHead className="text-right">Amount (R)</TableHead>
+                    <TableHead className="text-right">Amount (US$ / ZiG)</TableHead>
                     <TableHead>Reference</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -290,7 +291,7 @@ export default function IncomeExpenditureReport() {
                       <TableCell className="font-mono text-xs">{p.receipt_number}</TableCell>
                       <TableCell>{p.students?.full_name || "—"}</TableCell>
                       <TableCell>{p.payment_method}</TableCell>
-                      <TableCell className="text-right font-mono text-green-700">{fmt(p.amount_usd)}</TableCell>
+                      <TableCell className="text-right font-mono text-green-700">{formatMoney(p.amount_usd)}</TableCell>
                       <TableCell className="text-xs">{p.reference_number || "—"}</TableCell>
                     </TableRow>
                   ))}
@@ -322,7 +323,7 @@ export default function IncomeExpenditureReport() {
                         <TableHead>Category</TableHead>
                         <TableHead>Description</TableHead>
                         <TableHead>Method</TableHead>
-                        <TableHead className="text-right">Amount (R)</TableHead>
+                        <TableHead className="text-right">Amount (US$ / ZiG)</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -332,7 +333,7 @@ export default function IncomeExpenditureReport() {
                           <TableCell><Badge variant="outline">{e.category}</Badge></TableCell>
                           <TableCell className="max-w-[250px] truncate">{e.description}</TableCell>
                           <TableCell>{e.payment_method}</TableCell>
-                          <TableCell className="text-right font-mono text-destructive">{fmt(e.amount_usd)}</TableCell>
+                          <TableCell className="text-right font-mono text-destructive">{formatMoney(e.amount_usd)}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -349,7 +350,7 @@ export default function IncomeExpenditureReport() {
                         <TableHead>Date</TableHead>
                         <TableHead>Supplier</TableHead>
                         <TableHead>Method</TableHead>
-                        <TableHead className="text-right">Amount (R)</TableHead>
+                        <TableHead className="text-right">Amount (US$ / ZiG)</TableHead>
                         <TableHead>Reference</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -359,7 +360,7 @@ export default function IncomeExpenditureReport() {
                           <TableCell className="text-xs">{sp.payment_date}</TableCell>
                           <TableCell>{sp.supplier_invoices?.supplier_name || "—"}</TableCell>
                           <TableCell>{sp.payment_method}</TableCell>
-                          <TableCell className="text-right font-mono text-destructive">{fmt(sp.amount_usd)}</TableCell>
+                          <TableCell className="text-right font-mono text-destructive">{formatMoney(sp.amount_usd)}</TableCell>
                           <TableCell className="text-xs">{sp.reference_number || "—"}</TableCell>
                         </TableRow>
                       ))}

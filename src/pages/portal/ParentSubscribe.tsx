@@ -18,6 +18,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
 import { downloadSubscriptionReceipt } from "@/lib/receiptPdf";
 import { formatMoney } from "@/lib/currency";
+import { useExchangeRate } from "@/hooks/useExchangeRate";
+import CurrencyConverter from "@/components/finance/CurrencyConverter";
 
 type Step = "plans" | "method" | "card" | "eft" | "gateway" | "qr" | "success" | "failed";
 
@@ -44,6 +46,7 @@ export default function ParentSubscribe() {
   const { toast } = useToast();
   const { user } = useAuth();
   const sub = useSubscription();
+  const { usdToZig } = useExchangeRate();
 
   const [plans, setPlans] = useState<any[]>([]);
   const [children, setChildren] = useState<any[]>([]);
@@ -218,7 +221,7 @@ export default function ParentSubscribe() {
       plan_id: plan.id,
       plan_type: plan.plan_type,
       amount_usd: plan.amount_usd,    // USD amount
-      amount_zwg: plan.amount_usd,
+      amount_zwg: usdToZig(plan.amount_usd),
       currency_paid: "USD",
       payment_method: method,
       transaction_id: txId,
@@ -234,6 +237,8 @@ export default function ParentSubscribe() {
       subscription_id: subRow.id,
       parent_id: user.id,
       amount: plan.amount_usd,
+      amount_usd: plan.amount_usd,
+      amount_zig: usdToZig(plan.amount_usd),
       currency: "USD",
       payment_method: method,
       transaction_id: txId,
@@ -292,6 +297,8 @@ export default function ParentSubscribe() {
             Choose a plan to give your family full access to the timetable, results, lesson plans, attendance, and direct teacher messaging.
           </p>
         </div>
+
+        {step === "plans" && <div className="mx-auto mb-6 max-w-4xl"><CurrencyConverter /></div>}
 
         {children.length === 0 && step === "plans" && (
           <Card className="max-w-xl mx-auto mb-8 p-6 text-center border-amber-200 bg-amber-50/40 dark:bg-amber-950/20">

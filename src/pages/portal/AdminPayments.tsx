@@ -19,6 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { formatMoney } from "@/lib/currency";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 
 const PIE_COLORS = ["#0d9488", "#2563eb", "#7c3aed", "#f59e0b", "#ef4444", "#0ea5e9"];
@@ -280,8 +281,8 @@ export default function AdminPayments() {
 
         {/* Metric cards */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
-          <Metric icon={DollarSign} label="Revenue (term)" value={`$${totalRevenueTerm.toFixed(2)}`} tint="from-emerald-500 to-teal-600" />
-          <Metric icon={TrendingUp} label="Revenue (month)" value={`$${totalRevenueMonth.toFixed(2)}`} tint="from-teal-500 to-cyan-600" />
+          <Metric icon={DollarSign} label="Revenue (term)" value={formatMoney(totalRevenueTerm)} tint="from-emerald-500 to-teal-600" />
+          <Metric icon={TrendingUp} label="Revenue (month)" value={formatMoney(totalRevenueMonth)} tint="from-teal-500 to-cyan-600" />
           <Metric icon={Users} label="Active subs" value={activeCount} tint="from-blue-500 to-indigo-600" />
           <Metric icon={AlertTriangle} label="Expired" value={expiredCount} tint="from-amber-500 to-orange-600" />
           <Metric icon={Clock} label="Pending verify" value={pendingVerifications} tint="from-purple-500 to-pink-600" />
@@ -336,7 +337,7 @@ export default function AdminPayments() {
                     {filtered.map((s) => (
                       <TableRow key={s.id}>
                         <TableCell>{s.subscription_plans?.name || s.plan_type}</TableCell>
-                        <TableCell>R {Number(s.amount_usd).toFixed(2)}</TableCell>
+                        <TableCell>{formatMoney(s.amount_usd)}</TableCell>
                         <TableCell className="capitalize">{(s.payment_method || "—").replace("_", " ")}</TableCell>
                         <TableCell><Badge className="capitalize">{s.status}</Badge></TableCell>
                         <TableCell>{s.access_end ? new Date(s.access_end).toLocaleDateString() : "—"}</TableCell>
@@ -362,7 +363,7 @@ export default function AdminPayments() {
                 {payments.filter((p) => p.payment_status === "awaiting_verification").map((p) => (
                   <div key={p.id} className="flex items-center justify-between border rounded-lg p-4 mb-2">
                     <div>
-                      <div className="font-semibold">R {Number(p.amount).toFixed(2)} · {p.payment_method}</div>
+                      <div className="font-semibold">{formatMoney(p.amount_usd ?? p.amount)} · {p.payment_method}</div>
                       <div className="text-xs text-muted-foreground">Parent {p.parent_id.slice(0, 8)} · {new Date(p.created_at).toLocaleString()}</div>
                       {p.proof_of_payment_url && <a href={p.proof_of_payment_url} className="text-xs text-blue-600 underline" target="_blank" rel="noreferrer">View proof</a>}
                     </div>
