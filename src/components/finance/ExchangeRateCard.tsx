@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { RefreshCw, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
+import CurrencyConverter from "@/components/finance/CurrencyConverter";
 
 /** Bursar-managed USD → ZiG rate. Every amount in the app follows this rate. */
 export default function ExchangeRateCard() {
@@ -38,14 +39,15 @@ export default function ExchangeRateCard() {
 
   return (
     <Card className="border-none shadow-maroon">
-      <CardContent className="p-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className="space-y-1">
+      <CardContent className="grid gap-5 p-5 lg:grid-cols-[minmax(280px,0.8fr)_minmax(360px,1.2fr)] lg:items-end">
+        <div className="space-y-3">
+          <div className="space-y-1">
           <Label className="text-xs uppercase tracking-wider text-muted-foreground">Exchange rate (US$ → ZiG)</Label>
           <p className="text-lg font-bold">
             US$ 1 = ZiG {loading ? "…" : Number(rate).toLocaleString("en-US", { minimumFractionDigits: 2 })}
           </p>
-        </div>
-        <div className="flex items-end gap-2">
+          </div>
+          <div className="flex items-end gap-2">
           <Input
             type="number"
             step="0.0001"
@@ -58,7 +60,9 @@ export default function ExchangeRateCard() {
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-1" />}
             Update
           </Button>
+          </div>
         </div>
+        <CurrencyConverter compact />
       </CardContent>
     </Card>
   );

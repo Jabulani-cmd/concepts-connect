@@ -109,7 +109,7 @@ export function buildInvoicePdf(input: InvoicePdfInput): jsPDF {
   // Items table
   autoTable(doc, {
     startY: detailY + 19,
-    head: [["Description", "Amount (R)"]],
+    head: [["Description", "Amount (US$ / ZiG)"]],
     body: input.items.map((it) => [
       it.description,
       formatMoney(it.amount_usd || 0),
