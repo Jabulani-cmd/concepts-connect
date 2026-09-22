@@ -33,6 +33,7 @@ import ExamResultsUpload from "@/components/teacher/ExamResultsUpload";
 import StudentExamTimetableTab from "@/components/student/StudentExamTimetableTab";
 import LessonPlansTab from "@/components/teacher/LessonPlansTab";
 import TeacherAIAssistant from "@/components/teacher/TeacherAIAssistant";
+import AIAssistantHub from "@/components/teacher/ai/AIAssistantHub";
 import StudentProgressTracker from "@/components/teacher/StudentProgressTracker";
 import ResourceLibraryTab from "@/components/teacher/ResourceLibraryTab";
 import ParentCommunicationLog from "@/components/teacher/ParentCommunicationLog";
@@ -696,6 +697,7 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
 
           {/* AI ASSIST */}
           <TabsContent value="ai-assist" className="space-y-4">
+            <AIAssistantHub students={students} />
             <TeacherAIAssistant />
             <Card className="border-primary/30 bg-gradient-to-br from-primary/5 via-background to-accent/5">
               <CardHeader>
