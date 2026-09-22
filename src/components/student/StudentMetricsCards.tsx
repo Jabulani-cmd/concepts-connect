@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { CalendarCheck, ClipboardList, BookOpen, DollarSign } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { formatMoney } from "@/lib/currency";
 
 interface Props {
   attendancePercent: number;
@@ -34,7 +35,7 @@ export default function StudentMetricsCards({ attendancePercent, upcomingAssessm
     },
     ...(feeBalance !== null ? [{
       label: feeBalance < 0 ? "Credit Balance" : "Fee Balance",
-      value: feeBalance < 0 ? `$${Math.abs(feeBalance).toFixed(0)} CR` : `$${feeBalance.toFixed(0)}`,
+      value: feeBalance < 0 ? `${formatMoney(Math.abs(feeBalance), { decimals: false })} CR` : formatMoney(feeBalance, { decimals: false }),
       icon: DollarSign,
       color: feeBalance > 0 ? "text-destructive" : "text-green-600",
       bgColor: feeBalance > 0 ? "bg-red-50" : "bg-green-50",

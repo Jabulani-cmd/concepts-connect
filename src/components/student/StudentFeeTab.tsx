@@ -17,6 +17,7 @@ import {
   statementActions,
 } from "@/lib/finance/documentActions";
 import { formatMoney } from "@/lib/currency";
+import CurrencyConverter from "@/components/finance/CurrencyConverter";
 
 interface Props {
   studentId: string | null;
@@ -127,6 +128,7 @@ export default function StudentFeeTab({ studentId }: Props) {
 
   return (
     <div className="space-y-4">
+      <CurrencyConverter />
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start gap-2">
         <div>
@@ -166,7 +168,7 @@ export default function StudentFeeTab({ studentId }: Props) {
           <span
             className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-xl font-bold ${balanceUsd < 0 ? "bg-green-100 text-green-600" : balanceUsd > 0 ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"}`}
           >
-            R
+             $
           </span>
           <div className="min-w-0">
             <p

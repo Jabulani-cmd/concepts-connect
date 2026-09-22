@@ -11,6 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
 import { formatMoney } from "@/lib/currency";
 import { format } from "date-fns";
+import CurrencyConverter from "@/components/finance/CurrencyConverter";
 
 export default function ParentBilling() {
   const nav = useNavigate();
@@ -57,6 +58,8 @@ export default function ParentBilling() {
           <h1 className="font-display text-3xl font-bold">Billing & Subscription</h1>
           <p className="text-muted-foreground">Manage your portal access plan, change plans, and review past payments.</p>
         </div>
+
+        <div className="mb-6"><CurrencyConverter /></div>
 
         {/* Current subscription */}
         <Card className="mb-6 border-2 border-teal-500/30">

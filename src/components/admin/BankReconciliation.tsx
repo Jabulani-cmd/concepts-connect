@@ -15,6 +15,9 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Plus, Trash2, Search, CheckCircle, AlertTriangle, Loader2, Printer } from "lucide-react";
+import { formatMoney } from "@/lib/currency";
+import { buildBrandedHtml } from "@/lib/print/printSection";
+import { openPrintWindow } from "@/lib/finance/print";
 
 const fmt = (n: any): string => { const v=Number(n); return "US$ " + new Intl.NumberFormat("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number.isFinite(v)?v:0); };
 
@@ -143,19 +146,9 @@ export default function BankReconciliation() {
   };
 
   function printReconciliation() {
-    const printWin = window.open("", "_blank");
-    if (!printWin) return;
-    printWin.document.write(`<html><head><title>Bank Reconciliation</title><style>body{font-family:sans-serif;padding:20px}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border:1px solid #ddd;padding:6px 8px;text-align:left;font-size:12px}th{background:#f5f5f5}.right{text-align:right}.credit{color:green}.debit{color:red}</style></head><body>`);
-    printWin.document.write(`<h2>Bank Reconciliation Report</h2><p>Generated: ${new Date().toLocaleDateString()}</p>`);
-    printWin.document.write(`<p>Credits: ${fmt(totalCreditsUsd)} | Debits: ${fmt(totalDebitsUsd)} | Net: ${fmt(totalCreditsUsd - totalDebitsUsd)}</p>`);
-    printWin.document.write(`<p>Reconciled: ${reconciledCount} | Unreconciled: ${unreconciledCount} | Disputed: ${disputedCount}</p>`);
-    printWin.document.write(`<table><tr><th>Date</th><th>Description</th><th>Ref</th><th>Bank</th><th>Type</th><th class="right">Amount (R)</th><th>Status</th></tr>`);
-    filtered.forEach(tx => {
-      printWin.document.write(`<tr><td>${safeHtml(tx.transaction_date)}</td><td>${safeHtml(tx.description)}</td><td>${safeHtml(tx.reference_number || "—")}</td><td>${safeHtml(tx.bank_name || "—")}</td><td>${safeHtml(tx.transaction_type)}</td><td class="right ${tx.transaction_type}">${tx.transaction_type === "credit" ? "+" : "-"}${fmt(tx.amount_usd)}</td><td>${safeHtml(tx.reconciliation_status)}</td></tr>`);
-    });
-    printWin.document.write(`</table></body></html>`);
-    printWin.document.close();
-    printWin.print();
+    const rows = filtered.map(tx => `<tr><td>${safeHtml(tx.transaction_date)}</td><td>${safeHtml(tx.description)}</td><td>${safeHtml(tx.reference_number || "—")}</td><td>${safeHtml(tx.bank_name || "—")}</td><td>${safeHtml(tx.transaction_type)}</td><td>${tx.transaction_type === "credit" ? "+" : "-"}${safeHtml(formatMoney(tx.amount_usd))}</td><td>${safeHtml(tx.reconciliation_status)}</td></tr>`).join("");
+    const bodyHtml = `<p><strong>Credits:</strong> ${safeHtml(formatMoney(totalCreditsUsd))} &nbsp; <strong>Debits:</strong> ${safeHtml(formatMoney(totalDebitsUsd))} &nbsp; <strong>Net:</strong> ${safeHtml(formatMoney(totalCreditsUsd - totalDebitsUsd))}</p><p>Reconciled: ${reconciledCount} | Unreconciled: ${unreconciledCount} | Disputed: ${disputedCount}</p><table><thead><tr><th>Date</th><th>Description</th><th>Ref</th><th>Bank</th><th>Type</th><th>Amount (US$ / ZiG)</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>`;
+    openPrintWindow(buildBrandedHtml({ title: "Bank Reconciliation Report", bodyHtml }));
   }
 
   if (loading) return <div className="flex items-center justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-accent" /></div>;
@@ -167,20 +160,20 @@ export default function BankReconciliation() {
         <Card>
           <CardContent className="p-4">
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Credits</p>
-            <p className="text-xl font-bold font-mono text-green-700">{fmt(totalCreditsUsd)}</p>
+            <p className="text-base font-bold font-mono text-green-700">{formatMoney(totalCreditsUsd)}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Debits</p>
-            <p className="text-xl font-bold font-mono text-destructive">{fmt(totalDebitsUsd)}</p>
+            <p className="text-base font-bold font-mono text-destructive">{formatMoney(totalDebitsUsd)}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Net Balance</p>
             <p className={`text-xl font-bold font-mono ${totalCreditsUsd - totalDebitsUsd >= 0 ? "text-green-700" : "text-destructive"}`}>
-              {fmt(totalCreditsUsd - totalDebitsUsd)}
+              {formatMoney(totalCreditsUsd - totalDebitsUsd)}
             </p>
           </CardContent>
         </Card>
@@ -248,7 +241,7 @@ export default function BankReconciliation() {
                     <TableHead>Reference</TableHead>
                     <TableHead>Bank</TableHead>
                     <TableHead>Type</TableHead>
-                    <TableHead className="text-right">Amount (R)</TableHead>
+                    <TableHead className="text-right">Amount (US$ / ZiG)</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
@@ -266,7 +259,7 @@ export default function BankReconciliation() {
                         </Badge>
                       </TableCell>
                       <TableCell className={`text-right font-mono ${tx.transaction_type === "credit" ? "text-green-700" : "text-destructive"}`}>
-                        {tx.transaction_type === "credit" ? "+" : "-"}{fmt(tx.amount_usd)}
+                        {tx.transaction_type === "credit" ? "+" : "-"}{formatMoney(tx.amount_usd)}
                       </TableCell>
                       <TableCell>{statusBadge(tx.reconciliation_status)}</TableCell>
                       <TableCell>
@@ -322,8 +315,9 @@ export default function BankReconciliation() {
               <Input value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} placeholder="Bank statement description" />
             </div>
             <div className="space-y-1">
-              <Label>Amount (R)</Label>
-              <Input type="number" step="0.01" value={form.amount_usd} onChange={e => setForm(p => ({ ...p, amount_usd: e.target.value, amount_zig: e.target.value }))} />
+              <Label>Amount (US$)</Label>
+              <Input type="number" step="0.01" value={form.amount_usd} onChange={e => setForm(p => ({ ...p, amount_usd: e.target.value, amount_zig: autoZig(e.target.value) }))} />
+              <p className="text-xs text-muted-foreground">ZiG {form.amount_zig || "0.00"} at US$ 1 = ZiG {rate.toFixed(2)}</p>
             </div>
 
             <div className="grid grid-cols-2 gap-3">

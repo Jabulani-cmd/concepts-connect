@@ -3,6 +3,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FileDown, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { downloadHtmlDocument } from "@/lib/finance/print";
+import { SCHOOL_ADDRESS, SCHOOL_LOGO_URL, SCHOOL_MOTTO, SCHOOL_NAME, SCHOOL_PHONE } from "@/lib/finance/pdf";
 
 interface ResultRow {
   subject_name: string;
@@ -72,6 +74,7 @@ export default function ReportCardDownloadButton(props: ReportCardProps) {
 
   /* Header */
   .header { text-align: center; border-bottom: 3px double #1a5276; padding-bottom: 12px; margin-bottom: 16px; }
+  .school-logo { width: 86px; height: 86px; object-fit: contain; margin: 0 auto 6px; display: block; }
   .school-name { font-size: 22pt; font-weight: bold; color: #1a5276; letter-spacing: 1px; text-transform: uppercase; }
   .school-motto { font-size: 9pt; color: #555; font-style: italic; margin-top: 2px; }
   .report-title { font-size: 14pt; font-weight: bold; margin-top: 10px; color: #2c3e50; text-transform: uppercase; letter-spacing: 2px; border: 2px solid #1a5276; display: inline-block; padding: 4px 20px; }
@@ -131,8 +134,9 @@ export default function ReportCardDownloadButton(props: ReportCardProps) {
 <button class="print-btn" onclick="window.print()">🖨️ Print / Save PDF</button>
 <div class="container">
   <div class="header">
-    <div class="school-name">MavingTech High School</div>
-    <div class="school-motto">"Excellence Through Discipline and Hard Work"</div>
+    <img class="school-logo" src="${SCHOOL_LOGO_URL}" alt="${SCHOOL_NAME} logo" />
+    <div class="school-name">${SCHOOL_NAME}</div>
+    <div class="school-motto">"${SCHOOL_MOTTO}"</div>
     <div class="report-title">Termly Report Card</div>
   </div>
 
@@ -218,19 +222,14 @@ export default function ReportCardDownloadButton(props: ReportCardProps) {
   </div>
 
   <div class="footer">
-    <p>MavingTech Business Solutions · 123 Samora Machel Avenue, Harare, Zimbabwe · Tel: +263 24 255 0123</p>
+    <p>${SCHOOL_NAME} · ${SCHOOL_ADDRESS} · Tel: ${SCHOOL_PHONE}</p>
     <p>Generated on ${new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</p>
   </div>
 </div>
 </body>
 </html>`;
 
-    const blob = new Blob([html], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    const win = window.open(url, "_blank");
-    if (win) {
-      win.onload = () => URL.revokeObjectURL(url);
-    }
+    await downloadHtmlDocument(html, `report-card-${props.admissionNumber}`);
     setGenerating(false);
   };
 

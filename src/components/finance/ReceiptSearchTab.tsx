@@ -242,7 +242,7 @@ export default function ReceiptSearchTab() {
                   <TableHead>Student</TableHead>
                   <TableHead>Adm #</TableHead>
                   <TableHead>Invoice</TableHead>
-                  <TableHead className="text-right">Amount (R)</TableHead>
+                  <TableHead className="text-right">Amount (US$ / ZiG)</TableHead>
                   <TableHead>Method</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Actions</TableHead>

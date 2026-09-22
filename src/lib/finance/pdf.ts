@@ -109,7 +109,7 @@ export function buildInvoicePdf(input: InvoicePdfInput): jsPDF {
   // Items table
   autoTable(doc, {
     startY: detailY + 19,
-    head: [["Description", "Amount (R)"]],
+    head: [["Description", "Amount (US$ / ZiG)"]],
     body: input.items.map((it) => [
       it.description,
       formatMoney(it.amount_usd || 0),
@@ -237,7 +237,7 @@ export function buildInvoiceHtml(input: InvoicePdfInput): string {
   </div>
 
   <table>
-    <thead><tr><th>Description</th><th class="right">Amount (R)</th></tr></thead>
+    <thead><tr><th>Description</th><th class="right">Amount (US$ / ZiG)</th></tr></thead>
     <tbody>${itemRows || "<tr><td colspan='2'>No items</td></tr>"}</tbody>
   </table>
 
@@ -443,7 +443,7 @@ export function buildStatementHtml(input: StatementPrintInput) {
 
   <h3 style="margin-top:14px;">Payments</h3>
   <table>
-    <thead><tr><th>Receipt #</th><th>Date</th><th class="right">Amount (R)</th><th>Method</th></tr></thead>
+    <thead><tr><th>Receipt #</th><th>Date</th><th class="right">Amount (US$ / ZiG)</th><th>Method</th></tr></thead>
     <tbody>${paymentRows || "<tr><td colspan='4'>No payments</td></tr>"}</tbody>
   </table>
 
@@ -576,23 +576,23 @@ export function buildIncomeExpenditureHtml(input: IncomeExpenditureInput): strin
   </div>
 
   ${categoryRows ? `<h3>Expenditure breakdown by category</h3>
-  <table><thead><tr><th>Category</th><th class="right">Amount (R)</th></tr></thead><tbody>${categoryRows}</tbody></table>` : ""}
+  <table><thead><tr><th>Category</th><th class="right">Amount (US$ / ZiG)</th></tr></thead><tbody>${categoryRows}</tbody></table>` : ""}
 
   <h3>Income — ${input.income.length} transaction(s)</h3>
   <table>
-    <thead><tr><th>Date</th><th>Receipt #</th><th>Party / Student</th><th>Method</th><th class="right">Amount (R)</th><th>Reference</th></tr></thead>
+    <thead><tr><th>Date</th><th>Receipt #</th><th>Party / Student</th><th>Method</th><th class="right">Amount (US$ / ZiG)</th><th>Reference</th></tr></thead>
     <tbody>${incomeRows || `<tr><td colspan="6" style="text-align:center;color:#999;">No income recorded for this period.</td></tr>`}</tbody>
   </table>
 
   <h3>General Expenses — ${input.expenses.length} transaction(s)</h3>
   <table>
-    <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Method</th><th class="right">Amount (R)</th></tr></thead>
+    <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Method</th><th class="right">Amount (US$ / ZiG)</th></tr></thead>
     <tbody>${expenseRows || `<tr><td colspan="5" style="text-align:center;color:#999;">No expenses recorded for this period.</td></tr>`}</tbody>
   </table>
 
   <h3>Supplier Payments — ${input.supplierPayments.length} transaction(s)</h3>
   <table>
-    <thead><tr><th>Date</th><th>Supplier</th><th>Method</th><th>Reference</th><th class="right">Amount (R)</th></tr></thead>
+    <thead><tr><th>Date</th><th>Supplier</th><th>Method</th><th>Reference</th><th class="right">Amount (US$ / ZiG)</th></tr></thead>
     <tbody>${supplierRows || `<tr><td colspan="5" style="text-align:center;color:#999;">No supplier payments recorded for this period.</td></tr>`}</tbody>
   </table>
 
@@ -683,7 +683,7 @@ export function buildExpensesListHtml(input: ExpensesListInput): string {
   </div>
 
   <table>
-    <thead><tr><th>#</th><th>Date</th><th>Category</th><th>Description</th><th>Method</th><th>Reference</th><th class="right">Amount (R)</th></tr></thead>
+    <thead><tr><th>#</th><th>Date</th><th>Category</th><th>Description</th><th>Method</th><th>Reference</th><th class="right">Amount (US$ / ZiG)</th></tr></thead>
     <tbody>${rows || `<tr><td colspan="7" style="text-align:center;color:#999;">No expenses recorded for this period.</td></tr>`}</tbody>
     <tfoot><tr><td colspan="6" class="right">TOTAL (${input.expenses.length} entries)</td><td class="right mono red">${formatMoney(total)}</td></tr></tfoot>
   </table>

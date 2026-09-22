@@ -14,6 +14,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
+import { SCHOOL_LOGO_URL, SCHOOL_NAME, urlToDataUrl } from "@/lib/finance/pdf";
 
 const FORM_LEVELS = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 const CHART_COLORS = ["hsl(var(--primary))", "hsl(var(--accent))", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
@@ -160,16 +161,23 @@ export default function EMISReports() {
     setInventorySummary(Object.entries(catSummary).map(([name, qty]) => ({ name, quantity: qty })));
   };
 
-  const generatePDF = (reportType: string) => {
+  const generatePDF = async (reportType: string) => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
+
+    try {
+      const logo = await urlToDataUrl(SCHOOL_LOGO_URL);
+      doc.addImage(logo, "PNG", 14, 8, 24, 24);
+    } catch {
+      // Keep the report usable if the logo cannot be loaded.
+    }
 
     // Header
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
     doc.text("MINISTRY OF PRIMARY AND SECONDARY EDUCATION", pageWidth / 2, 15, { align: "center" });
     doc.setFontSize(11);
-    doc.text("GIFFORD HIGH SCHOOL", pageWidth / 2, 22, { align: "center" });
+    doc.text(SCHOOL_NAME.toUpperCase(), pageWidth / 2, 22, { align: "center" });
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
     doc.text(`EMIS ${reportType} Report — Academic Year ${academicYear}`, pageWidth / 2, 28, { align: "center" });
@@ -235,7 +243,7 @@ export default function EMISReports() {
     if (reportType === "Student Enrollment") {
       const wsData = [
         ["EMIS Student Enrollment Report", "", "", ""],
-        ["MavingTech High School", "", "", ""],
+        [SCHOOL_NAME, "", "", ""],
         [`Academic Year: ${academicYear}`, "", "", ""],
         [],
         ["Form Level", "Male", "Female", "Total"],
@@ -248,7 +256,7 @@ export default function EMISReports() {
     } else if (reportType === "Staff Returns") {
       const wsData = [
         ["EMIS Staff Returns Report", "", "", ""],
-        ["MavingTech High School", "", "", ""],
+        [SCHOOL_NAME, "", "", ""],
         [`Academic Year: ${academicYear}`, "", "", ""],
         [],
         ["Category", "Count", "Qualified", "% Qualified"],
@@ -262,7 +270,7 @@ export default function EMISReports() {
     } else if (reportType === "Infrastructure") {
       const wsData = [
         ["EMIS Infrastructure Report", ""],
-        ["MavingTech High School", ""],
+        [SCHOOL_NAME, ""],
         [`Academic Year: ${academicYear}`, ""],
         [],
         ["Facility", "Count/Quantity"],

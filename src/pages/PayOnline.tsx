@@ -13,6 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { CreditCard, GraduationCap, Heart, CheckCircle, AlertCircle, Search, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useExchangeRate } from "@/hooks/useExchangeRate";
+import { formatMoney } from "@/lib/currency";
 
 export default function PayOnline() {
   const [searchParams] = useSearchParams();
@@ -67,6 +69,7 @@ export default function PayOnline() {
 }
 
 function FeePaymentForm() {
+  const { rate, usdToZig } = useExchangeRate();
   const [studentNumber, setStudentNumber] = useState("");
   const [studentInfo, setStudentInfo] = useState<any>(null);
   const [searching, setSearching] = useState(false);
@@ -131,7 +134,7 @@ function FeePaymentForm() {
           <CheckCircle className="mx-auto mb-4 h-16 w-16 text-green-600" />
           <h3 className="text-xl font-bold text-green-800">Payment Request Recorded</h3>
           <p className="mt-2 text-green-700">
-            Your fee payment of <strong>${amount}</strong> for student{" "}
+            Your fee payment of <strong>{formatMoney(amount)}</strong> for student{" "}
             <strong>{studentInfo?.admission_number}</strong> has been recorded.
           </p>
           <p className="mt-4 text-sm text-muted-foreground">
@@ -207,6 +210,7 @@ function FeePaymentForm() {
                   onChange={(e) => setAmount(e.target.value)}
                   required
                 />
+                <p className="text-xs text-muted-foreground">ZiG {usdToZig(Number(amount) || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} at US$ 1 = ZiG {rate.toFixed(2)}</p>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
@@ -242,7 +246,7 @@ function FeePaymentForm() {
 
               <Button type="submit" className="w-full gap-2" size="lg" disabled={submitting || !amount}>
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}
-                {submitting ? "Processing..." : `Pay $${amount || "0.00"}`}
+                {submitting ? "Processing..." : `Pay ${formatMoney(amount || 0)}`}
               </Button>
 
               <p className="text-center text-xs text-muted-foreground">
@@ -257,6 +261,7 @@ function FeePaymentForm() {
 }
 
 function DonationForm({ initialProjectId }: { initialProjectId: string }) {
+  const { rate, usdToZig } = useExchangeRate();
   const [projects, setProjects] = useState<any[]>([]);
   const [selectedProject, setSelectedProject] = useState(initialProjectId);
   const [amount, setAmount] = useState("");
@@ -309,7 +314,7 @@ function DonationForm({ initialProjectId }: { initialProjectId: string }) {
           <CheckCircle className="mx-auto mb-4 h-16 w-16 text-green-600" />
           <h3 className="text-xl font-bold text-green-800">Thank You for Your Generosity!</h3>
           <p className="mt-2 text-green-700">
-            Your donation of <strong>${amount}</strong> has been recorded.
+            Your donation of <strong>{formatMoney(amount)}</strong> has been recorded.
           </p>
           <p className="mt-4 text-sm text-muted-foreground">
             Online payment processing via Stripe will be activated soon. For now, please proceed with bank transfer.
@@ -361,7 +366,7 @@ function DonationForm({ initialProjectId }: { initialProjectId: string }) {
                   onClick={() => setAmount(preset)}
                   className="text-sm"
                 >
-                  ${preset}
+                  {formatMoney(preset, { decimals: false })}
                 </Button>
               ))}
             </div>
@@ -374,6 +379,7 @@ function DonationForm({ initialProjectId }: { initialProjectId: string }) {
               onChange={(e) => setAmount(e.target.value)}
               required
             />
+            <p className="text-xs text-muted-foreground">ZiG {usdToZig(Number(amount) || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} at US$ 1 = ZiG {rate.toFixed(2)}</p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -409,7 +415,7 @@ function DonationForm({ initialProjectId }: { initialProjectId: string }) {
 
           <Button type="submit" className="w-full gap-2" size="lg" disabled={submitting || !amount}>
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Heart className="h-4 w-4" />}
-            {submitting ? "Processing..." : `Donate $${amount || "0.00"}`}
+            {submitting ? "Processing..." : `Donate ${formatMoney(amount || 0)}`}
           </Button>
 
           <p className="text-center text-xs text-muted-foreground">

@@ -1,3 +1,6 @@
+import { buildBrandedHtml } from "@/lib/print/printSection";
+import { downloadHtmlDocument } from "@/lib/finance/print";
+
 export interface LessonPlanPrintData {
   title: string;
   date: string;
@@ -29,9 +32,7 @@ export function buildLessonPlanHtml(plan: LessonPlanPrintData): string {
 
   const dateStr = new Date(plan.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 
-  return `<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>${plan.title}</title>
-<style>
+  const bodyHtml = `<style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: Arial, Helvetica, sans-serif; color: #1a1a1a; padding: 40px; max-width: 800px; margin: 0 auto; line-height: 1.6; }
   .header { border-bottom: 3px solid #2563eb; padding-bottom: 16px; margin-bottom: 24px; }
@@ -46,7 +47,7 @@ export function buildLessonPlanHtml(plan: LessonPlanPrintData): string {
   .section h2 { font-size: 14px; color: #2563eb; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; border-left: 3px solid #2563eb; padding-left: 10px; }
   .section p { font-size: 14px; white-space: pre-wrap; word-wrap: break-word; }
   @media print { body { padding: 20px; } }
-</style></head><body>
+</style>
 <div class="header">
   <h1>${escapeHtml(plan.title)}</h1>
   <div class="meta">
@@ -57,8 +58,8 @@ export function buildLessonPlanHtml(plan: LessonPlanPrintData): string {
     <span class="badge badge-${plan.status || "draft"}">${(plan.status || "draft").replace("_", " ")}</span>
   </div>
 </div>
-${sections.map(([label, value]) => `<div class="section"><h2>${label}</h2><p>${escapeHtml(value as string)}</p></div>`).join("\n")}
-</body></html>`;
+${sections.map(([label, value]) => `<div class="section"><h2>${label}</h2><p>${escapeHtml(value as string)}</p></div>`).join("\n")}`;
+  return buildBrandedHtml({ title: "Lesson Plan", subtitle: plan.title, bodyHtml });
 }
 
 function escapeHtml(str: string): string {
@@ -76,13 +77,7 @@ export function printLessonPlan(plan: LessonPlanPrintData) {
   setTimeout(() => w.print(), 300);
 }
 
-export function downloadLessonPlan(plan: LessonPlanPrintData) {
+export async function downloadLessonPlan(plan: LessonPlanPrintData) {
   const html = buildLessonPlanHtml(plan);
-  const blob = new Blob([html], { type: "text/html" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${plan.title.replace(/[^a-zA-Z0-9 ]/g, "").replace(/\s+/g, "_")}_lesson_plan.html`;
-  a.click();
-  URL.revokeObjectURL(url);
+  await downloadHtmlDocument(html, `${plan.title.replace(/[^a-zA-Z0-9 ]/g, "").replace(/\s+/g, "_")}_lesson_plan`);
 }
