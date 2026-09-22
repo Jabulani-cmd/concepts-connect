@@ -33,6 +33,7 @@ import ExamResultsUpload from "@/components/teacher/ExamResultsUpload";
 import StudentExamTimetableTab from "@/components/student/StudentExamTimetableTab";
 import LessonPlansTab from "@/components/teacher/LessonPlansTab";
 import TeacherAIAssistant from "@/components/teacher/TeacherAIAssistant";
+import AIAssistantHub from "@/components/teacher/ai/AIAssistantHub";
 import StudentProgressTracker from "@/components/teacher/StudentProgressTracker";
 import ResourceLibraryTab from "@/components/teacher/ResourceLibraryTab";
 import ParentCommunicationLog from "@/components/teacher/ParentCommunicationLog";
