@@ -166,13 +166,13 @@ export default function AdminPayments() {
       const { data, error } = await supabase.functions.invoke("ai-parent-message", {
         body: {
           intent: "payment_reminder",
-          context: `There are ${expiredCount + subs.filter(s => s.status === "pending").length} unpaid families. Write a warm, brief reminder to renew portal subscription at MavingTech Business Solutions. Mention plans start at $10/month or $25/term.`,
+          context: `There are ${expiredCount + subs.filter(s => s.status === "pending").length} unpaid families. Write a warm, brief reminder to renew portal subscription at MavingTech Business Solutions. Mention plans start at US$ 10/month or US$ 25/term, with the current ZiG equivalent shown in the portal.`,
         },
       });
       if (error) throw error;
       setAiMessage(data?.message || data?.text || "Dear Parent, this is a friendly reminder to renew your portal subscription so your child can continue accessing learning materials and the timetable.");
     } catch {
-      setAiMessage("Dear Parent, this is a friendly reminder to renew your portal subscription so your child can continue accessing learning materials and the timetable. Plans start at $10/month or $25/term. — MavingTech Business Solutions");
+      setAiMessage("Dear Parent, this is a friendly reminder to renew your portal subscription so your child can continue accessing learning materials and the timetable. Plans start at US$ 10/month or US$ 25/term, with the current ZiG equivalent shown in the portal. — MavingTech Business Solutions");
     } finally {
       setAiLoading(false);
     }

@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { formatMoney } from "@/lib/currency";
 import { generateAndStoreReceipt } from "@/lib/finance/receiptStorage";
+import { useExchangeRate } from "@/hooks/useExchangeRate";
 
 type Outcome = "auto" | "approve" | "insufficient" | "declined";
 type Step = "amount" | "method" | "card" | "gateway" | "qr" | "success" | "failed";
@@ -35,6 +36,7 @@ const METHOD_LABEL: Record<string, string> = {
 
 export default function PayInvoiceDialog({ open, onOpenChange, invoice, student, outstanding, onPaid }: Props) {
   const { toast } = useToast();
+  const { rate, usdToZig } = useExchangeRate();
   const [step, setStep] = useState<Step>("amount");
   const [amount, setAmount] = useState<string>("");
   const [method, setMethod] = useState<string>("card");
@@ -115,7 +117,7 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
         amount: payAmount,
         currency: "USD",
         amount_usd: payAmount,
-        amount_zig: 0,
+        amount_zig: usdToZig(payAmount),
         payment_method: method,
         payment_status: "paid",
         reference_number: txId,
@@ -212,7 +214,7 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
                 className="mt-1 font-mono text-lg"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Pay the full balance or enter a lower amount for a partial payment.
+                ZiG {usdToZig(payAmount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} at US$ 1 = ZiG {rate.toFixed(2)}. Pay the full balance or enter a lower amount.
               </p>
             </div>
             {error && (

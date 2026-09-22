@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
 import { downloadSubscriptionReceipt } from "@/lib/receiptPdf";
+import { formatMoney } from "@/lib/currency";
 
 const STATUS_STYLES: Record<string, { label: string; cls: string; icon: any }> = {
   paid: { label: "Paid", cls: "bg-emerald-100 text-emerald-700", icon: CheckCircle2 },
@@ -97,7 +98,7 @@ export default function ParentPaymentHistory() {
                     <TableRow key={p.id}>
                       <TableCell className="whitespace-nowrap">{new Date(p.created_at).toLocaleDateString()}</TableCell>
                       <TableCell>{p.subscriptions?.subscription_plans?.name || p.subscriptions?.plan_type || "—"}</TableCell>
-                      <TableCell>R {Number(p.amount).toFixed(2)} {p.currency}</TableCell>
+                      <TableCell>{formatMoney(p.amount_usd ?? p.amount)}</TableCell>
                       <TableCell className="capitalize">{p.payment_method.replace("_", " ")}</TableCell>
                       <TableCell><Badge className={s.cls}><s.icon className="w-3 h-3 mr-1" />{s.label}</Badge></TableCell>
                       <TableCell>
