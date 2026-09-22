@@ -697,6 +697,7 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
 
           {/* AI ASSIST */}
           <TabsContent value="ai-assist" className="space-y-4">
+            <AIAssistantHub students={students} />
             <TeacherAIAssistant />
             <Card className="border-primary/30 bg-gradient-to-br from-primary/5 via-background to-accent/5">
               <CardHeader>
