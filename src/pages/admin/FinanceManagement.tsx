@@ -73,6 +73,7 @@ import {
   Truck,
 } from "lucide-react";
 import { safeHtml } from "@/lib/utils";
+import { buildBrandedHtml } from "@/lib/print/printSection";
 import BankReconciliation from "@/components/admin/BankReconciliation";
 import IncomeExpenditureReport from "@/components/admin/IncomeExpenditureReport";
 
@@ -847,9 +848,7 @@ export default function FinanceManagement() {
 
   // Shared branded document shell for finance reports (statements, debtors, etc.)
   function buildReportShell(title: string, subtitleLines: string[], bodyHtml: string) {
-    const now = new Date().toLocaleDateString("en-ZA");
-    return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${safeHtml(title)}</title>
-<style>
+    const body = `<style>
   *{box-sizing:border-box}
   body{font-family:Arial,Helvetica,sans-serif;color:#111;padding:32px;font-size:12px;background:#fff}
   .header{border-bottom:3px solid #0f766e;padding-bottom:12px;margin-bottom:18px}
@@ -875,17 +874,11 @@ export default function FinanceManagement() {
   .summary p{margin:4px 0}
   .footer{margin-top:28px;padding-top:10px;border-top:1px solid #e2e8f0;color:#64748b;font-size:10px;text-align:center}
   @media print{body{padding:18px}thead{display:table-header-group}tr{page-break-inside:avoid}}
-</style></head><body>
-  <div class="header">
-    <div class="tag">MavingTech Business Solutions</div>
-    <h1>${safeHtml(title)}</h1>
-    <div class="addr">123 Samora Machel Avenue, Harare, Zimbabwe · +263 24 255 0123 · info@mbsmavingtech.ac.zw</div>
-  </div>
+</style>
   ${subtitleLines.map((l) => `<p class="meta">${l}</p>`).join("")}
-  <p class="meta"><strong>Generated:</strong> ${now}</p>
   ${bodyHtml}
-  <div class="footer">MavingTech Business Solutions · Confidential financial document</div>
-</body></html>`;
+  <div class="footer">Confidential financial document</div>`;
+    return buildBrandedHtml({ title, bodyHtml: body });
   }
 
   function statusText(s: any) {
@@ -922,12 +915,12 @@ export default function FinanceManagement() {
       <h2>Invoices</h2>
       <table><thead><tr>
         <th>Invoice #</th><th>Term</th><th>Year</th>
-        <th class="right">Total (R)</th><th class="right">Paid (R)</th><th>Status</th>
+        <th class="right">Total (US$ / ZiG)</th><th class="right">Paid (US$ / ZiG)</th><th>Status</th>
       </tr></thead><tbody>${invRows}</tbody></table>
       <h2>Payments</h2>
       <table><thead><tr>
         <th>Receipt #</th><th>Date</th><th>Invoice</th>
-        <th class="right">Amount (R)</th><th>Method</th>
+        <th class="right">Amount (US$ / ZiG)</th><th>Method</th>
       </tr></thead><tbody>${payRows}</tbody></table>
       <div class="summary">
         <p><strong>Total Invoiced:</strong> ${formatMoney(totalInvoiced)}</p>
@@ -1559,7 +1552,7 @@ export default function FinanceManagement() {
         "void_payment",
         "payments",
         payment.id,
-        `Void payment ${payment.receipt_number} ($${fmt(Number(payment.amount_usd))})`,
+        `Void payment ${payment.receipt_number} (${formatMoney(payment.amount_usd)})`,
         {
           invoice_id: payment.invoice_id,
           amount_usd: payment.amount_usd,
@@ -1598,7 +1591,7 @@ export default function FinanceManagement() {
         "void_invoice",
         "invoices",
         invoice.id,
-        `Void invoice ${invoice.invoice_number} ($${fmt(Number(invoice.total_usd))})`,
+        `Void invoice ${invoice.invoice_number} (${formatMoney(invoice.total_usd)})`,
       );
       return;
     }
@@ -1792,7 +1785,7 @@ export default function FinanceManagement() {
                         <TableHead>Grade</TableHead>
                         <TableHead>Type</TableHead>
                         <TableHead>Description</TableHead>
-                        <TableHead className="text-right">Amount (R)</TableHead>
+                        <TableHead className="text-right">Amount (US$ / ZiG)</TableHead>
                         <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -1804,7 +1797,7 @@ export default function FinanceManagement() {
                           <TableCell>{fee.form}</TableCell>
                           <TableCell>{fee.boarding_status === "boarding" ? "Boarding" : "Day"}</TableCell>
                           <TableCell className="max-w-[200px] truncate">{fee.description || "—"}</TableCell>
-                          <TableCell className="text-right font-mono">{fmt(fee.amount_usd)}</TableCell>
+                          <TableCell className="text-right font-mono">{formatMoney(fee.amount_usd)}</TableCell>
                           <TableCell>
                             <div className="flex gap-1">
                               <Button variant="ghost" size="icon" onClick={() => openEditFee(fee)}>
@@ -2067,7 +2060,7 @@ export default function FinanceManagement() {
                         <TableHead>Date</TableHead>
                         <TableHead>Student</TableHead>
                         <TableHead>Invoice</TableHead>
-                        <TableHead className="text-right">Amount (R)</TableHead>
+                        <TableHead className="text-right">Amount (US$ / ZiG)</TableHead>
                         <TableHead>Method</TableHead>
                         <TableHead>Ref</TableHead>
                         {isFinanceOrAdmin && <TableHead>Actions</TableHead>}
@@ -2080,7 +2073,7 @@ export default function FinanceManagement() {
                           <TableCell>{pay.payment_date}</TableCell>
                           <TableCell>{pay.students?.full_name || "—"}</TableCell>
                           <TableCell className="font-mono text-xs">{pay.invoices?.invoice_number || "—"}</TableCell>
-                          <TableCell className="text-right font-mono">{fmt(pay.amount_usd)}</TableCell>
+                          <TableCell className="text-right font-mono">{formatMoney(pay.amount_usd)}</TableCell>
                           <TableCell>{pay.payment_method}</TableCell>
                           <TableCell className="text-xs">{pay.reference_number || "—"}</TableCell>
                           {isFinanceOrAdmin && (
@@ -2334,7 +2327,7 @@ export default function FinanceManagement() {
                               <TableHead>Date</TableHead>
                               <TableHead>Type</TableHead>
                               <TableHead>Description</TableHead>
-                              <TableHead className="text-right">Amount (R)</TableHead>
+                              <TableHead className="text-right">Amount (US$ / ZiG)</TableHead>
                               <TableHead>Reference</TableHead>
                               <TableHead>Actions</TableHead>
                             </TableRow>
@@ -2360,7 +2353,7 @@ export default function FinanceManagement() {
                                   className={`text-right font-mono ${pc.transaction_type === "deposit" ? "text-green-700" : "text-destructive"}`}
                                 >
                                   {pc.transaction_type === "deposit" ? "+" : "-"}
-                                  {fmt(pc.amount_usd)}
+                                  {formatMoney(pc.amount_usd)}
                                 </TableCell>
                                 <TableCell className="text-xs">{pc.reference_number || "—"}</TableCell>
                                 <TableCell>
@@ -2446,8 +2439,8 @@ export default function FinanceManagement() {
                           <TableHead>Date</TableHead>
                           <TableHead>Due Date</TableHead>
                           <TableHead>Description</TableHead>
-                          <TableHead className="text-right">Amount (R)</TableHead>
-                          <TableHead className="text-right">Paid (R)</TableHead>
+                          <TableHead className="text-right">Amount (US$ / ZiG)</TableHead>
+                          <TableHead className="text-right">Paid (US$ / ZiG)</TableHead>
                           <TableHead className="text-right">Balance</TableHead>
                           <TableHead>Status</TableHead>
                           <TableHead>Actions</TableHead>
@@ -2461,10 +2454,10 @@ export default function FinanceManagement() {
                             <TableCell className="text-xs">{si.invoice_date}</TableCell>
                             <TableCell className="text-xs">{si.due_date || "—"}</TableCell>
                             <TableCell className="max-w-[200px] truncate">{si.description || "—"}</TableCell>
-                            <TableCell className="text-right font-mono">{fmt(si.amount_usd)}</TableCell>
+                            <TableCell className="text-right font-mono">{formatMoney(si.amount_usd)}</TableCell>
                             <TableCell className="text-right font-mono text-green-700">{fmt(si.paid_usd)}</TableCell>
                             <TableCell className="text-right font-mono text-destructive">
-                              {fmt(Number(si.amount_usd) - Number(si.paid_usd))}
+                              {formatMoney(Number(si.amount_usd) - Number(si.paid_usd))}
                             </TableCell>
                             <TableCell>{statusBadge(si.status)}</TableCell>
                             <TableCell>
@@ -2521,7 +2514,7 @@ export default function FinanceManagement() {
                           <TableHead>Invoice #</TableHead>
                           <TableHead>Method</TableHead>
                           <TableHead>Reference</TableHead>
-                          <TableHead className="text-right">Amount (R)</TableHead>
+                          <TableHead className="text-right">Amount (US$ / ZiG)</TableHead>
                           <TableHead>Notes</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -2535,7 +2528,7 @@ export default function FinanceManagement() {
                             </TableCell>
                             <TableCell>{sp.payment_method}</TableCell>
                             <TableCell className="font-mono text-xs">{sp.reference_number || "—"}</TableCell>
-                            <TableCell className="text-right font-mono">{fmt(sp.amount_usd)}</TableCell>
+                            <TableCell className="text-right font-mono">{formatMoney(sp.amount_usd)}</TableCell>
                             <TableCell className="max-w-[200px] truncate">{sp.notes || "—"}</TableCell>
                           </TableRow>
                         ))}
@@ -2727,7 +2720,7 @@ export default function FinanceManagement() {
                               <TableHead>Receipt #</TableHead>
                               <TableHead>Date</TableHead>
                               <TableHead>Invoice</TableHead>
-                              <TableHead className="text-right">Amount (R)</TableHead>
+                              <TableHead className="text-right">Amount (US$ / ZiG)</TableHead>
                               <TableHead>Method</TableHead>
                               <TableHead>Ref</TableHead>
                             </TableRow>
@@ -2738,7 +2731,7 @@ export default function FinanceManagement() {
                                 <TableCell className="font-mono text-xs">{p.receipt_number}</TableCell>
                                 <TableCell>{p.payment_date}</TableCell>
                                 <TableCell className="font-mono text-xs">{p.invoices?.invoice_number || "—"}</TableCell>
-                                <TableCell className="text-right font-mono">{fmt(parseFloat(p.amount_usd))}</TableCell>
+                                <TableCell className="text-right font-mono">{formatMoney(p.amount_usd)}</TableCell>
                                 <TableCell>{p.payment_method}</TableCell>
                                 <TableCell className="text-xs">{p.reference_number || "—"}</TableCell>
                               </TableRow>
@@ -2797,8 +2790,7 @@ export default function FinanceManagement() {
               <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border bg-muted/30 px-3 py-2 text-xs">
                 <span className="text-muted-foreground">
                   Showing <strong>{filteredExpenses.length}</strong> of {expenses.length} · Total
-                   US$ <strong className="text-destructive">${fmt(filteredExpenses.reduce((s, e) => s + parseFloat(e.amount_usd || 0), 0))}</strong>
-                  &nbsp;·&nbsp; R <strong>{fmt(filteredExpenses.reduce((s, e) => s + parseFloat(e.amount_zig || 0), 0))}</strong>
+                  <strong className="text-destructive">{formatMoney(filteredExpenses.reduce((s, e) => s + parseFloat(e.amount_usd || 0), 0))}</strong>
                 </span>
                 <DocActionButtons
                   labels
@@ -2826,7 +2818,7 @@ export default function FinanceManagement() {
                         <TableHead>Date</TableHead>
                         <TableHead>Category</TableHead>
                         <TableHead>Description</TableHead>
-                        <TableHead className="text-right">Amount (R)</TableHead>
+                        <TableHead className="text-right">Amount (US$ / ZiG)</TableHead>
                         <TableHead>Method</TableHead>
                         <TableHead className="text-center">Document</TableHead>
                         <TableHead>Actions</TableHead>
@@ -2840,7 +2832,7 @@ export default function FinanceManagement() {
                             <Badge variant="outline">{exp.category}</Badge>
                           </TableCell>
                           <TableCell className="max-w-[250px] truncate">{exp.description}</TableCell>
-                          <TableCell className="text-right font-mono">{fmt(exp.amount_usd)}</TableCell>
+                          <TableCell className="text-right font-mono">{formatMoney(exp.amount_usd)}</TableCell>
                           <TableCell>{exp.payment_method}</TableCell>
                           <TableCell className="text-center">
                             <DocActionButtons
@@ -2892,10 +2884,10 @@ export default function FinanceManagement() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="rounded-lg border p-4">
                     <p className="text-xs text-muted-foreground uppercase tracking-wider">Total USD Collected</p>
-                    <p className="text-2xl font-bold text-green-700">${fmt(totalCollectedUsd)}</p>
+                    <p className="text-lg font-bold text-green-700">{formatMoney(totalCollectedUsd)}</p>
                   </div>
                   <div className="rounded-lg border p-4">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider">Total R Collected</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider">Current ZiG Collected</p>
                     <p className="text-2xl font-bold text-green-700">ZiG {fmt(totalCollectedZig)}</p>
                   </div>
                 </div>
@@ -2927,24 +2919,24 @@ export default function FinanceManagement() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-sm">Income (US$)</span>
-                    <span className="font-mono font-bold text-green-700">${fmt(totalCollectedUsd)}</span>
+                    <span className="font-mono font-bold text-green-700">{formatMoney(totalCollectedUsd)}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm">Expenses (US$)</span>
-                    <span className="font-mono font-bold text-red-600">${fmt(totalExpensesUsd)}</span>
+                    <span className="font-mono font-bold text-red-600">{formatMoney(totalExpensesUsd)}</span>
                   </div>
                   <div className="border-t pt-2 flex justify-between items-center">
                     <span className="text-sm font-semibold">Net (US$)</span>
                     <span
                       className={`font-mono font-bold ${totalCollectedUsd - totalExpensesUsd >= 0 ? "text-green-700" : "text-red-600"}`}
                     >
-                      ${fmt(totalCollectedUsd - totalExpensesUsd)}
+                      {formatMoney(totalCollectedUsd - totalExpensesUsd)}
                     </span>
                   </div>
                 </div>
                 <div className="border-t pt-4 space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">Income (R)</span>
+                    <span className="text-sm">Income (ZiG)</span>
                     <span className="font-mono font-bold text-green-700">ZiG {fmt(totalCollectedZig)}</span>
                   </div>
                   <div className="flex justify-between items-center">
@@ -3082,7 +3074,7 @@ export default function FinanceManagement() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label>Amount (R)</Label>
+                <Label>Amount (US$)</Label>
                 <Input
                   type="number"
                   step="0.01"
@@ -3370,7 +3362,7 @@ export default function FinanceManagement() {
             )}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label>Amount (R)</Label>
+                <Label>Amount (US$)</Label>
                 <Input
                   type="number"
                   step="0.01"
@@ -3380,7 +3372,7 @@ export default function FinanceManagement() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Amount R <span className="text-xs text-muted-foreground">auto</span></Label>
+                <Label>Amount ZiG <span className="text-xs text-muted-foreground">auto</span></Label>
                 <Input
                   type="number"
                   step="0.01"
@@ -3523,7 +3515,7 @@ export default function FinanceManagement() {
                 />
               </div>
               <div className="space-y-1">
-                <Label>Amount R <span className="text-xs text-muted-foreground">auto</span></Label>
+                <Label>Amount ZiG <span className="text-xs text-muted-foreground">auto</span></Label>
                 <Input
                   type="number"
                   step="0.01"
@@ -3632,7 +3624,7 @@ export default function FinanceManagement() {
                 />
               </div>
               <div className="space-y-1">
-                <Label>Amount R <span className="text-xs text-muted-foreground">auto</span></Label>
+                <Label>Amount ZiG <span className="text-xs text-muted-foreground">auto</span></Label>
                 <Input
                   type="number"
                   step="0.01"
@@ -3750,7 +3742,7 @@ export default function FinanceManagement() {
                 />
               </div>
               <div className="space-y-1">
-                <Label>Amount R <span className="text-xs text-muted-foreground">auto</span></Label>
+                <Label>Amount ZiG <span className="text-xs text-muted-foreground">auto</span></Label>
                 <Input
                   type="number"
                   step="0.01"
@@ -3843,7 +3835,7 @@ export default function FinanceManagement() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label>Amount (R)</Label>
+                <Label>Amount (US$)</Label>
                 <Input
                   type="number"
                   step="0.01"
@@ -3852,7 +3844,7 @@ export default function FinanceManagement() {
                 />
               </div>
               <div className="space-y-1">
-                <Label>Amount R <span className="text-xs text-muted-foreground">auto</span></Label>
+                <Label>Amount ZiG <span className="text-xs text-muted-foreground">auto</span></Label>
                 <Input
                   type="number"
                   step="0.01"
@@ -3925,7 +3917,7 @@ export default function FinanceManagement() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label>Amount (R)</Label>
+                <Label>Amount (US$)</Label>
                 <Input
                   type="number"
                   step="0.01"
