@@ -191,6 +191,8 @@ export default function ParentSubscribe() {
       await supabase.from("payments").insert({
         parent_id: user.id,
         amount: plan.amount_usd,
+        amount_usd: plan.amount_usd,
+        amount_zig: usdToZig(plan.amount_usd),
         currency: "USD",
         payment_method: method,
         transaction_id: txId,

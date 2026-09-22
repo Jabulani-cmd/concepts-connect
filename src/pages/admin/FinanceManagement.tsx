@@ -3922,7 +3922,7 @@ export default function FinanceManagement() {
                   type="number"
                   step="0.01"
                   value={expForm.amount_usd}
-                  onChange={(e) => setExpForm((p) => ({ ...p, amount_usd: e.target.value }))}
+                  onChange={(e) => setExpForm((p) => ({ ...p, amount_usd: e.target.value, amount_zig: autoZig(e.target.value) }))}
                 />
               </div>
               <div className="space-y-1">
