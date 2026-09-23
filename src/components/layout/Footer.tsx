@@ -33,8 +33,8 @@ export default function Footer() {
               </span>
             </div>
             <div className="flex flex-col items-center gap-3">
-              <div className="flex h-28 items-center justify-center">
-                <img src={cambridgeLogo} alt="University of Cambridge logo" className="max-h-24 w-auto object-contain" />
+              <div className="flex h-40 items-center justify-center">
+                <img src={cambridgeLogo} alt="University of Cambridge logo" className="max-h-[125px] w-auto object-contain" />
               </div>
               <span className="max-w-[220px] text-center text-xs font-medium leading-tight text-muted-foreground">
                 Cambridge International Education
