@@ -43,6 +43,13 @@
       "when": 1790165611264,
       "tag": "0005_upload_rules",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790165867320,
+      "tag": "0006_apply_upload_rules",
+      "breakpoints": true
     }
   ]
 }
