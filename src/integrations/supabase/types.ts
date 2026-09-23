@@ -4045,6 +4045,10 @@ export type Database = {
         Args: { _student_id: string }
         Returns: string
       }
+      can_access_private_file: {
+        Args: { _path: string; _uid: string; _write: boolean }
+        Returns: boolean
+      }
       can_view_profile: {
         Args: { _target: string; _viewer: string }
         Returns: boolean
