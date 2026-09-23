@@ -197,39 +197,27 @@ export type Database = {
           assessment_id: string | null
           created_at: string
           feedback: string | null
-          grade: string | null
           graded_by: string | null
-          graded_date: string | null
           id: string
-          is_published: boolean
           mark: number | null
-          percentage: number | null
           student_id: string | null
         }
         Insert: {
           assessment_id?: string | null
           created_at?: string
           feedback?: string | null
-          grade?: string | null
           graded_by?: string | null
-          graded_date?: string | null
           id?: string
-          is_published?: boolean
           mark?: number | null
-          percentage?: number | null
           student_id?: string | null
         }
         Update: {
           assessment_id?: string | null
           created_at?: string
           feedback?: string | null
-          grade?: string | null
           graded_by?: string | null
-          graded_date?: string | null
           id?: string
-          is_published?: boolean
           mark?: number | null
-          percentage?: number | null
           student_id?: string | null
         }
         Relationships: [
@@ -316,7 +304,6 @@ export type Database = {
           id: string
           instructions: string | null
           is_published: boolean
-          link_url: string | null
           max_marks: number | null
           pass_mark: number | null
           questions: Json | null
@@ -339,7 +326,6 @@ export type Database = {
           id?: string
           instructions?: string | null
           is_published?: boolean
-          link_url?: string | null
           max_marks?: number | null
           pass_mark?: number | null
           questions?: Json | null
@@ -362,7 +348,6 @@ export type Database = {
           id?: string
           instructions?: string | null
           is_published?: boolean
-          link_url?: string | null
           max_marks?: number | null
           pass_mark?: number | null
           questions?: Json | null
@@ -484,7 +469,6 @@ export type Database = {
           created_at: string
           id: string
           image_url: string
-          is_active: boolean
         }
         Insert: {
           award_id?: string | null
@@ -492,7 +476,6 @@ export type Database = {
           created_at?: string
           id?: string
           image_url: string
-          is_active?: boolean
         }
         Update: {
           award_id?: string | null
@@ -500,7 +483,6 @@ export type Database = {
           created_at?: string
           id?: string
           image_url?: string
-          is_active?: boolean
         }
         Relationships: [
           {
@@ -602,35 +584,26 @@ export type Database = {
       bed_allocations: {
         Row: {
           academic_year: string | null
-          allocation_end_date: string | null
-          allocation_start_date: string
           bed_number: string | null
           created_at: string
           id: string
           room_id: string | null
-          status: string
           student_id: string | null
         }
         Insert: {
           academic_year?: string | null
-          allocation_end_date?: string | null
-          allocation_start_date?: string
           bed_number?: string | null
           created_at?: string
           id?: string
           room_id?: string | null
-          status?: string
           student_id?: string | null
         }
         Update: {
           academic_year?: string | null
-          allocation_end_date?: string | null
-          allocation_start_date?: string
           bed_number?: string | null
           created_at?: string
           id?: string
           room_id?: string | null
-          status?: string
           student_id?: string | null
         }
         Relationships: [
@@ -701,13 +674,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "class_subjects_teacher_id_fkey"
-            columns: ["teacher_id"]
-            isOneToOne: false
-            referencedRelation: "staff"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "class_subjects_class_id_fkey"
             columns: ["class_id"]
             isOneToOne: false
@@ -732,7 +698,6 @@ export type Database = {
           id: string
           level: string | null
           name: string
-          room: string | null
           stream: string | null
         }
         Insert: {
@@ -743,7 +708,6 @@ export type Database = {
           id?: string
           level?: string | null
           name: string
-          room?: string | null
           stream?: string | null
         }
         Update: {
@@ -754,7 +718,6 @@ export type Database = {
           id?: string
           level?: string | null
           name?: string
-          room?: string | null
           stream?: string | null
         }
         Relationships: [
@@ -779,45 +742,30 @@ export type Database = {
           body: string | null
           channel: string | null
           created_at: string
-          error_message: string | null
           id: string
           recipient: string | null
-          recipient_count: number
-          recipient_type: string | null
-          sent_at: string | null
           status: string | null
           subject: string | null
-          template_id: string | null
           user_id: string | null
         }
         Insert: {
           body?: string | null
           channel?: string | null
           created_at?: string
-          error_message?: string | null
           id?: string
           recipient?: string | null
-          recipient_count?: number
-          recipient_type?: string | null
-          sent_at?: string | null
           status?: string | null
           subject?: string | null
-          template_id?: string | null
           user_id?: string | null
         }
         Update: {
           body?: string | null
           channel?: string | null
           created_at?: string
-          error_message?: string | null
           id?: string
           recipient?: string | null
-          recipient_count?: number
-          recipient_type?: string | null
-          sent_at?: string | null
           status?: string | null
           subject?: string | null
-          template_id?: string | null
           user_id?: string | null
         }
         Relationships: []
@@ -1077,8 +1025,6 @@ export type Database = {
           exam_id: string | null
           id: string
           invigilator: string | null
-          invigilators: string[] | null
-          notes: string | null
           start_time: string | null
           subject_id: string | null
           venue: string | null
@@ -1091,8 +1037,6 @@ export type Database = {
           exam_id?: string | null
           id?: string
           invigilator?: string | null
-          invigilators?: string[] | null
-          notes?: string | null
           start_time?: string | null
           subject_id?: string | null
           venue?: string | null
@@ -1105,8 +1049,6 @@ export type Database = {
           exam_id?: string | null
           id?: string
           invigilator?: string | null
-          invigilators?: string[] | null
-          notes?: string | null
           start_time?: string | null
           subject_id?: string | null
           venue?: string | null
@@ -1140,39 +1082,27 @@ export type Database = {
           academic_year: string | null
           created_at: string
           end_date: string | null
-          exam_type: string
-          form_level: string | null
           id: string
-          is_published: boolean
           name: string
           start_date: string | null
-          subject_ids: string[]
           term: string | null
         }
         Insert: {
           academic_year?: string | null
           created_at?: string
           end_date?: string | null
-          exam_type?: string
-          form_level?: string | null
           id?: string
-          is_published?: boolean
           name: string
           start_date?: string | null
-          subject_ids?: string[]
           term?: string | null
         }
         Update: {
           academic_year?: string | null
           created_at?: string
           end_date?: string | null
-          exam_type?: string
-          form_level?: string | null
           id?: string
-          is_published?: boolean
           name?: string
           start_date?: string | null
-          subject_ids?: string[]
           term?: string | null
         }
         Relationships: []
@@ -1210,42 +1140,33 @@ export type Database = {
       expenses: {
         Row: {
           amount_usd: number
-          amount_zig: number
           category: string | null
           created_at: string
           description: string
           expense_date: string
           id: string
-          payment_method: string
           receipt_url: string | null
           recorded_by: string | null
-          reference_number: string | null
         }
         Insert: {
           amount_usd?: number
-          amount_zig?: number
           category?: string | null
           created_at?: string
           description: string
           expense_date?: string
           id?: string
-          payment_method?: string
           receipt_url?: string | null
           recorded_by?: string | null
-          reference_number?: string | null
         }
         Update: {
           amount_usd?: number
-          amount_zig?: number
           category?: string | null
           created_at?: string
           description?: string
           expense_date?: string
           id?: string
-          payment_method?: string
           receipt_url?: string | null
           recorded_by?: string | null
-          reference_number?: string | null
         }
         Relationships: []
       }
@@ -1285,30 +1206,24 @@ export type Database = {
           created_at: string
           display_order: number | null
           facility_id: string | null
-          facility_type: string
           id: string
           image_url: string
-          is_active: boolean
         }
         Insert: {
           caption?: string | null
           created_at?: string
           display_order?: number | null
           facility_id?: string | null
-          facility_type?: string
           id?: string
           image_url: string
-          is_active?: boolean
         }
         Update: {
           caption?: string | null
           created_at?: string
           display_order?: number | null
           facility_id?: string | null
-          facility_type?: string
           id?: string
           image_url?: string
-          is_active?: boolean
         }
         Relationships: []
       }
@@ -1357,45 +1272,33 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
-          metadata: Json
           request_type: string
           requested_by: string | null
-          review_notes: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           status: string | null
-          target_id: string | null
-          target_table: string | null
         }
         Insert: {
           amount_usd?: number | null
           created_at?: string
           description?: string | null
           id?: string
-          metadata?: Json
           request_type: string
           requested_by?: string | null
-          review_notes?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string | null
-          target_id?: string | null
-          target_table?: string | null
         }
         Update: {
           amount_usd?: number | null
           created_at?: string
           description?: string | null
           id?: string
-          metadata?: Json
           request_type?: string
           requested_by?: string | null
-          review_notes?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string | null
-          target_id?: string | null
-          target_table?: string | null
         }
         Relationships: []
       }
@@ -1429,48 +1332,30 @@ export type Database = {
       health_visits: {
         Row: {
           created_at: string
-          diagnosis: string | null
-          follow_up_date: string | null
           id: string
-          medication_given: string | null
-          notes: string | null
-          parent_notified: boolean
           recorded_by: string | null
           student_id: string | null
           symptoms: string | null
           treatment: string | null
           visit_date: string
-          visited_by: string | null
         }
         Insert: {
           created_at?: string
-          diagnosis?: string | null
-          follow_up_date?: string | null
           id?: string
-          medication_given?: string | null
-          notes?: string | null
-          parent_notified?: boolean
           recorded_by?: string | null
           student_id?: string | null
           symptoms?: string | null
           treatment?: string | null
           visit_date?: string
-          visited_by?: string | null
         }
         Update: {
           created_at?: string
-          diagnosis?: string | null
-          follow_up_date?: string | null
           id?: string
-          medication_given?: string | null
-          notes?: string | null
-          parent_notified?: boolean
           recorded_by?: string | null
           student_id?: string | null
           symptoms?: string | null
           treatment?: string | null
           visit_date?: string
-          visited_by?: string | null
         }
         Relationships: [
           {
@@ -1592,80 +1477,44 @@ export type Database = {
       }
       hostels: {
         Row: {
-          assistant_housemaster_id: string | null
           capacity: number | null
           created_at: string
-          description: string | null
           gender: string | null
-          housemaster_id: string | null
           id: string
-          is_active: boolean
-          location: string | null
           matron: string | null
           name: string
-          phone: string | null
         }
         Insert: {
-          assistant_housemaster_id?: string | null
           capacity?: number | null
           created_at?: string
-          description?: string | null
           gender?: string | null
-          housemaster_id?: string | null
           id?: string
-          is_active?: boolean
-          location?: string | null
           matron?: string | null
           name: string
-          phone?: string | null
         }
         Update: {
-          assistant_housemaster_id?: string | null
           capacity?: number | null
           created_at?: string
-          description?: string | null
           gender?: string | null
-          housemaster_id?: string | null
           id?: string
-          is_active?: boolean
-          location?: string | null
           matron?: string | null
           name?: string
-          phone?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "hostels_assistant_housemaster_id_fkey"
-            columns: ["assistant_housemaster_id"]
-            isOneToOne: false
-            referencedRelation: "staff"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "hostels_housemaster_id_fkey"
-            columns: ["housemaster_id"]
-            isOneToOne: false
-            referencedRelation: "staff"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       inventory_categories: {
         Row: {
           created_at: string
-          description: string | null
           id: string
           name: string
         }
         Insert: {
           created_at?: string
-          description?: string | null
           id?: string
           name: string
         }
         Update: {
           created_at?: string
-          description?: string | null
           id?: string
           name?: string
         }
@@ -1673,54 +1522,33 @@ export type Database = {
       }
       inventory_items: {
         Row: {
-          barcode: string | null
           category_id: string | null
           created_at: string
-          description: string | null
           id: string
-          item_code: string | null
           location: string | null
           name: string
-          purchase_price_usd: number | null
-          purchase_price_zig: number | null
           quantity: number
           reorder_level: number | null
-          supplier: string | null
-          supplier_contact: string | null
           unit: string | null
         }
         Insert: {
-          barcode?: string | null
           category_id?: string | null
           created_at?: string
-          description?: string | null
           id?: string
-          item_code?: string | null
           location?: string | null
           name: string
-          purchase_price_usd?: number | null
-          purchase_price_zig?: number | null
           quantity?: number
           reorder_level?: number | null
-          supplier?: string | null
-          supplier_contact?: string | null
           unit?: string | null
         }
         Update: {
-          barcode?: string | null
           category_id?: string | null
           created_at?: string
-          description?: string | null
           id?: string
-          item_code?: string | null
           location?: string | null
           name?: string
-          purchase_price_usd?: number | null
-          purchase_price_zig?: number | null
           quantity?: number
           reorder_level?: number | null
-          supplier?: string | null
-          supplier_contact?: string | null
           unit?: string | null
         }
         Relationships: [
@@ -1741,7 +1569,6 @@ export type Database = {
           notes: string | null
           quantity: number
           recorded_by: string | null
-          reference: string | null
           transaction_type: string
         }
         Insert: {
@@ -1751,7 +1578,6 @@ export type Database = {
           notes?: string | null
           quantity: number
           recorded_by?: string | null
-          reference?: string | null
           transaction_type?: string
         }
         Update: {
@@ -1761,7 +1587,6 @@ export type Database = {
           notes?: string | null
           quantity?: number
           recorded_by?: string | null
-          reference?: string | null
           transaction_type?: string
         }
         Relationships: [
@@ -1975,34 +1800,15 @@ export type Database = {
           start_date?: string
           status?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "leave_requests_staff_id_fkey"
-            columns: ["staff_id"]
-            isOneToOne: false
-            referencedRelation: "staff"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       lesson_plans: {
         Row: {
           academic_year: string | null
-          assessment_strategy: string | null
           class_id: string | null
-          conclusion: string | null
           content: string | null
           created_at: string
-          date: string
-          duration_minutes: number
-          homework_notes: string | null
           id: string
-          introduction: string | null
-          main_activity: string | null
-          materials_needed: string | null
-          objectives: string | null
-          reflection: string | null
-          status: string
           subject_id: string | null
           teacher_id: string | null
           term: string | null
@@ -2011,21 +1817,10 @@ export type Database = {
         }
         Insert: {
           academic_year?: string | null
-          assessment_strategy?: string | null
           class_id?: string | null
-          conclusion?: string | null
           content?: string | null
           created_at?: string
-          date?: string
-          duration_minutes?: number
-          homework_notes?: string | null
           id?: string
-          introduction?: string | null
-          main_activity?: string | null
-          materials_needed?: string | null
-          objectives?: string | null
-          reflection?: string | null
-          status?: string
           subject_id?: string | null
           teacher_id?: string | null
           term?: string | null
@@ -2034,21 +1829,10 @@ export type Database = {
         }
         Update: {
           academic_year?: string | null
-          assessment_strategy?: string | null
           class_id?: string | null
-          conclusion?: string | null
           content?: string | null
           created_at?: string
-          date?: string
-          duration_minutes?: number
-          homework_notes?: string | null
           id?: string
-          introduction?: string | null
-          main_activity?: string | null
-          materials_needed?: string | null
-          objectives?: string | null
-          reflection?: string | null
-          status?: string
           subject_id?: string | null
           teacher_id?: string | null
           term?: string | null
@@ -2240,85 +2024,13 @@ export type Database = {
         }
         Relationships: []
       }
-      online_payments: {
-        Row: {
-          amount_usd: number
-          completed_at: string | null
-          created_at: string
-          currency: string
-          description: string | null
-          id: string
-          payer_email: string
-          payer_name: string
-          payer_phone: string | null
-          payment_type: string
-          paynow_reference: string | null
-          project_id: string | null
-          status: string
-          student_id: string | null
-          student_number: string | null
-        }
-        Insert: {
-          amount_usd?: number
-          completed_at?: string | null
-          created_at?: string
-          currency?: string
-          description?: string | null
-          id?: string
-          payer_email: string
-          payer_name: string
-          payer_phone?: string | null
-          payment_type?: string
-          paynow_reference?: string | null
-          project_id?: string | null
-          status?: string
-          student_id?: string | null
-          student_number?: string | null
-        }
-        Update: {
-          amount_usd?: number
-          completed_at?: string | null
-          created_at?: string
-          currency?: string
-          description?: string | null
-          id?: string
-          payer_email?: string
-          payer_name?: string
-          payer_phone?: string | null
-          payment_type?: string
-          paynow_reference?: string | null
-          project_id?: string | null
-          status?: string
-          student_id?: string | null
-          student_number?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "online_payments_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "school_projects"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "online_payments_student_id_fkey"
-            columns: ["student_id"]
-            isOneToOne: false
-            referencedRelation: "students"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       parent_communication_logs: {
         Row: {
           channel: string | null
           created_at: string
-          follow_up_completed: boolean
-          follow_up_date: string | null
           id: string
           message: string | null
           parent_id: string | null
-          parent_name: string | null
           student_id: string | null
           subject: string | null
           teacher_id: string | null
@@ -2326,12 +2038,9 @@ export type Database = {
         Insert: {
           channel?: string | null
           created_at?: string
-          follow_up_completed?: boolean
-          follow_up_date?: string | null
           id?: string
           message?: string | null
           parent_id?: string | null
-          parent_name?: string | null
           student_id?: string | null
           subject?: string | null
           teacher_id?: string | null
@@ -2339,25 +2048,14 @@ export type Database = {
         Update: {
           channel?: string | null
           created_at?: string
-          follow_up_completed?: boolean
-          follow_up_date?: string | null
           id?: string
           message?: string | null
           parent_id?: string | null
-          parent_name?: string | null
           student_id?: string | null
           subject?: string | null
           teacher_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "parent_communication_logs_student_id_fkey"
-            columns: ["student_id"]
-            isOneToOne: false
-            referencedRelation: "students"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       parent_student_links: {
         Row: {
@@ -2458,7 +2156,7 @@ export type Database = {
           ip_address: string | null
           mobile_number: string | null
           notes: string | null
-          parent_id: string | null
+          parent_id: string
           payment_date: string
           payment_method: Database["public"]["Enums"]["payment_method"]
           payment_notes: string | null
@@ -2489,7 +2187,7 @@ export type Database = {
           ip_address?: string | null
           mobile_number?: string | null
           notes?: string | null
-          parent_id?: string | null
+          parent_id: string
           payment_date?: string
           payment_method: Database["public"]["Enums"]["payment_method"]
           payment_notes?: string | null
@@ -2520,7 +2218,7 @@ export type Database = {
           ip_address?: string | null
           mobile_number?: string | null
           notes?: string | null
-          parent_id?: string | null
+          parent_id?: string
           payment_date?: string
           payment_method?: Database["public"]["Enums"]["payment_method"]
           payment_notes?: string | null
@@ -2588,34 +2286,28 @@ export type Database = {
       petty_cash: {
         Row: {
           amount_usd: number
-          amount_zig: number
           created_at: string
           description: string
           id: string
           recorded_by: string | null
-          reference_number: string | null
           transaction_date: string
           transaction_type: string | null
         }
         Insert: {
           amount_usd?: number
-          amount_zig?: number
           created_at?: string
           description: string
           id?: string
           recorded_by?: string | null
-          reference_number?: string | null
           transaction_date?: string
           transaction_type?: string | null
         }
         Update: {
           amount_usd?: number
-          amount_zig?: number
           created_at?: string
           description?: string
           id?: string
           recorded_by?: string | null
-          reference_number?: string | null
           transaction_date?: string
           transaction_type?: string | null
         }
@@ -2667,32 +2359,23 @@ export type Database = {
         Row: {
           capacity: number | null
           created_at: string
-          floor: number | null
           hostel_id: string | null
           id: string
-          notes: string | null
           room_number: string
-          room_type: string
         }
         Insert: {
           capacity?: number | null
           created_at?: string
-          floor?: number | null
           hostel_id?: string | null
           id?: string
-          notes?: string | null
           room_number: string
-          room_type?: string
         }
         Update: {
           capacity?: number | null
           created_at?: string
-          floor?: number | null
           hostel_id?: string | null
           id?: string
-          notes?: string | null
           room_number?: string
-          room_type?: string
         }
         Relationships: [
           {
@@ -2807,7 +2490,6 @@ export type Database = {
           created_at: string
           id: string
           name: string
-          variables: string[]
         }
         Insert: {
           body: string
@@ -2815,7 +2497,6 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
-          variables?: string[]
         }
         Update: {
           body?: string
@@ -2823,80 +2504,42 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
-          variables?: string[]
         }
         Relationships: []
       }
       sports_schedule: {
         Row: {
-          activity_name: string | null
-          activity_type: string
-          class_id: string | null
-          coach_id: string | null
           created_at: string
-          day_of_week: number | null
-          end_time: string | null
-          event_date: string | null
+          event_date: string
           id: string
           opponent: string | null
           result: string | null
           sport: string
-          start_time: string | null
           venue: string | null
         }
         Insert: {
-          activity_name?: string | null
-          activity_type?: string
-          class_id?: string | null
-          coach_id?: string | null
           created_at?: string
-          day_of_week?: number | null
-          end_time?: string | null
-          event_date?: string | null
+          event_date: string
           id?: string
           opponent?: string | null
           result?: string | null
           sport: string
-          start_time?: string | null
           venue?: string | null
         }
         Update: {
-          activity_name?: string | null
-          activity_type?: string
-          class_id?: string | null
-          coach_id?: string | null
           created_at?: string
-          day_of_week?: number | null
-          end_time?: string | null
-          event_date?: string | null
+          event_date?: string
           id?: string
           opponent?: string | null
           result?: string | null
           sport?: string
-          start_time?: string | null
           venue?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "sports_schedule_coach_id_fkey"
-            columns: ["coach_id"]
-            isOneToOne: false
-            referencedRelation: "staff"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "sports_schedule_class_id_fkey"
-            columns: ["class_id"]
-            isOneToOne: false
-            referencedRelation: "classes"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       staff: {
         Row: {
           address: string | null
-          bank_details: string | null
           bio: string | null
           category: string
           created_at: string
@@ -2908,8 +2551,6 @@ export type Database = {
           full_name: string
           id: string
           national_id: string | null
-          nssa_number: string | null
-          paye_number: string | null
           phone: string | null
           photo_url: string | null
           qualifications: string | null
@@ -2923,7 +2564,6 @@ export type Database = {
         }
         Insert: {
           address?: string | null
-          bank_details?: string | null
           bio?: string | null
           category?: string
           created_at?: string
@@ -2935,8 +2575,6 @@ export type Database = {
           full_name: string
           id?: string
           national_id?: string | null
-          nssa_number?: string | null
-          paye_number?: string | null
           phone?: string | null
           photo_url?: string | null
           qualifications?: string | null
@@ -2950,7 +2588,6 @@ export type Database = {
         }
         Update: {
           address?: string | null
-          bank_details?: string | null
           bio?: string | null
           category?: string
           created_at?: string
@@ -2962,8 +2599,6 @@ export type Database = {
           full_name?: string
           id?: string
           national_id?: string | null
-          nssa_number?: string | null
-          paye_number?: string | null
           phone?: string | null
           photo_url?: string | null
           qualifications?: string | null
@@ -3031,7 +2666,6 @@ export type Database = {
           name: string | null
           photo_url: string | null
           profile_photo_url: string | null
-          province: string | null
           sports: string[] | null
           sports_activities: string[] | null
           status: string | null
@@ -3065,7 +2699,6 @@ export type Database = {
           name?: string | null
           photo_url?: string | null
           profile_photo_url?: string | null
-          province?: string | null
           sports?: string[] | null
           sports_activities?: string[] | null
           status?: string | null
@@ -3099,7 +2732,6 @@ export type Database = {
           name?: string | null
           photo_url?: string | null
           profile_photo_url?: string | null
-          province?: string | null
           sports?: string[] | null
           sports_activities?: string[] | null
           status?: string | null
@@ -3338,53 +2970,35 @@ export type Database = {
       supplier_invoices: {
         Row: {
           amount_usd: number
-          amount_zig: number
           created_at: string
-          description: string | null
           due_date: string | null
           id: string
           invoice_date: string
           invoice_number: string | null
           notes: string | null
-          paid_usd: number
-          paid_zig: number
-          recorded_by: string | null
           status: string | null
-          supplier_contact: string | null
           supplier_name: string
         }
         Insert: {
           amount_usd?: number
-          amount_zig?: number
           created_at?: string
-          description?: string | null
           due_date?: string | null
           id?: string
           invoice_date?: string
           invoice_number?: string | null
           notes?: string | null
-          paid_usd?: number
-          paid_zig?: number
-          recorded_by?: string | null
           status?: string | null
-          supplier_contact?: string | null
           supplier_name: string
         }
         Update: {
           amount_usd?: number
-          amount_zig?: number
           created_at?: string
-          description?: string | null
           due_date?: string | null
           id?: string
           invoice_date?: string
           invoice_number?: string | null
           notes?: string | null
-          paid_usd?: number
-          paid_zig?: number
-          recorded_by?: string | null
           status?: string | null
-          supplier_contact?: string | null
           supplier_name?: string
         }
         Relationships: []
@@ -3392,10 +3006,8 @@ export type Database = {
       supplier_payments: {
         Row: {
           amount_usd: number
-          amount_zig: number
           created_at: string
           id: string
-          notes: string | null
           payment_date: string
           payment_method: string | null
           recorded_by: string | null
@@ -3404,10 +3016,8 @@ export type Database = {
         }
         Insert: {
           amount_usd?: number
-          amount_zig?: number
           created_at?: string
           id?: string
-          notes?: string | null
           payment_date?: string
           payment_method?: string | null
           recorded_by?: string | null
@@ -3416,10 +3026,8 @@ export type Database = {
         }
         Update: {
           amount_usd?: number
-          amount_zig?: number
           created_at?: string
           id?: string
-          notes?: string | null
           payment_date?: string
           payment_method?: string | null
           recorded_by?: string | null
@@ -3442,10 +3050,7 @@ export type Database = {
           description: string | null
           file_url: string | null
           id: string
-          is_favorite: boolean
           resource_type: string | null
-          subject_id: string | null
-          tags: string[]
           teacher_id: string | null
           title: string
         }
@@ -3454,10 +3059,7 @@ export type Database = {
           description?: string | null
           file_url?: string | null
           id?: string
-          is_favorite?: boolean
           resource_type?: string | null
-          subject_id?: string | null
-          tags?: string[]
           teacher_id?: string | null
           title: string
         }
@@ -3466,22 +3068,11 @@ export type Database = {
           description?: string | null
           file_url?: string | null
           id?: string
-          is_favorite?: boolean
           resource_type?: string | null
-          subject_id?: string | null
-          tags?: string[]
           teacher_id?: string | null
           title?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "teacher_resources_subject_id_fkey"
-            columns: ["subject_id"]
-            isOneToOne: false
-            referencedRelation: "subjects"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       term_registrations: {
         Row: {
@@ -3539,78 +3130,33 @@ export type Database = {
       term_reports: {
         Row: {
           academic_year: string
-          assessment_data: Json
-          average_mark: number
-          class_rank: number | null
-          class_size: number | null
-          class_teacher_comment: string | null
           comments: string | null
           created_at: string
-          exam_data: Json
-          form_level: string | null
-          form_rank: number | null
-          form_size: number | null
-          generated_at: string
-          generated_by: string | null
-          head_comment: string | null
           id: string
-          is_published: boolean
-          overall_grade: string | null
           position: number | null
           report_url: string | null
           student_id: string | null
           term: string
-          total_marks: number
         }
         Insert: {
           academic_year: string
-          assessment_data?: Json
-          average_mark?: number
-          class_rank?: number | null
-          class_size?: number | null
-          class_teacher_comment?: string | null
           comments?: string | null
           created_at?: string
-          exam_data?: Json
-          form_level?: string | null
-          form_rank?: number | null
-          form_size?: number | null
-          generated_at?: string
-          generated_by?: string | null
-          head_comment?: string | null
           id?: string
-          is_published?: boolean
-          overall_grade?: string | null
           position?: number | null
           report_url?: string | null
           student_id?: string | null
           term: string
-          total_marks?: number
         }
         Update: {
           academic_year?: string
-          assessment_data?: Json
-          average_mark?: number
-          class_rank?: number | null
-          class_size?: number | null
-          class_teacher_comment?: string | null
           comments?: string | null
           created_at?: string
-          exam_data?: Json
-          form_level?: string | null
-          form_rank?: number | null
-          form_size?: number | null
-          generated_at?: string
-          generated_by?: string | null
-          head_comment?: string | null
           id?: string
-          is_published?: boolean
-          overall_grade?: string | null
           position?: number | null
           report_url?: string | null
           student_id?: string | null
           term?: string
-          total_marks?: number
         }
         Relationships: [
           {
@@ -3626,56 +3172,31 @@ export type Database = {
         Row: {
           book_title: string
           condition: string | null
-          condition_on_return: string | null
           created_at: string
-          due_date: string | null
-          fine_amount_usd: number | null
-          fine_amount_zig: number | null
           id: string
-          inventory_item_id: string | null
           issued_date: string | null
           returned_date: string | null
-          status: string
           student_id: string | null
         }
         Insert: {
           book_title: string
           condition?: string | null
-          condition_on_return?: string | null
           created_at?: string
-          due_date?: string | null
-          fine_amount_usd?: number | null
-          fine_amount_zig?: number | null
           id?: string
-          inventory_item_id?: string | null
           issued_date?: string | null
           returned_date?: string | null
-          status?: string
           student_id?: string | null
         }
         Update: {
           book_title?: string
           condition?: string | null
-          condition_on_return?: string | null
           created_at?: string
-          due_date?: string | null
-          fine_amount_usd?: number | null
-          fine_amount_zig?: number | null
           id?: string
-          inventory_item_id?: string | null
           issued_date?: string | null
           returned_date?: string | null
-          status?: string
           student_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "textbook_issues_inventory_item_id_fkey"
-            columns: ["inventory_item_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_items"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "textbook_issues_student_id_fkey"
             columns: ["student_id"]
@@ -4091,21 +3612,9 @@ export type Database = {
         Args: { _student_id: string }
         Returns: string
       }
-      delete_class_cascade: {
-        Args: { _class_id: string }
-        Returns: undefined
-      }
-      delete_staff_cascade: {
-        Args: { _staff_id: string }
-        Returns: undefined
-      }
       delete_student_cascade: {
         Args: { _student_id: string }
         Returns: undefined
-      }
-      get_exam_rankings: {
-        Args: { p_exam_id: string; p_student_id: string }
-        Returns: Json
       }
       get_user_role: {
         Args: { _user_id: string }
@@ -4127,15 +3636,6 @@ export type Database = {
       }
       is_finance_admin: { Args: { _uid: string }; Returns: boolean }
       is_school_admin: { Args: { _uid: string }; Returns: boolean }
-      lookup_student_for_payment: {
-        Args: { _admission_number: string }
-        Returns: {
-          admission_number: string
-          form: string
-          full_name: string
-          id: string
-        }[]
-      }
       recalculate_invoice_payment_totals: {
         Args: { _invoice_id: string }
         Returns: undefined
@@ -4159,7 +3659,6 @@ export type Database = {
         | "finance_clerk"
       grant_type: "paid" | "complimentary" | "trial" | "suspended"
       payment_method:
-        | "cash"
         | "ecocash"
         | "onemoney"
         | "telecash"
@@ -4333,7 +3832,6 @@ export const Constants = {
       ],
       grant_type: ["paid", "complimentary", "trial", "suspended"],
       payment_method: [
-        "cash",
         "ecocash",
         "onemoney",
         "telecash",
