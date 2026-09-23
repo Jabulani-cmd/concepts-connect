@@ -101,7 +101,6 @@ export default function MessagingPanel() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const profileCache = useRef<Record<string, string>>({});
-  const roleCache = useRef<Record<string, string>>({});
   const channelTopicRef = useRef(`user-messages-${Math.random().toString(36).slice(2)}`);
 
   const clearUnreadForConversation = useCallback((convId: string) => {

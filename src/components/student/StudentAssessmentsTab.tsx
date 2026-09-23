@@ -100,7 +100,7 @@ export default function StudentAssessmentsTab({ studentId, studentClassId, userI
     const grade = gradeFor(percentage);
     const passed = percentage >= (selectedAssessment.pass_mark ?? PASS_MARK);
 
-    const { data: sub, error: subErr } = await supabase.from("assessment_submissions").insert({
+    const { error: subErr } = await supabase.from("assessment_submissions").insert({
       assessment_id: selectedAssessment.id,
       student_id: studentId,
       answers,

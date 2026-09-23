@@ -136,7 +136,6 @@ export default function AITimetableBuilderAgent() {
     agentSay(`Generating the master timetable now — solving for teacher conflicts, room capacity and subject-venue rules…`, 200);
     setTimeout(() => {
       const res = ctx.runAIAgent();
-      const conflicts = ctx.conflicts.length;
       let msg = `✅ **Timetable generated.** ${res.placed} periods placed across ${ctx.classes.length} classes.\n`;
       if (res.warnings.length) {
         msg += `\n⚠️ Unfilled slots resolved as warnings:\n${res.warnings.slice(0, 6).map(w => `• ${w}`).join("\n")}`;

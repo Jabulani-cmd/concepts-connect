@@ -220,7 +220,6 @@ function aiGenerateTimetable(
   classes: SchoolClass[],
   subjects: Subject[],
   rooms: Room[],
-  teachers: Teacher[],
 ): { slots: TimetableSlot[]; warnings: string[] } {
   const slots: TimetableSlot[] = [];
   const teacherBusy = new Set<string>();
@@ -376,7 +375,7 @@ function validate(
 }
 
 const initialAllocations = seedAllocations();
-const initialBuild = aiGenerateTimetable(initialAllocations, seedClasses, seedSubjects, seedRooms, seedTeachers);
+const initialBuild = aiGenerateTimetable(initialAllocations, seedClasses, seedSubjects, seedRooms);
 
 interface Ctx {
   teachers: Teacher[];
@@ -508,11 +507,11 @@ export function AllocationProvider({ children }: { children: ReactNode }) {
       }));
     },
     rebuildTimetable: () => {
-      const built = aiGenerateTimetable(allocations, classes, subjects, rooms, teachers);
+      const built = aiGenerateTimetable(allocations, classes, subjects, rooms);
       setSlots(built.slots);
     },
     runAIAgent: () => {
-      const built = aiGenerateTimetable(allocations, classes, subjects, rooms, teachers);
+      const built = aiGenerateTimetable(allocations, classes, subjects, rooms);
       setSlots(built.slots);
       const placed = built.slots.filter((s) => s.subjectId).length;
       pushNotification({

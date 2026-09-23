@@ -27,7 +27,7 @@ const fmt = formatUSD;
 
 export default function ReceiptSearchTab() {
   const { toast } = useToast();
-  const { rate, usdToZig } = useExchangeRate();
+  const { usdToZig } = useExchangeRate();
   const [searchTerm, setSearchTerm] = useState("");
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [loading, setLoading] = useState(false);

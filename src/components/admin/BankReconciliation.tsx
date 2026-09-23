@@ -14,12 +14,10 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Plus, Trash2, Search, CheckCircle, AlertTriangle, Loader2, Printer } from "lucide-react";
-import { formatMoney, formatUSD } from "@/lib/currency";
+import { formatMoney } from "@/lib/currency";
 import { buildBrandedHtml } from "@/lib/print/printSection";
 import { openPrintWindow } from "@/lib/finance/print";
 import type { Tables } from "@/integrations/supabase/types";
-
-const fmt = formatUSD;
 
 export default function BankReconciliation() {
   const { toast } = useToast();

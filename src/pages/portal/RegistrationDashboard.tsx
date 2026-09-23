@@ -74,7 +74,7 @@ const emptyForm = {
 
 export default function RegistrationDashboard() {
   const { toast } = useToast();
-  const { signOut, user } = useAuth();
+  const { signOut } = useAuth();
   const navigate = useNavigate();
 
   const [students, setStudents] = useState<Student[]>([]);

@@ -1,6 +1,6 @@
 import ExchangeRateCard from "@/components/finance/ExchangeRateCard";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -31,7 +31,6 @@ import { OFFICE_PAYMENT_METHODS, paymentMethodLabel, type PaymentMethod } from "
 import { useAuth } from "@/contexts/AuthContext";
 import {
   buildInvoicePdf,
-  buildInvoiceHtml,
   urlToDataUrl,
   buildReceiptHtml,
   SCHOOL_LOGO_URL,
@@ -179,7 +178,6 @@ export default function FinanceManagement() {
   // Bursar is the finance supervisor — they can directly void/delete and
   // approve requests from Finance Clerks. Finance/Finance Clerk roles must
   // request approval from the Bursar before any destructive action.
-  const isAdminSupervisor = role === "admin_supervisor" || role === "principal" || role === "deputy_principal" || role === "bursar";
   const isFinanceClerk = role === "finance" || role === "finance_clerk";
 
   // Helper: request supervisor approval instead of direct delete
@@ -284,12 +282,6 @@ export default function FinanceManagement() {
   const [payLoading, setPayLoading] = useState(false);
 
   // ─── Printing / PDFs ───
-  const [pdfLoading, setPdfLoading] = useState(false);
-
-  // ─── Debtor Restriction Settings ───
-  const [restrictReportCards, setRestrictReportCards] = useState(false);
-  const [restrictExamResults, setRestrictExamResults] = useState(false);
-  const [restrictLoading, setRestrictLoading] = useState(false);
 
   // ─── Expenses ───
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -304,7 +296,6 @@ export default function FinanceManagement() {
     reference_number: "",
   });
   const [expLoading, setExpLoading] = useState(false);
-  const receiptFileRef = useRef<HTMLInputElement>(null);
 
   // ─── Debtors ───
   const [debtors, setDebtors] = useState<Invoice[]>([]);
@@ -598,19 +589,6 @@ export default function FinanceManagement() {
     fetchSupplierPayments();
   }
 
-  const fetchRestrictionSettings = useCallback(async () => {
-    const { data } = await supabase
-      .from("site_settings")
-      .select("*")
-      .in("setting_key", ["restrict_report_cards", "restrict_exam_results"]);
-    if (data) {
-      data.forEach((s) => {
-        if (s.setting_key === "restrict_report_cards") setRestrictReportCards(s.setting_value === "true");
-        if (s.setting_key === "restrict_exam_results") setRestrictExamResults(s.setting_value === "true");
-      });
-    }
-  }, []);
-
   useEffect(() => {
     setLoading(true);
     Promise.all([
@@ -621,9 +599,8 @@ export default function FinanceManagement() {
       fetchPettyCash(),
       fetchSupplierInvoices(),
       fetchSupplierPayments(),
-      fetchRestrictionSettings(),
     ]).finally(() => setLoading(false));
-  }, [fetchExpenses, fetchFeeStructures, fetchInvoices, fetchPayments, fetchPettyCash, fetchRestrictionSettings, fetchSupplierInvoices, fetchSupplierPayments, rate]);
+  }, [fetchExpenses, fetchFeeStructures, fetchInvoices, fetchPayments, fetchPettyCash, fetchSupplierInvoices, fetchSupplierPayments, rate]);
 
   useEffect(() => {
     // Realtime subscription for ALL finance tables — keeps every finance user in sync
@@ -889,62 +866,6 @@ export default function FinanceManagement() {
     const clean = (status ?? "").replace(/[^a-zA-Z]/g, "").toLowerCase();
     const label = clean ? clean.charAt(0).toUpperCase() + clean.slice(1) : "—";
     return `<span class="status-${clean}">${safeHtml(label)}</span>`;
-  }
-
-  function buildStatementReportHtml() {
-    const totalInvoiced = stmtInvoices.reduce((s, i) => s + Number(i.total_usd), 0);
-    const totalPaid = stmtPayments.reduce((s, p) => s + Number(p.amount_usd), 0);
-    const balance = totalInvoiced - totalPaid;
-    const invRows = stmtInvoices.length
-      ? stmtInvoices.map((i) => `<tr>
-          <td class="mono">${safeHtml(i.invoice_number)}</td>
-          <td>${safeHtml(i.term)}</td>
-          <td>${safeHtml(i.academic_year)}</td>
-          <td class="right mono">${formatMoney(i.total_usd)}</td>
-          <td class="right mono">${formatMoney(i.paid_usd)}</td>
-          <td>${statusText(i.status)}</td>
-        </tr>`).join("")
-      : `<tr><td colspan="6" style="text-align:center;color:#64748b">No invoices on record</td></tr>`;
-    const payRows = stmtPayments.length
-      ? stmtPayments.map((p) => `<tr>
-          <td class="mono">${safeHtml(p.receipt_number)}</td>
-          <td>${safeHtml(p.payment_date)}</td>
-          <td class="mono">${safeHtml(p.invoices?.invoice_number || "—")}</td>
-          <td class="right mono">${formatMoney(p.amount_usd)}</td>
-          <td>${safeHtml(paymentMethodLabel(p.payment_method))}</td>
-        </tr>`).join("")
-      : `<tr><td colspan="5" style="text-align:center;color:#64748b">No payments on record</td></tr>`;
-    const body = `
-      <h2>Invoices</h2>
-      <table><thead><tr>
-        <th>Invoice #</th><th>Term</th><th>Year</th>
-        <th class="right">Total (US$ / ZiG)</th><th class="right">Paid (US$ / ZiG)</th><th>Status</th>
-      </tr></thead><tbody>${invRows}</tbody></table>
-      <h2>Payments</h2>
-      <table><thead><tr>
-        <th>Receipt #</th><th>Date</th><th>Invoice</th>
-        <th class="right">Amount (US$ / ZiG)</th><th>Method</th>
-      </tr></thead><tbody>${payRows}</tbody></table>
-      <div class="summary">
-        <p><strong>Total Invoiced:</strong> ${formatMoney(totalInvoiced)}</p>
-        <p><strong>Total Paid:</strong> ${formatMoney(totalPaid)}</p>
-        <p class="${balance > 0 ? "red" : "green"}">
-          <strong>${balance < 0 ? "Credit Balance" : "Outstanding Balance"}:</strong> ${formatMoney(Math.abs(balance))}
-        </p>
-      </div>`;
-    return buildReportShell("Student Account Statement", [
-      `<strong>Student:</strong> ${safeHtml(stmtStudent.full_name)}`,
-      `<strong>Admission #:</strong> ${safeHtml(stmtStudent.admission_number)} &nbsp; · &nbsp; <strong>Grade:</strong> ${safeHtml(stmtStudent.form)}`,
-    ], body);
-  }
-
-  function printStudentStatement() {
-    openPrintWindow(buildStatementReportHtml());
-  }
-
-  function downloadStudentStatement() {
-    const safeName = (stmtStudent?.full_name || "student").replace(/\s+/g, "-").toLowerCase();
-    downloadHtmlDocument(buildStatementReportHtml(), `statement-${safeName}`);
   }
 
   function buildDebtorsReportHtml() {
@@ -1238,7 +1159,6 @@ export default function FinanceManagement() {
   }
 
   async function downloadInvoicePdf(inv: Invoice, student?: StudentRef, items?: (Pick<InvoiceItem, "description" | "amount_usd"> & { amount_zig?: number })[]) {
-    setPdfLoading(true);
     try {
       let logoDataUrl: string | undefined;
       try {
@@ -1273,53 +1193,6 @@ export default function FinanceManagement() {
     } catch (err) {
       toast({ title: "Error generating PDF", description: errorMessage(err), variant: "destructive" });
     }
-    setPdfLoading(false);
-  }
-
-  async function viewInvoiceHtml(inv: Invoice) {
-    try {
-      const { data } = await supabase.from("invoice_items").select("*").eq("invoice_id", inv.id);
-      const invoiceItems = data || [];
-      const html = buildInvoiceHtml({
-        logoDataUrl: SCHOOL_LOGO_URL,
-        invoiceNumber: inv.invoice_number,
-        academicYear: inv.academic_year,
-        term: inv.term,
-        dueDate: inv.due_date,
-        student: {
-          fullName: inv.students?.full_name || "—",
-          admissionNumber: inv.students?.admission_number || "—",
-          form: inv.students?.form,
-        },
-        items: invoiceItems.map((it) => ({
-          description: it.description,
-          amount_usd: it.amount_usd,
-          amount_zig: convertUsdToZig(it.amount_usd),
-        })),
-        totals: { total_usd: inv.total_usd, total_zig: inv.total_zig, paid_usd: inv.paid_usd, paid_zig: inv.paid_zig },
-      });
-      return html;
-    } catch (err) {
-      toast({ title: "Error", description: errorMessage(err), variant: "destructive" });
-      return null;
-    }
-  }
-
-  async function openViewInvoice(inv: Invoice) {
-    const html = await viewInvoiceHtml(inv);
-    if (html) {
-      const w = window.open("", "_blank");
-      if (w) {
-        w.document.open();
-        w.document.write(html);
-        w.document.close();
-      }
-    }
-  }
-
-  async function printInvoice(inv: Invoice) {
-    const html = await viewInvoiceHtml(inv);
-    if (html) openPrintWindow(html);
   }
 
   // ═══ PAYMENT PROCESSING ═══

@@ -12,12 +12,11 @@ import { gradeFor } from "@/lib/grading";
 type ProgressMark = { student_id: string | null; mark: number; term: string; created_at: string; subjects?: { name: string } | null };
 
 interface Props {
-  userId: string;
   classes: ClassOption[];
   subjects: SubjectOption[];
 }
 
-export default function StudentProgressTracker({ userId, classes, subjects }: Props) {
+export default function StudentProgressTracker({ classes, subjects }: Props) {
   const [selectedClass, setSelectedClass] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("all");
   const [marks, setMarks] = useState<ProgressMark[]>([]);

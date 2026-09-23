@@ -474,7 +474,6 @@ export type IncomeExpenditureInput = {
 };
 
 export function buildIncomeExpenditureHtml(input: IncomeExpenditureInput): string {
-  const fmt = (n: number) => Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const logoUrl = input.logoUrl || SCHOOL_LOGO_URL;
   const t = input.totals;
 

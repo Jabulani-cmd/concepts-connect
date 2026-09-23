@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Upload, FileSpreadsheet, CheckCircle, XCircle, Download } from "lucide-react";
+import { Upload, FileSpreadsheet, CheckCircle, XCircle, Download, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from "xlsx";
@@ -328,8 +328,8 @@ export default function DataMigration() {
               )}
 
               <div className="flex gap-2">
-                <Button onClick={runImport} disabled={stats.errors > 0}>
-                  <CheckCircle className="mr-2 h-4 w-4" />
+                <Button onClick={runImport} disabled={stats.errors > 0 || importing}>
+                  {importing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle className="mr-2 h-4 w-4" />}
                   {stats.errors > 0 ? "Fix errors first" : `Import ${stats.valid} Records`}
                 </Button>
                 {stats.errors > 0 && (

@@ -33,8 +33,7 @@ export default function ForceChangePassword() {
     setLoading(true);
     try {
       // Use server-side edge function to change password and clear the flag
-      const { data: sessionData } = await supabase.auth.getSession();
-      const { data, error } = await supabase.functions.invoke("change-password", {
+      const { error } = await supabase.functions.invoke("change-password", {
         body: { new_password: password },
       });
 

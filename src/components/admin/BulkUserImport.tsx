@@ -11,18 +11,6 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { errorMessage } from "@/lib/errors";
 
-interface CsvRow {
-  full_name: string;
-  email: string;
-  password: string;
-  portal_role: string;
-  staff_role?: string;
-  department?: string;
-  phone?: string;
-  grade?: string;
-  class_name?: string;
-}
-
 interface ImportResult {
   row: number;
   email: string;
@@ -32,7 +20,6 @@ interface ImportResult {
 }
 
 const REQUIRED_COLUMNS = ["full_name", "email", "password", "portal_role"];
-const OPTIONAL_COLUMNS = ["staff_role", "department", "phone", "grade", "class_name"];
 
 function parseCsv(text: string): { headers: string[]; rows: Record<string, string>[] } {
   const lines = text.split(/\r?\n/).filter((l) => l.trim());
@@ -51,7 +38,7 @@ function parseCsv(text: string): { headers: string[]; rows: Record<string, strin
   return { headers, rows };
 }
 
-function validateRow(row: Record<string, string>, index: number): { valid: boolean; errors: string[] } {
+function validateRow(row: Record<string, string>): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
   if (!row.full_name?.trim()) errors.push("Missing full_name");
   if (!row.email?.trim()) errors.push("Missing email");
@@ -72,7 +59,6 @@ export default function BulkUserImport({ onImportComplete }: { onImportComplete?
   const fileRef = useRef<HTMLInputElement>(null);
   const [importType, setImportType] = useState<string>("student");
   const [parsedRows, setParsedRows] = useState<Record<string, string>[]>([]);
-  const [headers, setHeaders] = useState<string[]>([]);
   const [validationErrors, setValidationErrors] = useState<Record<number, string[]>>({});
   const [importing, setImporting] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -104,17 +90,15 @@ export default function BulkUserImport({ onImportComplete }: { onImportComplete?
           variant: "destructive",
         });
         setParsedRows([]);
-        setHeaders([]);
         return;
       }
 
-      setHeaders(h);
       setParsedRows(rows);
 
       // Validate all rows
       const errors: Record<number, string[]> = {};
       rows.forEach((row, i) => {
-        const { valid, errors: rowErrors } = validateRow(row, i);
+        const { valid, errors: rowErrors } = validateRow(row);
         if (!valid) errors[i] = rowErrors;
       });
       setValidationErrors(errors);

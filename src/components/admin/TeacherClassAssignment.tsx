@@ -87,13 +87,6 @@ export default function TeacherClassAssignment({ classes, subjects, staff, onRef
   const teacherTTEntries = (teacherId: string) =>
     timetableEntries.filter(e => e.teacher_id === teacherId);
 
-  // Get subjects available for the selected class
-  const classSubjectsForClass = (classId: string) => {
-    const cls = classes.find(c => c.id === classId);
-    if (!cls) return subjects;
-    return subjects;
-  };
-
   async function handleAssign() {
     if (!assignTeacher || !assignClass || assignSubjects.length === 0) {
       toast({ title: "Select teacher, class, and at least one subject", variant: "destructive" });

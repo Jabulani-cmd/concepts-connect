@@ -327,28 +327,6 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
 
   const handleLogout = async () => { await signOut(); navigate("/login"); };
   const displayName = profile?.full_name || user?.user_metadata?.full_name || "Teacher";
-  const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
-  const ttTimeSlots = [
-    { start: "07:30", end: "08:10" },
-    { start: "08:10", end: "08:50" },
-    { start: "08:50", end: "09:30" },
-    { start: "09:30", end: "09:50", isBreak: true, label: "Break" },
-    { start: "09:50", end: "10:30" },
-    { start: "10:30", end: "11:10" },
-    { start: "11:10", end: "11:50" },
-    { start: "11:50", end: "12:30" },
-    { start: "12:30", end: "13:10" },
-    { start: "13:10", end: "13:50", isBreak: true, label: "Lunch" },
-    { start: "13:50", end: "14:30" },
-    { start: "14:30", end: "15:10" },
-    { start: "15:10", end: "15:30", isBreak: true, label: "Break" },
-    { start: "15:30", end: "16:10", isSports: true },
-    { start: "16:10", end: "17:00", isSports: true },
-  ];
-  const getTimetableCell = (start: string, di: number) => {
-    const entry = timetableData.find(t => t.start_time === start && t.day_of_week === di);
-    return entry?.subjects?.name || "—";
-  };
 
   if (loading) return <div className="flex min-h-screen items-center justify-center"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
 
@@ -694,7 +672,7 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
 
           {/* STUDENT PROGRESS */}
           <TabsContent value="progress">
-            <StudentProgressTracker userId={user!.id} classes={classes} subjects={subjects} />
+            <StudentProgressTracker classes={classes} subjects={subjects} />
           </TabsContent>
 
           {/* RESOURCE LIBRARY */}

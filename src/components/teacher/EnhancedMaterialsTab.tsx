@@ -177,6 +177,10 @@ export default function EnhancedMaterialsTab({ userId, classes, subjects, materi
           <SelectTrigger className="w-32"><SelectValue placeholder="Class" /></SelectTrigger>
           <SelectContent><SelectItem value="all">All Classes</SelectItem>{classes.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
         </Select>
+        <Select value={filterSubject} onValueChange={setFilterSubject}>
+          <SelectTrigger className="w-32"><SelectValue placeholder="Subject" /></SelectTrigger>
+          <SelectContent><SelectItem value="all">All Subjects</SelectItem>{subjects.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent>
+        </Select>
         <Select value={filterType} onValueChange={setFilterType}>
           <SelectTrigger className="w-32"><SelectValue placeholder="Type" /></SelectTrigger>
           <SelectContent><SelectItem value="all">All Types</SelectItem>{materialTypes.map(t => <SelectItem key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</SelectItem>)}</SelectContent>

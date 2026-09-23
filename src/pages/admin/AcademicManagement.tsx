@@ -11,7 +11,6 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import type { Tables } from "@/integrations/supabase/types";
 import type { QueryData } from "@supabase/supabase-js";
 import { saveClassAttendance } from "@/lib/attendance";
 import { useAuth } from "@/contexts/AuthContext";
@@ -110,7 +109,6 @@ export default function AcademicManagement() {
   const [students, setStudents] = useState<StudentsRow[]>([]);
   const [timetableEntries, setTimetableEntries] = useState<TimetableRow[]>([]);
   const [classSubjects, setClassSubjects] = useState<ClassSubjectsRow[]>([]);
-  const [attendance, setAttendance] = useState<Tables<"attendance">[]>([]);
   const [exams, setExams] = useState<ExamsRow[]>([]);
   const [examResults, setExamResults] = useState<ExamResultsRow[]>([]);
   const [loading, setLoading] = useState(true);

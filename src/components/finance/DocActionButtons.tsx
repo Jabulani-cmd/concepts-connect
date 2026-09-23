@@ -6,7 +6,6 @@ import EmailDocumentDialog from "./EmailDocumentDialog";
 
 interface Props {
   actions: DocActions | (() => Promise<DocActions> | DocActions);
-  size?: "sm" | "icon";
   labels?: boolean;
   /** Enable the Email button (uses the document HTML to compose an email). */
   email?: {
@@ -22,7 +21,7 @@ async function resolve(a: Props["actions"]): Promise<DocActions> {
   return a;
 }
 
-export default function DocActionButtons({ actions, size = "icon", labels = false, email }: Props) {
+export default function DocActionButtons({ actions, labels = false, email }: Props) {
   const [emailOpen, setEmailOpen] = useState(false);
   const [emailHtml, setEmailHtml] = useState("");
 

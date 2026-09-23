@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 import AcademicManagement from "@/pages/admin/AcademicManagement";
@@ -39,30 +39,12 @@ import { Bell, Image, Calendar, LogOut, Plus, Trash2, Upload, Layers, Graduation
 import schoolLogo from "@/assets/mavingtech-logo.png";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import type { Tables, TablesInsert } from "@/integrations/supabase/types";
+import type { Tables } from "@/integrations/supabase/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { errorMessage } from "@/lib/errors";
 
-const gradeOptions = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
-const classOptions = ["A", "B", "C", "D"];
-const departmentOptions = ["Mathematics", "Sciences", "Languages", "Humanities", "Technical", "Arts", "Sports"];
 const downloadCategories = ["fees", "forms", "policies", "vacancies", "general"];
 const meetingTypes = ["sdc", "parent-teacher", "general"];
-const timetableDays = ["Mon", "Tue", "Wed", "Thu", "Fri"];
-const timetableSlots = [
-  { start: "07:30", end: "08:10" },
-  { start: "08:10", end: "08:50" },
-  { start: "08:50", end: "09:30" },
-  { start: "09:50", end: "10:30" },
-  { start: "10:30", end: "11:10" },
-  { start: "11:10", end: "11:50" },
-  { start: "11:50", end: "12:30" },
-  { start: "12:30", end: "13:10" },
-  { start: "13:50", end: "14:30" },
-  { start: "14:30", end: "15:10" },
-  { start: "15:30", end: "16:10" },
-  { start: "16:10", end: "17:00" },
-];
 
 interface AdminDashboardProps {
   portalTitle?: string;
@@ -136,21 +118,6 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
   const principalFileRef = useRef<HTMLInputElement>(null);
   const [principalCropSrc, setPrincipalCropSrc] = useState<string | null>(null);
   const [principalCropOpen, setPrincipalCropOpen] = useState(false);
-
-  // Student registration
-  const [studentForm, setStudentForm] = useState({ full_name: "", email: "", password: "", grade: "", class_name: "", phone: "" });
-  const [regLoading, setRegLoading] = useState(false);
-
-  // Teacher registration
-  const [teacherForm, setTeacherForm] = useState({ full_name: "", email: "", password: "", department: "", phone: "" });
-
-  // Timetable management
-  const [ttClasses, setTtClasses] = useState<Pick<Tables<"classes">, "id" | "name">[]>([]);
-  const [ttSubjects, setTtSubjects] = useState<Pick<Tables<"subjects">, "id" | "name">[]>([]);
-  const [ttSelectedClassId, setTtSelectedClassId] = useState("");
-  const [ttGrid, setTtGrid] = useState<Record<string, string>>({});
-  const [ttLoading, setTtLoading] = useState(false);
-  const [ttSaving, setTtSaving] = useState(false);
 
   const fetchSiteSettings = async () => {
     const { data } = await supabase.from("site_settings").select("*").in("setting_key", ["achievements_image", "principal_photo", "tradition_image", "cta_image"]);
@@ -322,46 +289,6 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
     if (data) setMeetings(data);
   };
 
-  const getTimetableCellKey = (dayIndex: number, startTime: string) => `${dayIndex}-${startTime}`;
-
-  const fetchTimetableMeta = useCallback(async () => {
-    const [{ data: classRows }, { data: subjectRows }] = await Promise.all([
-      supabase.from("classes").select("id, name").order("name"),
-      supabase.from("subjects").select("id, name").order("name"),
-    ]);
-
-    if (classRows) {
-      setTtClasses(classRows);
-      if (classRows.length > 0) setTtSelectedClassId((current) => current || classRows[0].id);
-    }
-    if (subjectRows) {
-      setTtSubjects(subjectRows);
-    }
-  }, []);
-
-  const fetchClassTimetable = useCallback(async (classId: string) => {
-    setTtLoading(true);
-    const { data, error } = await supabase
-      .from("timetable_entries")
-      .select("day_of_week, start_time, subjects(name)")
-      .eq("class_id", classId)
-      .in("day_of_week", [0, 1, 2, 3, 4]);
-
-    if (error) {
-      toast({ title: "Failed to load timetable", description: error.message, variant: "destructive" });
-      setTtLoading(false);
-      return;
-    }
-
-    const nextGrid: Record<string, string> = {};
-    (data || []).forEach((entry) => {
-      const key = getTimetableCellKey(entry.day_of_week, entry.start_time);
-      nextGrid[key] = entry.subjects?.name || "";
-    });
-    setTtGrid(nextGrid);
-    setTtLoading(false);
-  }, [toast]);
-
   useEffect(() => {
     fetchAnnouncements();
     fetchCarouselImages();
@@ -369,95 +296,7 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
     fetchDownloads();
     fetchMeetings();
     fetchSiteSettings();
-    fetchTimetableMeta();
-  }, [fetchTimetableMeta]);
-
-  useEffect(() => {
-    if (ttSelectedClassId) {
-      fetchClassTimetable(ttSelectedClassId);
-    } else {
-      setTtGrid({});
-    }
-  }, [fetchClassTimetable, ttSelectedClassId]);
-
-  const saveTimetable = async () => {
-    if (!ttSelectedClassId) {
-      toast({ title: "Select a class first", variant: "destructive" });
-      return;
-    }
-
-    if (ttSubjects.length === 0) {
-      toast({ title: "No subjects found", variant: "destructive" });
-      return;
-    }
-
-    setTtSaving(true);
-
-    const subjectMap = new Map(ttSubjects.map((s) => [String(s.name).trim().toLowerCase(), s.id]));
-    const unknownSubjects = new Set<string>();
-    const rows: TablesInsert<"timetable_entries">[] = [];
-
-    timetableSlots.forEach((slot) => {
-      timetableDays.forEach((_, dayIndex) => {
-        const key = getTimetableCellKey(dayIndex, slot.start);
-        const rawSubject = (ttGrid[key] || "").trim();
-        if (!rawSubject) return;
-
-        const subjectId = subjectMap.get(rawSubject.toLowerCase());
-        if (!subjectId) {
-          unknownSubjects.add(rawSubject);
-          return;
-        }
-
-        rows.push({
-          class_id: ttSelectedClassId,
-          day_of_week: dayIndex,
-          start_time: slot.start,
-          end_time: slot.end,
-          subject_id: subjectId,
-          teacher_id: null,
-          room: null,
-        });
-      });
-    });
-
-    if (unknownSubjects.size > 0) {
-      setTtSaving(false);
-      toast({
-        title: "Unknown subject names",
-        description: `These names do not match configured subjects: ${Array.from(unknownSubjects).join(", ")}`,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const slotStarts = timetableSlots.map((slot) => slot.start);
-    const { error: deleteError } = await supabase
-      .from("timetable_entries")
-      .delete()
-      .eq("class_id", ttSelectedClassId)
-      .in("day_of_week", [0, 1, 2, 3, 4])
-      .in("start_time", slotStarts);
-
-    if (deleteError) {
-      setTtSaving(false);
-      toast({ title: "Failed to save timetable", description: deleteError.message, variant: "destructive" });
-      return;
-    }
-
-    if (rows.length > 0) {
-      const { error: insertError } = await supabase.from("timetable_entries").insert(rows);
-      if (insertError) {
-        setTtSaving(false);
-        toast({ title: "Failed to save timetable", description: insertError.message, variant: "destructive" });
-        return;
-      }
-    }
-
-    await fetchClassTimetable(ttSelectedClassId);
-    setTtSaving(false);
-    toast({ title: "Timetable saved!" });
-  };
+  }, []);
 
   const addAnnouncement = async () => {
     if (!newTitle) return;
@@ -593,56 +432,6 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
     await supabase.from("meetings").delete().eq("id", id);
     toast({ title: "Meeting removed" });
     fetchMeetings();
-  };
-
-  const registerStudent = async () => {
-    const { full_name, email, password, grade, class_name, phone } = studentForm;
-    if (!full_name || !email || !password || !grade) {
-      toast({ title: "Please fill all required fields", variant: "destructive" });
-      return;
-    }
-    setRegLoading(true);
-    try {
-      const session = await supabase.auth.getSession();
-      const token = session.data.session?.access_token;
-      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/manage-users`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
-        body: JSON.stringify({ action: "register-student", full_name, email, password, grade, class_name: `${grade}${class_name}`, phone }),
-      });
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-      toast({ title: "Student registered successfully!" });
-      setStudentForm({ full_name: "", email: "", password: "", grade: "", class_name: "", phone: "" });
-    } catch (err) {
-      toast({ title: "Registration failed", description: errorMessage(err), variant: "destructive" });
-    }
-    setRegLoading(false);
-  };
-
-  const registerTeacher = async () => {
-    const { full_name, email, password, department, phone } = teacherForm;
-    if (!full_name || !email || !password) {
-      toast({ title: "Please fill all required fields", variant: "destructive" });
-      return;
-    }
-    setRegLoading(true);
-    try {
-      const session = await supabase.auth.getSession();
-      const token = session.data.session?.access_token;
-      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/manage-users`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
-        body: JSON.stringify({ action: "register-teacher", full_name, email, password, department, phone }),
-      });
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-      toast({ title: "Teacher registered successfully!" });
-      setTeacherForm({ full_name: "", email: "", password: "", department: "", phone: "" });
-    } catch (err) {
-      toast({ title: "Registration failed", description: errorMessage(err), variant: "destructive" });
-    }
-    setRegLoading(false);
   };
 
   const handleLogout = async () => {

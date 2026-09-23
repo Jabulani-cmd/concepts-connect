@@ -176,7 +176,6 @@ export function printableTimetableHtml(
   schedule: PeriodTimes[],
   slots: SlotRow[],
 ): string {
-  const teaching = schedule.filter((p) => !p.isBreak);
   const slotByKey = new Map<string, SlotRow>();
   for (const s of slots) slotByKey.set(`${s.day_of_week}-${s.period_index}`, s);
 

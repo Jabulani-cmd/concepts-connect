@@ -63,7 +63,6 @@ export default function EnhancedAnnouncementsTab({ userId, classes, announcement
     // Upload attachments
     const file_attachments: string[] = [];
     for (const file of attachments) {
-      const ext = file.name.split(".").pop();
       const path = `announcements/${userId}/${Date.now()}-${file.name}`;
       const { error } = await supabase.storage.from("school-media").upload(path, file);
       if (!error) {

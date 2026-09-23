@@ -46,7 +46,6 @@ export default function TermRegistration() {
 
   // Bulk registration
   const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
-  const [bulkStudents, setBulkStudents] = useState<Tables<"students">[]>([]);
   const [bulkLoading, setBulkLoading] = useState(false);
 
   const fetchAll = useCallback(async () => {
@@ -205,9 +204,8 @@ export default function TermRegistration() {
     setBulkLoading(true);
     let successCount = 0;
     let errorCount = 0;
-    const studentsToRegister = bulkStudents.length > 0 ? bulkStudents : unregistered;
 
-    for (const student of studentsToRegister) {
+    for (const student of unregistered) {
       try {
         const { data: existing } = await supabase
           .from("term_registrations")
