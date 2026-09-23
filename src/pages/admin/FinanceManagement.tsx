@@ -77,7 +77,7 @@ import { buildBrandedHtml } from "@/lib/print/printSection";
 import BankReconciliation from "@/components/admin/BankReconciliation";
 import IncomeExpenditureReport from "@/components/admin/IncomeExpenditureReport";
 
-const formOptions = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
+const formOptions = ["Form 1", "Form 2", "Form 3", "Form 4", "Form 5", "Form 6"];
 const termOptions = ["Term 1", "Term 2", "Term 3"];
 const boardingOptions = [
   { value: "day", label: "Day Scholar" },
@@ -207,7 +207,7 @@ export default function FinanceManagement() {
   const [feeForm, setFeeForm] = useState({
     academic_year: "2026",
     term: "Term 1",
-    form: "Grade 8",
+    form: "Form 1",
     boarding_status: "day",
     description: "",
     amount_usd: "",
@@ -660,7 +660,7 @@ export default function FinanceManagement() {
     setFeeForm({
       academic_year: "2026",
       term: "Term 1",
-      form: "Grade 8",
+      form: "Form 1",
       boarding_status: "day",
       description: "",
       amount_usd: "",
