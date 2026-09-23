@@ -132,7 +132,7 @@ export default function AIAssessmentCreator({ open, onOpenChange, userId, classe
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Assessment Title *</Label>
-              <Input value={cfg.title} onChange={e => setCfg(p => ({ ...p, title: e.target.value }))} placeholder="e.g. Grade 8 Algebra Quick Quiz" />
+              <Input value={cfg.title} onChange={e => setCfg(p => ({ ...p, title: e.target.value }))} placeholder="e.g. Form 1 Algebra Quick Quiz" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2"><Label>Class *</Label>

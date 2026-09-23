@@ -663,10 +663,10 @@ function BankView({ bank, proof, setProof, onSubmit, processing, error, plan }: 
           </div>
         ) : (
           <div className="bg-muted/40 rounded-lg p-4 text-sm space-y-1">
-            <div><span className="text-muted-foreground">Bank:</span> <strong>First National Bank (FNB)</strong></div>
+            <div><span className="text-muted-foreground">Bank:</span> <strong>CBZ Bank</strong></div>
             <div><span className="text-muted-foreground">Account Name:</span> <strong>MavingTech Demo School</strong></div>
-            <div><span className="text-muted-foreground">Account #:</span> <strong>62861234567</strong></div>
-            <div><span className="text-muted-foreground">Branch code:</span> 250655</div>
+            <div><span className="text-muted-foreground">Account #:</span> <strong>01123456780012</strong></div>
+            <div><span className="text-muted-foreground">Branch:</span> Harare Main</div>
             <div><span className="text-muted-foreground">Reference:</span> <strong>PARENT-{plan.plan_type.toUpperCase()}</strong></div>
             <div className="pt-2 border-t mt-2"><span className="text-muted-foreground">Amount:</span> <strong>{formatMoney(plan.amount_usd)}</strong></div>
           </div>
@@ -727,7 +727,7 @@ function SuccessView({ data, onDownload, onPortal }: { data: CompletedPayment; o
           <div className="flex justify-between"><span className="text-muted-foreground">Plan</span> <strong>{data.plan.name}</strong></div>
           <div className="flex justify-between"><span className="text-muted-foreground">Amount</span> <strong>{formatMoney(data.plan.amount_usd)}</strong></div>
           <div className="flex justify-between"><span className="text-muted-foreground">Method</span> <strong>{paymentMethodLabel(data.method)}</strong></div>
-          <div className="flex justify-between"><span className="text-muted-foreground">Access until</span> <strong>{new Date(data.accessEnd).toLocaleDateString("en-ZA")}</strong></div>
+          <div className="flex justify-between"><span className="text-muted-foreground">Access until</span> <strong>{new Date(data.accessEnd).toLocaleDateString("en-GB")}</strong></div>
         </div>
 
         <div className="grid grid-cols-2 gap-2 mt-5">

@@ -20,8 +20,8 @@ import { studentFormSchema, type StudentFormData } from "@/lib/validators";
 import ImageCropper from "@/components/ImageCropper";
 import WebcamCapture from "@/components/WebcamCapture";
 import { errorMessage } from "@/lib/errors";
+import { DEFAULT_FORM, FORM_LEVELS } from "@/lib/forms";
 
-const formOptions = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 const streamOptions = ["A", "B", "C", "D", "Arts", "Sciences", "Commercials"];
 const statusOptions = ["active", "graduated", "withdrawn"];
 const genderOptions = ["Male", "Female"];
@@ -34,7 +34,7 @@ const emptyForm: StudentFormData = {
   admission_number: "",
   full_name: "",
   date_of_birth: "",
-  form: "Grade 8",
+  form: DEFAULT_FORM,
   stream: "",
   subject_combination: "",
   gender: "",
@@ -474,7 +474,7 @@ export default function StudentManagement() {
             <SelectTrigger className="w-[140px]"><SelectValue placeholder="Form" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Forms</SelectItem>
-              {formOptions.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+              {FORM_LEVELS.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
             </SelectContent>
           </Select>
           <Select value={filterStatus} onValueChange={setFilterStatus}>
@@ -628,7 +628,7 @@ export default function StudentManagement() {
               <Label>Form *</Label>
               <Select value={formData.form} onValueChange={v => updateField("form", v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>{formOptions.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}</SelectContent>
+                <SelectContent>{FORM_LEVELS.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div className="space-y-1">

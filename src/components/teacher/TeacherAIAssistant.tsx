@@ -40,12 +40,12 @@ function buildDemoReply(task: string, model: string, prompt: string): string {
       return header +
 `## Lesson Plan: ${topic}
 
-**Grade:** Grade 10  |  **Duration:** 40 minutes
+**Form:** Form 3  |  **Duration:** 40 minutes
 
 ### 1. Learning Objectives
-By the end of this lesson, learners should be able to:
+By the end of this lesson, students should be able to:
 - Define the key concepts related to *${topic}*.
-- Apply the concepts to a real-world South African context.
+- Apply the concepts to a real-world Zimbabwean context.
 - Evaluate at least two worked examples.
 
 ### 2. Materials
@@ -87,7 +87,7 @@ This memo serves to formally communicate updates regarding **${topic}**. Please 
 Your cooperation in ensuring a smooth rollout is greatly appreciated.
 
 Yours sincerely,
-**Mr. S.M. Zulu**
+**Mr. S.M. Moyo**
 Director`;
 
     case "grading":
@@ -101,7 +101,7 @@ Director`;
 - Provide more detailed explanations supported by examples.
 - Review the section on *${topic}* before the next assessment.
 
-**Next steps:** With consistent practice this learner can confidently move up. Suggested grade band: **C → B**.`;
+**Next steps:** With consistent practice this student can confidently move up. Suggested grade band: **C → B**.`;
 
     case "email":
       return header +
@@ -128,7 +128,7 @@ MavingTech Business Solutions Demo School`;
 - Switch models from the dropdown and try asking for lesson plans, memos, feedback or parent emails.
 
 Try selecting **Lesson planning** and asking:
-> "Plan a 40-minute Grade 9 English lesson on persuasive writing."`;
+> "Plan a 40-minute Form 2 English lesson on persuasive writing."`;
   }
 }
 
@@ -231,7 +231,7 @@ export default function TeacherAIAssistant() {
           {messages.length === 0 && !streaming && (
             <div className="text-center text-muted-foreground text-sm py-12">
               <Bot className="h-10 w-10 mx-auto mb-2 opacity-40" />
-              Start a conversation. Try: <em>"Plan a 40-min Grade 10 lesson on photosynthesis"</em>.
+              Start a conversation. Try: <em>"Plan a 40-min Form 3 lesson on photosynthesis"</em>.
             </div>
           )}
           <div className="space-y-3">

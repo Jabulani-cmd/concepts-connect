@@ -103,7 +103,7 @@ export function buildInvoicePdf(input: InvoicePdfInput): jsPDF {
   doc.text(`Student: ${input.student.fullName}`, pageWidth / 2, detailY, { align: "left" });
   doc.text(`Admission #: ${input.student.admissionNumber}`, pageWidth / 2, detailY + 5);
   if (input.student.form) {
-    doc.text(`Grade: ${input.student.form}`, pageWidth / 2, detailY + 10);
+    doc.text(`Form: ${input.student.form}`, pageWidth / 2, detailY + 10);
   }
 
   doc.line(14, detailY + 15, pageWidth - 14, detailY + 15);
@@ -228,12 +228,12 @@ export function buildInvoiceHtml(input: InvoicePdfInput): string {
     <div>
       <div><strong>Student:</strong> ${safeHtml(input.student.fullName)}</div>
       <div><strong>Admission #:</strong> <span class="mono">${safeHtml(input.student.admissionNumber)}</span></div>
-      ${input.student.form ? `<div><strong>Grade:</strong> ${safeHtml(input.student.form)}</div>` : ""}
+      ${input.student.form ? `<div><strong>Form:</strong> ${safeHtml(input.student.form)}</div>` : ""}
     </div>
     <div class="right">
       <div><strong>Term:</strong> ${safeHtml(input.term)} | <strong>Year:</strong> ${safeHtml(input.academicYear)}</div>
-      <div><strong>Due Date:</strong> ${input.dueDate ? new Date(input.dueDate).toLocaleDateString("en-ZA") : "—"}</div>
-      <div><strong>Date:</strong> ${new Date().toLocaleDateString("en-ZA")}</div>
+      <div><strong>Due Date:</strong> ${input.dueDate ? new Date(input.dueDate).toLocaleDateString("en-GB") : "—"}</div>
+      <div><strong>Date:</strong> ${new Date().toLocaleDateString("en-GB")}</div>
     </div>
   </div>
 
@@ -327,7 +327,7 @@ export function buildReceiptHtml(input: ReceiptPrintInput) {
     <div>
       <div><strong>Student:</strong> ${safeHtml(input.student.fullName)}</div>
       <div><strong>Admission #:</strong> <span class="mono">${safeHtml(input.student.admissionNumber)}</span></div>
-      ${input.student.form ? `<div><strong>Grade:</strong> ${safeHtml(input.student.form)}</div>` : ""}
+      ${input.student.form ? `<div><strong>Form:</strong> ${safeHtml(input.student.form)}</div>` : ""}
     </div>
     <div class="right">
       <div><strong>Date:</strong> ${safeHtml(input.paymentDate)}</div>
@@ -431,12 +431,12 @@ export function buildStatementHtml(input: StatementPrintInput) {
   <div class="divider"></div>
 
   <h2 style="font-size:14px; margin: 8px 0;">STUDENT ACCOUNT STATEMENT</h2>
-  <p><strong>Student:</strong> ${safeHtml(input.student.fullName)} &nbsp; | &nbsp; <strong>Admission #:</strong> <span class="mono">${safeHtml(input.student.admissionNumber)}</span>${input.student.form ? ` &nbsp; | &nbsp; <strong>Grade:</strong> ${safeHtml(input.student.form)}` : ""}</p>
-  <p><strong>Date:</strong> ${new Date().toLocaleDateString("en-ZA")}</p>
+  <p><strong>Student:</strong> ${safeHtml(input.student.fullName)} &nbsp; | &nbsp; <strong>Admission #:</strong> <span class="mono">${safeHtml(input.student.admissionNumber)}</span>${input.student.form ? ` &nbsp; | &nbsp; <strong>Form:</strong> ${safeHtml(input.student.form)}` : ""}</p>
+  <p><strong>Date:</strong> ${new Date().toLocaleDateString("en-GB")}</p>
 
   <h3 style="margin-top:14px;">Invoices</h3>
   <table>
-    <thead><tr><th>Invoice #</th><th>Period</th><th class="right">Total (R)</th><th class="right">Paid (R)</th><th class="right">Balance (R)</th><th>Status</th></tr></thead>
+    <thead><tr><th>Invoice #</th><th>Period</th><th class="right">Total (US$)</th><th class="right">Paid (US$)</th><th class="right">Balance (US$)</th><th>Status</th></tr></thead>
     <tbody>${invoiceRows || "<tr><td colspan='6'>No invoices</td></tr>"}</tbody>
   </table>
 

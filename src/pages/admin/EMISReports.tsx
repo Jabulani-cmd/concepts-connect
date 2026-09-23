@@ -13,8 +13,8 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { SCHOOL_LOGO_URL, SCHOOL_NAME, urlToDataUrl } from "@/lib/finance/pdf";
+import { DEFAULT_FORM, FORM_LEVELS } from "@/lib/forms";
 
-const FORM_LEVELS = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 const CHART_COLORS = ["hsl(var(--primary))", "hsl(var(--accent))", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
 
 interface EnrollmentRow {
@@ -72,7 +72,7 @@ export default function EMISReports() {
     FORM_LEVELS.forEach(f => { byForm[f] = { male: 0, female: 0 }; });
 
     students.forEach(s => {
-      const f = s.form || "Grade 8";
+      const f = s.form || DEFAULT_FORM;
       if (!byForm[f]) byForm[f] = { male: 0, female: 0 };
       if (s.gender?.toLowerCase() === "male") byForm[f].male++;
       else if (s.gender?.toLowerCase() === "female") byForm[f].female++;

@@ -48,6 +48,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { errorMessage } from "@/lib/errors";
 import type { Tables } from "@/integrations/supabase/types";
+import { FORM_LEVELS } from "@/lib/forms";
 
 const portalRoles = [
   { value: "admin", label: "System Administrator" },
@@ -108,7 +109,6 @@ const departmentOptions = [
   "Sports",
   "Administration",
 ];
-const gradeOptions = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 const subjectsList = [
   "Mathematics",
   "English",
@@ -886,13 +886,13 @@ export default function UserManagement() {
             {form.portal_role === "student" && (
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>Grade</Label>
+                  <Label>Form</Label>
                   <Select value={form.grade} onValueChange={(v) => setForm((p) => ({ ...p, grade: v }))}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
-                      {gradeOptions.map((g) => (
+                      {FORM_LEVELS.map((g) => (
                         <SelectItem key={g} value={g}>
                           {g}
                         </SelectItem>

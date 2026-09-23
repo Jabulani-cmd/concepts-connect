@@ -92,15 +92,15 @@ export default function TimetableSetupDialog({ open, aiMode, onOpenChange, onSub
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div><Label>Timetable Name</Label>
-              <Input value={v.name} onChange={(e) => upd({ name: e.target.value })} placeholder="Grade 7A - Term 2 2025" /></div>
+              <Input value={v.name} onChange={(e) => upd({ name: e.target.value })} placeholder="Form 1A - Term 2 2026" /></div>
             <div><Label>Type</Label>
               <Select value={v.type} onValueChange={(t) => upd({ type: t as "class" | "exam" })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent><SelectItem value="class">Class Timetable</SelectItem><SelectItem value="exam">Exam Timetable</SelectItem></SelectContent>
               </Select>
             </div>
-            <div><Label>Grade / Class</Label>
-              <Input value={v.classLabel} onChange={(e) => upd({ classLabel: e.target.value })} placeholder="Grade 7A" /></div>
+            <div><Label>Form / Class</Label>
+              <Input value={v.classLabel} onChange={(e) => upd({ classLabel: e.target.value })} placeholder="Form 1A" /></div>
             <div><Label>Academic Year</Label>
               <Input value={v.academicYear} onChange={(e) => upd({ academicYear: e.target.value })} /></div>
             <div><Label>Term</Label>

@@ -10,7 +10,7 @@ interface Ctx {
 }
 
 const C = createContext<Ctx | null>(null);
-const LS_KEY = "mt_demo_people_v1";
+const LS_KEY = "mt_demo_people_v2";
 
 function load() {
   try {

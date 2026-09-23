@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { errorMessage } from "@/lib/errors";
+import { FORM_LEVELS } from "@/lib/forms";
 
 type Template = Tables<"sms_templates">;
 type CommLog = Tables<"communication_logs">;
@@ -41,7 +42,6 @@ const channelOptions = [
   { value: "email", label: "Email", icon: Mail },
   { value: "notification", label: "In-App Notification", icon: Bell },
 ];
-const formLevels = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 
 const defaultTemplates = [
   { name: "Fee Reminder", category: "fee_reminder", body: "Dear Parent/Guardian of {{student_name}}, this is a reminder that fees of ${{balance}} for {{term}} are due by {{due_date}}. Please make payment at your earliest convenience. MavingTech High School.", variables: ["student_name", "balance", "term", "due_date"] },
@@ -393,7 +393,7 @@ export default function CommunicationModule() {
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="all">All Forms</SelectItem>
-                            {formLevels.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+                            {FORM_LEVELS.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
                           </SelectContent>
                         </Select>
                       </div>
@@ -784,7 +784,7 @@ export default function CommunicationModule() {
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Forms</SelectItem>
-                    {formLevels.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+                    {FORM_LEVELS.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>

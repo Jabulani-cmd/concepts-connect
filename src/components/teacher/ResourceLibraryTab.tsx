@@ -102,7 +102,7 @@ export default function ResourceLibraryTab({ userId, subjects }: Props) {
           <DialogContent>
             <DialogHeader><DialogTitle className="font-heading">Add Resource</DialogTitle></DialogHeader>
             <div className="space-y-4">
-              <div className="space-y-2"><Label>Title *</Label><Input value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="e.g. CAPS Past Papers 2024" /></div>
+              <div className="space-y-2"><Label>Title *</Label><Input value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="e.g. ZIMSEC Past Papers 2025" /></div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label>Subject</Label>

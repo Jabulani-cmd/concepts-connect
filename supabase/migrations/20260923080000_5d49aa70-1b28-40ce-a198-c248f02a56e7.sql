@@ -383,6 +383,42 @@ ALTER TABLE public.payments ALTER COLUMN parent_id DROP NOT NULL;
 ALTER TYPE public.payment_method ADD VALUE IF NOT EXISTS 'cash';
 
 -- ============================================
+-- ZIMBABWE: FORM LEVELS
+-- Migration 20260725170353 moved Zimbabwean Form 1–6 records onto South African
+-- Grade 8–12 labels. Move them back to Forms, by age: Grade 8 = Form 1 … Grade 12 = Form 5.
+-- Only values that start with an SA grade are touched, so this is safe to re-run.
+-- ============================================
+CREATE OR REPLACE FUNCTION pg_temp.zim_form(v text)
+RETURNS text
+LANGUAGE sql
+IMMUTABLE
+AS $$
+  SELECT CASE
+    WHEN v ~ '^Grade (8|9|10|11|12)(?![0-9])'
+      THEN 'Form ' || ((substring(v FROM '^Grade ([0-9]+)'))::int - 7)::text
+           || substring(v FROM '^Grade [0-9]+(.*)$')
+    ELSE v
+  END
+$$;
+
+-- Classes first, so the student trigger re-links rosters by the new class names.
+UPDATE public.classes SET name = pg_temp.zim_form(name), level = pg_temp.zim_form(level)
+WHERE name ~ '^Grade ' OR level ~ '^Grade ';
+
+UPDATE public.students SET form = pg_temp.zim_form(form), class = pg_temp.zim_form(class)
+WHERE form ~ '^Grade ' OR class ~ '^Grade ';
+
+UPDATE public.profiles SET grade = pg_temp.zim_form(grade), class_name = pg_temp.zim_form(class_name)
+WHERE grade ~ '^Grade ' OR class_name ~ '^Grade ';
+
+UPDATE public.fee_structures     SET form = pg_temp.zim_form(form)             WHERE form ~ '^Grade ';
+UPDATE public.assessments        SET form = pg_temp.zim_form(form)             WHERE form ~ '^Grade ';
+UPDATE public.homework           SET form = pg_temp.zim_form(form)             WHERE form ~ '^Grade ';
+UPDATE public.learning_materials SET form = pg_temp.zim_form(form)             WHERE form ~ '^Grade ';
+UPDATE public.exams              SET form_level = pg_temp.zim_form(form_level) WHERE form_level ~ '^Grade ';
+UPDATE public.term_reports       SET form_level = pg_temp.zim_form(form_level) WHERE form_level ~ '^Grade ';
+
+-- ============================================
 -- FUNCTIONS
 -- ============================================
 

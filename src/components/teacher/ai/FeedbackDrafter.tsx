@@ -27,7 +27,7 @@ export default function FeedbackDrafter({ students = [] }: Props) {
 
   const generate = async () => {
     if (!student.trim() || !score.trim()) {
-      toast({ title: "Add the learner and their score", variant: "destructive" });
+      toast({ title: "Add the student and their score", variant: "destructive" });
       return;
     }
     setLoading(true);
@@ -54,19 +54,19 @@ export default function FeedbackDrafter({ students = [] }: Props) {
       <CardContent className="space-y-3">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <div className="space-y-1">
-            <Label>Learner</Label>
+            <Label>Student</Label>
             {students.length > 0 ? (
               <Select value={student} onValueChange={setStudent}>
-                <SelectTrigger><SelectValue placeholder="Select learner" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Select student" /></SelectTrigger>
                 <SelectContent>
                   {students.map((s) => {
-                    const n = s.full_name || s.name || "Learner";
+                    const n = s.full_name || s.name || "Student";
                     return <SelectItem key={s.id} value={n}>{n}</SelectItem>;
                   })}
                 </SelectContent>
               </Select>
             ) : (
-              <Input value={student} onChange={(e) => setStudent(e.target.value)} placeholder="Learner name" />
+              <Input value={student} onChange={(e) => setStudent(e.target.value)} placeholder="Student name" />
             )}
           </div>
           <div className="space-y-1">

@@ -42,7 +42,7 @@ function buildPrompt(kind: string, p: Record<string, unknown>): { system: string
       };
     case "feedback":
       return {
-        system: `${zimsec} Write a warm, specific 3-4 sentence feedback comment for one learner. JSON shape: {"comment":string}`,
+        system: `${zimsec} Write a warm, specific 3-4 sentence feedback comment for one student. JSON shape: {"comment":string}`,
         user: `Student: ${p.student}\nAssignment: ${p.assignment}\nSubject: ${p.subject}\nScore: ${p.score} out of ${p.outOf}\nTeacher notes: ${p.notes || "none"}`,
       };
     case "parent_message": {
@@ -54,7 +54,7 @@ function buildPrompt(kind: string, p: Record<string, unknown>): { system: string
     }
     case "risk_reason":
       return {
-        system: `${zimsec} You explain why a learner has been flagged as at risk. Be concrete and quote the numbers given. JSON shape: {"reason":string,"suggested_actions":string[]}. Give 1-2 practical next steps. Never be punitive.`,
+        system: `${zimsec} You explain why a student has been flagged as at risk. Be concrete and quote the numbers given. JSON shape: {"reason":string,"suggested_actions":string[]}. Give 1-2 practical next steps. Never be punitive.`,
         user: `Student: ${p.student}\nSignals: ${JSON.stringify(p.signals)}\nRule-based risk level: ${p.risk_score}`,
       };
     case "insights":

@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle, FileText, Users, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import hero from "@/assets/hero-students-4.jpg";
+import { FORM_LEVELS } from "@/lib/forms";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -98,7 +99,7 @@ export default function Admissions() {
                     <Select required>
                       <SelectTrigger><SelectValue placeholder={t("admissions.form.gradePlaceholder")} /></SelectTrigger>
                       <SelectContent>
-                        {["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"].map(g => (
+                        {FORM_LEVELS.map(g => (
                           <SelectItem key={g} value={g}>{g}</SelectItem>
                         ))}
                       </SelectContent>

@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Building, Plus, Edit, Trash2, Users, BedDouble, Heart, Search, Download, Eye, Phone, ArrowRightLeft, GripVertical } from "lucide-react";
+import { FORM_LEVELS } from "@/lib/forms";
 
 type Hostel = Tables<"hostels">;
 type Room = Tables<"rooms">;
@@ -433,7 +434,7 @@ export default function BoardingManagement() {
                 <SelectTrigger className="w-[140px]"><SelectValue placeholder="Form" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Forms</SelectItem>
-                  {["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"].map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+                  {FORM_LEVELS.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
                 </SelectContent>
               </Select>
               <Button variant="outline" size="sm" onClick={exportBoarders}><Download className="mr-1 h-4 w-4" /> Export</Button>

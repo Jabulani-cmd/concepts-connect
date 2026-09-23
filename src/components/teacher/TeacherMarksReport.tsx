@@ -249,7 +249,7 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
       <Card>
         <CardContent className="p-4 grid gap-3 md:grid-cols-4">
           <div>
-            <label className="text-xs font-medium text-muted-foreground">Class / Grade</label>
+            <label className="text-xs font-medium text-muted-foreground">Form / Class</label>
             <Select value={classId} onValueChange={setClassId}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -322,7 +322,7 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
                 <p className="text-2xl font-bold">{filtered.length}</p>
               </div>
               <div className="rounded-lg border p-3">
-                <p className="text-xs text-muted-foreground">Learners</p>
+                <p className="text-xs text-muted-foreground">Students</p>
                 <p className="text-2xl font-bold">{byStudent.length}</p>
               </div>
             </div>
@@ -352,12 +352,12 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
             </div>
 
             <div>
-              <h4 className="font-semibold text-sm mb-2">Learner Rankings</h4>
+              <h4 className="font-semibold text-sm mb-2">Student Rankings</h4>
               <table className="w-full text-sm border">
                 <thead className="bg-muted">
                   <tr>
                     <th className="px-3 py-2 text-left">#</th>
-                    <th className="px-3 py-2 text-left">Learner</th>
+                    <th className="px-3 py-2 text-left">Student</th>
                     <th className="px-3 py-2 text-left">Admission</th>
                     <th className="px-3 py-2 text-center">Records</th>
                     <th className="px-3 py-2 text-center">Average</th>
@@ -385,7 +385,7 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
                 <thead className="bg-muted">
                   <tr>
                     <th className="px-3 py-2 text-left">Date</th>
-                    <th className="px-3 py-2 text-left">Learner</th>
+                    <th className="px-3 py-2 text-left">Student</th>
                     <th className="px-3 py-2 text-left">Grade</th>
                     <th className="px-3 py-2 text-left">Subject</th>
                     <th className="px-3 py-2 text-left">Assessment</th>
@@ -400,7 +400,7 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
                 <tbody>
                   {filtered.map(r => (
                     <tr key={r.id} className="border-t">
-                      <td className="px-3 py-2">{new Date(r.created_at).toLocaleDateString("en-ZA")}</td>
+                      <td className="px-3 py-2">{new Date(r.created_at).toLocaleDateString("en-GB")}</td>
                       <td className="px-3 py-2">{r.student}</td>
                       <td className="px-3 py-2">{r.grade}</td>
                       <td className="px-3 py-2">{r.subject}</td>

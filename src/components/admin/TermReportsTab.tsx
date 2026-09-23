@@ -14,8 +14,8 @@ import { FileText, Loader2, RefreshCw, CheckCircle, Send } from "lucide-react";
 import { format } from "date-fns";
 import { errorMessage } from "@/lib/errors";
 import { gradeFor, gradeBadgeClass } from "@/lib/grading";
+import { DEFAULT_FORM, FORM_LEVELS } from "@/lib/forms";
 
-const formOptions = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 const termOptions = ["Term 1", "Term 2", "Term 3"];
 
 interface TermReport {
@@ -49,7 +49,7 @@ export default function TermReportsTab() {
   const [students, setStudents] = useState<Student[]>([]);
   
   // Filters
-  const [filterForm, setFilterForm] = useState("Grade 8");
+  const [filterForm, setFilterForm] = useState(DEFAULT_FORM);
   const [filterTerm, setFilterTerm] = useState("Term 1");
   const [filterYear, setFilterYear] = useState(new Date().getFullYear().toString());
   
@@ -271,7 +271,7 @@ export default function TermReportsTab() {
             <Select value={filterForm} onValueChange={setFilterForm}>
               <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
               <SelectContent>
-                {formOptions.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+                {FORM_LEVELS.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>

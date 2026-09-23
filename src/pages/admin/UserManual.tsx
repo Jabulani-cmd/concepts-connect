@@ -449,7 +449,7 @@ export default function UserManual() {
             <Step n={1} text="Open an assessment and click 'View Submissions'." />
             <Step n={2} text="Download or preview each student's submission." />
             <Step n={3} text="Enter marks obtained and optional feedback." />
-            <Step n={4} text="Grades are auto-calculated based on CAPS boundaries." />
+            <Step n={4} text="Grades are auto-calculated from the ZIMSEC grade boundaries (A–E, U)." />
             <Step n={5} text="Toggle 'Publish Results' when grading is complete." />
           </ManualSection>
           <ManualSection title="Recording Attendance">
@@ -516,7 +516,7 @@ export default function UserManual() {
           <ManualSection title="Viewing Exam Results">
             <Step n={1} text="Navigate to the 'Results' tab." />
             <Step n={2} text="Select the exam period to view your marks." />
-            <Step n={3} text="Results show mark, grade (CAPS scale), and class ranking." />
+            <Step n={3} text="Results show mark, ZIMSEC grade, and class ranking." />
             <Step n={4} text="Click 'Download Report Card' for a PDF version." />
           </ManualSection>
           <ManualSection title="Checking Fee Balance">
@@ -574,7 +574,7 @@ export default function UserManual() {
           <ManualSection title="Report Cards">
             <Step n={1} text="Navigate to your child's Results section." />
             <Step n={2} text="Select the exam period." />
-            <Step n={3} text="Click 'Download Report Card' for the official CAPS-format PDF." />
+            <Step n={3} text="Click 'Download Report Card' for the official report card PDF." />
           </ManualSection>
           <Tip>Check your notifications regularly for attendance alerts and important school communications.</Tip>
         </div>

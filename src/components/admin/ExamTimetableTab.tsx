@@ -359,7 +359,7 @@ export default function ExamTimetableTab() {
             </div>
             <div className="space-y-2">
               <Label>Invigilators (comma-separated)</Label>
-              <Input value={form.invigilators} onChange={e => setForm(p => ({ ...p, invigilators: e.target.value }))} placeholder="e.g. Mr. Zulu, Mrs. Khumalo" />
+              <Input value={form.invigilators} onChange={e => setForm(p => ({ ...p, invigilators: e.target.value }))} placeholder="e.g. Mr. Moyo, Mrs. Sibanda" />
             </div>
             <div className="space-y-2">
               <Label>Notes</Label>

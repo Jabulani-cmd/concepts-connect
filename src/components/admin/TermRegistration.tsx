@@ -14,8 +14,8 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Search, UserCheck, Loader2, CheckCircle, AlertTriangle, Users } from "lucide-react";
 import { errorMessage } from "@/lib/errors";
+import { FORM_LEVELS } from "@/lib/forms";
 
-const formOptions = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 const termOptions = ["Term 1", "Term 2", "Term 3"];
 
 function getCurrentTerm(): string {
@@ -348,7 +348,7 @@ export default function TermRegistration() {
                 <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Forms</SelectItem>
-                  {formOptions.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+                  {FORM_LEVELS.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>

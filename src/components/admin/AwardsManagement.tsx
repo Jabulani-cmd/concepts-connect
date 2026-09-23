@@ -109,7 +109,7 @@ export default function AwardsManagement() {
             <Card>
               <CardHeader><CardTitle className="font-heading">Add Award</CardTitle></CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2"><Label>Student Name *</Label><Input value={studentName} onChange={e => setStudentName(e.target.value)} placeholder="e.g. Sipho Zulu" /></div>
+                <div className="space-y-2"><Label>Student Name *</Label><Input value={studentName} onChange={e => setStudentName(e.target.value)} placeholder="e.g. Tatenda Moyo" /></div>
                 <div className="space-y-2"><Label>Award Name *</Label><Input value={awardName} onChange={e => setAwardName(e.target.value)} placeholder="e.g. Best in Mathematics" /></div>
                 <div className="space-y-2"><Label>Year Issued</Label><Input type="number" value={yearIssued} onChange={e => setYearIssued(e.target.value)} /></div>
                 <Button onClick={addAward} disabled={!studentName || !awardName}><Plus className="mr-1 h-4 w-4" /> Add Award</Button>

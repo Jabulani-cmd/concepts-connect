@@ -174,8 +174,8 @@ export default function BulkUserImport({ onImportComplete }: { onImportComplete?
     let csv = "";
     if (importType === "student") {
       csv = "full_name,email,password,portal_role,grade,class_name,phone\n";
-      csv += "Sipho Zulu,szulu@mavingtech.com,Student2026!,student,Grade 8,A,+27 82 123 4567\n";
-      csv += "Nokuthula Khumalo,nkhumalo@mavingtech.com,Student2026!,student,Grade 9,B,\n";
+      csv += "Tatenda Moyo,tmoyo@mavingtech.com,Student2026!,student,Form 1,A,+263771234567\n";
+      csv += "Nokuthula Ncube,nncube@mavingtech.com,Student2026!,student,Form 2,B,\n";
     } else {
       csv = "full_name,email,password,portal_role,staff_role,department,phone\n";
       csv += "Mr. T. Banda,tbanda@mavingtech.com,Teacher2026!,teacher,teacher,Sciences,+263 77 234 5678\n";

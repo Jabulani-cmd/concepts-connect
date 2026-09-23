@@ -1002,7 +1002,7 @@ export default function MessagingPanel() {
             {newConvType !== "direct" && (
               <div className="space-y-2">
                 <Label>{newConvType === "broadcast" ? "Subject" : "Group Name"}</Label>
-                <Input value={newConvName} onChange={e => setNewConvName(e.target.value)} placeholder={newConvType === "broadcast" ? "e.g. Fee Reminder" : "e.g. Grade 11 Science"} />
+                <Input value={newConvName} onChange={e => setNewConvName(e.target.value)} placeholder={newConvType === "broadcast" ? "e.g. Fee Reminder" : "e.g. Form 4 Science"} />
               </div>
             )}
 

@@ -73,6 +73,7 @@ import BankReconciliation from "@/components/admin/BankReconciliation";
 import IncomeExpenditureReport from "@/components/admin/IncomeExpenditureReport";
 import { errorMessage } from "@/lib/errors";
 import { ilikeAny } from "@/lib/search";
+import { DEFAULT_FORM, FORM_LEVELS } from "@/lib/forms";
 
 type FeeStructure = Tables<"fee_structures">;
 type StudentRef = Pick<Tables<"students">, "full_name" | "admission_number" | "form">;
@@ -92,7 +93,6 @@ type StudentHit = Pick<Tables<"students">, "id" | "full_name" | "admission_numbe
   boarding_status?: string | null;
 };
 
-const formOptions = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 const termOptions = ["Term 1", "Term 2", "Term 3"];
 const boardingOptions = [
   { value: "day", label: "Day Scholar" },
@@ -214,7 +214,7 @@ export default function FinanceManagement() {
   const [feeForm, setFeeForm] = useState({
     academic_year: "2026",
     term: "Term 1",
-    form: "Grade 8",
+    form: DEFAULT_FORM,
     boarding_status: "day",
     description: "",
     amount_usd: "",
@@ -641,7 +641,7 @@ export default function FinanceManagement() {
     setFeeForm({
       academic_year: "2026",
       term: "Term 1",
-      form: "Grade 8",
+      form: DEFAULT_FORM,
       boarding_status: "day",
       description: "",
       amount_usd: "",
@@ -886,15 +886,15 @@ export default function FinanceManagement() {
       : `<tr><td colspan="8" style="text-align:center;color:#64748b">No outstanding debts</td></tr>`;
     const body = `
       <table><thead><tr>
-        <th>#</th><th>Student Name</th><th>Admission #</th><th>Grade</th>
-        <th>Invoice #</th><th>Term</th><th class="right">Amount Owed (R)</th><th>Status</th>
+        <th>#</th><th>Student Name</th><th>Admission #</th><th>Form</th>
+        <th>Invoice #</th><th>Term</th><th class="right">Amount Owed (US$)</th><th>Status</th>
       </tr></thead><tbody>
         ${rows}
         <tr class="total-row"><td colspan="6" class="right">TOTAL OUTSTANDING</td>
           <td class="right mono red">${formatMoney(total)}</td><td></td></tr>
       </tbody></table>`;
     return buildReportShell("Debtors List", [
-      `<strong>Filter:</strong> ${debtorsFormFilter === "all" ? "All Grades" : safeHtml(debtorsFormFilter)}`,
+      `<strong>Filter:</strong> ${debtorsFormFilter === "all" ? "All Forms" : safeHtml(debtorsFormFilter)}`,
       `<strong>Total students:</strong> ${filtered.length}`,
     ], body);
   }
@@ -1660,7 +1660,7 @@ export default function FinanceManagement() {
                       <TableRow>
                         <TableHead>Year</TableHead>
                         <TableHead>Term</TableHead>
-                        <TableHead>Grade</TableHead>
+                        <TableHead>Form</TableHead>
                         <TableHead>Type</TableHead>
                         <TableHead>Description</TableHead>
                         <TableHead className="text-right">Amount (US$ / ZiG)</TableHead>
@@ -1785,11 +1785,11 @@ export default function FinanceManagement() {
                       <TableRow>
                         <TableHead>Invoice #</TableHead>
                         <TableHead>Student</TableHead>
-                        <TableHead>Grade</TableHead>
+                        <TableHead>Form</TableHead>
                         <TableHead>Term</TableHead>
                         <TableHead>Due Date</TableHead>
-                        <TableHead className="text-right">Total (R)</TableHead>
-                        <TableHead className="text-right">Paid (R)</TableHead>
+                        <TableHead className="text-right">Total (US$)</TableHead>
+                        <TableHead className="text-right">Paid (US$)</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead className="text-right">Balance Due</TableHead>
                         {isFinanceOrAdmin && <TableHead>Actions</TableHead>}
@@ -2031,7 +2031,7 @@ export default function FinanceManagement() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Forms</SelectItem>
-                      {formOptions.map((f) => (
+                      {FORM_LEVELS.map((f) => (
                         <SelectItem key={f} value={f}>
                           {f}
                         </SelectItem>
@@ -2064,10 +2064,10 @@ export default function FinanceManagement() {
                             <TableHead>#</TableHead>
                             <TableHead>Student</TableHead>
                             <TableHead>Adm #</TableHead>
-                            <TableHead>Grade</TableHead>
+                            <TableHead>Form</TableHead>
                             <TableHead>Invoice</TableHead>
                             <TableHead>Term</TableHead>
-                            <TableHead className="text-right">Owed (R)</TableHead>
+                            <TableHead className="text-right">Owed (US$)</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                           </TableRow>
@@ -2564,8 +2564,8 @@ export default function FinanceManagement() {
                               <TableHead>Invoice #</TableHead>
                               <TableHead>Term</TableHead>
                               <TableHead>Year</TableHead>
-                              <TableHead className="text-right">Total (R)</TableHead>
-                              <TableHead className="text-right">Paid (R)</TableHead>
+                              <TableHead className="text-right">Total (US$)</TableHead>
+                              <TableHead className="text-right">Paid (US$)</TableHead>
                               <TableHead>Status</TableHead>
                             </TableRow>
                           </TableHeader>
@@ -2818,11 +2818,11 @@ export default function FinanceManagement() {
                     <span className="font-mono font-bold text-green-700">ZiG {fmt(totalCollectedZig)}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">Expenses (R)</span>
+                    <span className="text-sm">Expenses (US$)</span>
                     <span className="font-mono font-bold text-red-600">ZiG {fmt(totalExpensesZig)}</span>
                   </div>
                   <div className="border-t pt-2 flex justify-between items-center">
-                    <span className="text-sm font-semibold">Net (R)</span>
+                    <span className="text-sm font-semibold">Net (US$)</span>
                     <span
                       className={`font-mono font-bold ${totalCollectedZig - totalExpensesZig >= 0 ? "text-green-700" : "text-red-600"}`}
                     >
@@ -2909,13 +2909,13 @@ export default function FinanceManagement() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label>Grade</Label>
+                <Label>Form</Label>
                 <Select value={feeForm.form} onValueChange={(v) => setFeeForm((p) => ({ ...p, form: v }))}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {formOptions.map((f) => (
+                    {FORM_LEVELS.map((f) => (
                       <SelectItem key={f} value={f}>
                         {f}
                       </SelectItem>

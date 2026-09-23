@@ -131,7 +131,7 @@ export default function ExamTimetableBuilder({ definitionId, startDate, endDate,
             <thead className="bg-muted">
               <tr>
                 <th className="p-2 text-left">Date</th><th className="p-2 text-left">Session</th>
-                <th className="p-2 text-left">Subject</th><th className="p-2 text-left">Grade</th>
+                <th className="p-2 text-left">Subject</th><th className="p-2 text-left">Form / Class</th>
                 <th className="p-2 text-left">Venue</th><th className="p-2 text-left">Capacity</th>
                 <th className="p-2 text-left">Invigilator</th><th></th>
               </tr>

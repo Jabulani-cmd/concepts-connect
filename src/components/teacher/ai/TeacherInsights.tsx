@@ -88,7 +88,7 @@ export default function TeacherInsights({ topicScores, turnaroundDays }: Props) 
           <p className="text-3xl font-bold">{avgTurnaround} days</p>
           <p className="mt-1 text-sm text-muted-foreground">
             {trendingSlow
-              ? `Your last few sets took about ${recent} days — a little slower than usual. Learners benefit most from marks returned within a week.`
+              ? `Your last few sets took about ${recent} days — a little slower than usual. Students benefit most from marks returned within a week.`
               : "You are keeping pace with your usual turnaround. Nicely done."}
           </p>
         </CardContent>

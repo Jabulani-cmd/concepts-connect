@@ -38,7 +38,7 @@ export default function ParentMessageDrafter({ students = [] }: Props) {
 
   const generate = async () => {
     if (!student.trim()) {
-      toast({ title: "Choose a learner first", variant: "destructive" });
+      toast({ title: "Choose a student first", variant: "destructive" });
       return;
     }
     setLoading(true);
@@ -63,19 +63,19 @@ export default function ParentMessageDrafter({ students = [] }: Props) {
       <CardContent className="space-y-3">
         <div className="grid gap-3 sm:grid-cols-3">
           <div className="space-y-1">
-            <Label>Learner</Label>
+            <Label>Student</Label>
             {students.length > 0 ? (
               <Select value={student} onValueChange={setStudent}>
-                <SelectTrigger><SelectValue placeholder="Select learner" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Select student" /></SelectTrigger>
                 <SelectContent>
                   {students.map((s) => {
-                    const n = s.full_name || s.name || "Learner";
+                    const n = s.full_name || s.name || "Student";
                     return <SelectItem key={s.id} value={n}>{n}</SelectItem>;
                   })}
                 </SelectContent>
               </Select>
             ) : (
-              <Input value={student} onChange={(e) => setStudent(e.target.value)} placeholder="Learner name" />
+              <Input value={student} onChange={(e) => setStudent(e.target.value)} placeholder="Student name" />
             )}
           </div>
           <div className="space-y-1">

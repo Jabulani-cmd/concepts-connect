@@ -805,7 +805,7 @@ export default function StaffManagementFull() {
                   <Input
                     value={formData.national_id || ""}
                     onChange={(e) => updateField("national_id", e.target.value)}
-                    placeholder="13-digit SA ID (e.g. 8001015009087)"
+                    placeholder="e.g. 63-123456-A-00"
                     maxLength={13}
                     inputMode="numeric"
                   />
@@ -952,7 +952,7 @@ export default function StaffManagementFull() {
                     value={formData.bank_details || ""}
                     onChange={(e) => updateField("bank_details", e.target.value)}
                     rows={2}
-                    placeholder="e.g. Standard Bank, Acc 0123456789, Branch code 051001"
+                    placeholder="e.g. CBZ Bank, Acc 01123456780012, Branch: Harare Main"
                   />
                 </div>
               </div>

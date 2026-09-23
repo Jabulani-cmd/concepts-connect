@@ -95,7 +95,7 @@ export default function TeacherAllocations() {
                 return (
                   <div key={c.id} className="space-y-1.5">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium">{c.name} <span className="text-muted-foreground">• Grade {c.gradeLevel} • {c.stream}</span></span>
+                      <span className="font-medium">{c.name} <span className="text-muted-foreground">• Form {c.formLevel} • {c.stream}</span></span>
                       <span className="tabular-nums text-muted-foreground">{have}/{c.subjects.length} ({pct}%)</span>
                     </div>
                     <div className="h-2 rounded bg-muted overflow-hidden">
@@ -138,7 +138,7 @@ export default function TeacherAllocations() {
                         const subj = subjects.find((s) => s.id === cs.subjectId)!;
                         const alloc = allocations.find((a) => a.classId === currentClass.id && a.subjectId === cs.subjectId);
                         const qualified = teachers.filter((t) =>
-                          t.qualifiedSubjects.includes(cs.subjectId) && t.qualifiedGrades.includes(currentClass.gradeLevel)
+                          t.qualifiedSubjects.includes(cs.subjectId) && t.qualifiedForms.includes(currentClass.formLevel)
                         );
                         return (
                           <TableRow key={cs.subjectId}>
@@ -231,7 +231,7 @@ export default function TeacherAllocations() {
                           })}
                         </div>
                       </TableCell>
-                      <TableCell className="text-xs">{t.qualifiedGrades.join(", ")}</TableCell>
+                      <TableCell className="text-xs">{t.qualifiedForms.join(", ")}</TableCell>
                       <TableCell>
                         <div className="space-y-1">
                           <div className="flex justify-between text-xs">

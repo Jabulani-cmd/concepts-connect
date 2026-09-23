@@ -24,7 +24,7 @@ interface Signals {
   assignment_submission_rate: number;
 }
 
-/** Deterministic demo signals so the same learner always produces the same picture. */
+/** Deterministic demo signals so the same student always produces the same picture. */
 function seeded(id: string, salt: number) {
   let h = salt;
   for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 100000;
@@ -98,7 +98,7 @@ export default function AtRiskStudents({ students = [] }: Props) {
 
   const runScan = async () => {
     if (students.length === 0) {
-      toast({ title: "No learners in your classes yet", variant: "destructive" });
+      toast({ title: "No students in your classes yet", variant: "destructive" });
       return;
     }
     setRunning(true);
@@ -112,7 +112,7 @@ export default function AtRiskStudents({ students = [] }: Props) {
         .slice(0, 8);
 
       for (const c of candidates) {
-        const name = c.s.full_name || c.s.name || "Learner";
+        const name = c.s.full_name || c.s.name || "Student";
         let reason = "";
         let actions: string[] = [];
         try {
@@ -125,7 +125,7 @@ export default function AtRiskStudents({ students = [] }: Props) {
           actions = res.suggested_actions || [];
         } catch {
           reason = `Attendance moved from ${c.sig.attendance_term_average}% to ${c.sig.attendance_last_4_weeks}% over the last 4 weeks, with ${c.sig.assignment_submission_rate}% of assignments submitted.`;
-          actions = ["Arrange a short check-in with the learner"];
+          actions = ["Arrange a short check-in with the student"];
         }
         addRow<RiskFlag>("student_risk_flags", {
           student_id: c.s.id,
@@ -139,7 +139,7 @@ export default function AtRiskStudents({ students = [] }: Props) {
           status: "new",
         });
       }
-      toast({ title: "Scan complete", description: `${candidates.length} learner(s) flagged.` });
+      toast({ title: "Scan complete", description: `${candidates.length} student(s) flagged.` });
     } finally {
       setRunning(false);
     }
@@ -162,7 +162,7 @@ export default function AtRiskStudents({ students = [] }: Props) {
       <Card>
         <CardHeader>
           <CardTitle className="font-heading flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-primary" /> At-Risk Learners
+            <AlertTriangle className="h-5 w-5 text-primary" /> At-Risk Students
             <Badge variant="secondary">Your classes only</Badge>
           </CardTitle>
           <CardDescription>
@@ -217,7 +217,7 @@ export default function AtRiskStudents({ students = [] }: Props) {
       ))}
 
       {sorted.length === 0 && (
-        <p className="py-8 text-center text-sm text-muted-foreground">No flags yet — run the risk check to see learners who may need support.</p>
+        <p className="py-8 text-center text-sm text-muted-foreground">No flags yet — run the risk check to see students who may need support.</p>
       )}
     </div>
   );

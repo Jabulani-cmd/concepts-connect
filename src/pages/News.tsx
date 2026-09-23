@@ -10,8 +10,8 @@ import { ArrowLeft, Calendar } from "lucide-react";
 const newsItems = [
   {
     id: 1, title: "Term 1 Examination Results Published", date: "Feb 28, 2026",
-    excerpt: "Grade 11 and Matric results are now available on the student portal.",
-    body: "We are pleased to announce that Term 1 examination results for Grade 11 and Matric students have been published on the student portal. Students can log in to view their individual results. Parents are encouraged to contact the school for any queries. The overall pass rate was 95%, with 142 students achieving distinctions across all subjects.",
+    excerpt: "Form 4 and Upper Sixth results are now available on the student portal.",
+    body: "We are pleased to announce that Term 1 examination results for Form 4 and Upper Sixth students have been published on the student portal. Students can log in to view their individual results. Parents are encouraged to contact the school for any queries. The overall pass rate was 95%, with 142 students achieving distinctions across all subjects.",
   },
   {
     id: 2, title: "Inter-house Athletics Day", date: "Mar 15, 2026",
@@ -26,12 +26,12 @@ const newsItems = [
   {
     id: 4, title: "Science Olympiad Team Wins Silver", date: "Feb 10, 2026",
     excerpt: "Our science team placed second at the National Science Olympiad.",
-    body: "Congratulations to our Science Olympiad team for winning the silver medal at the 2026 National Science Olympiad held in Johannesburg. The team of six students, led by Mr. Zulu, competed against 48 schools from across South Africa. Special mention goes to Sanele Mthembu (Matric) who was individually recognised as the top chemistry contestant.",
+    body: "Congratulations to our Science Olympiad team for winning the silver medal at the 2026 National Science Olympiad held in Bulawayo. The team of six students, led by Mr. Chikore, competed against 48 schools from across Zimbabwe. Special mention goes to Tatenda Mpofu (Upper Sixth) who was individually recognised as the top chemistry contestant.",
   },
   {
     id: 5, title: "New Computer Lab Inauguration", date: "Jan 20, 2026",
     excerpt: "State-of-the-art computer lab with 40 workstations now operational.",
-    body: "The school has inaugurated a new computer laboratory equipped with 40 modern workstations, high-speed internet, and the latest software for Computer Science and ICT classes. The lab was made possible through generous donations from the Old MavingTech alumni Association and corporate sponsors. It will serve students from Grade 8 to Matric.",
+    body: "The school has inaugurated a new computer laboratory equipped with 40 modern workstations, high-speed internet, and the latest software for Computer Science and ICT classes. The lab was made possible through generous donations from the Old MavingTech alumni Association and corporate sponsors. It will serve students from Form 1 to Upper Sixth.",
   },
 ];
 

@@ -18,7 +18,7 @@ const STEPS = [
   "Generating venues and classrooms",
   "Creating subjects and curriculum",
   "Provisioning teacher accounts",
-  "Enrolling 150 learners across Grade 8–12",
+  "Enrolling 150 students across Forms 1–6",
   "Assigning 300 parents and guardians",
   "Building class allocations",
   "Solving weekly timetable",
@@ -85,9 +85,9 @@ export default function DemoDataSeederPanel() {
         email: s.email,
         date_of_birth: s.dob,
         gender: s.gender,
-        form: `Grade ${s.form}`,
+        form: `Form ${s.form}`,
         stream: s.stream,
-        class: `Grade ${s.form}${s.stream}`,
+        class: `Form ${s.form}${s.stream}`,
         boarding_status: "day",
         status: "active",
         guardian_name: parent?.fullName ?? null,
@@ -122,7 +122,7 @@ export default function DemoDataSeederPanel() {
     const { data: existingCls } = await supabase.from("classes").select("id, name").in("name", classNames);
     const clsByName = new Map((existingCls ?? []).map(c => [c.name, c.id]));
     const missingCls = seed.classes.filter(c => !clsByName.has(c.name)).map(c => ({
-      name: c.name, level: `Grade ${c.name.match(/\d+/)?.[0] ?? ""}`, stream: c.stream, capacity: 40,
+      name: c.name, level: `Form ${c.formLevel}`, stream: c.stream, capacity: 40,
       academic_year: String(new Date().getFullYear()),
     }));
     if (missingCls.length) {
@@ -348,7 +348,7 @@ export default function DemoDataSeederPanel() {
     const lines = ["role,full_name,reference,email,password"];
     lines.push(`admin,"Administrator","Full access",admin@schooldemo.com,Demo@2025`);
     alloc.teachers.forEach(t => lines.push(`teacher,"${t.name}","${t.employeeNumber}",${t.email},Teacher@2025`));
-    people.students.forEach(s => lines.push(`student,"${s.fullName}","${s.admissionNumber} • Grade ${s.form}${s.stream}",${s.email},${s.password}`));
+    people.students.forEach(s => lines.push(`student,"${s.fullName}","${s.admissionNumber} • Form ${s.form}${s.stream}",${s.email},${s.password}`));
     people.parents.forEach(p => {
       const child = people.students.find(s => s.id === p.studentId);
       lines.push(`parent (${p.relationship}),"${p.fullName}","Child: ${child?.fullName ?? ""}",${p.email},${p.password}`);
@@ -381,7 +381,7 @@ export default function DemoDataSeederPanel() {
               {seeded && <Badge className="bg-green-600 hover:bg-green-700"><CheckCircle2 className="h-3 w-3 mr-1" />Loaded</Badge>}
             </CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
-              One-click populate the entire system with realistic South African CAPS-aligned school data — students, parents,
+              One-click populate the entire system with realistic Zimbabwean school data (ZIMSEC O-Level and A-Level) — students, parents,
               teachers, subjects, classes, venues and a complete weekly timetable.
             </p>
           </div>
@@ -454,11 +454,11 @@ export default function DemoDataSeederPanel() {
           </DialogHeader>
           {summary && (
             <div className="space-y-2 text-sm">
-              <Row label="Students enrolled"   value={summary.students}  hint="Grade 8–12, 30 per form, 15 per stream" />
+              <Row label="Students enrolled"   value={summary.students}  hint="Forms 1–6, 15 per class" />
               <Row label="Parents & guardians" value={summary.parents}   hint="2 per student with portal logins" />
               <Row label="Teachers"            value={summary.teachers}  hint="All subjects covered" />
               <Row label="Subjects"            value={summary.subjects}  hint="Linked to relevant forms" />
-              <Row label="Classes"             value={summary.classes}   hint="Grade 8A through Grade 12B" />
+              <Row label="Classes"             value={summary.classes}   hint="Form 1A to Form 4B, plus Form 5A and Form 6A" />
               <Row label="Venues"              value={summary.rooms}     hint="Classrooms, labs, hall, sports field" />
               <Row label="Timetable periods"   value={summary.periods}   hint="Every slot filled with subject, teacher, venue, time" />
             </div>

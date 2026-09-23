@@ -1,5 +1,5 @@
-// Demo data seeder — generates a complete realistic South African high school dataset
-// (Grades 8–12, CAPS curriculum, ZAR fees, +27 phone numbers).
+// Demo data seeder — generates a complete, realistic Zimbabwean secondary school dataset
+// (Forms 1–6, ZIMSEC O-Level and A-Level subjects, +263 phone numbers).
 import type {
   Teacher, Subject, Room, SchoolClass, Allocation, TimetableSlot, RoomType,
 } from "@/contexts/AllocationContext";
@@ -10,8 +10,7 @@ export interface DemoStudent {
   dob: string;
   gender: "Male" | "Female";
   admissionNumber: string;
-  grade: number;          // 8–12
-  form: number;           // legacy alias === grade (kept for backwards compat with existing UI)
+  form: number;           // 1–6
   stream: "A" | "B";
   classId: string;
   email: string;
@@ -39,7 +38,7 @@ export interface DemoSeed {
   parents: DemoParent[];
 }
 
-// SA-style school day (07:30–14:15), 8×45min periods, break after P3, lunch after P5.
+// School day 07:30–14:15: 8 periods of 45 minutes, break after P3 and lunch after P5.
 export const DEMO_PERIODS = [
   { period: 1, start: "07:30", end: "08:15" },
   { period: 2, start: "08:15", end: "09:00" },
@@ -58,24 +57,26 @@ const PALETTE = [
   "hsl(100 60% 45%)","hsl(340 70% 55%)","hsl(50 80% 50%)",
 ];
 
-// CAPS-aligned subject catalogue (SA high school, Grades 8–12).
-const SUBJECT_DEFS: Array<{ name: string; allowed: RoomType[]; grades: number[]; periodsPerWeek: number }> = [
-  { name: "Mathematics",            allowed: ["Regular"],                    grades: [8,9,10,11,12], periodsPerWeek: 6 },
-  { name: "English Home Language",  allowed: ["Regular"],                    grades: [8,9,10,11,12], periodsPerWeek: 5 },
-  { name: "Afrikaans FAL",          allowed: ["Regular"],                    grades: [8,9,10,11,12], periodsPerWeek: 4 },
-  { name: "Life Orientation",       allowed: ["Regular"],                    grades: [8,9,10,11,12], periodsPerWeek: 2 },
-  { name: "Natural Sciences",       allowed: ["Lab"],                        grades: [8,9],          periodsPerWeek: 4 },
-  { name: "Physical Sciences",      allowed: ["Lab"],                        grades: [10,11,12],     periodsPerWeek: 5 },
-  { name: "Life Sciences",          allowed: ["Lab"],                        grades: [10,11,12],     periodsPerWeek: 4 },
-  { name: "Social Sciences",        allowed: ["Regular"],                    grades: [8,9],          periodsPerWeek: 3 },
-  { name: "History",                allowed: ["Regular"],                    grades: [10,11,12],     periodsPerWeek: 3 },
-  { name: "Geography",              allowed: ["Regular"],                    grades: [10,11,12],     periodsPerWeek: 3 },
-  { name: "Economic & Management Sciences", allowed: ["Regular"],            grades: [8,9],          periodsPerWeek: 3 },
-  { name: "Accounting",             allowed: ["Regular"],                    grades: [10,11,12],     periodsPerWeek: 4 },
-  { name: "Business Studies",       allowed: ["Regular"],                    grades: [10,11,12],     periodsPerWeek: 3 },
-  { name: "Computer Applications Technology", allowed: ["Computer Room"],    grades: [8,9,10,11,12], periodsPerWeek: 3 },
-  { name: "Physical Education",     allowed: ["Hall","Sports Field"],        grades: [8,9,10,11,12], periodsPerWeek: 2 },
-  { name: "Creative Arts",          allowed: ["Regular"],                    grades: [8,9],          periodsPerWeek: 2 },
+// ZIMSEC subject catalogue: O-Level for Forms 1–4, A-Level for Forms 5–6.
+const O_LEVEL = [1, 2, 3, 4];
+const A_LEVEL = [5, 6];
+const SUBJECT_DEFS: Array<{ name: string; allowed: RoomType[]; forms: number[]; periodsPerWeek: number }> = [
+  { name: "Mathematics",            allowed: ["Regular"],             forms: O_LEVEL, periodsPerWeek: 6 },
+  { name: "English Language",       allowed: ["Regular"],             forms: O_LEVEL, periodsPerWeek: 5 },
+  { name: "Shona",                  allowed: ["Regular"],             forms: O_LEVEL, periodsPerWeek: 4 },
+  { name: "Combined Science",       allowed: ["Lab"],                 forms: O_LEVEL, periodsPerWeek: 5 },
+  { name: "Heritage Studies",       allowed: ["Regular"],             forms: [1, 2], periodsPerWeek: 2 },
+  { name: "History",                allowed: ["Regular"],             forms: O_LEVEL, periodsPerWeek: 3 },
+  { name: "Geography",              allowed: ["Regular"],             forms: O_LEVEL, periodsPerWeek: 3 },
+  { name: "Principles of Accounting", allowed: ["Regular"],           forms: [3, 4], periodsPerWeek: 4 },
+  { name: "Commerce",               allowed: ["Regular"],             forms: [3, 4], periodsPerWeek: 3 },
+  { name: "Agriculture",            allowed: ["Regular"],             forms: [1, 2], periodsPerWeek: 3 },
+  { name: "Computer Science",       allowed: ["Computer Room"],       forms: [...O_LEVEL, ...A_LEVEL], periodsPerWeek: 3 },
+  { name: "Physical Education",     allowed: ["Hall", "Sports Field"], forms: [...O_LEVEL, ...A_LEVEL], periodsPerWeek: 2 },
+  { name: "Pure Mathematics",       allowed: ["Regular"],             forms: A_LEVEL, periodsPerWeek: 6 },
+  { name: "Physics",                allowed: ["Lab"],                 forms: A_LEVEL, periodsPerWeek: 5 },
+  { name: "Chemistry",              allowed: ["Lab"],                 forms: A_LEVEL, periodsPerWeek: 5 },
+  { name: "Biology",                allowed: ["Lab"],                 forms: A_LEVEL, periodsPerWeek: 5 },
 ];
 
 const ROOM_DEFS: Array<{ name: string; type: RoomType; capacity: number }> = [
@@ -84,16 +85,16 @@ const ROOM_DEFS: Array<{ name: string; type: RoomType; capacity: number }> = [
   { name: "Science Lab B",    type: "Lab",           capacity: 32 },
   { name: "Computer Lab",     type: "Computer Room", capacity: 30 },
   { name: "Art Room",         type: "Regular",       capacity: 28 },
-  { name: "Life Sciences Room", type: "Regular",     capacity: 30 },
+  { name: "Agriculture Room", type: "Regular",       capacity: 30 },
   { name: "School Hall",      type: "Hall",          capacity: 250 },
   { name: "Sports Field",     type: "Sports Field",  capacity: 200 },
   { name: "Library",          type: "Library",       capacity: 60 },
 ];
 
-// Representative South African name pools (multi-cultural).
-const SA_FIRST_M = ["Sipho","Bongani","Mandla","Sizwe","Themba","Musa","Andile","Ayanda","Lwazi","Sifiso","Sanele","Nkosinathi","Njabulo","Mfundo","Mthobisi","Zweli","Menzi","Bhekani","Sabelo","Siyabonga","Thulani","Nhlanhla","Xolani","Lindani","Mpho","Vusi"];
-const SA_FIRST_F = ["Nomvula","Thandi","Zanele","Nokuthula","Nomsa","Ntombi","Sibongile","Sindisiwe","Nonhlanhla","Busisiwe","Zinhle","Londiwe","Nokwanda","Slindile","Philisiwe","Thembeka","Nomthandazo","Bongiwe","Fikile","Nozipho","Lungile","Nomfundo","Thulisile","Snenhlanhla"];
-const SA_SURNAMES = ["Zulu","Ndlovu","Khumalo","Dlamini","Mthembu","Ngcobo","Buthelezi","Nkosi","Mkhize","Cele","Sithole","Zwane","Hlongwane","Mabaso","Zondi","Gumede","Mnguni","Shabalala","Ngema","Ntuli","Xaba","Mhlongo","Nzuza","Mchunu","Madlala","Shezi","Mtshali","Mazibuko","Nxumalo","Biyela"];
+// Shona and Ndebele name pools.
+const FIRST_M = ["Tatenda","Tinashe","Farai","Tafadzwa","Kudakwashe","Takudzwa","Tapiwa","Simbarashe","Tendai","Munyaradzi","Tawanda","Ngonidzashe","Anesu","Panashe","Nkosana","Mthokozisi","Sibusiso","Bekezela","Lwazi","Thabani","Nqobile","Mandla","Kundai","Tonderai","Blessing","Brighton"];
+const FIRST_F = ["Nyasha","Ruvimbo","Rutendo","Chiedza","Tsitsi","Rumbidzai","Vimbai","Tariro","Chipo","Fadzai","Tanaka","Kudzai","Rufaro","Shamiso","Nokuthula","Sibongile","Thandeka","Nomalanga","Busisiwe","Sithabile","Zanele","Precious","Memory","Tendai"];
+const SURNAMES = ["Moyo","Ncube","Sibanda","Dube","Ndlovu","Mpofu","Nyathi","Chikore","Mutasa","Chirwa","Mhlanga","Gumbo","Mapfumo","Chiweshe","Makoni","Mushonga","Marufu","Chinyama","Shumba","Mazarura","Nyamande","Mandaza","Chigumba","Maposa","Tshuma","Mlambo","Khumalo","Hove","Madziva","Zvobgo"];
 
 function pick<T>(arr: T[], i: number): T { return arr[i % arr.length]; }
 
@@ -107,12 +108,12 @@ export function generateDemoSeed(): DemoSeed {
     allowedRoomTypes: s.allowed,
   }));
 
-  // ---- Teachers (20) — SA names, @schooldemo.com / Teacher@2025 ----
+  // ---- Teachers (20) — @schooldemo.com / Teacher@2025 ----
   const teachers: Teacher[] = [];
   for (let i = 0; i < 20; i++) {
     const isFemale = i % 2 === 0;
-    const first = isFemale ? pick(SA_FIRST_F, i + 3) : pick(SA_FIRST_M, i + 1);
-    const surname = pick(SA_SURNAMES, i * 3 + 1);
+    const first = isFemale ? pick(FIRST_F, i + 3) : pick(FIRST_M, i + 1);
+    const surname = pick(SURNAMES, i * 3 + 1);
     const title = isFemale ? (i % 4 === 0 ? "Ms." : "Mrs.") : "Mr.";
     teachers.push({
       id: `t-${i + 1}`,
@@ -123,7 +124,7 @@ export function generateDemoSeed(): DemoSeed {
       maxPeriodsPerWeek: i % 7 === 0 ? 18 : 30,
       preferredTime: "Both",
       qualifiedSubjects: [],
-      qualifiedGrades: [8, 9, 10, 11, 12],
+      qualifiedForms: [1, 2, 3, 4, 5, 6],
     });
   }
   subjects.forEach((sub, si) => {
@@ -136,31 +137,31 @@ export function generateDemoSeed(): DemoSeed {
     if (t.qualifiedSubjects.length === 0) t.qualifiedSubjects.push(subjects[i % subjects.length].id);
   });
 
-  // ---- Classes: Grade 8A..12B = 10 classes ----
-  const classes: SchoolClass[] = [];
-  for (let grade = 8; grade <= 12; grade++) {
-    for (const stream of ["A", "B"] as const) {
-      const id = `c-${grade}${stream}`;
-      const classTeacher = teachers[((grade - 8) * 2 + (stream === "A" ? 0 : 1)) % teachers.length];
-      const applicableSubjects = SUBJECT_DEFS
-        .map((s, idx) => ({ s, id: `sub-${idx + 1}` }))
-        .filter(({ s }) => s.grades.includes(grade))
-        .map(({ s, id: sid }) => ({
-          subjectId: sid,
-          periodsPerWeek: s.periodsPerWeek,
-          roomType: s.allowed[0],
-        }));
-      classes.push({
-        id,
-        name: `Grade ${grade}${stream}`,
-        gradeLevel: grade,
-        stream,
-        studentCount: 15,
-        classTeacherId: classTeacher.id,
-        subjects: applicableSubjects,
-      });
-    }
-  }
+  // ---- Classes: Form 1A..Form 4B plus Form 5A and Form 6A = 10 classes ----
+  const classDefs: Array<{ form: number; stream: "A" | "B" }> = [
+    ...[1, 2, 3, 4].flatMap((form) => (["A", "B"] as const).map((stream) => ({ form, stream }))),
+    { form: 5, stream: "A" },
+    { form: 6, stream: "A" },
+  ];
+  const classes: SchoolClass[] = classDefs.map(({ form, stream }, i) => {
+    const applicableSubjects = SUBJECT_DEFS
+      .map((s, idx) => ({ s, id: `sub-${idx + 1}` }))
+      .filter(({ s }) => s.forms.includes(form))
+      .map(({ s, id: sid }) => ({
+        subjectId: sid,
+        periodsPerWeek: s.periodsPerWeek,
+        roomType: s.allowed[0],
+      }));
+    return {
+      id: `c-${form}${stream}`,
+      name: `Form ${form}${stream}`,
+      formLevel: form,
+      stream,
+      studentCount: 15,
+      classTeacherId: teachers[i % teachers.length].id,
+      subjects: applicableSubjects,
+    };
+  });
 
   // ---- Students (10 classes × 15 = 150) ----
   const students: DemoStudent[] = [];
@@ -168,10 +169,10 @@ export function generateDemoSeed(): DemoSeed {
   for (const c of classes) {
     for (let n = 0; n < 15; n++) {
       const female = sIdx % 2 === 0;
-      const first = female ? pick(SA_FIRST_F, sIdx + 5) : pick(SA_FIRST_M, sIdx + 9);
-      const surname = pick(SA_SURNAMES, sIdx * 7 + 11);
-      const grade = c.gradeLevel;
-      const age = 5 + grade;                    // Grade 8 ≈ 13 yrs
+      const first = female ? pick(FIRST_F, sIdx + 5) : pick(FIRST_M, sIdx + 9);
+      const surname = pick(SURNAMES, sIdx * 7 + 11);
+      const form = c.formLevel;
+      const age = 12 + form;                    // Form 1 ≈ 13 yrs
       const birthYear = new Date().getFullYear() - age;
       const month = ((sIdx * 3) % 12) + 1;
       const day = ((sIdx * 7) % 27) + 1;
@@ -185,8 +186,7 @@ export function generateDemoSeed(): DemoSeed {
         dob: `${birthYear}-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}`,
         gender: female ? "Female" : "Male",
         admissionNumber,
-        grade,
-        form: grade,          // legacy alias
+        form,
         stream: c.stream as "A" | "B",
         classId: c.id,
         email,
@@ -200,17 +200,17 @@ export function generateDemoSeed(): DemoSeed {
   const parents: DemoParent[] = [];
   students.forEach((stu, i) => {
     const surname = stu.fullName.split(" ").slice(-1)[0];
-    const father = pick(SA_FIRST_M, i + 4);
-    const mother = pick(SA_FIRST_F, i + 6);
+    const father = pick(FIRST_M, i + 4);
+    const mother = pick(FIRST_F, i + 6);
     const studentNum = i + 1;
     const cleanSurn = surname.toLowerCase().replace(/\s/g, "");
-    // SA mobile numbers: +27 6X/7X/8X ...
+    // Zimbabwean mobile numbers (Econet 77, NetOne 71).
     parents.push({
       id: `p-${i * 2 + 1}`,
       studentId: stu.id,
       fullName: `${father} ${surname}`,
       relationship: "Father",
-      phone: `+27 82 ${String(1000000 + i).slice(1, 4)} ${String(1000000 + i).slice(4, 8)}`,
+      phone: `+26377${1000000 + i}`,
       email: `${father.toLowerCase()}.${cleanSurn}p1.${studentNum}@parent.schooldemo.com`,
       password: "Parent@2025",
     });
@@ -219,7 +219,7 @@ export function generateDemoSeed(): DemoSeed {
       studentId: stu.id,
       fullName: `${mother} ${surname}`,
       relationship: "Mother",
-      phone: `+27 83 ${String(2000000 + i).slice(1, 4)} ${String(2000000 + i).slice(4, 8)}`,
+      phone: `+26371${2000000 + i}`,
       email: `${mother.toLowerCase()}.${cleanSurn}p2.${studentNum}@parent.schooldemo.com`,
       password: "Parent@2025",
     });

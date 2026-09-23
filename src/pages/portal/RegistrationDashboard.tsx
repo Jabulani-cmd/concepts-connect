@@ -27,8 +27,8 @@ import {
 import schoolLogo from "@/assets/mavingtech-logo.png";
 import { errorMessage } from "@/lib/errors";
 import type { TablesInsert } from "@/integrations/supabase/types";
+import { DEFAULT_FORM, FORM_LEVELS } from "@/lib/forms";
 
-const formOptions = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 const streamOptions = ["A", "B", "C", "D", "Arts", "Sciences", "Commercials"];
 const genderOptions = ["Male", "Female"];
 
@@ -58,7 +58,7 @@ type ClassOption = { id: string; name: string; level: string | null; stream: str
 const emptyForm = {
   full_name: "",
   date_of_birth: "",
-  form: "Grade 8",
+  form: DEFAULT_FORM,
   stream: "",
   subject_combination: "",
   gender: "",
@@ -306,7 +306,7 @@ export default function RegistrationDashboard() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Forms</SelectItem>
-                  {formOptions.map((f) => (
+                  {FORM_LEVELS.map((f) => (
                     <SelectItem key={f} value={f}>{f}</SelectItem>
                   ))}
                 </SelectContent>
@@ -395,7 +395,7 @@ export default function RegistrationDashboard() {
               <Select value={form.form} onValueChange={(v) => setForm({ ...form, form: v })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {formOptions.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+                  {FORM_LEVELS.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>

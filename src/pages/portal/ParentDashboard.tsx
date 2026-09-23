@@ -694,7 +694,7 @@ function TabContentInner(props: TabContentProps) {
           <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab("fees")}>
             <CardContent className="p-4 flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-100">
-                <span className="text-lg font-bold text-red-600">R</span>
+                <span className="text-lg font-bold text-red-600">$</span>
               </div>
               <div>
                 <p className={`text-lg font-bold ${feeBalance > 0 ? "text-red-700" : "text-emerald-700"}`}>
@@ -1026,7 +1026,7 @@ function TabContentInner(props: TabContentProps) {
         {/* Balance summary */}
         <Card className={feeBalance > 0 ? "border-red-200 bg-red-50/50" : "border-emerald-200 bg-emerald-50/50"}>
           <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-4">
-            <span className={`flex h-10 w-10 items-center justify-center rounded-full text-xl font-bold ${feeBalance > 0 ? "bg-red-100 text-red-600" : "bg-emerald-100 text-emerald-600"}`}>R</span>
+            <span className={`flex h-10 w-10 items-center justify-center rounded-full text-xl font-bold ${feeBalance > 0 ? "bg-red-100 text-red-600" : "bg-emerald-100 text-emerald-600"}`}>$</span>
             <div className="flex-1 min-w-0">
               <p className="text-2xl font-bold">
                 {feeBalance > 0

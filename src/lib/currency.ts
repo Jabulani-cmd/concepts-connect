@@ -85,8 +85,3 @@ export function fmtZiG(amountUsd: number | string | null | undefined): string {
 
 export const usdToZig = (usd: number | string | null | undefined) => num(usd) * zigRate;
 export const zigToUsd = (zig: number | string | null | undefined) => num(zig) / (zigRate || 1);
-
-// ── Legacy aliases (previous ZAR-only build) ──────────────────────────────
-// Kept so existing call sites keep working; they now render US$ with ZiG.
-export const formatZAR = formatMoney;
-export const fmtZAR = fmtUSD;

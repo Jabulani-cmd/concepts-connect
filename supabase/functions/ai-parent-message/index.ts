@@ -41,7 +41,7 @@ serve(async (req) => {
 
     const school = body.schoolName || "MavingTech Business Solutions";
 
-    const systemPrompt = `You draft warm, professional school communication messages for South African secondary schools.
+    const systemPrompt = `You draft warm, professional school communication messages for Zimbabwean secondary schools.
 Always:
 - Use British English.
 - Open with a courteous greeting (e.g. "Dear Parent/Guardian," or the student's first name).

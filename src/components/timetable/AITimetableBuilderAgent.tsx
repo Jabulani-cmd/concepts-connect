@@ -47,8 +47,8 @@ export default function AITimetableBuilderAgent() {
   const formGroups = useMemo(() => {
     const map = new Map<number, typeof classes>();
     classes.forEach(c => {
-      const arr = map.get(c.gradeLevel) ?? [];
-      arr.push(c); map.set(c.gradeLevel, arr);
+      const arr = map.get(c.formLevel) ?? [];
+      arr.push(c); map.set(c.formLevel, arr);
     });
     return Array.from(map.entries()).sort((a, b) => a[0] - b[0]);
   }, [classes]);
@@ -80,12 +80,12 @@ export default function AITimetableBuilderAgent() {
       case "structure": {
         const summary = formGroups.map(([g, cs]) =>
           `• Form ${g}: ${cs.map(c => c.name).join(", ")}`).join("\n");
-        agentSay(`**Step 1 — School structure.**\nFrom your records I see:\n${summary}\n\nIs this correct? Reply **yes** to confirm, or describe any missing form/stream (e.g. _"add Grade 11D"_).`);
+        agentSay(`**Step 1 — School structure.**\nFrom your records I see:\n${summary}\n\nIs this correct? Reply **yes** to confirm, or describe any missing form/stream (e.g. _"add Form 4D"_).`);
         break;
       }
       case "class_sizes": {
         const lines = ctx.classes.map(c => `• ${c.name}: ${c.studentCount} students`).join("\n");
-        agentSay(`**Step 2 — Class sizes.**\nCurrent enrolment:\n${lines}\n\nReply **yes** if accurate, or send corrections like _"Grade 9B has 34 students"_.`);
+        agentSay(`**Step 2 — Class sizes.**\nCurrent enrolment:\n${lines}\n\nReply **yes** if accurate, or send corrections like _"Form 2B has 34 students"_.`);
         break;
       }
       case "school_day": {
@@ -142,7 +142,7 @@ export default function AITimetableBuilderAgent() {
       } else {
         msg += `\nNo unfilled slots.`;
       }
-      msg += `\n\nReview the grid below. Send corrections in plain text — for example:\n• _"Move Grade 10C Mathematics to Wednesday Period 3"_\n• _"Replace Mr. Zulu with Mrs. Khumalo for all Friday slots"_\n\nWhen you're happy, click **Approve & Publish**.`;
+      msg += `\n\nReview the grid below. Send corrections in plain text — for example:\n• _"Move Form 3C Mathematics to Wednesday Period 3"_\n• _"Replace Mr. Moyo with Mrs. Sibanda for all Friday slots"_\n\nWhen you're happy, click **Approve & Publish**.`;
       push("agent", msg);
       setThinking(false);
     }, 1400);
@@ -202,7 +202,7 @@ export default function AITimetableBuilderAgent() {
       const subj = findSubject(moveMatch[1]);
       const day = findDay(moveMatch[2]);
       const period = parseInt(moveMatch[3], 10);
-      if (!cls || !subj || day < 0) return `I couldn't parse class/subject/day. Try: _"Move Grade 10C Mathematics to Wednesday Period 3"_.`;
+      if (!cls || !subj || day < 0) return `I couldn't parse class/subject/day. Try: _"Move Form 3C Mathematics to Wednesday Period 3"_.`;
       const target = ctx.slots.find(s => s.classId === cls.id && s.day === day && s.period === period);
       const source = ctx.slots.find(s => s.classId === cls.id && s.subjectId === subj.id);
       if (!target || !source) return `Couldn't find a matching slot to move.`;

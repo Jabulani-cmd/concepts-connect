@@ -11,7 +11,6 @@ const clubDefs = [
   { key: "community", icon: Users }, { key: "chess", icon: Volleyball }, { key: "science", icon: Trophy },
 ];
 
-// Preserve English strings but expose Zulu-friendly labels via keys embedded here
 const sportsData: Record<string, { name: string; desc: string }> = {
   rugby: { name: "Rugby", desc: "Provincial champions 2024. U-16 and 1st XV teams." },
   soccer: { name: "Soccer", desc: "Boys and girls teams compete in the Inter-Schools League." },
