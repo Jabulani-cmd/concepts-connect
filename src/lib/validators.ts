@@ -1,7 +1,8 @@
 import { z } from "zod";
 
-// Zimbabwean phone: +263XXXXXXXXX or 0XXXXXXXXX (10 digits starting with 0)
-export const zimPhoneRegex = /^(\+?263|0)(7[1-8]|8[6-8]|2[0-9])[0-9]{6,7}$/;
+// Zimbabwean phone: +263XXXXXXXXX or 0XXXXXXXXX. Mobiles (07X) are always 10 digits;
+// landlines (02X) and 08X numbers vary in length.
+export const zimPhoneRegex = /^(\+?263|0)(7[1-8][0-9]{7}|(8[6-8]|2[0-9])[0-9]{6,7})$/;
 export const zimPhoneSchemaRequired = z.string().regex(zimPhoneRegex, "Invalid Zimbabwean phone number (07XXXXXXXX or +2637XXXXXXXX)");
 export const zimPhoneSchema = zimPhoneSchemaRequired.or(z.literal(""));
 

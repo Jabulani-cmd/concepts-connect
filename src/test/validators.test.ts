@@ -1,56 +1,59 @@
 import { describe, it, expect } from "vitest";
 import {
-  saPhoneRegex,
-  saIdSchema,
+  zimPhoneRegex,
+  zimNationalIdSchema,
   studentFormSchema,
   staffFormSchema,
 } from "@/lib/validators";
 
-describe("SA Phone Validation", () => {
+describe("Zimbabwe Phone Validation", () => {
   it("accepts valid 0 format", () => {
-    expect(saPhoneRegex.test("0821234567")).toBe(true);
-    expect(saPhoneRegex.test("0731234567")).toBe(true);
-    expect(saPhoneRegex.test("0611234567")).toBe(true);
+    expect(zimPhoneRegex.test("0771234567")).toBe(true); // Econet
+    expect(zimPhoneRegex.test("0712345678")).toBe(true); // NetOne
+    expect(zimPhoneRegex.test("0731234567")).toBe(true); // Telecel
+    expect(zimPhoneRegex.test("0242123456")).toBe(true); // Harare landline
   });
 
-  it("accepts valid +27 format", () => {
-    expect(saPhoneRegex.test("+27821234567")).toBe(true);
+  it("accepts valid +263 format", () => {
+    expect(zimPhoneRegex.test("+263771234567")).toBe(true);
+    expect(zimPhoneRegex.test("263771234567")).toBe(true);
   });
 
   it("rejects invalid numbers", () => {
-    expect(saPhoneRegex.test("1234567890")).toBe(false);
-    expect(saPhoneRegex.test("082123456")).toBe(false);   // too short
-    expect(saPhoneRegex.test("08212345678")).toBe(false); // too long
-    expect(saPhoneRegex.test("0521234567")).toBe(false);  // not mobile prefix
-    expect(saPhoneRegex.test("")).toBe(false);
+    expect(zimPhoneRegex.test("1234567890")).toBe(false);
+    expect(zimPhoneRegex.test("077123456")).toBe(false);     // mobile too short
+    expect(zimPhoneRegex.test("+26377123456")).toBe(false);  // mobile too short
+    expect(zimPhoneRegex.test("07712345678")).toBe(false);   // too long
+    expect(zimPhoneRegex.test("0521234567")).toBe(false);    // invalid prefix
+    expect(zimPhoneRegex.test("")).toBe(false);
   });
 });
 
-describe("SA National ID Validation", () => {
-  it("accepts a valid 13-digit SA ID (Luhn)", () => {
-    // 8001015009087 is a well-known Luhn-valid test SA ID
-    const parsed = saIdSchema.safeParse("8001015009087");
-    expect(parsed.success).toBe(true);
+describe("Zimbabwe National ID Validation", () => {
+  it("accepts valid national IDs", () => {
+    expect(zimNationalIdSchema.safeParse("63-123456-A-00").success).toBe(true);
+    expect(zimNationalIdSchema.safeParse("631234567A00").success).toBe(true);
+    expect(zimNationalIdSchema.safeParse("").success).toBe(true);
   });
 
   it("rejects invalid IDs", () => {
-    expect(saIdSchema.safeParse("1234567890123").success).toBe(false);
-    expect(saIdSchema.safeParse("abc").success).toBe(false);
+    expect(zimNationalIdSchema.safeParse("1234567890123").success).toBe(false);
+    expect(zimNationalIdSchema.safeParse("abc").success).toBe(false);
   });
 });
 
 describe("Student Form Schema", () => {
   const validStudent = {
     admission_number: "STU0001",
-    full_name: "Thabo Nkosi",
-    form: "Grade 8",
+    full_name: "Tendai Moyo",
+    form: "Form 1",
     date_of_birth: "2010-05-15",
     gender: "Male",
-    guardian_name: "Mr. Nkosi",
-    guardian_phone: "0821234567",
-    guardian_email: "nkosi@example.com",
-    emergency_contact: "0832345678",
-    address: "123 Long Street, Johannesburg",
+    guardian_name: "Mr. Moyo",
+    guardian_phone: "0771234567",
+    guardian_email: "moyo@example.com",
+    emergency_contact: "0712345678",
+    address: "123 Samora Machel Ave, Harare",
     enrollment_date: "2026-01-15",
   };
 
@@ -87,8 +90,8 @@ describe("Staff Form Schema", () => {
     if (r.success) expect(r.data.role).toBe("teacher");
   });
 
-  it("accepts valid SA national ID", () => {
-    expect(staffFormSchema.safeParse({ ...validStaff, national_id: "8001015009087" }).success).toBe(true);
+  it("accepts valid national ID", () => {
+    expect(staffFormSchema.safeParse({ ...validStaff, national_id: "63-123456-A-00" }).success).toBe(true);
   });
 
   it("rejects invalid national ID", () => {

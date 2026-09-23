@@ -93,7 +93,6 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/change-password" element={<ForceChangePassword />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/portal/student" element={
               <ProtectedRoute allowedRoles={["student"]}>
