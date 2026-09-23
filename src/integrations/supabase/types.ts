@@ -4132,36 +4132,6 @@ export type Database = {
         Args: { _student_id: string }
         Returns: undefined
       }
-      can_view_profile: {
-        Args: { _target: string; _viewer: string }
-        Returns: boolean
-      }
-      can_view_student: {
-        Args: { _student_id: string; _uid: string }
-        Returns: boolean
-      }
-      get_school_bank_details: {
-        Args: never
-        Returns: {
-          account_name: string
-          account_number: string
-          bank_name: string
-          branch: string
-          swift_code: string
-        }[]
-      }
-      get_staff_private: {
-        Args: { _staff_ids: string[] }
-        Returns: {
-          address: string
-          bank_details: string
-          emergency_contact: string
-          id: string
-          national_id: string
-          nssa_number: string
-          paye_number: string
-        }[]
-      }
       get_exam_rankings: {
         Args: { p_exam_id: string; p_student_id: string }
         Returns: Json
@@ -4185,18 +4155,7 @@ export type Database = {
         Returns: boolean
       }
       is_finance_admin: { Args: { _uid: string }; Returns: boolean }
-      is_conversation_member: {
-        Args: { _conversation_id: string; _uid: string }
-        Returns: boolean
-      }
-      is_finance_staff: { Args: { _uid: string }; Returns: boolean }
-      is_office_staff: { Args: { _uid: string }; Returns: boolean }
       is_school_admin: { Args: { _uid: string }; Returns: boolean }
-      is_school_staff: { Args: { _uid: string }; Returns: boolean }
-      is_student_or_parent: {
-        Args: { _student_id: string; _uid: string }
-        Returns: boolean
-      }
       lookup_student_for_payment: {
         Args: { _admission_number: string }
         Returns: {
