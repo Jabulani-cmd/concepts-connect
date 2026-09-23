@@ -34,7 +34,7 @@ export interface DemoStudent {
 export interface DemoParent {
   id: string;
   familyId: string;
-  /** Every child of this parent in the school (siblings share one parent login). */
+  /** Every child of this parent in the school (siblings share their parents' logins). */
   childIds: string[];
   fullName: string;
   relationship: "Mother" | "Father" | "Guardian";
@@ -283,19 +283,23 @@ export function generateDemoSeed(): DemoSeed {
       });
       childIds.push(id);
     }
-    // One guardian login per family; mothers and fathers alternate, with some guardians.
-    const relationship: DemoParent["relationship"] = familyIdx % 10 === 9 ? "Guardian" : familyIdx % 2 === 0 ? "Mother" : "Father";
-    const parentFirst = relationship === "Father" ? pick(FIRST_M, familyIdx * 3 + 17) : pick(FIRST_F, familyIdx * 3 + 19);
-    parents.push({
-      id: `p-${familyIdx + 1}`,
-      familyId,
-      childIds,
-      fullName: `${relationship === "Father" ? "Mr." : relationship === "Mother" ? "Mrs." : "Ms."} ${parentFirst} ${surname}`,
-      relationship,
-      // Zimbabwean mobile numbers: Econet 077/078, NetOne 071.
-      phone: `+263${pick(["77", "78", "71"], familyIdx)}${1000000 + familyIdx}`,
-      email: `${clean(parentFirst)}.${clean(surname)}.p${familyIdx + 1}@parent.${DEMO_EMAIL_DOMAIN}`,
-      password: DEMO_PASSWORDS.parent,
+    // Each family has a mother and a father login; one in ten has a single guardian instead.
+    // Siblings share their parents' logins.
+    const roles: DemoParent["relationship"][] = familyIdx % 10 === 9 ? ["Guardian"] : ["Mother", "Father"];
+    roles.forEach((relationship, r) => {
+      const parentFirst = relationship === "Father" ? pick(FIRST_M, familyIdx * 3 + 17) : pick(FIRST_F, familyIdx * 3 + 19);
+      const title = relationship === "Father" ? "Mr." : relationship === "Mother" ? "Mrs." : "Ms.";
+      parents.push({
+        id: `p-${parents.length + 1}`,
+        familyId,
+        childIds,
+        fullName: `${title} ${parentFirst} ${surname}`,
+        relationship,
+        // Zimbabwean mobile numbers: Econet 077/078, NetOne 071.
+        phone: `+263${pick(["77", "78", "71"], familyIdx + r)}${1000000 + familyIdx * 2 + r}`,
+        email: `${clean(parentFirst)}.${clean(surname)}.p${parents.length + 1}@parent.${DEMO_EMAIL_DOMAIN}`,
+        password: DEMO_PASSWORDS.parent,
+      });
     });
     familyIdx++;
   }

@@ -30,9 +30,12 @@ describe("Demo seed", () => {
     }
   });
 
-  it("gives every student exactly one parent login, shared between siblings", () => {
+  it("gives every student a mother and father (or one guardian), shared between siblings", () => {
     const parentsOf = (id: string) => seed.parents.filter((p) => p.childIds.includes(id));
-    expect(seed.students.every((s) => parentsOf(s.id).length === 1)).toBe(true);
+    for (const s of seed.students) {
+      const rel = parentsOf(s.id).map((p) => p.relationship).sort();
+      expect([["Father", "Mother"], ["Guardian"]]).toContainEqual(rel);
+    }
     const siblings = seed.parents.filter((p) => p.childIds.length > 1);
     expect(siblings.length).toBeGreaterThan(0);
     for (const p of siblings) {

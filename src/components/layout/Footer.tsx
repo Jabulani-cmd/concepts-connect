@@ -17,24 +17,24 @@ export default function Footer() {
           </p>
           <div className="mx-auto grid max-w-5xl grid-cols-1 items-center gap-10 sm:grid-cols-3">
             <div className="flex flex-col items-center gap-3">
-              <div className="flex h-28 items-center justify-center">
-                <img src={ministryLogo} alt="Coat of arms of Zimbabwe" className="max-h-24 w-auto object-contain" />
+              <div className="flex h-40 items-center justify-center">
+                <img src={ministryLogo} alt="Coat of arms of Zimbabwe" className="max-h-[125px] w-auto object-contain" />
               </div>
               <span className="max-w-[220px] text-center text-xs font-medium leading-tight text-muted-foreground">
                 {t("footer.moe")}
               </span>
             </div>
             <div className="flex flex-col items-center gap-3">
-              <div className="flex h-28 items-center justify-center">
-                <img src={zimsecLogo} alt="ZIMSEC logo" className="max-h-24 w-auto object-contain" />
+              <div className="flex h-40 items-center justify-center">
+                <img src={zimsecLogo} alt="ZIMSEC logo" className="max-h-[125px] w-auto object-contain" />
               </div>
               <span className="max-w-[220px] text-center text-xs font-medium leading-tight text-muted-foreground">
                 Zimbabwe School Examinations Council
               </span>
             </div>
             <div className="flex flex-col items-center gap-3">
-              <div className="flex h-28 items-center justify-center">
-                <img src={cambridgeLogo} alt="University of Cambridge logo" className="max-h-24 w-auto object-contain" />
+              <div className="flex h-40 items-center justify-center">
+                <img src={cambridgeLogo} alt="University of Cambridge logo" className="max-h-[125px] w-auto object-contain" />
               </div>
               <span className="max-w-[220px] text-center text-xs font-medium leading-tight text-muted-foreground">
                 Cambridge International Education

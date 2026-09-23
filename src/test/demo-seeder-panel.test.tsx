@@ -69,20 +69,20 @@ describe("Demo data seeder panel", () => {
     expect(students.every((s) => /^Form [1-6]$/.test(String(s.form)) && s.class === `${s.form}${s.stream}`)).toBe(true);
     expect(students.every((s) => s.guardian_name && s.guardian_phone && s.province)).toBe(true);
 
-    // Logins: 1 admin + 30 teachers + 500 students + 429 parents, in small batches.
+    // Logins: 1 admin + 30 teachers + 500 students + every parent, in small batches.
     const accounts = invokes.flatMap((b) => b.accounts);
     expect(invokes.every((b) => b.accounts.length <= 40)).toBe(true);
     expect(new Set(accounts.map((a) => a.email)).size).toBe(accounts.length);
     const count = (role: string) => accounts.filter((a) => a.role === role).length;
-    expect([count("admin"), count("teacher"), count("student"), count("parent")]).toEqual([1, 30, 500, 429]);
+    expect([count("admin"), count("teacher"), count("student")]).toEqual([1, 30, 500]);
+    expect(count("parent")).toBeGreaterThan(800);
     expect(accounts.filter((a) => a.role === "student").every((a) => a.admission_number)).toBe(true);
 
-    // Parents are sent after every student, and each child is linked exactly once.
+    // Parents are sent after every student, and every child is linked to a parent.
     const lastStudentCall = Math.max(...invokes.map((b, i) => (b.accounts.some((a) => a.role === "student") ? i : -1)));
     const firstParentCall = invokes.findIndex((b) => b.accounts.some((a) => a.role === "parent"));
     expect(firstParentCall).toBeGreaterThan(lastStudentCall);
     const linked = accounts.flatMap((a) => (a.children as { admission_number: string }[] | undefined) ?? []).map((c) => c.admission_number);
     expect(new Set(linked).size).toBe(500);
-    expect(linked).toHaveLength(500);
   }, 30000);
 });

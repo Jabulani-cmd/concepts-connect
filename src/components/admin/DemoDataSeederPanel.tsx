@@ -130,7 +130,8 @@ export default function DemoDataSeederPanel() {
     }
 
     // Students — upserted by admission number so re-seeding keeps their logins.
-    const guardianOf = new Map(seed.parents.flatMap((p) => p.childIds.map((id) => [id, p] as const)));
+    // The first parent listed for a family (the mother, or the guardian) is the student's contact.
+    const guardianOf = new Map([...seed.parents].reverse().flatMap((p) => p.childIds.map((id) => [id, p] as const)));
     const studentRows = seed.students.map((s) => {
       const [first, ...rest] = s.fullName.split(" ");
       const parent = guardianOf.get(s.id);
@@ -474,7 +475,7 @@ export default function DemoDataSeederPanel() {
           {summary && (
             <div className="space-y-2 text-sm">
               <Row label="Students enrolled"   value={summary.students}  hint="Forms 1–4: 3 classes of 35 · Forms 5–6: Sciences and Commercials, 20 each" />
-              <Row label="Parents & guardians" value={summary.parents}   hint="One login per family; siblings share a parent account" />
+              <Row label="Parents & guardians" value={summary.parents}   hint="Mother and father logins per family (or one guardian); siblings share them" />
               <Row label="Teachers"            value={summary.teachers}  hint="All subjects covered" />
               <Row label="Subjects"            value={summary.subjects}  hint="Linked to relevant forms" />
               <Row label="Classes"             value={summary.classes}   hint="Form 1A–4C, plus Form 5A/5B and Form 6A/6B" />
