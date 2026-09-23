@@ -6,11 +6,16 @@ import { componentTagger } from "lovable-tagger";
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
-    host: "::",
+    // `true` listens on all interfaces (IPv4 and IPv6) and works on hosts without IPv6.
+    host: true,
     port: 8080,
     hmr: {
       overlay: false,
     },
+  },
+  preview: {
+    host: true,
+    port: 4173,
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
@@ -18,6 +23,22 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
       "react": path.resolve(__dirname, "./node_modules/react"),
       "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
+    },
+  },
+  build: {
+    // The only chunks above the default 500 kB are the barcode and PDF libraries,
+    // which load on demand when a user prints a label, receipt or report.
+    chunkSizeWarningLimit: 900,
+    rollupOptions: {
+      output: {
+        // Keep large, rarely-changing libraries in their own cacheable chunks.
+        manualChunks: {
+          react: ["react", "react-dom", "react-router-dom"],
+          supabase: ["@supabase/supabase-js"],
+          query: ["@tanstack/react-query"],
+          motion: ["framer-motion"],
+        },
+      },
     },
   },
 }));
