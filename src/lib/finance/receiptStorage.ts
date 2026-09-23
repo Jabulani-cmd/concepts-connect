@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { TablesUpdate } from "@/integrations/supabase/types";
 import { buildReceiptHtml, SCHOOL_LOGO_URL, type ReceiptPrintInput } from "./pdf";
 import { renderHtmlToPdf } from "./print";
+import { uploadPrivateFile } from "@/lib/privateFiles";
 
 // Payment methods that self-verify (instant gateway) — bank transfer requires
 // a clerk to review the uploaded proof-of-payment.
@@ -31,10 +32,11 @@ export type GenerateReceiptArgs = {
 };
 
 /**
- * Renders the branded receipt as a PDF, uploads it to school-media/receipts,
- * and updates the payment row with receipt_url (+ verified_at / verified_by
- * when autoVerify is on). Returns the public URL, or null on any failure
- * (the payment itself is left intact — the receipt can be regenerated later).
+ * Renders the branded receipt as a PDF, uploads it to the private bucket as
+ * receipts/<payment id>.pdf, and updates the payment row with a reference to it
+ * (+ verified_at / verified_by when autoVerify is on). Returns the stored
+ * reference (open it with openStoredFile), or null on any failure — the payment
+ * itself is left intact and the receipt can be regenerated later.
  */
 export async function generateAndStoreReceipt(args: GenerateReceiptArgs): Promise<string | null> {
   try {
@@ -50,14 +52,13 @@ export async function generateAndStoreReceipt(args: GenerateReceiptArgs): Promis
     };
     const html = buildReceiptHtml(input);
     const blob = (await renderHtmlToPdf(html)).output("blob");
-    const safeName = args.receiptNumber.replace(/[^A-Za-z0-9._-]/g, "_");
-    const path = `receipts/${safeName}.pdf`;
-    const { error: upErr } = await supabase.storage
-      .from("school-media")
-      .upload(path, blob, { contentType: "application/pdf", upsert: true });
-    if (upErr) { console.error("[receipt] upload failed", upErr); return null; }
-    const { data: pub } = supabase.storage.from("school-media").getPublicUrl(path);
-    const url = pub.publicUrl;
+    let url: string;
+    try {
+      url = await uploadPrivateFile(`receipts/${args.paymentId}.pdf`, blob, "application/pdf", true);
+    } catch (upErr) {
+      console.error("[receipt] upload failed", upErr);
+      return null;
+    }
 
     const update: TablesUpdate<"payments"> = { receipt_url: url };
     if (args.autoVerify) {
