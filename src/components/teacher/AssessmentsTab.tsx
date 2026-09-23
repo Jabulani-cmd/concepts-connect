@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,9 +66,7 @@ export default function AssessmentsTab({ userId, classes, subjects, students }: 
   const [filterClass, setFilterClass] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
 
-  useEffect(() => { fetchAssessments(); }, []);
-
-  const fetchAssessments = async () => {
+  const fetchAssessments = useCallback(async () => {
     setLoading(true);
     const { data } = await supabase
       .from("assessments")
@@ -77,7 +75,9 @@ export default function AssessmentsTab({ userId, classes, subjects, students }: 
       .order("created_at", { ascending: false });
     if (data) setAssessments(data);
     setLoading(false);
-  };
+  }, [userId]);
+
+  useEffect(() => { fetchAssessments(); }, [fetchAssessments]);
 
   const createAssessment = async () => {
     if (!form.title || !form.class_id || !form.subject_id) {
@@ -158,7 +158,7 @@ export default function AssessmentsTab({ userId, classes, subjects, students }: 
     } else {
       setGradeForm({ marks: "", feedback: "" });
     }
-  }, [gradingStudentIdx, selectedAssessment, results]);
+  }, [gradingStudentIdx, selectedAssessment, results, currentResult]);
 
   const saveGrade = async () => {
     if (!currentStudent || !selectedAssessment || !gradeForm.marks) return;

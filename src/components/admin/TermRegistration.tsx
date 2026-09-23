@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { useToast } from "@/hooks/use-toast";
@@ -49,11 +49,7 @@ export default function TermRegistration() {
   const [bulkStudents, setBulkStudents] = useState<Tables<"students">[]>([]);
   const [bulkLoading, setBulkLoading] = useState(false);
 
-  useEffect(() => {
-    fetchAll();
-  }, [academicYear, term]);
-
-  async function fetchAll() {
+  const fetchAll = useCallback(async () => {
     setLoading(true);
     const [studRes, regRes, subRes, feeRes, classRes] = await Promise.all([
       supabase.from("students").select("*").eq("status", "active").order("full_name"),
@@ -68,7 +64,11 @@ export default function TermRegistration() {
     setFeeStructures(feeRes.data || []);
     setDbClasses(classRes.data || []);
     setLoading(false);
-  }
+  }, [academicYear, term]);
+
+  useEffect(() => {
+    fetchAll();
+  }, [academicYear, fetchAll, term]);
 
   const registeredIds = new Set(registrations.map((r) => r.student_id));
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -367,23 +367,23 @@ export default function AcademicManagement() {
     fetchSportsSchedule();
   }
 
-  const attStudents = students.filter(s => {
+  const attStudents = useMemo(() => {
     const cls = classes.find(c => c.id === attClass);
-    return cls && s.form === cls.level && (!cls.stream || s.stream === cls.stream);
-  });
+    return cls ? students.filter(s => s.form === cls.level && (!cls.stream || s.stream === cls.stream)) : [];
+  }, [students, classes, attClass]);
 
-  useEffect(() => {
-    if (attClass && attDate) loadAttendance();
-  }, [attClass, attDate]);
-
-  async function loadAttendance() {
+  const loadAttendance = useCallback(async () => {
     const { data } = await supabase.from("attendance").select("*").eq("class_id", attClass).eq("date", attDate);
     const records: Record<string, string> = {};
     if (data) data.forEach(r => { records[r.student_id] = r.status; });
     // Default to present for students not yet recorded
     attStudents.forEach(s => { if (!records[s.id]) records[s.id] = "present"; });
     setAttRecords(records);
-  }
+  }, [attClass, attDate, attStudents]);
+
+  useEffect(() => {
+    if (attClass && attDate) loadAttendance();
+  }, [attClass, attDate, loadAttendance]);
 
   async function saveAttendance() {
     setAttSaving(true);
@@ -446,7 +446,10 @@ export default function AcademicManagement() {
   // ═══ MARKS ENTRY ═══
   const selectedExam = exams.find(e => e.id === marksExam);
   const marksStudents = selectedExam ? students.filter(s => s.form === selectedExam.form_level) : [];
-  const currentExamResults = examResults.filter(r => r.exam_id === marksExam && r.subject_id === marksSubject);
+  const currentExamResults = useMemo(
+    () => examResults.filter(r => r.exam_id === marksExam && r.subject_id === marksSubject),
+    [examResults, marksExam, marksSubject],
+  );
 
   useEffect(() => {
     if (marksExam && marksSubject) {
@@ -454,7 +457,7 @@ export default function AcademicManagement() {
       currentExamResults.forEach(r => { entries[r.student_id] = String(r.mark); });
       setMarksEntries(entries);
     }
-  }, [marksExam, marksSubject, examResults]);
+  }, [marksExam, marksSubject, currentExamResults]);
 
   async function saveMarks() {
     if (!marksExam || !marksSubject) return;

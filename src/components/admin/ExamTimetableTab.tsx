@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -67,10 +67,6 @@ export default function ExamTimetableTab() {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    if (selectedExam) fetchEntries();
-  }, [selectedExam]);
-
   async function fetchData() {
     const [examsRes, subjectsRes] = await Promise.all([
       supabase.from("exams").select("id, name, form_level, term, academic_year, is_published, subject_ids").order("created_at", { ascending: false }),
@@ -81,7 +77,7 @@ export default function ExamTimetableTab() {
     setLoading(false);
   }
 
-  async function fetchEntries() {
+  const fetchEntries = useCallback(async () => {
     const { data } = await supabase
       .from("exam_timetable_entries")
       .select("*, subjects(name, code)")
@@ -89,7 +85,11 @@ export default function ExamTimetableTab() {
       .order("exam_date")
       .order("start_time");
     if (data) setEntries(data);
-  }
+  }, [selectedExam]);
+
+  useEffect(() => {
+    if (selectedExam) fetchEntries();
+  }, [fetchEntries, selectedExam]);
 
   const currentExam = exams.find(e => e.id === selectedExam);
   const examSubjects = currentExam?.subject_ids

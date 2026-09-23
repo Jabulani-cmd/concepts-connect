@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { emptyToNull } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -229,25 +229,25 @@ export default function StaffManagementFull() {
   const [uploading, setUploading] = useState(false);
   const [showWebcam, setShowWebcam] = useState(false);
 
-  useEffect(() => {
-    fetchStaff();
-    fetchClassAssignments();
-  }, []);
-
-  const fetchStaff = async () => {
+  const fetchStaff = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase.from("staff").select("*").order("full_name");
     if (data) setStaff(data as unknown as StaffMember[]);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
     setLoading(false);
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchStaff();
+    fetchClassAssignments();
+  }, [fetchStaff]);
 
   const fetchClassAssignments = async () => {
     // Fetch class teacher assignments
     const { data: classes } = await supabase.from("classes").select("id, name, class_teacher_id");
     if (classes) {
       const ctMap: Record<string, string[]> = {};
-      classes.forEach((c: any) => {
+      classes.forEach((c) => {
         if (c.class_teacher_id) {
           if (!ctMap[c.class_teacher_id]) ctMap[c.class_teacher_id] = [];
           ctMap[c.class_teacher_id].push(c.name);
@@ -260,7 +260,7 @@ export default function StaffManagementFull() {
     const { data: cs } = await supabase.from("class_subjects").select("teacher_id, classes(name), subjects(name)");
     if (cs) {
       const tcMap: Record<string, { className: string; subjectName: string }[]> = {};
-      cs.forEach((row: any) => {
+      cs.forEach((row) => {
         if (row.teacher_id) {
           if (!tcMap[row.teacher_id]) tcMap[row.teacher_id] = [];
           tcMap[row.teacher_id].push({
@@ -541,7 +541,7 @@ export default function StaffManagementFull() {
     URL.revokeObjectURL(url);
   };
 
-  const updateField = (key: string, value: any) => {
+  const updateField = <K extends keyof StaffFormData>(key: K, value: StaffFormData[K]) => {
     setFormData((prev) => {
       const next = { ...prev, [key]: value };
       // Auto-generate portal email from full name for new staff when
@@ -552,7 +552,7 @@ export default function StaffManagementFull() {
         (!prev.email || prev.email.endsWith(`@${STAFF_EMAIL_DOMAIN}`))
       ) {
         next.email = buildStaffEmail(
-          value || "",
+          next.full_name || "",
           staff.map((s) => s.email || "").filter(Boolean),
         );
       }

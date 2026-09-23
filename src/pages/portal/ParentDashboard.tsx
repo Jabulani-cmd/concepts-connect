@@ -56,6 +56,7 @@ import PayInvoiceDialog from "@/components/finance/PayInvoiceDialog";
 import { formatMoney } from "@/lib/currency";
 import { errorMessage } from "@/lib/errors";
 import { gradeFor, gradeBadgeClass } from "@/lib/grading";
+import type { ExamRankings } from "@/types/school";
 
 const Locked = ({ feature, children }: { feature: string; children: React.ReactNode }) => (
   <div className="relative min-h-[60vh]">
@@ -86,11 +87,6 @@ const examResultsQuery = (examId: string, studentId: string) =>
 
 type ExamResult = QueryData<ReturnType<typeof examResultsQuery>>[number];
 type ChildPayment = Tables<"payments"> & { invoices?: { invoice_number: string | null } | null };
-type ExamRankings = {
-  overall_rank?: number;
-  total_students?: number;
-  subject_rankings?: Record<string, { rank: number; total: number }> | null;
-};
 
 // "billing" is a link to its own page rather than an in-page tab.
 type NavItemId = TabId | "billing";

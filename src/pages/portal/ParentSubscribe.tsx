@@ -37,6 +37,7 @@ import { formatMoney } from "@/lib/currency";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
 import CurrencyConverter from "@/components/finance/CurrencyConverter";
 import { errorMessage } from "@/lib/errors";
+import { planFeatures } from "@/lib/plans";
 
 type Step = "plans" | "method" | "card" | "eft" | "gateway" | "qr" | "success" | "failed";
 
@@ -388,10 +389,6 @@ export default function ParentSubscribe() {
 }
 
 // ────────── Step views ──────────
-// subscription_plans.features is a JSON array of strings.
-const planFeatures = (plan: Plan): string[] =>
-  Array.isArray(plan.features) ? plan.features.filter((f): f is string => typeof f === "string") : [];
-
 function PlansView({ plans, onPick }: { plans: Plan[]; onPick: (p: Plan) => void }) {
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">

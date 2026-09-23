@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { formatMoney } from "@/lib/currency";
 import { generateAndStoreReceipt } from "@/lib/finance/receiptStorage";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
+import type { Tables } from "@/integrations/supabase/types";
 
 type Outcome = "auto" | "approve" | "insufficient" | "declined";
 type Step = "amount" | "method" | "card" | "gateway" | "qr" | "success" | "failed";
@@ -21,7 +22,7 @@ type Step = "amount" | "method" | "card" | "gateway" | "qr" | "success" | "faile
 interface Props {
   open: boolean;
   onOpenChange: (o: boolean) => void;
-  invoice: any;
+  invoice: Pick<Tables<"invoices">, "id" | "invoice_number">;
   student: { id: string; full_name: string; admission_number?: string };
   outstanding: number;
   onPaid?: () => void;

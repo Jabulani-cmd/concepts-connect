@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { CalendarOff, Plus, Clock, CheckCircle2, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import type { Tables } from "@/integrations/supabase/types";
 
 const leaveTypes = [
   { value: "annual", label: "Annual Leave" },
@@ -32,7 +33,7 @@ export default function StaffLeaveRequest() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [staffId, setStaffId] = useState<string | null>(null);
-  const [requests, setRequests] = useState<any[]>([]);
+  const [requests, setRequests] = useState<Tables<"leave_requests">[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -44,11 +45,7 @@ export default function StaffLeaveRequest() {
     reason: "",
   });
 
-  useEffect(() => {
-    if (user) fetchData();
-  }, [user]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     // Get staff record for current user
     const { data: staff } = await supabase
@@ -67,7 +64,11 @@ export default function StaffLeaveRequest() {
       setRequests(reqs || []);
     }
     setLoading(false);
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) fetchData();
+  }, [fetchData, user]);
 
   const handleSubmit = async () => {
     if (!staffId) {

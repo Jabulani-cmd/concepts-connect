@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,16 +35,6 @@ export default function ExamResultsUpload({ userId, classes, subjects }: Props) 
     fetchExams();
   }, []);
 
-  useEffect(() => {
-    if (selectedClassId) fetchStudentsForClass();
-  }, [selectedClassId]);
-
-  useEffect(() => {
-    if (selectedExamId && selectedSubjectId && students.length > 0) {
-      fetchExistingResults();
-    }
-  }, [selectedExamId, selectedSubjectId, students]);
-
   const fetchExams = async () => {
     const { data } = await supabase
       .from("exams")
@@ -54,7 +44,7 @@ export default function ExamResultsUpload({ userId, classes, subjects }: Props) 
     setExams(data || []);
   };
 
-  const fetchStudentsForClass = async () => {
+  const fetchStudentsForClass = useCallback(async () => {
     setLoadingStudents(true);
     // Get students assigned to this class
     const { data: sc } = await supabase
@@ -87,9 +77,9 @@ export default function ExamResultsUpload({ userId, classes, subjects }: Props) 
       }
     }
     setLoadingStudents(false);
-  };
+  }, [classes, selectedClassId]);
 
-  const fetchExistingResults = async () => {
+  const fetchExistingResults = useCallback(async () => {
     const studentIds = students.map((s) => s.id);
     const { data } = await supabase
       .from("exam_results")
@@ -118,7 +108,17 @@ export default function ExamResultsUpload({ userId, classes, subjects }: Props) 
 
     setExistingResults(existing);
     setMarkEntries(entries);
-  };
+  }, [selectedExamId, selectedSubjectId, students]);
+
+  useEffect(() => {
+    if (selectedClassId) fetchStudentsForClass();
+  }, [fetchStudentsForClass, selectedClassId]);
+
+  useEffect(() => {
+    if (selectedExamId && selectedSubjectId && students.length > 0) {
+      fetchExistingResults();
+    }
+  }, [fetchExistingResults, selectedExamId, selectedSubjectId, students]);
 
   const handleMarkChange = (studentId: string, field: "mark" | "comment", value: string) => {
     setMarkEntries((prev) => ({

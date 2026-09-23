@@ -10,10 +10,11 @@ import { supabase } from "@/integrations/supabase/client";
 import type { PostgrestError } from "@supabase/supabase-js";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import type { Tables } from "@/integrations/supabase/types";
 
 interface Props {
-  profile: any;
-  student: any;
+  profile: Tables<"profiles"> | null;
+  student: Tables<"students"> | null;
   studentClassName?: string | null;
   onRefresh: () => void;
 }

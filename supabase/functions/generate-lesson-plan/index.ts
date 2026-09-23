@@ -119,9 +119,9 @@ Make it engaging, age-appropriate, and aligned with the South African curriculum
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("generate-lesson-plan error:", error);
-    return new Response(JSON.stringify({ error: error.message || "Failed to generate lesson plan" }), {
+    return new Response(JSON.stringify({ error: (error instanceof Error && error.message) || "Failed to generate lesson plan" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

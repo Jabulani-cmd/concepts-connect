@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +31,10 @@ interface TermReport {
 
 const termOptions = ["Term 1", "Term 2", "Term 3"];
 
+/** term_reports.exam_data holds the exam_results rows used to build the report. */
+type ReportExamRow = { mark?: number | null; grade?: string | null; subjects?: { name?: string } | null };
+const examDataRows = (value: unknown): ReportExamRow[] => (Array.isArray(value) ? (value as ReportExamRow[]) : []);
+
 export default function StudentTermReportsTab() {
   const { user } = useAuth();
   const [reports, setReports] = useState<TermReport[]>([]);
@@ -39,11 +43,7 @@ export default function StudentTermReportsTab() {
   const [selectedTerm, setSelectedTerm] = useState("all");
   const [studentInfo, setStudentInfo] = useState<{ id: string; full_name: string; admission_number: string; form: string; stream: string | null } | null>(null);
 
-  useEffect(() => {
-    fetchStudentInfo();
-  }, [user]);
-
-  async function fetchStudentInfo() {
+  const fetchStudentInfo = useCallback(async () => {
     if (!user?.id) return;
     
     const { data: student } = await supabase
@@ -58,7 +58,11 @@ export default function StudentTermReportsTab() {
     } else {
       setLoading(false);
     }
-  }
+  }, [user.id]);
+
+  useEffect(() => {
+    fetchStudentInfo();
+  }, [fetchStudentInfo, user]);
 
   async function fetchReports(studentId: string) {
     const { data } = await supabase
@@ -214,7 +218,7 @@ export default function StudentTermReportsTab() {
                       examName={`${report.term} ${report.academic_year}`}
                       term={report.term}
                       academicYear={report.academic_year}
-                      results={(Array.isArray(report.exam_data) ? report.exam_data : []).map((r: any) => ({
+                      results={examDataRows(report.exam_data).map((r) => ({
                         subject_name: r.subjects?.name || "Unknown",
                         subject_code: null,
                         mark: r.mark || 0,

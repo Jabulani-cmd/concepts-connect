@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,11 +39,6 @@ export default function AuditLogs() {
   const [tables, setTables] = useState<string[]>([]);
   const [profiles, setProfiles] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    fetchLogs();
-    fetchProfiles();
-  }, []);
-
   const fetchProfiles = async () => {
     const { data } = await supabase.from("profiles").select("id, full_name");
     if (data) {
@@ -53,7 +48,7 @@ export default function AuditLogs() {
     }
   };
 
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     setLoading(true);
     let query = supabase
       .from("audit_logs")
@@ -76,7 +71,12 @@ export default function AuditLogs() {
       setTables(uniqueTables);
     }
     setLoading(false);
-  };
+  }, [actionFilter, dateFrom, dateTo, tableFilter, toast]);
+
+  useEffect(() => {
+    fetchLogs();
+    fetchProfiles();
+  }, [fetchLogs]);
 
   const filteredLogs = logs.filter(l => {
     if (!search) return true;

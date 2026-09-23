@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
@@ -74,12 +74,7 @@ export default function StudentDashboard() {
   const [newMaterials, setNewMaterials] = useState(0);
   const [feeBalance, setFeeBalance] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (!user) return;
-    fetchData();
-  }, [user]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     const uid = user!.id;
 
@@ -170,7 +165,12 @@ export default function StudentDashboard() {
     }
 
     setLoading(false);
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    fetchData();
+  }, [fetchData, user]);
 
   const displayName = student?.full_name || profile?.full_name || user?.user_metadata?.full_name || "Student";
 

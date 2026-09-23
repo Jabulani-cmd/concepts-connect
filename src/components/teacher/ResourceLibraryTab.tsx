@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,9 +34,7 @@ export default function ResourceLibraryTab({ userId, subjects }: Props) {
   const [filterType, setFilterType] = useState("all");
   const [showFavOnly, setShowFavOnly] = useState(false);
 
-  useEffect(() => { fetchResources(); }, []);
-
-  const fetchResources = async () => {
+  const fetchResources = useCallback(async () => {
     const { data } = await supabase
       .from("teacher_resources")
       .select("*, subjects(name)")
@@ -44,7 +42,9 @@ export default function ResourceLibraryTab({ userId, subjects }: Props) {
       .order("is_favorite", { ascending: false })
       .order("created_at", { ascending: false });
     if (data) setResources(data);
-  };
+  }, [userId]);
+
+  useEffect(() => { fetchResources(); }, [fetchResources]);
 
   const handleSubmit = async () => {
     if (!form.title) { toast({ title: "Title is required", variant: "destructive" }); return; }

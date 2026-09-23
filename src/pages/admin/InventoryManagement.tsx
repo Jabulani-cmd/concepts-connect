@@ -18,6 +18,7 @@ import {
   BarChart3, Edit, Trash2, QrCode, Camera, X, ScanLine, Undo2
 } from "lucide-react";
 import { errorMessage } from "@/lib/errors";
+import type { Html5Qrcode } from "html5-qrcode";
 
 const itemsQuery = () => supabase.from("inventory_items").select("*, inventory_categories(*)").order("name");
 const issuesQuery = () =>
@@ -83,20 +84,20 @@ export default function InventoryManagement() {
   const barcodeCanvasRef = useRef<HTMLCanvasElement>(null);
 
   // Scanner
-  const scannerRef = useRef<any>(null);
+  const scannerRef = useRef<Html5Qrcode | null>(null);
   const scannerContainerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    fetchAll();
-  }, []);
-
-  const fetchAll = () => {
+  const fetchAll = useCallback(() => {
     fetchCategories();
     fetchItems();
     fetchIssues();
     fetchTransactions();
     fetchStudents();
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll]);
 
   const fetchCategories = async () => {
     const { data } = await supabase.from("inventory_categories").select("*").order("name");
@@ -201,10 +202,8 @@ export default function InventoryManagement() {
     setTimeout(async () => {
       if (barcodeCanvasRef.current) {
         try {
-          // @ts-ignore - dynamic import for barcode generation
-          const bwipjs = await import(/* @vite-ignore */ "bwip-js") as any;
-          const render = bwipjs.default?.toCanvas || bwipjs.toCanvas;
-          render(barcodeCanvasRef.current, {
+          const { toCanvas } = await import("bwip-js/browser");
+          toCanvas(barcodeCanvasRef.current, {
             bcid: "code128", text: item.item_code,
             scale: 3, height: 10, includetext: true,
             textxalign: "center"
@@ -250,7 +249,7 @@ export default function InventoryManagement() {
 
   const stopScanner = async () => {
     if (scannerRef.current) {
-      try { await scannerRef.current.stop(); } catch {}
+      try { await scannerRef.current.stop(); } catch { /* scanner already stopped */ }
       scannerRef.current = null;
     }
     setShowScannerDialog(false);

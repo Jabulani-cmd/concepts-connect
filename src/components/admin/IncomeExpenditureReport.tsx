@@ -54,9 +54,7 @@ export default function IncomeExpenditureReport() {
   const [selectedMonth, setSelectedMonth] = useState(String(currentMonth));
   const [search, setSearch] = useState("");
 
-  useEffect(() => { fetchData(); }, [rate]);
-
-  async function fetchData() {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     const [payRes, expRes, spRes] = await Promise.all([
       paymentsQuery(),
@@ -67,7 +65,9 @@ export default function IncomeExpenditureReport() {
     if (expRes.data) setExpenses(expRes.data.map(normalizeAmount));
     if (spRes.data) setSupplierPayments(spRes.data.map(normalizeAmount));
     setLoading(false);
-  }
+  }, [normalizeAmount]);
+
+  useEffect(() => { fetchData(); }, [fetchData, rate]);
 
   const yearOptions = useMemo(() => {
     const years = new Set<string>();
@@ -75,7 +75,7 @@ export default function IncomeExpenditureReport() {
     expenses.forEach(e => years.add(new Date(e.expense_date).getFullYear().toString()));
     years.add(String(currentYear));
     return Array.from(years).sort().reverse();
-  }, [payments, expenses]);
+  }, [payments, expenses, currentYear]);
 
   // Filter by selected month/year
   const filterByMonth = (date: string) => {

@@ -29,7 +29,9 @@ export function DemoPeopleProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       window.localStorage.setItem(LS_KEY, JSON.stringify({ students, parents, loadedAt }));
-    } catch {}
+    } catch {
+      // Storage unavailable (private browsing); the demo still works for this session.
+    }
   }, [students, parents, loadedAt]);
 
   return (
@@ -38,7 +40,7 @@ export function DemoPeopleProvider({ children }: { children: ReactNode }) {
       setSeed: (s) => { setStudents(s.students); setParents(s.parents); setLoadedAt(new Date().toISOString()); },
       clear: () => {
         setStudents([]); setParents([]); setLoadedAt(null);
-        try { window.localStorage.removeItem(LS_KEY); } catch {}
+        try { window.localStorage.removeItem(LS_KEY); } catch { /* storage unavailable */ }
       },
     }}>{children}</C.Provider>
   );

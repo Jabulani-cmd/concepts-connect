@@ -87,12 +87,20 @@ export default function Contact() {
   };
 
   const onAppointmentSubmit = async (data: AppointmentForm) => {
-    const { error } = await supabase.from("appointments" as any).insert({
-      name: data.name, email: data.email, phone: data.phone || null,
-      authority: data.authority, department: data.department || null,
-      preferred_date: format(data.preferred_date, "yyyy-MM-dd"),
-      preferred_time: data.preferred_time, reason: data.reason,
-    } as any);
+    // Appointment requests arrive in the school's contact inbox; the office confirms by phone or email.
+    const details = [
+      `Appointment request with: ${data.authority}${data.department ? ` (${data.department})` : ""}`,
+      `Preferred: ${format(data.preferred_date, "EEEE d MMMM yyyy")} at ${data.preferred_time}`,
+      data.phone ? `Phone: ${data.phone}` : null,
+      "",
+      data.reason,
+    ].filter((line) => line !== null).join("\n");
+    const { error } = await supabase.from("contact_messages").insert({
+      name: data.name,
+      email: data.email,
+      subject: `Appointment request — ${data.authority}`,
+      message: details,
+    });
     if (error) toast({ title: t("common.error"), variant: "destructive" });
     else { setAppointmentSent(true); appointmentForm.reset(); }
   };

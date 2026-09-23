@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,10 +60,6 @@ export default function TermReportsTab() {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    fetchReports();
-  }, [filterForm, filterTerm, filterYear]);
-
   async function fetchData() {
     const { data } = await supabase
       .from("students")
@@ -75,7 +71,7 @@ export default function TermReportsTab() {
     setLoading(false);
   }
 
-  async function fetchReports() {
+  const fetchReports = useCallback(async () => {
     const { data } = await supabase
       .from("term_reports")
       .select("*, students(full_name, admission_number)")
@@ -84,7 +80,11 @@ export default function TermReportsTab() {
       .eq("academic_year", filterYear)
       .order("class_rank", { nullsFirst: false });
     if (data) setReports(data);
-  }
+  }, [filterForm, filterTerm, filterYear]);
+
+  useEffect(() => {
+    fetchReports();
+  }, [fetchReports, filterForm, filterTerm, filterYear]);
 
   async function generateReports() {
     setGenerating(true);

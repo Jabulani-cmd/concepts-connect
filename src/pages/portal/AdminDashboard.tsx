@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import AcademicManagement from "@/pages/admin/AcademicManagement";
@@ -151,24 +151,6 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
   const [ttGrid, setTtGrid] = useState<Record<string, string>>({});
   const [ttLoading, setTtLoading] = useState(false);
   const [ttSaving, setTtSaving] = useState(false);
-
-  useEffect(() => {
-    fetchAnnouncements();
-    fetchCarouselImages();
-    fetchGalleryImages();
-    fetchDownloads();
-    fetchMeetings();
-    fetchSiteSettings();
-    fetchTimetableMeta();
-  }, []);
-
-  useEffect(() => {
-    if (ttSelectedClassId) {
-      fetchClassTimetable(ttSelectedClassId);
-    } else {
-      setTtGrid({});
-    }
-  }, [ttSelectedClassId]);
 
   const fetchSiteSettings = async () => {
     const { data } = await supabase.from("site_settings").select("*").in("setting_key", ["achievements_image", "principal_photo", "tradition_image", "cta_image"]);
@@ -342,7 +324,7 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
 
   const getTimetableCellKey = (dayIndex: number, startTime: string) => `${dayIndex}-${startTime}`;
 
-  const fetchTimetableMeta = async () => {
+  const fetchTimetableMeta = useCallback(async () => {
     const [{ data: classRows }, { data: subjectRows }] = await Promise.all([
       supabase.from("classes").select("id, name").order("name"),
       supabase.from("subjects").select("id, name").order("name"),
@@ -357,9 +339,9 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
     if (subjectRows) {
       setTtSubjects(subjectRows);
     }
-  };
+  }, [ttSelectedClassId]);
 
-  const fetchClassTimetable = async (classId: string) => {
+  const fetchClassTimetable = useCallback(async (classId: string) => {
     setTtLoading(true);
     const { data, error } = await supabase
       .from("timetable_entries")
@@ -380,7 +362,25 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
     });
     setTtGrid(nextGrid);
     setTtLoading(false);
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchAnnouncements();
+    fetchCarouselImages();
+    fetchGalleryImages();
+    fetchDownloads();
+    fetchMeetings();
+    fetchSiteSettings();
+    fetchTimetableMeta();
+  }, [fetchTimetableMeta]);
+
+  useEffect(() => {
+    if (ttSelectedClassId) {
+      fetchClassTimetable(ttSelectedClassId);
+    } else {
+      setTtGrid({});
+    }
+  }, [fetchClassTimetable, ttSelectedClassId]);
 
   const saveTimetable = async () => {
     if (!ttSelectedClassId) {

@@ -9,15 +9,27 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Search, CheckCircle2, XCircle, Clock, AlertCircle, Users, Calendar, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import type { Tables } from "@/integrations/supabase/types";
+import type { QueryData } from "@supabase/supabase-js";
+
+const attendanceQuery = (classId: string, from: string, to: string) =>
+  supabase
+    .from("attendance")
+    .select("*, students:student_id(id, full_name, admission_number)")
+    .eq("class_id", classId)
+    .gte("date", from)
+    .lte("date", to)
+    .order("date", { ascending: false });
+type AttendanceRecord = QueryData<ReturnType<typeof attendanceQuery>>[number];
 
 export default function AdminAttendanceViewer() {
   const { toast } = useToast();
-  const [classes, setClasses] = useState<any[]>([]);
+  const [classes, setClasses] = useState<Pick<Tables<"classes">, "id" | "name">[]>([]);
   const [selectedClass, setSelectedClass] = useState("");
   const [dateFrom, setDateFrom] = useState(new Date().toISOString().split("T")[0]);
   const [dateTo, setDateTo] = useState(new Date().toISOString().split("T")[0]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [records, setRecords] = useState<any[]>([]);
+  const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState({ total: 0, present: 0, absent: 0, late: 0, excused: 0 });
 
@@ -33,13 +45,7 @@ export default function AdminAttendanceViewer() {
       return;
     }
     setLoading(true);
-    const { data, error } = await supabase
-      .from("attendance")
-      .select("*, students:student_id(id, full_name, admission_number)")
-      .eq("class_id", selectedClass)
-      .gte("date", dateFrom)
-      .lte("date", dateTo)
-      .order("date", { ascending: false });
+    const { data, error } = await attendanceQuery(selectedClass, dateFrom, dateTo);
 
     if (error) {
       toast({ title: "Error fetching attendance", description: error.message, variant: "destructive" });

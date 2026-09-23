@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -92,16 +92,16 @@ export default function CommunicationModule() {
   const [notifTargetType, setNotifTargetType] = useState("all_students");
   const [notifTargetForm, setNotifTargetForm] = useState("all");
 
-  useEffect(() => { fetchAll(); }, []);
-
-  const fetchAll = () => {
+  const fetchAll = useCallback(() => {
     fetchTemplates();
     fetchLogs();
     fetchNotifications();
     fetchStudents();
     fetchStaff();
     fetchParentLinks();
-  };
+  }, []);
+
+  useEffect(() => { fetchAll(); }, [fetchAll]);
 
   const fetchTemplates = async () => {
     const { data } = await supabase.from("sms_templates").select("*").order("category");

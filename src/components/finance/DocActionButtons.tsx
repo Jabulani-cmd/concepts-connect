@@ -33,9 +33,7 @@ export default function DocActionButtons({ actions, size = "icon", labels = fals
 
   const openEmail = async () => {
     const resolved = await resolve(actions);
-    // Pull the HTML from the action helpers via a hidden getter.
-    const html = (resolved as any).html ? (resolved as any).html() : "";
-    setEmailHtml(html);
+    setEmailHtml(resolved.html());
     setEmailOpen(true);
   };
 

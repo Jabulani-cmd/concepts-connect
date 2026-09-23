@@ -75,7 +75,7 @@ export default function PortalAccessGate({
   );
 }
 
-function PlanPreview({ name, price, period, recommended }: any) {
+function PlanPreview({ name, price, period, recommended = false }: { name: string; price: string; period: string; recommended?: boolean }) {
   return (
     <div className={`rounded-lg border p-3 ${recommended ? "border-teal-500 bg-teal-50/40 dark:bg-teal-950/20" : ""}`}>
       <div className="flex items-center gap-1 text-xs">

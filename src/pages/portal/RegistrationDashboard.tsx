@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import schoolLogo from "@/assets/mavingtech-logo.png";
 import { errorMessage } from "@/lib/errors";
+import type { TablesInsert } from "@/integrations/supabase/types";
 
 const formOptions = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 const streamOptions = ["A", "B", "C", "D", "Arts", "Sciences", "Commercials"];
@@ -100,7 +101,7 @@ export default function RegistrationDashboard() {
       .from("students")
       .select("*")
       .order("created_at", { ascending: false });
-    if (!error && data) setStudents(data as any);
+    if (!error && data) setStudents(data);
     setLoading(false);
   };
 
@@ -116,7 +117,7 @@ export default function RegistrationDashboard() {
     }
     setSaving(true);
     try {
-      const payload: any = {
+      const payload: TablesInsert<"students"> = {
         full_name: form.full_name.trim(),
         form: form.form,
         status: "active",

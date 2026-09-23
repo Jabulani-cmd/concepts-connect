@@ -14,18 +14,19 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Plus, Trash2, Search, CheckCircle, AlertTriangle, Loader2, Printer } from "lucide-react";
-import { formatMoney } from "@/lib/currency";
+import { formatMoney, formatUSD } from "@/lib/currency";
 import { buildBrandedHtml } from "@/lib/print/printSection";
 import { openPrintWindow } from "@/lib/finance/print";
+import type { Tables } from "@/integrations/supabase/types";
 
-const fmt = (n: any): string => { const v=Number(n); return "US$ " + new Intl.NumberFormat("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number.isFinite(v)?v:0); };
+const fmt = formatUSD;
 
 export default function BankReconciliation() {
   const { toast } = useToast();
   const { user } = useAuth();
   const { rate, usdToZig } = useExchangeRate();
   const convertUsdToZig = useCallback(
-    (usdValue: any) => {
+    (usdValue: unknown) => {
       const usd = Number(usdValue);
       return Number.isFinite(usd) ? Number(usdToZig(usd).toFixed(2)) : 0;
     },
@@ -38,7 +39,7 @@ export default function BankReconciliation() {
     },
     [convertUsdToZig],
   );
-  const [transactions, setTransactions] = useState<any[]>([]);
+  const [transactions, setTransactions] = useState<Tables<"bank_transactions">[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -57,19 +58,19 @@ export default function BankReconciliation() {
     notes: "",
   });
 
-  useEffect(() => { fetchTransactions(); }, [rate]);
-
-  async function fetchTransactions() {
+  const fetchTransactions = useCallback(async () => {
     setLoading(true);
     const { data } = await supabase
       .from("bank_transactions")
       .select("*")
       .order("transaction_date", { ascending: false });
     if (data) {
-      setTransactions(data.map((tx: any) => ({ ...tx, amount_zig: convertUsdToZig(tx.amount_usd) })));
+      setTransactions(data.map((tx) => ({ ...tx, amount_zig: convertUsdToZig(tx.amount_usd) })));
     }
     setLoading(false);
-  }
+  }, [convertUsdToZig]);
+
+  useEffect(() => { fetchTransactions(); }, [fetchTransactions, rate]);
 
   async function saveTransaction() {
     setSaving(true);
@@ -96,14 +97,14 @@ export default function BankReconciliation() {
     setSaving(false);
   }
 
-  async function toggleReconciled(tx: any) {
+  async function toggleReconciled(tx: Tables<"bank_transactions">) {
     const newStatus = tx.reconciliation_status === "reconciled" ? "unreconciled" : "reconciled";
     await supabase.from("bank_transactions").update({ reconciliation_status: newStatus }).eq("id", tx.id);
     toast({ title: newStatus === "reconciled" ? "Marked as reconciled" : "Marked as unreconciled" });
     fetchTransactions();
   }
 
-  async function markDisputed(tx: any) {
+  async function markDisputed(tx: Tables<"bank_transactions">) {
     await supabase.from("bank_transactions").update({ reconciliation_status: "disputed" }).eq("id", tx.id);
     toast({ title: "Marked as disputed" });
     fetchTransactions();

@@ -7,12 +7,13 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useAllocation } from "@/contexts/AllocationContext";
+import { useAllocation, type Teacher } from "@/contexts/AllocationContext";
 import { useDemoPeople } from "@/contexts/DemoPeopleContext";
 import { generateDemoSeed, DEMO_PERIODS } from "@/lib/demoSeeder";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { errorMessage } from "@/lib/errors";
+import type { TablesInsert } from "@/integrations/supabase/types";
 
 const STEPS = [
   "Generating venues and classrooms",
@@ -148,7 +149,7 @@ export default function DemoDataSeederPanel() {
       "Physical Education": "Sports", Art: "Arts", Music: "Arts",
       Accounts: "Commercials", Commerce: "Commercials", Business: "Commercials",
     };
-    const deptFor = (t: any) => {
+    const deptFor = (t: Teacher) => {
       const subName = seed.subjects.find(s => s.id === t.qualifiedSubjects?.[0])?.name ?? "";
       return DEPT[subName] ?? "Teaching";
     };
@@ -240,7 +241,7 @@ export default function DemoDataSeederPanel() {
       if (defErr || !def) { console.error("tt_definitions insert failed", c.name, defErr); continue; }
 
       const classSlots = seed.slots.filter(s => s.classId === c.id && s.subjectId);
-      const slotRows: any[] = [];
+      const slotRows: TablesInsert<"tt_slots">[] = [];
       for (let day = 1; day <= 5; day++) {
         for (const b of breakRows) {
           slotRows.push({
@@ -326,7 +327,7 @@ export default function DemoDataSeederPanel() {
     if (!confirm("Remove all seeded demo data and reset to a clean state? Real data is untouched.")) return;
     alloc.resetToSeed();
     people.clear();
-    try { window.localStorage.removeItem("mt_demo_allocation_v1"); } catch {}
+    try { window.localStorage.removeItem("mt_demo_allocation_v1"); } catch { /* storage unavailable */ }
     setSummary(null);
     // Remove demo data from DB
     try {

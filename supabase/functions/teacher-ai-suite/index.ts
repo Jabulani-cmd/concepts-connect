@@ -20,7 +20,7 @@ function jsonResponse(body: unknown, status = 200) {
   });
 }
 
-function buildPrompt(kind: string, p: Record<string, any>): { system: string; user: string } {
+function buildPrompt(kind: string, p: Record<string, unknown>): { system: string; user: string } {
   const zimsec =
     "You support secondary school teachers in Zimbabwe. Everything must align with the ZIMSEC curriculum, use Zimbabwean context and examples, and use Forms 1-6 / Grade terminology as given. Reply with valid JSON only — no markdown fences, no commentary.";
 

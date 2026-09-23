@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -54,23 +54,7 @@ export default function StudentAssessmentsTab({ studentId, studentClassId, userI
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout>>();
 
-  useEffect(() => {
-    if (studentClassId && studentId) fetchAll();
-    else setLoading(false);
-  }, [studentClassId, studentId]);
-
-  useEffect(() => {
-    // Realtime results — unique topic per mount to avoid re-subscribing a cached channel
-    if (!studentId) return;
-    const topic = `student-assess-${studentId}-${Math.random().toString(36).slice(2, 10)}`;
-    const ch = supabase.channel(topic)
-      .on("postgres_changes", { event: "*", schema: "public", table: "assessment_results", filter: `student_id=eq.${studentId}` }, () => fetchAll())
-      .on("postgres_changes", { event: "*", schema: "public", table: "assessments" }, () => fetchAll())
-      .subscribe();
-    return () => { supabase.removeChannel(ch); };
-  }, [studentId]);
-
-  const fetchAll = async () => {
+  const fetchAll = useCallback(async () => {
     setLoading(true);
     const [{ data: assess }, { data: subs }, { data: res }] = await Promise.all([
       assessmentsQuery(studentClassId!),
@@ -81,7 +65,7 @@ export default function StudentAssessmentsTab({ studentId, studentClassId, userI
     setSubmissions(subs || []);
     setResults(res || []);
     setLoading(false);
-  };
+  }, [studentClassId, studentId]);
 
   const getSubmission = (id: string) => submissions.find(s => s.assessment_id === id);
   const getResult = (id: string) => results.find(r => r.assessment_id === id);
@@ -102,14 +86,7 @@ export default function StudentAssessmentsTab({ studentId, studentClassId, userI
     }
   };
 
-  useEffect(() => {
-    if (!showQuiz || secondsLeft === null) return;
-    if (secondsLeft <= 0) { submitQuiz(true); return; }
-    timerRef.current = setTimeout(() => setSecondsLeft(s => (s ?? 0) - 1), 1000);
-    return () => clearTimeout(timerRef.current);
-  }, [showQuiz, secondsLeft]);
-
-  const submitQuiz = async (auto = false) => {
+  const submitQuiz = useCallback(async (auto = false) => {
     if (!selectedAssessment || !studentId) return;
     setSubmitting(true);
 
@@ -169,7 +146,30 @@ export default function StudentAssessmentsTab({ studentId, studentClassId, userI
       description: `${obtained}/${totalMarks} (${percentage.toFixed(0)}%) — ${grade} · ${passed ? "Pass" : "Below pass mark"}`,
     });
     fetchAll();
-  };
+  }, [answers, fetchAll, selectedAssessment, studentId, toast, userId]);
+
+  useEffect(() => {
+    if (studentClassId && studentId) fetchAll();
+    else setLoading(false);
+  }, [fetchAll, studentClassId, studentId]);
+
+  useEffect(() => {
+    // Realtime results — unique topic per mount to avoid re-subscribing a cached channel
+    if (!studentId) return;
+    const topic = `student-assess-${studentId}-${Math.random().toString(36).slice(2, 10)}`;
+    const ch = supabase.channel(topic)
+      .on("postgres_changes", { event: "*", schema: "public", table: "assessment_results", filter: `student_id=eq.${studentId}` }, () => fetchAll())
+      .on("postgres_changes", { event: "*", schema: "public", table: "assessments" }, () => fetchAll())
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [fetchAll, studentId]);
+
+  useEffect(() => {
+    if (!showQuiz || secondsLeft === null) return;
+    if (secondsLeft <= 0) { submitQuiz(true); return; }
+    timerRef.current = setTimeout(() => setSecondsLeft(s => (s ?? 0) - 1), 1000);
+    return () => clearTimeout(timerRef.current);
+  }, [showQuiz, secondsLeft, submitQuiz]);
 
   const handleFileSubmit = async () => {
     if (!selectedAssessment || !studentId) return;

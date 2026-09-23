@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -6,6 +6,7 @@ import { Calendar, Radio } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { colorForSubject, dayName } from "@/lib/timetableUtils";
+import type { Tables } from "@/integrations/supabase/types";
 
 interface Props {
   title?: string;
@@ -22,13 +23,13 @@ export default function PublishedTimetableWidget({
   filterValue,
   compact = false,
 }: Props) {
-  const [defs, setDefs] = useState<any[]>([]);
-  const [slots, setSlots] = useState<any[]>([]);
+  const [defs, setDefs] = useState<Tables<"tt_definitions">[]>([]);
+  const [slots, setSlots] = useState<Tables<"tt_slots">[]>([]);
   const [selectedDefId, setSelectedDefId] = useState<string>("");
   const [filter, setFilter] = useState<string>(filterValue ?? "");
   const [live, setLive] = useState(false);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     const { data: d } = await supabase
       .from("tt_definitions")
       .select("*")
@@ -37,22 +38,22 @@ export default function PublishedTimetableWidget({
       .order("updated_at", { ascending: false });
     const activeDefs = d ?? [];
     setDefs(activeDefs);
-    if (activeDefs.length && !selectedDefId) {
-      // Auto-pick by class_label match when caller specified one
+    if (activeDefs.length) {
+      // Auto-pick (by class_label when the caller specified one) unless a timetable is already selected.
       let pick = activeDefs[0].id;
       if (mode === "class" && filterValue) {
-        const match = activeDefs.find((x: any) => (x.class_label || "").toLowerCase() === filterValue.toLowerCase());
+        const match = activeDefs.find((x) => (x.class_label || "").toLowerCase() === filterValue.toLowerCase());
         if (match) pick = match.id;
       }
-      setSelectedDefId(pick);
+      setSelectedDefId((current) => current || pick);
     }
     const { data: s } = await supabase.from("tt_slots").select("*");
     setSlots(s ?? []);
-  };
+  }, [filterValue, mode]);
 
   useEffect(() => {
     load();
-  }, []);
+  }, [load]);
 
   useEffect(() => {
     const ch = supabase
@@ -69,7 +70,7 @@ export default function PublishedTimetableWidget({
     return () => {
       supabase.removeChannel(ch);
     };
-  }, []);
+  }, [load]);
 
   const activeDef = defs.find((x) => x.id === selectedDefId);
   const defSlots = useMemo(() => slots.filter((s) => s.definition_id === selectedDefId), [slots, selectedDefId]);

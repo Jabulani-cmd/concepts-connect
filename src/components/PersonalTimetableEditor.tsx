@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,12 +65,8 @@ export default function PersonalTimetableEditor({ title = "My Timetable" }: { ti
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    if (user) fetchEntries();
-  }, [user]);
-
   // Entries are stored as a JSON list in a single personal_timetables row per user.
-  const fetchEntries = async () => {
+  const fetchEntries = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("personal_timetables")
@@ -82,7 +78,11 @@ export default function PersonalTimetableEditor({ title = "My Timetable" }: { ti
     const stored = (data?.data as { entries?: TimetableEntry[] } | null)?.entries;
     setEntries(Array.isArray(stored) ? stored : []);
     setLoading(false);
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) fetchEntries();
+  }, [fetchEntries, user]);
 
   const persistEntries = async (next: TimetableEntry[]) => {
     const data = { entries: next } as unknown as Json;

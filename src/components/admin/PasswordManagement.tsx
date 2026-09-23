@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,11 +47,7 @@ export default function PasswordManagement() {
   const [resetting, setResetting] = useState(false);
   const [forceChange, setForceChange] = useState(true);
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -75,7 +71,11 @@ export default function PasswordManagement() {
       toast({ title: "Failed to load users", description: errorMessage(err), variant: "destructive" });
     }
     setLoading(false);
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const filtered = users.filter(u => {
     const matchSearch = u.full_name?.toLowerCase().includes(search.toLowerCase()) ||

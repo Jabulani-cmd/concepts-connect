@@ -425,7 +425,9 @@ export function AllocationProvider({ children }: { children: ReactNode }) {
       window.localStorage.setItem(LS_KEY, JSON.stringify({
         teachers, subjects, rooms, classes, allocations, slots, notifications, publishedAt,
       }));
-    } catch {}
+    } catch {
+      // Storage unavailable (private browsing); state still works for this session.
+    }
   }, [teachers, subjects, rooms, classes, allocations, slots, notifications, publishedAt]);
 
   const pushNotification = useCallback((n: Omit<TimetableNotification, "id" | "at">) => {

@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { Session, User } from "@supabase/supabase-js";
+import { Session, User, type AuthError, type AuthResponse } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
 type AppRole = "student" | "parent" | "teacher" | "admin" | "finance" | "finance_clerk" | "bursar" | "principal" | "deputy_principal" | "hod" | "admin_supervisor" | "registration" | null;
@@ -9,8 +9,8 @@ interface AuthContextType {
   user: User | null;
   role: AppRole;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: any; data: any }>;
+  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
+  signUp: (email: string, password: string, fullName: string) => Promise<{ error: AuthError | null; data: AuthResponse["data"] }>;
   signOut: () => Promise<void>;
 }
 

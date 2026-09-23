@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -40,25 +40,25 @@ export default function EMISReports() {
   // Enrollment data
   const [enrollmentData, setEnrollmentData] = useState<EnrollmentRow[]>([]);
   const [totalStudents, setTotalStudents] = useState(0);
-  const [genderChart, setGenderChart] = useState<any[]>([]);
+  const [genderChart, setGenderChart] = useState<{ name: string; value: number }[]>([]);
 
   // Staff data
   const [staffData, setStaffData] = useState<StaffRow[]>([]);
   const [staffSummary, setStaffSummary] = useState({ total: 0, teaching: 0, nonTeaching: 0, leadership: 0 });
 
   // Infrastructure data
-  const [infraData, setInfraData] = useState<any>({ classrooms: 0, labs: 0, ictEquip: 0, totalCapacity: 0 });
-  const [inventorySummary, setInventorySummary] = useState<any[]>([]);
+  const [infraData, setInfraData] = useState({ classrooms: 0, totalCapacity: 0, totalItems: 0, totalQuantity: 0 });
+  const [inventorySummary, setInventorySummary] = useState<{ name: string; quantity: number }[]>([]);
 
-  useEffect(() => {
-    fetchAllData();
-  }, [academicYear]);
-
-  const fetchAllData = async () => {
+  const fetchAllData = useCallback(async () => {
     setLoading(true);
     await Promise.all([fetchEnrollment(), fetchStaff(), fetchInfrastructure()]);
     setLoading(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchAllData();
+  }, [academicYear, fetchAllData]);
 
   const fetchEnrollment = async () => {
     const { data: students } = await supabase
@@ -207,7 +207,7 @@ export default function EMISReports() {
         headStyles: { fillColor: [128, 0, 0] },
       });
 
-      const finalY = (doc as any).lastAutoTable?.finalY || 100;
+      const finalY = (doc as jsPDF & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY || 100;
       doc.setFontSize(10);
       doc.text(`Teacher-Student Ratio: 1:${staffSummary.teaching > 0 ? Math.round(totalStudents / staffSummary.teaching) : "N/A"}`, 14, finalY + 10);
     } else if (reportType === "Infrastructure") {

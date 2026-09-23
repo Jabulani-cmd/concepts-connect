@@ -67,6 +67,19 @@ function scoreSignals(sig: Signals) {
   return { points, level };
 }
 
+type RiskFlag = {
+  student_id: string;
+  student_name: string;
+  class_name: string;
+  risk_score: "high" | "medium" | "low";
+  points: number;
+  reason: string;
+  signals_used: Signals;
+  suggested_actions: string[];
+  status: "new" | "reviewed" | "actioned";
+  review_note?: string;
+};
+
 const COLOURS: Record<string, string> = {
   high: "bg-destructive text-destructive-foreground",
   medium: "bg-amber-500 text-white",
@@ -79,7 +92,7 @@ interface Props {
 
 export default function AtRiskStudents({ students = [] }: Props) {
   const { toast } = useToast();
-  const flags = useDemoRows<any>("student_risk_flags");
+  const flags = useDemoRows<RiskFlag>("student_risk_flags");
   const [running, setRunning] = useState(false);
   const [notes, setNotes] = useState<Record<string, string>>({});
 
@@ -114,11 +127,11 @@ export default function AtRiskStudents({ students = [] }: Props) {
           reason = `Attendance moved from ${c.sig.attendance_term_average}% to ${c.sig.attendance_last_4_weeks}% over the last 4 weeks, with ${c.sig.assignment_submission_rate}% of assignments submitted.`;
           actions = ["Arrange a short check-in with the learner"];
         }
-        addRow("student_risk_flags", {
+        addRow<RiskFlag>("student_risk_flags", {
           student_id: c.s.id,
           student_name: name,
           class_name: c.s.class || c.s.form || "",
-          risk_score: c.score.level,
+          risk_score: c.score.level as RiskFlag["risk_score"],
           points: c.score.points,
           reason,
           signals_used: c.sig,
@@ -180,7 +193,7 @@ export default function AtRiskStudents({ students = [] }: Props) {
             {f.suggested_actions?.length > 0 && (
               <div>
                 <p className="text-xs font-medium text-muted-foreground">Suggested next steps</p>
-                <ul className="ml-5 list-disc">{f.suggested_actions.map((a: string, i: number) => <li key={i}>{a}</li>)}</ul>
+                <ul className="ml-5 list-disc">{f.suggested_actions.map((a, i) => <li key={i}>{a}</li>)}</ul>
               </div>
             )}
             <div className="grid gap-2 text-xs text-muted-foreground sm:grid-cols-3">

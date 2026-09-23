@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,14 +43,14 @@ export default function ParentCommunicationLog({ userId, students }: Props) {
     subject: "", notes: "", follow_up_date: "",
   });
   const [loading, setLoading] = useState(false);
-  const [filter, setFilter] = useState("all"); // all, pending, completed
+  const [filter, setFilter] = useState("all");
 
-  useEffect(() => { fetchLogs(); }, []);
-
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     const { data } = await logsQuery(userId);
     if (data) setLogs(data);
-  };
+  }, [userId]);
+
+  useEffect(() => { fetchLogs(); }, [fetchLogs]);
 
   const handleSubmit = async () => {
     if (!form.subject) { toast({ title: "Subject is required", variant: "destructive" }); return; }

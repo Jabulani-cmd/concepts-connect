@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -23,15 +23,7 @@ export default function StudentAttendanceTab({ studentId }: Props) {
   const [loading, setLoading] = useState(true);
   const [monthFilter, setMonthFilter] = useState("all");
 
-  useEffect(() => {
-    if (studentId) {
-      fetchAttendance();
-    } else {
-      setLoading(false);
-    }
-  }, [studentId]);
-
-  const fetchAttendance = async () => {
+  const fetchAttendance = useCallback(async () => {
     setLoading(true);
     const { data } = await supabase
       .from("attendance")
@@ -40,7 +32,15 @@ export default function StudentAttendanceTab({ studentId }: Props) {
       .order("date", { ascending: false });
     setAttendance(data || []);
     setLoading(false);
-  };
+  }, [studentId]);
+
+  useEffect(() => {
+    if (studentId) {
+      fetchAttendance();
+    } else {
+      setLoading(false);
+    }
+  }, [fetchAttendance, studentId]);
 
   const totalDays = attendance.length;
   const presentDays = attendance.filter((a) => a.status === "present" || a.status === "late").length;

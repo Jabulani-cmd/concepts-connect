@@ -2,19 +2,19 @@ import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { SlotRow, PeriodTimes, buildPeriodSchedule, colorForSubject, dayName } from "@/lib/timetableUtils";
+import { SlotRow, PeriodTimes, buildPeriodSchedule, colorForSubject, dayName, type BreakSpec } from "@/lib/timetableUtils";
 
 interface DefMeta {
   id: string; name: string; class_label: string | null;
   day_start_time: string; period_minutes: number; periods_per_day: number;
-  school_days: number[]; breaks: any;
+  school_days: number[]; breaks: BreakSpec[] | null;
 }
 
 interface Props {
   defs: DefMeta[];
   allSlots: SlotRow[];           // slots across all definitions
   mode: "master" | "class" | "teacher" | "room" | "student";
-  setMode: (m: any) => void;
+  setMode: (m: Props["mode"]) => void;
   filter: string;
   setFilter: (s: string) => void;
 }

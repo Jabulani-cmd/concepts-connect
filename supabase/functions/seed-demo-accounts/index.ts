@@ -80,8 +80,8 @@ Deno.serve(async (req) => {
           { id: uid, user_id: uid, full_name: a.full_name, email: a.email },
           { onConflict: "id" }
         );
-      } catch (e: any) {
-        results.push({ email: a.email, status: "error", error: e?.message || String(e) });
+      } catch (e) {
+        results.push({ email: a.email, status: "error", error: e instanceof Error ? e.message : String(e) });
       }
     }
 
@@ -92,8 +92,8 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ ok: true, created, updated, errors, results }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (e: any) {
-    return new Response(JSON.stringify({ error: e?.message || String(e) }), {
+  } catch (e) {
+    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : String(e) }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }

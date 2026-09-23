@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -36,12 +36,7 @@ export default function StudentMaterialsTab({ studentClassId }: Props) {
   const [search, setSearch] = useState("");
   const [subjectFilter, setSubjectFilter] = useState("all");
 
-  useEffect(() => {
-    fetchMaterials();
-    fetchSubjects();
-  }, [studentClassId]);
-
-  const fetchMaterials = async () => {
+  const fetchMaterials = useCallback(async () => {
     setLoading(true);
     let query = materialsQuery();
 
@@ -52,7 +47,12 @@ export default function StudentMaterialsTab({ studentClassId }: Props) {
     const { data } = await query;
     setMaterials(data || []);
     setLoading(false);
-  };
+  }, [studentClassId]);
+
+  useEffect(() => {
+    fetchMaterials();
+    fetchSubjects();
+  }, [fetchMaterials, studentClassId]);
 
   const fetchSubjects = async () => {
     const { data } = await supabase.from("subjects").select("id, name").order("name");

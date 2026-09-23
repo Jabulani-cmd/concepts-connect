@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -26,13 +26,9 @@ export default function StudentProgressTracker({ userId, classes, subjects }: Pr
 
   useEffect(() => {
     if (classes.length > 0 && !selectedClass) setSelectedClass(classes[0].id);
-  }, [classes]);
+  }, [classes, selectedClass]);
 
-  useEffect(() => {
-    if (selectedClass) loadData();
-  }, [selectedClass, selectedSubject]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     const { data: sc } = await supabase.from("student_classes").select("student_id").eq("class_id", selectedClass);
     const studentIds = sc?.map(s => s.student_id) || [];
@@ -67,7 +63,11 @@ export default function StudentProgressTracker({ userId, classes, subjects }: Pr
       setMarks([]);
     }
     setLoading(false);
-  };
+  }, [selectedClass, selectedSubject]);
+
+  useEffect(() => {
+    if (selectedClass) loadData();
+  }, [loadData, selectedClass, selectedSubject]);
 
   // Build per-student summary
   const studentSummaries = students.map(s => {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,12 +49,12 @@ export default function LessonPlansTab({ userId, classes, subjects }: Props) {
   const [aiDuration, setAiDuration] = useState("40");
   const [aiGenerating, setAiGenerating] = useState(false);
 
-  useEffect(() => { fetchPlans(); }, []);
-
-  const fetchPlans = async () => {
+  const fetchPlans = useCallback(async () => {
     const { data } = await plansQuery(userId);
     if (data) setPlans(data);
-  };
+  }, [userId]);
+
+  useEffect(() => { fetchPlans(); }, [fetchPlans]);
 
   const handleSubmit = async () => {
     if (!form.title || !form.date) {

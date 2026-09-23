@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -87,8 +87,6 @@ export default function StudentManagement() {
   const [selectedRoom, setSelectedRoom] = useState("");
   const [bedNumber, setBedNumber] = useState("");
 
-  useEffect(() => { fetchStudents(); fetchSubjects(); fetchBoardingData(); }, []);
-
   const fetchSubjects = async () => {
     const { data } = await supabase.from("subjects").select("id, name, department").order("name");
     if (data) setDbSubjects(data);
@@ -109,7 +107,7 @@ export default function StudentManagement() {
   const hostelOccupancy = (hostelId: string) =>
     rooms.filter(r => r.hostel_id === hostelId).reduce((sum, r) => sum + roomOccupancy(r.id), 0);
 
-  const fetchStudents = async () => {
+  const fetchStudents = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("students")
@@ -118,7 +116,9 @@ export default function StudentManagement() {
     if (data) setStudents(data);
     if (error) toast({ title: "Error loading students", description: error.message, variant: "destructive" });
     setLoading(false);
-  };
+  }, [toast]);
+
+  useEffect(() => { fetchStudents(); fetchSubjects(); fetchBoardingData(); }, [fetchStudents]);
 
   const filtered = students.filter(s => {
     const matchSearch = s.full_name.toLowerCase().includes(search.toLowerCase()) ||
@@ -216,7 +216,7 @@ export default function StudentManagement() {
 
     // Helper to allocate boarding
     const allocateBoarding = async (studentId: string) => {
-      if ((formData as any).boarding_status === "boarder" && selectedRoom) {
+      if (formData.boarding_status === "boarder" && selectedRoom) {
         // Remove existing active allocation for this student
         await supabase.from("bed_allocations").update({ status: "vacated", allocation_end_date: new Date().toISOString().split("T")[0] }).eq("student_id", studentId).eq("status", "active");
         // Create new allocation
@@ -229,7 +229,7 @@ export default function StudentManagement() {
         if (allocErr) {
           toast({ title: "Warning", description: "Student saved but hostel allocation failed: " + allocErr.message, variant: "destructive" });
         }
-      } else if ((formData as any).boarding_status === "day") {
+      } else if (formData.boarding_status === "day") {
         // If changed to day, vacate any active allocation
         await supabase.from("bed_allocations").update({ status: "vacated", allocation_end_date: new Date().toISOString().split("T")[0] }).eq("student_id", studentId).eq("status", "active");
       }
@@ -249,12 +249,10 @@ export default function StudentManagement() {
       const { admission_number, ...rest } = payload;
       const insertPayload = { ...rest, admission_number: nextAdmissionNumber };
       
-      console.log("Attempting student insert with admission:", nextAdmissionNumber);
-      console.log("Full payload keys:", Object.keys(insertPayload));
       
       const { data: newStudent, error } = await supabase
         .from("students")
-        .insert(insertPayload as any)
+        .insert(insertPayload)
         .select("id, admission_number")
         .single();
       
@@ -292,7 +290,6 @@ export default function StudentManagement() {
           }
         );
         const provData = await res.json();
-        console.log("provision-student response:", res.status, provData);
         if (res.ok) {
           provisioned = true;
           setProvisionResult({
@@ -393,7 +390,7 @@ export default function StudentManagement() {
     URL.revokeObjectURL(url);
   };
 
-  const updateField = (key: string, value: any) => {
+  const updateField = <K extends keyof StudentFormData>(key: K, value: StudentFormData[K]) => {
     setFormData(prev => ({ ...prev, [key]: value }));
     if (errors[key]) setErrors(prev => { const n = { ...prev }; delete n[key]; return n; });
   };
@@ -732,7 +729,7 @@ export default function StudentManagement() {
 
             <div className="space-y-1">
               <Label>Boarding Status *</Label>
-              <Select value={(formData as any).boarding_status || "day"} onValueChange={v => { updateField("boarding_status", v); if (v === "day") { setSelectedHostel(""); setSelectedDormitoryType("all"); setSelectedRoom(""); setBedNumber(""); } }}>
+              <Select value={formData.boarding_status || "day"} onValueChange={v => { updateField("boarding_status", v); if (v === "day") { setSelectedHostel(""); setSelectedDormitoryType("all"); setSelectedRoom(""); setBedNumber(""); } }}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="day">Day Scholar</SelectItem>
@@ -741,7 +738,7 @@ export default function StudentManagement() {
               </Select>
             </div>
 
-            {(formData as any).boarding_status === "boarder" && (
+            {formData.boarding_status === "boarder" && (
               <div className="col-span-full rounded-lg border border-dashed border-primary/30 bg-primary/5 p-4 space-y-3">
                 <p className="text-sm font-semibold text-primary flex items-center gap-2">
                   <Users className="h-4 w-4" /> Hostel Allocation

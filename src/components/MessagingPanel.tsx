@@ -36,7 +36,7 @@ interface Conversation {
   last_message?: string;
   last_message_at?: string;
   unread_count?: number;
-  participants?: { user_id: string; profiles?: { full_name: string; avatar_url: string | null } }[];
+  participants?: { conversation_id: string | null; user_id: string }[];
 }
 
 interface Message {
@@ -225,7 +225,7 @@ export default function MessagingPanel() {
         last_message: lastMsg?.content || "",
         last_message_at: lastMsg?.created_at || conv.created_at,
         unread_count: unread,
-        participants: convParticipants as any,
+        participants: convParticipants,
       });
     }
 

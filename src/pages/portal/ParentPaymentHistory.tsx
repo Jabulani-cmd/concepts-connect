@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
 import { downloadSubscriptionReceipt } from "@/lib/receiptPdf";
 import { formatMoney } from "@/lib/currency";
+import type { Tables } from "@/integrations/supabase/types";
 
 const STATUS_STYLES: Record<string, { label: string; cls: string; icon: LucideIcon }> = {
   paid: { label: "Paid", cls: "bg-emerald-100 text-emerald-700", icon: CheckCircle2 },
@@ -21,11 +22,15 @@ const STATUS_STYLES: Record<string, { label: string; cls: string; icon: LucideIc
   refunded: { label: "Refunded", cls: "bg-slate-100 text-slate-700", icon: AlertCircle },
 };
 
+type SubscriptionPayment = Tables<"payments"> & {
+  subscriptions?: (Partial<Tables<"subscriptions">> & { subscription_plans?: { name: string } | null }) | null;
+};
+
 export default function ParentPaymentHistory() {
   const nav = useNavigate();
   const { user } = useAuth();
   const sub = useSubscription();
-  const [rows, setRows] = useState<any[]>([]);
+  const [rows, setRows] = useState<SubscriptionPayment[]>([]);
 
   useEffect(() => {
     if (!user) return;

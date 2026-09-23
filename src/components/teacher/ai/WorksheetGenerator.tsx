@@ -12,6 +12,7 @@ import { addRow, removeRow, useDemoRows } from "@/lib/teacherAiStore";
 import { buildBrandedHtml } from "@/lib/print/printSection";
 import { openPrintWindow, openViewWindow } from "@/lib/finance/print";
 import { errorMessage } from "@/lib/errors";
+import { safeHtml } from "@/lib/utils";
 
 interface Question {
   number: number;
@@ -32,19 +33,17 @@ const FORMATS = [
   { value: "essay", label: "Essay" },
 ];
 
-function esc(s: string) {
-  return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;");
-}
+type SavedSheet = { subject: string; level: string; topic: string; format: string; difficulty: string; content: Sheet };
 
-function sheetHtml(row: any, withAnswers: boolean) {
-  const sheet: Sheet = row.content;
+function sheetHtml(row: SavedSheet, withAnswers: boolean) {
+  const sheet = row.content;
   const qs = (sheet.questions || [])
     .map((q) => {
       const opts = q.options?.length
-        ? `<ul>${q.options.map((o) => `<li>${esc(o)}</li>`).join("")}</ul>`
+        ? `<ul>${q.options.map((o) => `<li>${safeHtml(o)}</li>`).join("")}</ul>`
         : "";
-      const ans = withAnswers ? `<p><strong>Answer:</strong> ${esc(q.answer)}</p>` : "";
-      return `<div style="margin-bottom:14px"><p><strong>${q.number}.</strong> ${esc(q.question)} ${
+      const ans = withAnswers ? `<p><strong>Answer:</strong> ${safeHtml(q.answer)}</p>` : "";
+      return `<div style="margin-bottom:14px"><p><strong>${q.number}.</strong> ${safeHtml(q.question)} ${
         q.marks ? `<em>[${q.marks}]</em>` : ""
       }</p>${opts}${ans}</div>`;
     })
@@ -52,13 +51,13 @@ function sheetHtml(row: any, withAnswers: boolean) {
   return buildBrandedHtml({
     title: sheet.title || row.topic,
     subtitle: `${row.subject} · ${row.level} · ${row.format}${withAnswers ? " · ANSWER KEY" : ""}`,
-    bodyHtml: `<p>${esc(sheet.instructions || "")}</p>${qs}`,
+    bodyHtml: `<p>${safeHtml(sheet.instructions || "")}</p>${qs}`,
   });
 }
 
 export default function WorksheetGenerator() {
   const { toast } = useToast();
-  const saved = useDemoRows<any>("generated_materials");
+  const saved = useDemoRows<SavedSheet>("generated_materials");
   const [subject, setSubject] = useState("Mathematics");
   const [level, setLevel] = useState("Form 3");
   const [topic, setTopic] = useState("");

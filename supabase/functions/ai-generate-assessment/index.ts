@@ -81,7 +81,8 @@ Each question must have exactly 4 options, one correct, and a brief explanation.
     const call = data.choices?.[0]?.message?.tool_calls?.[0];
     if (!call) return json({ error: 'No tool call in response' }, 500);
     const parsed = JSON.parse(call.function.arguments);
-    const questions = (parsed.questions || []).map((q: any, i: number) => ({
+    type AiQuestion = { question: string; options: string[]; correct_index: number; explanation: string };
+    const questions = ((parsed.questions || []) as AiQuestion[]).map((q, i) => ({
       id: `q${i + 1}`,
       question: q.question,
       options: q.options,

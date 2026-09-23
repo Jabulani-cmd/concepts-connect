@@ -13,8 +13,12 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from "xlsx";
 import { errorMessage } from "@/lib/errors";
+import { zimPhoneRegex, zimNationalIdRegex } from "@/lib/validators";
 
 type MigrationTarget = "students" | "staff" | "fee_structures" | "payments" | "classes" | "inventory_items";
+
+/** One spreadsheet row, keyed by column header. */
+type ImportRow = Record<string, unknown>;
 
 interface ValidationResult {
   row: number;
@@ -56,7 +60,7 @@ const TARGET_CONFIGS: Record<MigrationTarget, { label: string; requiredFields: s
   classes: {
     label: "Classes",
     requiredFields: ["name"],
-    description: "Import class records. Required: name. Optional: form_level, stream, room, capacity.",
+    description: "Import class records. Required: name. Optional: level (e.g. Form 1), stream, room, capacity.",
   },
   inventory_items: {
     label: "Inventory Items",
@@ -68,7 +72,7 @@ const TARGET_CONFIGS: Record<MigrationTarget, { label: string; requiredFields: s
 export default function DataMigration() {
   const { toast } = useToast();
   const [target, setTarget] = useState<MigrationTarget>("students");
-  const [rawData, setRawData] = useState<Record<string, any>[]>([]);
+  const [rawData, setRawData] = useState<ImportRow[]>([]);
   const [validationResults, setValidationResults] = useState<ValidationResult[]>([]);
   const [stats, setStats] = useState<MigrationStats | null>(null);
   const [importing, setImporting] = useState(false);
@@ -86,7 +90,7 @@ export default function DataMigration() {
         const workbook = XLSX.read(data, { type: "binary" });
         const sheetName = workbook.SheetNames[0];
         const sheet = workbook.Sheets[sheetName];
-        const json = XLSX.utils.sheet_to_json<Record<string, any>>(sheet);
+        const json = XLSX.utils.sheet_to_json<ImportRow>(sheet);
 
         if (json.length === 0) {
           toast({ title: "Empty file", description: "No data found in the uploaded file.", variant: "destructive" });
@@ -103,7 +107,7 @@ export default function DataMigration() {
     reader.readAsBinaryString(file);
   };
 
-  const validateData = (data: Record<string, any>[]) => {
+  const validateData = (data: ImportRow[]) => {
     const config = TARGET_CONFIGS[target];
     const issues: ValidationResult[] = [];
     let errorCount = 0;
@@ -120,7 +124,7 @@ export default function DataMigration() {
 
       // Target-specific validation
       if (target === "students") {
-        if (row.guardian_phone && !/^(\+263|0)7[0-9]{8}$/.test(String(row.guardian_phone))) {
+        if (row.guardian_phone && !zimPhoneRegex.test(String(row.guardian_phone))) {
           issues.push({ row: idx + 2, field: "guardian_phone", value: String(row.guardian_phone), issue: "Invalid Zimbabwe phone format", severity: "warning" });
           warningCount++;
         }
@@ -131,7 +135,7 @@ export default function DataMigration() {
       }
 
       if (target === "staff" && row.national_id) {
-        if (!/^\d{2}-\d{6,7}[A-Z]-\d{2}$/.test(String(row.national_id))) {
+        if (!zimNationalIdRegex.test(String(row.national_id))) {
           issues.push({ row: idx + 2, field: "national_id", value: String(row.national_id), issue: "Invalid National ID format", severity: "warning" });
           warningCount++;
         }
@@ -157,7 +161,7 @@ export default function DataMigration() {
     try {
       for (let i = 0; i < rawData.length; i += batchSize) {
         const batch = rawData.slice(i, i + batchSize).map((row) => {
-          const cleaned: Record<string, any> = {};
+          const cleaned: ImportRow = {};
           Object.entries(row).forEach(([key, val]) => {
             const k = key.trim().toLowerCase().replace(/\s+/g, "_");
             cleaned[k] = typeof val === "string" ? val.trim() : val;
@@ -165,7 +169,8 @@ export default function DataMigration() {
           return cleaned;
         });
 
-        const { error } = await supabase.from(target).insert(batch as any);
+        // Columns come from the uploaded sheet, so they are only known at runtime; the database validates each row.
+        const { error } = await supabase.from(target).insert(batch as never);
         if (error) {
           toast({ title: `Import error at batch ${Math.floor(i / batchSize) + 1}`, description: error.message, variant: "destructive" });
           break;

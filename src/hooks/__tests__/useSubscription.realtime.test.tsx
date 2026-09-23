@@ -20,12 +20,16 @@ const waitFor = async (fn: () => void | Promise<void>, timeout = 1000) => {
  * and student portals the moment any of those rows change.
  */
 
-const handlers: Record<string, (payload: any) => void> = {};
+type ChangeHandler = (payload: unknown) => void;
+const handlers: Record<string, ChangeHandler> = {};
 let queryCallCount = 0;
 
-const buildQuery = (table: string) => {
-  const result: any = { data: [], error: null };
-  const chain: any = {
+type QueryResult = { data: unknown[]; error: null };
+type QueryChain = Record<string, unknown>;
+
+const buildQuery = (_table: string) => {
+  const result: QueryResult = { data: [], error: null };
+  const chain: QueryChain = {
     select: vi.fn(() => chain),
     eq: vi.fn(() => chain),
     in: vi.fn(() => chain),
@@ -33,13 +37,18 @@ const buildQuery = (table: string) => {
     order: vi.fn(() => chain),
     limit: vi.fn(() => Promise.resolve(result)),
     maybeSingle: vi.fn(() => Promise.resolve({ data: null, error: null })),
-    then: (resolve: any) => Promise.resolve(result).then(resolve),
+    then: (resolve: (r: QueryResult) => unknown) => Promise.resolve(result).then(resolve),
   };
   return chain;
 };
 
-const channelMock: any = {
-  on: vi.fn((_event: string, cfg: any, cb: any) => {
+type ChannelMock = {
+  on: ReturnType<typeof vi.fn>;
+  subscribe: ReturnType<typeof vi.fn>;
+};
+
+const channelMock: ChannelMock = {
+  on: vi.fn((_event: string, cfg: { table: string }, cb: ChangeHandler) => {
     handlers[cfg.table] = cb;
     return channelMock;
   }),
@@ -78,7 +87,7 @@ describe("useSubscription realtime", () => {
     const { result } = renderHook(() => useSubscription());
     await waitFor(() => expect(result.current.loading).toBe(false));
 
-    const subscribedTables = channelMock.on.mock.calls.map((c: any[]) => c[1].table);
+    const subscribedTables = channelMock.on.mock.calls.map((c) => (c[1] as { table: string }).table);
     expect(subscribedTables).toEqual(
       expect.arrayContaining([
         "subscriptions",

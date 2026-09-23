@@ -62,8 +62,8 @@ export function useExchangeRate() {
     setRate(r);
   };
 
-  const usdToZig = (v: number) => Number(v || 0) * rate;
-  const zigToUsd = (v: number) => Number(v || 0) / (rate || 1);
+  const usdToZig = useCallback((v: number) => Number(v || 0) * rate, [rate]);
+  const zigToUsd = useCallback((v: number) => Number(v || 0) / (rate || 1), [rate]);
 
   return { rate, loading, updateRate, usdToZig, zigToUsd, refetch: fetchRate };
 }

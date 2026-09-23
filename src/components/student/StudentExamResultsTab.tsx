@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -6,6 +6,7 @@ import { Trophy, Award, TrendingUp, BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import ReportCardDownloadButton from "./ReportCardPDF";
 import { gradeFor, gradeBadgeClass } from "@/lib/grading";
+import type { ExamRankings } from "@/types/school";
 
 interface Props {
   studentId: string | null;
@@ -54,10 +55,6 @@ export default function StudentExamResultsTab({ studentId, studentName, admissio
     if (studentId) fetchExams();
   }, [studentId]);
 
-  useEffect(() => {
-    if (selectedExamId && studentId) fetchResults();
-  }, [selectedExamId]);
-
   const fetchExams = async () => {
     setLoading(true);
     const { data } = await supabase
@@ -75,7 +72,7 @@ export default function StudentExamResultsTab({ studentId, studentName, admissio
     setLoading(false);
   };
 
-  const fetchResults = async () => {
+  const fetchResults = useCallback(async () => {
     if (!selectedExamId || !studentId) return;
     setResultsLoading(true);
 
@@ -90,7 +87,7 @@ export default function StudentExamResultsTab({ studentId, studentName, admissio
       supabase.rpc("get_exam_rankings", { p_exam_id: selectedExamId, p_student_id: studentId }),
     ]);
 
-    const rankings = (rankingsData as any) || {};
+    const rankings = (rankingsData as ExamRankings | null) ?? {};
     const subjectRankings = rankings.subject_rankings || {};
 
     setOverallRank(
@@ -100,9 +97,9 @@ export default function StudentExamResultsTab({ studentId, studentName, admissio
     );
 
     // Build result rows
-    const rows: ResultRow[] = (myResults || []).map((r: any) => {
+    const rows: ResultRow[] = (myResults || []).map((r) => {
       const subjectId = r.subject_id;
-      const sr = subjectRankings[subjectId] || {};
+      const sr = subjectId ? subjectRankings[subjectId] : undefined;
 
       return {
         id: r.id,
@@ -111,14 +108,18 @@ export default function StudentExamResultsTab({ studentId, studentName, admissio
         teacher_comment: r.teacher_comment,
         subject_name: r.subjects?.name || "Unknown",
         subject_code: r.subjects?.code || null,
-        class_rank: sr.rank || null,
-        class_size: sr.total || null,
+        class_rank: sr?.rank ?? null,
+        class_size: sr?.total ?? null,
       };
     });
 
     setResults(rows);
     setResultsLoading(false);
-  };
+  }, [selectedExamId, studentId]);
+
+  useEffect(() => {
+    if (selectedExamId && studentId) fetchResults();
+  }, [fetchResults, selectedExamId, studentId]);
 
   if (loading) {
     return (

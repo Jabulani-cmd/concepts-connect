@@ -13,6 +13,7 @@ import { addRow, removeRow, useDemoRows } from "@/lib/teacherAiStore";
 import { buildBrandedHtml } from "@/lib/print/printSection";
 import { openPrintWindow } from "@/lib/finance/print";
 import { errorMessage } from "@/lib/errors";
+import { safeHtml } from "@/lib/utils";
 
 interface Plan {
   title: string;
@@ -41,9 +42,11 @@ function planToText(p: Plan): string {
   ].join("\n");
 }
 
+type SavedPlan = { title: string; subject: string; level: string; class_name: string; topic: string; duration: string | number; content: string };
+
 export default function LessonPlanGenerator() {
   const { toast } = useToast();
-  const saved = useDemoRows<any>("lesson_plans");
+  const saved = useDemoRows<SavedPlan>("lesson_plans");
   const [subject, setSubject] = useState("Mathematics");
   const [level, setLevel] = useState("Form 3");
   const [topic, setTopic] = useState("");
@@ -79,14 +82,12 @@ export default function LessonPlanGenerator() {
     setTitle("");
   };
 
-  const print = (row: any) => {
+  const print = (row: SavedPlan) => {
     openPrintWindow(
       buildBrandedHtml({
         title: row.title,
         subtitle: `${row.subject} · ${row.level}${row.class_name ? ` · ${row.class_name}` : ""} · ${row.duration} minutes`,
-        bodyHtml: `<pre style="white-space:pre-wrap;font-family:Arial,sans-serif;font-size:13px">${row.content
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")}</pre>`,
+        bodyHtml: `<pre style="white-space:pre-wrap;font-family:Arial,sans-serif;font-size:13px">${safeHtml(row.content)}</pre>`,
       }),
     );
   };
