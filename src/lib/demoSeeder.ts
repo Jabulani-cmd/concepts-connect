@@ -146,6 +146,18 @@ const PROVINCES: Array<{ province: string; suburbs: string[] }> = [
 ];
 
 function pick<T>(arr: readonly T[], i: number): T { return arr[((i % arr.length) + arr.length) % arr.length]; }
+
+/** Picks a first name from `pool`, starting at `start`, that nobody else with this surname has yet. */
+function uniqueFirst(pool: readonly string[], start: number, surname: string, used: Set<string>): string {
+  for (let k = 0; k < pool.length; k++) {
+    const first = pick(pool, start + k);
+    if (!used.has(`${first} ${surname}`)) {
+      used.add(`${first} ${surname}`);
+      return first;
+    }
+  }
+  return pick(pool, start);
+}
 const clean = (s: string) => s.toLowerCase().replace(/[^a-z]/g, "");
 
 export function generateDemoSeed(): DemoSeed {
@@ -177,11 +189,12 @@ export function generateDemoSeed(): DemoSeed {
   for (const c of classes) for (const cs of c.subjects) demand.set(cs.subjectId, (demand.get(cs.subjectId) ?? 0) + cs.periodsPerWeek);
   const teachers: Teacher[] = [];
   const usedEmails = new Set<string>();
+  const usedNames = new Set<string>(); // "First Surname" across teachers, students and parents
   const newTeacher = (): Teacher => {
     const i = teachers.length;
     const female = i % 2 === 0;
-    const first = female ? pick(FIRST_F, i * 5 + 2) : pick(FIRST_M, i * 5 + 1);
     const surname = pick(SURNAMES, i * 7 + 3);
+    const first = uniqueFirst(female ? FIRST_F : FIRST_M, female ? i * 5 + 2 : i * 5 + 1, surname, usedNames);
     const title = female ? (i % 4 === 0 ? "Ms." : "Mrs.") : "Mr.";
     let email = `${clean(first)}.${clean(surname)}@${DEMO_EMAIL_DOMAIN}`;
     for (let n = 2; usedEmails.has(email); n++) email = `${clean(first)}.${clean(surname)}${n}@${DEMO_EMAIL_DOMAIN}`;
@@ -229,10 +242,16 @@ export function generateDemoSeed(): DemoSeed {
       allocations.push({ id: `a-${c.id}-${cs.subjectId}`, classId: c.id, subjectId: cs.subjectId, teacherId: teacher.id, periodsPerWeek: cs.periodsPerWeek });
     }
   }
-  // Class teacher: whoever teaches the class the most periods.
+  // Class teacher: the teacher with the most periods in the class who isn't already
+  // a class teacher elsewhere, so every class has its own.
+  const classTeachers = new Set<string>();
   for (const c of classes) {
     const mine = allocations.filter((a) => a.classId === c.id).sort((a, b) => b.periodsPerWeek - a.periodsPerWeek);
-    c.classTeacherId = mine[0]?.teacherId;
+    const choice = mine.find((a) => !classTeachers.has(a.teacherId))?.teacherId
+      ?? teachers.find((t) => !classTeachers.has(t.id))?.id
+      ?? mine[0]?.teacherId;
+    if (choice) classTeachers.add(choice);
+    c.classTeacherId = choice;
   }
 
   // ---- Families and students ----
@@ -260,7 +279,7 @@ export function generateDemoSeed(): DemoSeed {
       const n = students.length;
       const c = seats[n];
       const female = (n + k) % 2 === 0;
-      const first = female ? pick(FIRST_F, n * 7 + 3) : pick(FIRST_M, n * 5 + 11);
+      const first = uniqueFirst(female ? FIRST_F : FIRST_M, female ? n * 7 + 3 : n * 5 + 11, surname, usedNames);
       const age = 12 + c.formLevel;              // Form 1 ≈ 13 years old
       const month = ((n * 5) % 12) + 1;
       const day = ((n * 7) % 27) + 1;
@@ -287,7 +306,9 @@ export function generateDemoSeed(): DemoSeed {
     // Siblings share their parents' logins.
     const roles: DemoParent["relationship"][] = familyIdx % 10 === 9 ? ["Guardian"] : ["Mother", "Father"];
     roles.forEach((relationship, r) => {
-      const parentFirst = relationship === "Father" ? pick(FIRST_M, familyIdx * 3 + 17) : pick(FIRST_F, familyIdx * 3 + 19);
+      const parentFirst = relationship === "Father"
+        ? uniqueFirst(FIRST_M, familyIdx * 3 + 17, surname, usedNames)
+        : uniqueFirst(FIRST_F, familyIdx * 3 + 19, surname, usedNames);
       const title = relationship === "Father" ? "Mr." : relationship === "Mother" ? "Mrs." : "Ms.";
       parents.push({
         id: `p-${parents.length + 1}`,

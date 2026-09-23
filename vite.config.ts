@@ -26,9 +26,9 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
-    // The only chunks above the default 500 kB are the barcode and PDF libraries,
-    // which load on demand when a user prints a label, receipt or report.
-    chunkSizeWarningLimit: 900,
+    // The only chunks above the default 500 kB are the Excel, barcode and PDF libraries,
+    // which load on demand when a user downloads a spreadsheet or prints a label, receipt or report.
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         // Keep large, rarely-changing libraries in their own cacheable chunks.

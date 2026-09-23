@@ -34,17 +34,12 @@ Deno.serve(async (req) => {
     const hasUserJwt = !!(authHeader && authHeader.startsWith("Bearer ") && authHeader.replace("Bearer ", "") !== Deno.env.get("SUPABASE_ANON_KEY"));
 
     if (action === "seed-admin" && !hasUserJwt) {
-      // Allow unauthenticated bootstrap when either no admin exists yet, OR
-      // the required director account (francis.moyo) has not been provisioned.
-      const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
-      const directorExists = existingUsers?.users?.some(
-        (u) => u.email === "francis.moyo@mavingtech.com"
-      );
+      // Allow unauthenticated bootstrap only while the system has no administrator.
       const { count } = await supabaseAdmin
         .from("user_roles")
         .select("*", { count: "exact", head: true })
         .eq("role", "admin");
-      if ((count ?? 0) > 0 && directorExists) {
+      if ((count ?? 0) > 0) {
         return new Response(JSON.stringify({ error: "Admin already exists. Sign in as admin to manage users." }), {
           status: 403,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -137,18 +132,17 @@ Deno.serve(async (req) => {
 
       // Seed (or repair) a set of admin accounts. Each entry is created if missing,
       // and its password is reset if it already exists.
-      const adminsToSeed = [
-        {
-          email: "francis.moyo@mavingtech.com",
-          password: "Mavingire75$",
-          full_name: "Francis Moyo",
-        },
-        {
-          email: Deno.env.get("ADMIN_SEED_EMAIL") || "admin@mavingtech.com",
-          password: Deno.env.get("ADMIN_SEED_PASSWORD") || "demo123",
-          full_name: "System Administrator",
-        },
-      ];
+      // The first administrator comes from the function's secrets; credentials are
+      // never stored in the code. Existing accounts keep their passwords.
+      const seedEmail = Deno.env.get("ADMIN_SEED_EMAIL");
+      const seedPassword = Deno.env.get("ADMIN_SEED_PASSWORD");
+      if (!seedEmail || !seedPassword) {
+        return new Response(JSON.stringify({ error: "Set the ADMIN_SEED_EMAIL and ADMIN_SEED_PASSWORD secrets to create the first administrator." }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const adminsToSeed = [{ email: seedEmail, password: seedPassword, full_name: "System Administrator" }];
 
       const results: Array<{ email: string; status: string }> = [];
 
@@ -157,11 +151,7 @@ Deno.serve(async (req) => {
         let userId: string | undefined = existing?.id;
 
         if (existing) {
-          await supabaseAdmin.auth.admin.updateUserById(existing.id, {
-            password: a.password,
-            email_confirm: true,
-          });
-          results.push({ email: a.email, status: "password reset" });
+          results.push({ email: a.email, status: "already exists" });
         } else {
           const { data: newUser, error: createError } =
             await supabaseAdmin.auth.admin.createUser({
@@ -635,7 +625,10 @@ Deno.serve(async (req) => {
         { onConflict: "user_id,role" }
       );
 
-      // Link children by admission number
+      // Link children by admission number. A child is linked only when this account's
+      // email matches the guardian email on the student's record; otherwise anyone could
+      // claim any child and see their records. The school office links other cases.
+      const parentEmail = (userData.user.email ?? "").trim().toLowerCase();
       const linkResults: string[] = [];
       if (children && Array.isArray(children)) {
         for (const child of children) {
@@ -643,12 +636,16 @@ Deno.serve(async (req) => {
           try {
             const { data: student } = await supabaseAdmin
               .from("students")
-              .select("id, full_name, form")
+              .select("id, full_name, form, guardian_email")
               .eq("admission_number", child.admissionNumber.trim())
               .eq("status", "active")
               .maybeSingle();
 
-            if (!student) { linkResults.push(`No student found: ${child.admissionNumber}`); continue; }
+            const guardianEmail = (student?.guardian_email ?? "").trim().toLowerCase();
+            if (!student || !parentEmail || guardianEmail !== parentEmail) {
+              linkResults.push(`${child.admissionNumber}: not linked — the school must confirm you as this student's guardian`);
+              continue;
+            }
 
             const { data: existing } = await supabaseAdmin
               .from("parent_students")

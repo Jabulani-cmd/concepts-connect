@@ -93,7 +93,7 @@ export default function StudentTimetableTab({ studentClassId, studentId }: Props
       const [{ data: detailed }, { data: sports }] = await Promise.all([
         supabase
           .from("timetable_entries")
-          .select("*, subjects(name), staff(full_name), classes(name)")
+          .select("*, subjects(name), staff:staff_public(full_name), classes(name)")
           .eq("class_id", resolvedClassId)
           .order("start_time"),
         supabase

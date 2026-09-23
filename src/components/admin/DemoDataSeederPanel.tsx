@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Progress } from "@/components/ui/progress";
 import { useAllocation } from "@/contexts/AllocationContext";
 import { useDemoPeople } from "@/contexts/DemoPeopleContext";
+import { buildCredentialsWorkbook } from "@/lib/credentialsWorkbook";
 import { generateDemoSeed, DEMO_PERIODS, DEMO_EMAIL_DOMAIN, DEMO_PASSWORDS, type DemoSeed } from "@/lib/demoSeeder";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -355,22 +356,27 @@ export default function DemoDataSeederPanel() {
     }
   }
 
-  function downloadCredentialsCsv() {
+  async function downloadCredentials() {
     if (!people.students.length) return;
-    const q = (v: string) => `"${v.replace(/"/g, '""')}"`;
-    const lines = ["role,full_name,reference,email,password"];
-    lines.push(["admin", q("Demo Administrator"), q("Full access"), `admin@${DEMO_EMAIL_DOMAIN}`, DEMO_PASSWORDS.admin].join(","));
-    alloc.teachers.forEach((t) => lines.push(["teacher", q(t.name), q(t.employeeNumber), t.email, DEMO_PASSWORDS.teacher].join(",")));
-    people.students.forEach((s) => lines.push(["student", q(s.fullName), q(`${s.admissionNumber} • Form ${s.form}${s.stream}`), s.email, s.password].join(",")));
-    people.parents.forEach((p) => {
-      const children = (p.childIds ?? []).map((id) => people.students.find((s) => s.id === id)?.fullName).filter(Boolean).join(" & ");
-      lines.push([`parent (${p.relationship})`, q(p.fullName), q(`Children: ${children}`), p.email, p.password].join(","));
-    });
-    const blob = new Blob([lines.join("\n")], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = "demo-credentials.csv"; a.click();
-    URL.revokeObjectURL(url);
+    try {
+      const blob = await buildCredentialsWorkbook({
+        schoolName: "MavingTech High School",
+        loginUrl: `${window.location.origin}/login`,
+        teachers: alloc.teachers,
+        subjects: alloc.subjects,
+        classes: alloc.classes,
+        students: people.students,
+        parents: people.parents,
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `demo-login-credentials-${new Date().toISOString().slice(0, 10)}.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      toast({ title: "Could not create the credentials file", description: errorMessage(e), variant: "destructive" });
+    }
   }
 
   const stats = [
@@ -405,8 +411,8 @@ export default function DemoDataSeederPanel() {
             </Button>
             {seeded && (
               <>
-                <Button onClick={downloadCredentialsCsv} variant="outline" size="sm">
-                  <Download className="h-4 w-4 mr-1" /> Credentials CSV
+                <Button onClick={downloadCredentials} variant="outline" size="sm">
+                  <Download className="h-4 w-4 mr-1" /> Login credentials (Excel)
                 </Button>
                 <Button onClick={handleClear} variant="destructive" size="sm">
                   <Trash2 className="h-4 w-4 mr-1" /> Clear Demo Data
@@ -485,8 +491,8 @@ export default function DemoDataSeederPanel() {
             </div>
           )}
           <div className="flex gap-2 pt-2">
-            <Button onClick={downloadCredentialsCsv} variant="outline" className="flex-1">
-              <Download className="h-4 w-4 mr-1" /> Download credentials CSV
+            <Button onClick={downloadCredentials} variant="outline" className="flex-1">
+              <Download className="h-4 w-4 mr-1" /> Download login credentials (Excel)
             </Button>
             <Button onClick={() => setShowSummary(false)} className="flex-1">Done</Button>
           </div>
