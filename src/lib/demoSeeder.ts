@@ -212,7 +212,7 @@ export function generateDemoSeed(): DemoSeed {
     const mother = pick(ZW_FIRST_F, i * 3 + 6);
     const cleanSurn = surname.toLowerCase();
     const num = i + 1;
-    const line = String(1000000 + i * 7).slice(1);   // 6 digits
+    const line = String(2100000 + i * 13).slice(-7);   // 7-digit Zimbabwean mobile line
     parents.push({
       id: `p-${i * 2 + 1}`,
       studentId: stu.id,
