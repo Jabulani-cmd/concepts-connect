@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from "xlsx";
 import { errorMessage } from "@/lib/errors";
+import PrivateFilesMigrationCard from "@/components/admin/PrivateFilesMigrationCard";
 import { zimPhoneRegex, zimNationalIdRegex } from "@/lib/validators";
 
 type MigrationTarget = "students" | "staff" | "fee_structures" | "payments" | "classes" | "inventory_items";
@@ -359,6 +360,7 @@ export default function DataMigration() {
           )}
         </CardContent>
       </Card>
+      <PrivateFilesMigrationCard />
     </div>
   );
 }

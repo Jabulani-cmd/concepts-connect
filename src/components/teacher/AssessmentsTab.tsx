@@ -35,6 +35,8 @@ import { format } from "date-fns";
 import { Sparkles } from "lucide-react";
 import AIAssessmentCreator from "./AIAssessmentCreator";
 import { gradeFor } from "@/lib/grading";
+import { errorMessage } from "@/lib/errors";
+import { openStoredFile } from "@/lib/privateFiles";
 
 const assessmentTypes = ["test", "exam", "assignment", "quiz", "project"];
 
@@ -323,7 +325,15 @@ export default function AssessmentsTab({ userId, classes, subjects, students }: 
                     <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
                       <p className="text-sm font-medium text-primary">📎 Student submitted work</p>
                       {currentSubmission.submission_url && (
-                        <a href={currentSubmission.submission_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">View submission</a>
+                        <a
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            openStoredFile(currentSubmission.submission_url).catch((err) =>
+                              toast({ title: "Couldn't open the submission", description: errorMessage(err), variant: "destructive" }));
+                          }}
+                          className="text-xs text-primary underline"
+                        >View submission</a>
                       )}
                       {currentSubmission.notes && (
                         <p className="text-xs text-muted-foreground mt-1">{currentSubmission.notes}</p>

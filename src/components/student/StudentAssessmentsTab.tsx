@@ -20,6 +20,8 @@ type Result = QueryData<ReturnType<typeof resultsQuery>>[number];
 import { useToast } from "@/hooks/use-toast";
 import { format, differenceInCalendarDays, endOfDay, isBefore } from "date-fns";
 import { gradeFor, gradeTextClass, PASS_MARK } from "@/lib/grading";
+import { errorMessage } from "@/lib/errors";
+import { uploadPrivateFile } from "@/lib/privateFiles";
 
 interface Props {
   studentId: string | null;
@@ -176,9 +178,15 @@ export default function StudentAssessmentsTab({ studentId, studentClassId, userI
     setSubmitting(true);
     let fileUrl: string | null = null;
     if (submitFile) {
-      const path = `submissions/${studentId}/${Date.now()}-${submitFile.name}`;
-      const { error } = await supabase.storage.from("school-media").upload(path, submitFile);
-      if (!error) fileUrl = supabase.storage.from("school-media").getPublicUrl(path).data.publicUrl;
+      // Student work is private: only staff, the student and their parents can open it.
+      const safeName = submitFile.name.replace(/[^A-Za-z0-9._-]/g, "_");
+      try {
+        fileUrl = await uploadPrivateFile(`submissions/${studentId}/${Date.now()}-${safeName}`, submitFile, submitFile.type || undefined);
+      } catch (e) {
+        toast({ title: "Upload failed", description: errorMessage(e), variant: "destructive" });
+        setSubmitting(false);
+        return;
+      }
     }
     const { error } = await supabase.from("assessment_submissions").insert({
       assessment_id: selectedAssessment.id,

@@ -15,6 +15,7 @@ import { generateAndStoreReceipt, isInstantMethod } from "@/lib/finance/receiptS
 import { errorMessage } from "@/lib/errors";
 import { formatUSD } from "@/lib/currency";
 import type { QueryData } from "@supabase/supabase-js";
+import { openStoredFile } from "@/lib/privateFiles";
 
 const paymentsQuery = () =>
   supabase
@@ -137,8 +138,12 @@ export default function ReceiptSearchTab() {
   const downloadReceipt = async (payment: Receipt) => {
     if (payment.receipt_url) {
       // Prefer the stored PDF file
-      window.open(payment.receipt_url, "_blank");
-      return;
+      try {
+        await openStoredFile(payment.receipt_url);
+        return;
+      } catch (e) {
+        toast({ title: "Couldn't open the saved receipt", description: errorMessage(e), variant: "destructive" });
+      }
     }
     const html = buildReceiptHtml({
       logoUrl: SCHOOL_LOGO_URL,
@@ -270,8 +275,8 @@ export default function ReceiptSearchTab() {
                     <TableCell>
                       <div className="flex gap-1">
                         {p.receipt_url && (
-                          <Button variant="ghost" size="icon" asChild title="Open saved PDF">
-                            <a href={p.receipt_url} target="_blank" rel="noreferrer"><FileText className="h-4 w-4" /></a>
+                          <Button variant="ghost" size="icon" title="Open saved PDF" onClick={() => downloadReceipt(p)}>
+                            <FileText className="h-4 w-4" />
                           </Button>
                         )}
                         <Button variant="ghost" size="icon" onClick={() => viewReceipt(p)} title="View Receipt">
