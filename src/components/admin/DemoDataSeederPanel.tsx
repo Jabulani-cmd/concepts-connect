@@ -58,7 +58,7 @@ export default function DemoDataSeederPanel() {
     const { error: e1 } = await supabase.functions.invoke("seed-demo-accounts", { body: { accounts: priority } });
     if (e1) throw e1;
 
-    // Phase 2 (background): students + parents in chunks of 50.
+    // Phase 2 (background): students + parents in chunks of 50, then link accounts to records.
     const rest = [...studentAccts, ...parentAccts];
     (async () => {
       for (let i = 0; i < rest.length; i += 50) {
@@ -66,8 +66,48 @@ export default function DemoDataSeederPanel() {
         try { await supabase.functions.invoke("seed-demo-accounts", { body: { accounts: chunk } }); }
         catch (err) { console.error("seed-demo-accounts chunk failed", err); }
       }
-      toast({ title: "All demo logins ready", description: `Students & parents provisioned (${rest.length} accounts).` });
+      try { await linkPeopleAccounts(seed); }
+      catch (err) { console.error("linking demo accounts failed", err); }
+      toast({ title: "All demo logins ready", description: `Learners & parents provisioned and linked (${rest.length} accounts).` });
     })();
+  }
+
+  // Link learner logins to their student records and connect parents to their children,
+  // so student/parent portals resolve the right person at sign-in.
+  async function linkPeopleAccounts(seed: ReturnType<typeof generateDemoSeed>) {
+    const emails = [...seed.students.map(s => s.email), ...seed.parents.map(p => p.email)];
+    const uidByEmail = new Map<string, string>();
+    for (let i = 0; i < emails.length; i += 200) {
+      const { data } = await supabase.from("profiles").select("id, email").in("email", emails.slice(i, i + 200));
+      (data ?? []).forEach(p => { if (p.email) uidByEmail.set(p.email.toLowerCase(), p.id); });
+    }
+
+    const admNos = seed.students.map(s => s.admissionNumber);
+    const studentIdByAdm = new Map<string, string>();
+    for (let i = 0; i < admNos.length; i += 200) {
+      const { data } = await supabase.from("students").select("id, admission_number").in("admission_number", admNos.slice(i, i + 200));
+      (data ?? []).forEach(r => studentIdByAdm.set(r.admission_number, r.id));
+    }
+
+    // 1) students.user_id
+    for (const s of seed.students) {
+      const uid = uidByEmail.get(s.email.toLowerCase());
+      const sid = studentIdByAdm.get(s.admissionNumber);
+      if (uid && sid) await supabase.from("students").update({ user_id: uid }).eq("id", sid);
+    }
+
+    // 2) parent ↔ student links
+    const links = seed.parents.map(p => {
+      const stu = seed.students.find(s => s.id === p.studentId);
+      const parentUid = uidByEmail.get(p.email.toLowerCase());
+      const sid = stu ? studentIdByAdm.get(stu.admissionNumber) : null;
+      return parentUid && sid ? { parent_id: parentUid, student_id: sid } : null;
+    }).filter(Boolean) as Array<{ parent_id: string; student_id: string }>;
+    for (let i = 0; i < links.length; i += 100) {
+      const chunk = links.slice(i, i + 100);
+      await supabase.from("parent_students").upsert(chunk, { onConflict: "parent_id,student_id", ignoreDuplicates: true });
+      await supabase.from("parent_student_links").upsert(chunk, { onConflict: "parent_id,student_id", ignoreDuplicates: true });
+    }
   }
 
   async function persistStudentsToDb(seed: ReturnType<typeof generateDemoSeed>) {
@@ -85,10 +125,10 @@ export default function DemoDataSeederPanel() {
         email: s.email,
         date_of_birth: s.dob,
         gender: s.gender,
-        form: `Grade ${s.form}`,
+        form: `Form ${s.form}`,
         stream: s.stream,
-        class: `Grade ${s.form}${s.stream}`,
-        boarding_status: "day",
+        class: s.className,
+        boarding_status: s.boardingStatus,
         status: "active",
         guardian_name: parent?.fullName ?? null,
         guardian_phone: parent?.phone ?? null,
