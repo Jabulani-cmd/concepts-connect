@@ -2,9 +2,9 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Mail, Phone, MapPin, Twitter, Facebook, Instagram, MessageCircle } from "lucide-react";
 import schoolLogo from "@/assets/mavingtech-logo.png";
-import dbeLogo from "@/assets/dbe-logo.png";
-import kznLogo from "@/assets/kzn-education-logo.jpg";
-import umalusiLogo from "@/assets/umalusi-logo.png";
+import ministryLogo from "@/assets/ministry-of-education-logo.png";
+import zimsecLogo from "@/assets/zimsec-logo.png";
+import cambridgeLogo from "@/assets/cambridge-logo.png";
 
 export default function Footer() {
   const { t } = useTranslation();
@@ -18,26 +18,26 @@ export default function Footer() {
           <div className="mx-auto grid max-w-5xl grid-cols-1 items-center gap-10 sm:grid-cols-3">
             <div className="flex flex-col items-center gap-3">
               <div className="flex h-28 items-center justify-center">
-                <img src={dbeLogo} alt="Department of Basic Education, Republic of South Africa" className="max-h-24 w-auto object-contain" />
+                <img src={ministryLogo} alt="Coat of arms of Zimbabwe" className="max-h-24 w-auto object-contain" />
               </div>
               <span className="max-w-[220px] text-center text-xs font-medium leading-tight text-muted-foreground">
-                Department of Basic Education
+                {t("footer.moe")}
               </span>
             </div>
             <div className="flex flex-col items-center gap-3">
               <div className="flex h-28 items-center justify-center">
-                <img src={kznLogo} alt="KwaZulu-Natal Department of Education" className="max-h-20 w-auto object-contain" />
+                <img src={zimsecLogo} alt="ZIMSEC logo" className="max-h-24 w-auto object-contain" />
               </div>
               <span className="max-w-[220px] text-center text-xs font-medium leading-tight text-muted-foreground">
-                KwaZulu-Natal Province — Education
+                Zimbabwe School Examinations Council
               </span>
             </div>
             <div className="flex flex-col items-center gap-3">
               <div className="flex h-28 items-center justify-center">
-                <img src={umalusiLogo} alt="Umalusi Council for Quality Assurance" className="max-h-20 w-auto object-contain" />
+                <img src={cambridgeLogo} alt="University of Cambridge logo" className="max-h-24 w-auto object-contain" />
               </div>
               <span className="max-w-[220px] text-center text-xs font-medium leading-tight text-muted-foreground">
-                Umalusi — Quality Assurance
+                Cambridge International Education
               </span>
             </div>
           </div>
