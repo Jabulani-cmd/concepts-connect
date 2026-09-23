@@ -36,6 +36,13 @@
       "when": 1790165447979,
       "tag": "0004_staff_directory_function",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790165611264,
+      "tag": "0005_upload_rules",
+      "breakpoints": true
     }
   ]
 }
