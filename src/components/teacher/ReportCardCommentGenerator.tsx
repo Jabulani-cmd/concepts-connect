@@ -9,11 +9,15 @@ import { Badge } from "@/components/ui/badge";
 import { Sparkles, Loader2, Copy, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { errorMessage } from "@/lib/errors";
+import type { StudentOption, SubjectOption } from "@/types/school";
+import type { Tables } from "@/integrations/supabase/types";
+import { gradeFor } from "@/lib/grading";
 
 interface Props {
-  students: any[];
-  marks: any[];          // [{ student_id, subject_id, mark, comment, ... }]
-  subjects: any[];       // [{ id, name }]
+  students: StudentOption[];
+  marks: Tables<"marks">[];
+  subjects: SubjectOption[];
   triggerLabel?: string;
 }
 
@@ -52,14 +56,14 @@ export default function ReportCardCommentGenerator({ students, marks, subjects, 
         .map(m => ({
           subject: subjectMap[m.subject_id] || "Subject",
           mark: m.mark,
-          grade: m.grade,
+          grade: gradeFor(m.mark),
           comment: m.comment,
         }));
 
       const { data, error } = await supabase.functions.invoke("ai-report-comment", {
         body: {
-          studentName: student?.first_name ? `${student.first_name} ${student.last_name || ""}`.trim() : (student?.name || "Student"),
-          formLevel: student?.form_level || student?.class_name,
+          studentName: student?.full_name || "Student",
+          formLevel: student?.form ?? undefined,
           term,
           grades,
           attendancePercent: attendance ? Number(attendance) : null,
@@ -71,8 +75,8 @@ export default function ReportCardCommentGenerator({ students, marks, subjects, 
       if (data?.error) throw new Error(data.error);
       setComment(data.comment || "");
       toast({ title: "AI comment ready", description: "Review and edit before saving." });
-    } catch (e: any) {
-      toast({ title: "Generation failed", description: e.message || "Try again.", variant: "destructive" });
+    } catch (e) {
+      toast({ title: "Generation failed", description: errorMessage(e, "Try again."), variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -106,7 +110,7 @@ export default function ReportCardCommentGenerator({ students, marks, subjects, 
                 <SelectContent>
                   {students.map(s => (
                     <SelectItem key={s.id} value={s.id}>
-                      {s.first_name ? `${s.first_name} ${s.last_name || ""}` : (s.name || s.id)}
+                      {s.full_name}
                     </SelectItem>
                   ))}
                 </SelectContent>

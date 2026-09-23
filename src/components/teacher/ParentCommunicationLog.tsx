@@ -11,10 +11,20 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Plus, Phone, Mail, MessageSquare, Users as UsersIcon, Calendar, CheckCircle2, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import type { StudentOption } from "@/types/school";
+import type { QueryData } from "@supabase/supabase-js";
+
+const logsQuery = (teacherId: string) =>
+  supabase
+    .from("parent_communication_logs")
+    .select("*, students(full_name, admission_number)")
+    .eq("teacher_id", teacherId)
+    .order("created_at", { ascending: false });
+type CommunicationLog = QueryData<ReturnType<typeof logsQuery>>[number];
 
 interface Props {
   userId: string;
-  students: any[];
+  students: StudentOption[];
 }
 
 const commTypes = [
@@ -26,7 +36,7 @@ const commTypes = [
 
 export default function ParentCommunicationLog({ userId, students }: Props) {
   const { toast } = useToast();
-  const [logs, setLogs] = useState<any[]>([]);
+  const [logs, setLogs] = useState<CommunicationLog[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({
     student_id: "", parent_name: "", communication_type: "phone_call",
@@ -38,11 +48,7 @@ export default function ParentCommunicationLog({ userId, students }: Props) {
   useEffect(() => { fetchLogs(); }, []);
 
   const fetchLogs = async () => {
-    const { data } = await supabase
-      .from("parent_communication_logs")
-      .select("*, students(full_name, admission_number)")
-      .eq("teacher_id", userId)
-      .order("created_at", { ascending: false });
+    const { data } = await logsQuery(userId);
     if (data) setLogs(data);
   };
 

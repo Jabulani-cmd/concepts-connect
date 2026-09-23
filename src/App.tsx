@@ -28,7 +28,6 @@ import News from "./pages/News";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import StudentDashboard from "./pages/portal/StudentDashboard";
-import ParentTeacherDashboard from "./pages/portal/ParentTeacherDashboard";
 import ParentDashboard from "./pages/portal/ParentDashboard";
 import TeacherDashboard from "./pages/portal/TeacherDashboard";
 import AIShadowMarker from "./pages/portal/AIShadowMarker";

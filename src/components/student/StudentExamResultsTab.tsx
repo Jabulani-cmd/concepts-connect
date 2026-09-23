@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Trophy, Award, TrendingUp, BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import ReportCardDownloadButton from "./ReportCardPDF";
+import { gradeFor, gradeBadgeClass } from "@/lib/grading";
 
 interface Props {
   studentId: string | null;
@@ -32,29 +33,6 @@ interface ResultRow {
   subject_code: string | null;
   class_rank: number | null;
   class_size: number | null;
-}
-
-function getCAPSGrade(mark: number): string {
-  if (mark >= 90) return "A*";
-  if (mark >= 80) return "A";
-  if (mark >= 70) return "B";
-  if (mark >= 60) return "C";
-  if (mark >= 50) return "D";
-  if (mark >= 40) return "E";
-  return "U";
-}
-
-function getGradeColor(grade: string): string {
-  switch (grade) {
-    case "A*": return "bg-emerald-100 text-emerald-800 border-emerald-300";
-    case "A": return "bg-green-100 text-green-800 border-green-300";
-    case "B": return "bg-blue-100 text-blue-800 border-blue-300";
-    case "C": return "bg-sky-100 text-sky-800 border-sky-300";
-    case "D": return "bg-amber-100 text-amber-800 border-amber-300";
-    case "E": return "bg-orange-100 text-orange-800 border-orange-300";
-    case "U": return "bg-red-100 text-red-800 border-red-300";
-    default: return "bg-muted text-muted-foreground";
-  }
 }
 
 function getMarkBarColor(mark: number): string {
@@ -129,7 +107,7 @@ export default function StudentExamResultsTab({ studentId, studentName, admissio
       return {
         id: r.id,
         mark: r.mark,
-        grade: r.grade || getCAPSGrade(r.mark),
+        grade: r.grade || gradeFor(r.mark),
         teacher_comment: r.teacher_comment,
         subject_name: r.subjects?.name || "Unknown",
         subject_code: r.subjects?.code || null,
@@ -167,7 +145,7 @@ export default function StudentExamResultsTab({ studentId, studentName, admissio
   const selectedExam = exams.find((e) => e.id === selectedExamId);
   const totalMarks = results.reduce((sum, r) => sum + r.mark, 0);
   const avgMark = results.length > 0 ? Math.round(totalMarks / results.length) : 0;
-  const avgGrade = getCAPSGrade(avgMark);
+  const avgGrade = gradeFor(avgMark);
   const bestSubject = results.length > 0 ? results[0] : null;
 
   return (
@@ -210,7 +188,7 @@ export default function StudentExamResultsTab({ studentId, studentName, admissio
                 <TrendingUp className="mx-auto mb-1 h-5 w-5 text-secondary" />
                 <p className="text-lg font-bold text-secondary">{avgMark}%</p>
                 <p className="text-[10px] text-muted-foreground">Average</p>
-                <Badge className={`mt-1 text-[10px] ${getGradeColor(avgGrade)}`} variant="outline">
+                <Badge className={`mt-1 text-[10px] ${gradeBadgeClass(avgGrade)}`} variant="outline">
                   {avgGrade}
                 </Badge>
               </CardContent>
@@ -254,7 +232,7 @@ export default function StudentExamResultsTab({ studentId, studentName, admissio
                 subject_name: r.subject_name,
                 subject_code: r.subject_code,
                 mark: r.mark,
-                grade: r.grade || getCAPSGrade(r.mark),
+                grade: r.grade || gradeFor(r.mark),
                 teacher_comment: r.teacher_comment,
                 class_rank: r.class_rank,
                 class_size: r.class_size,
@@ -302,7 +280,7 @@ export default function StudentExamResultsTab({ studentId, studentName, admissio
                           </div>
                         </td>
                         <td className="px-3 py-3 text-center">
-                          <Badge className={`text-xs ${getGradeColor(r.grade || "U")}`} variant="outline">
+                          <Badge className={`text-xs ${gradeBadgeClass(r.grade || "U")}`} variant="outline">
                             {r.grade}
                           </Badge>
                         </td>
@@ -324,7 +302,7 @@ export default function StudentExamResultsTab({ studentId, studentName, admissio
                       <td className="px-3 py-2.5">Overall Average</td>
                       <td className="px-3 py-2.5 text-center font-bold">{avgMark}%</td>
                       <td className="px-3 py-2.5 text-center">
-                        <Badge className={`text-xs ${getGradeColor(avgGrade)}`} variant="outline">
+                        <Badge className={`text-xs ${gradeBadgeClass(avgGrade)}`} variant="outline">
                           {avgGrade}
                         </Badge>
                       </td>

@@ -24,6 +24,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
+import { errorMessage } from "@/lib/errors";
 
 interface Conversation {
   id: string;
@@ -525,8 +526,8 @@ export default function MessagingPanel() {
       toast({ title: newConvType === "broadcast" ? "Broadcast sent" : "Conversation created" });
       resetNewConv();
       fetchConversations();
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Error", description: errorMessage(err), variant: "destructive" });
     }
     setCreating(false);
   };
@@ -988,7 +989,7 @@ export default function MessagingPanel() {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Type</Label>
-              <Select value={newConvType} onValueChange={v => setNewConvType(v as any)}>
+              <Select value={newConvType} onValueChange={v => setNewConvType(v as typeof newConvType)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="direct">Direct Message</SelectItem>

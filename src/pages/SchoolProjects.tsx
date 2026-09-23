@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -16,7 +17,7 @@ const fadeUp = {
 export default function SchoolProjects() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState<Tables<"school_projects">[]>([]);
 
   useEffect(() => {
     window.scrollTo(0, 0);

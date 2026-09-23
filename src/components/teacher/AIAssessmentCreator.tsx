@@ -9,13 +9,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Sparkles, Loader2, RefreshCw, Trash2, Plus, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import type { ClassOption, SubjectOption } from "@/types/school";
+import type { QuizQuestion } from "@/lib/assessments";
 
 interface Props {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   userId: string;
-  classes: any[];
-  subjects: any[];
+  classes: ClassOption[];
+  subjects: SubjectOption[];
   onPublished: () => void;
 }
 
@@ -37,7 +39,7 @@ export default function AIAssessmentCreator({ open, onOpenChange, userId, classe
     due_date: "",
     pass_mark: 50,
   });
-  const [questions, setQuestions] = useState<any[]>([]);
+  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
 
   const subjName = subjects.find(s => s.id === cfg.subject_id)?.name;
   const className = classes.find(c => c.id === cfg.class_id)?.name;
@@ -78,7 +80,7 @@ export default function AIAssessmentCreator({ open, onOpenChange, userId, classe
     }
   };
 
-  const updateQ = (i: number, patch: any) => setQuestions(prev => prev.map((q, idx) => idx === i ? { ...q, ...patch } : q));
+  const updateQ = (i: number, patch: Partial<QuizQuestion>) => setQuestions(prev => prev.map((q, idx) => idx === i ? { ...q, ...patch } : q));
   const updateOpt = (i: number, oi: number, val: string) => updateQ(i, { options: questions[i].options.map((o: string, j: number) => j === oi ? val : o) });
   const removeQ = (i: number) => setQuestions(prev => prev.filter((_, idx) => idx !== i));
   const addQ = () => setQuestions(prev => [...prev, {

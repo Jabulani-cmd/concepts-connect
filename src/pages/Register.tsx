@@ -11,6 +11,7 @@ import schoolLogo from "@/assets/mavingtech-logo.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { errorMessage } from "@/lib/errors";
 
 interface ChildEntry {
   admissionNumber: string;
@@ -107,8 +108,8 @@ export default function Register() {
 
       toast({ title: "Registration successful!", description });
       navigate("/login");
-    } catch (err: any) {
-      toast({ title: "Registration failed", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Registration failed", description: errorMessage(err), variant: "destructive" });
     }
     setLoading(false);
   };

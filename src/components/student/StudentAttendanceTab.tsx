@@ -2,15 +2,16 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CalendarCheck, CalendarX, Clock, CheckCircle } from "lucide-react";
+import { CalendarCheck, CalendarX, Clock, CheckCircle, type LucideIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format, startOfMonth, endOfMonth, subMonths } from "date-fns";
+import type { Tables } from "@/integrations/supabase/types";
 
 interface Props {
   studentId: string | null;
 }
 
-const statusConfig: Record<string, { color: string; bg: string; icon: any }> = {
+const statusConfig: Record<string, { color: string; bg: string; icon: LucideIcon }> = {
   present: { color: "text-green-700", bg: "bg-green-100", icon: CheckCircle },
   absent: { color: "text-red-700", bg: "bg-red-100", icon: CalendarX },
   late: { color: "text-yellow-700", bg: "bg-yellow-100", icon: Clock },
@@ -18,7 +19,7 @@ const statusConfig: Record<string, { color: string; bg: string; icon: any }> = {
 };
 
 export default function StudentAttendanceTab({ studentId }: Props) {
-  const [attendance, setAttendance] = useState<any[]>([]);
+  const [attendance, setAttendance] = useState<Tables<"attendance">[]>([]);
   const [loading, setLoading] = useState(true);
   const [monthFilter, setMonthFilter] = useState("all");
 

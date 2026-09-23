@@ -8,11 +8,13 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import ImageCropper from "@/components/ImageCropper";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { errorMessage } from "@/lib/errors";
+import type { Tables } from "@/integrations/supabase/types";
 
 export default function AwardsManagement() {
   const { toast } = useToast();
-  const [awards, setAwards] = useState<any[]>([]);
-  const [photos, setPhotos] = useState<any[]>([]);
+  const [awards, setAwards] = useState<Tables<"awards">[]>([]);
+  const [photos, setPhotos] = useState<Tables<"award_photos">[]>([]);
   const [studentName, setStudentName] = useState("");
   const [awardName, setAwardName] = useState("");
   const [yearIssued, setYearIssued] = useState(String(new Date().getFullYear()));
@@ -78,8 +80,8 @@ export default function AwardsManagement() {
       toast({ title: "Photo uploaded!" });
       setCaption("");
       fetchAll();
-    } catch (err: any) {
-      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Upload failed", description: errorMessage(err), variant: "destructive" });
     }
     setUploading(false);
   };

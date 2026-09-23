@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
+import { gradeFor } from "@/lib/grading";
 
 // Simulate module interaction patterns
 
@@ -50,25 +51,11 @@ describe("Integration: Attendance → Parent Notification", () => {
 });
 
 describe("Integration: Results Published → Grade Assignment", () => {
-  function assignGrade(mark: number, maxMarks: number): string {
-    const pct = (mark / maxMarks) * 100;
-    if (pct >= 90) return "A*";
-    if (pct >= 75) return "A";
-    if (pct >= 65) return "B";
-    if (pct >= 50) return "C";
-    if (pct >= 40) return "D";
-    if (pct >= 30) return "E";
-    return "U";
-  }
-
   function generateReportCard(results: { subject: string; mark: number; maxMarks: number }[]) {
-    return results.map((r) => ({
-      subject: r.subject,
-      mark: r.mark,
-      maxMarks: r.maxMarks,
-      percentage: Math.round((r.mark / r.maxMarks) * 100),
-      grade: assignGrade(r.mark, r.maxMarks),
-    }));
+    return results.map((r) => {
+      const percentage = Math.round((r.mark / r.maxMarks) * 100);
+      return { subject: r.subject, mark: r.mark, maxMarks: r.maxMarks, percentage, grade: gradeFor(percentage) };
+    });
   }
 
   it("generates correct report card", () => {
@@ -85,9 +72,10 @@ describe("Integration: Results Published → Grade Assignment", () => {
     expect(report[0].percentage).toBe(85);
   });
 
-  it("handles perfect scores", () => {
-    const report = generateReportCard([{ subject: "Art", mark: 100, maxMarks: 100 }]);
-    expect(report[0].grade).toBe("A*");
+  it("scales marks out of other totals", () => {
+    const report = generateReportCard([{ subject: "Shona", mark: 33, maxMarks: 50 }]);
+    expect(report[0].percentage).toBe(66);
+    expect(report[0].grade).toBe("B");
   });
 
   it("handles zero marks", () => {

@@ -12,20 +12,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { FileText, Loader2, RefreshCw, CheckCircle, Send, Eye } from "lucide-react";
 import { format } from "date-fns";
+import { errorMessage } from "@/lib/errors";
+import { gradeFor, gradeBadgeClass } from "@/lib/grading";
 
 const formOptions = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 const termOptions = ["Term 1", "Term 2", "Term 3"];
-
-function zimGrade(mark: number): string {
-  if (mark >= 90) return "A*";
-  if (mark >= 80) return "A";
-  if (mark >= 70) return "B";
-  if (mark >= 60) return "C";
-  if (mark >= 50) return "D";
-  if (mark >= 40) return "E";
-  if (mark >= 30) return "F";
-  return "U";
-}
 
 interface TermReport {
   id: string;
@@ -182,7 +173,7 @@ export default function TermReportsTab() {
           form_level: filterForm,
           total_marks: s.total,
           average_mark: Math.round(s.avg * 100) / 100,
-          overall_grade: zimGrade(s.avg),
+          overall_grade: gradeFor(s.avg),
           class_rank: idx + 1,
           class_size: classSize,
           assessment_data: assessmentResults?.filter(r => r.student_id === s.id) || [],
@@ -198,8 +189,8 @@ export default function TermReportsTab() {
 
       toast({ title: "Reports generated", description: `${reportsToInsert.length} reports created` });
       fetchReports();
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Error", description: errorMessage(err), variant: "destructive" });
     }
     setGenerating(false);
   }
@@ -361,12 +352,7 @@ export default function TermReportsTab() {
                     <TableCell className="text-xs">{report.students?.admission_number}</TableCell>
                     <TableCell className="font-semibold">{report.average_mark}%</TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={
-                        ["A*", "A"].includes(report.overall_grade) ? "bg-green-100 text-green-800" :
-                        report.overall_grade === "B" ? "bg-blue-100 text-blue-800" :
-                        report.overall_grade === "C" ? "bg-cyan-100 text-cyan-800" :
-                        "bg-amber-100 text-amber-800"
-                      }>
+                      <Badge variant="outline" className={gradeBadgeClass(report.overall_grade)}>
                         {report.overall_grade}
                       </Badge>
                     </TableCell>

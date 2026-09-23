@@ -7,6 +7,7 @@ import { RefreshCw, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
 import CurrencyConverter from "@/components/finance/CurrencyConverter";
+import { errorMessage } from "@/lib/errors";
 
 /** Bursar-managed USD → ZiG rate. Every amount in the app follows this rate. */
 export default function ExchangeRateCard() {
@@ -29,8 +30,8 @@ export default function ExchangeRateCard() {
     try {
       await updateRate(r);
       toast({ title: "Exchange rate updated", description: `US$ 1 = ZiG ${r}. All amounts now use this rate.` });
-    } catch (e: any) {
-      toast({ title: "Could not update rate", description: e?.message || "Please try again.", variant: "destructive" });
+    } catch (e) {
+      toast({ title: "Could not update rate", description: errorMessage(e, "Please try again."), variant: "destructive" });
     } finally {
       setSaving(false);
     }

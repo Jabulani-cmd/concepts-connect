@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Camera, SwitchCamera, RefreshCw } from "lucide-react";
+import { errorMessage } from "@/lib/errors";
 
 type WebcamCaptureProps = {
   open: boolean;
@@ -55,14 +56,15 @@ export default function WebcamCapture({ open, onClose, onCapture, title = "Take 
         const activeDeviceId = activeTrack.getSettings().deviceId;
         setSelectedDeviceId(activeDeviceId || videoDevices[0].deviceId);
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Camera error:", err);
+      const name = err instanceof DOMException ? err.name : "";
       setError(
-        err.name === "NotAllowedError"
+        name === "NotAllowedError"
           ? "Camera access denied. Please allow camera permissions in your browser."
-          : err.name === "NotFoundError"
+          : name === "NotFoundError"
           ? "No camera found. Please connect a camera and try again."
-          : `Camera error: ${err.message}`
+          : `Camera error: ${errorMessage(err)}`
       );
     }
   }, [stream]);

@@ -148,7 +148,7 @@ export default function StaffAvailabilityOverview() {
 
       {/* Filter */}
       <div className="flex items-center gap-3">
-        <Select value={filter} onValueChange={(v: any) => setFilter(v)}>
+        <Select value={filter} onValueChange={(v) => setFilter(v as typeof filter)}>
           <SelectTrigger className="w-[200px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="active">Currently on Leave</SelectItem>

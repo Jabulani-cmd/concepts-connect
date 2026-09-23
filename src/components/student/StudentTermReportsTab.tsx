@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { FileText, Loader2, Download, Trophy, TrendingUp, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import ReportCardDownloadButton from "./ReportCardPDF";
+import { gradeBadgeClass } from "@/lib/grading";
 
 interface TermReport {
   id: string;
@@ -166,12 +167,7 @@ export default function StudentTermReportsTab() {
                         </div>
                         <div>
                           <p className="text-muted-foreground text-xs">Grade</p>
-                          <Badge className={
-                            ["A*", "A"].includes(report.overall_grade) ? "bg-green-100 text-green-800" :
-                            report.overall_grade === "B" ? "bg-blue-100 text-blue-800" :
-                            report.overall_grade === "C" ? "bg-cyan-100 text-cyan-800" :
-                            "bg-amber-100 text-amber-800"
-                          }>
+                          <Badge className={gradeBadgeClass(report.overall_grade)}>
                             {report.overall_grade}
                           </Badge>
                         </div>

@@ -12,6 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
+import type { QueryData } from "@supabase/supabase-js";
 import { saveClassAttendance } from "@/lib/attendance";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -22,6 +24,8 @@ import {
 import ExamTimetableTab from "@/components/admin/ExamTimetableTab";
 import TermReportsTab from "@/components/admin/TermReportsTab";
 import TeacherClassAssignment from "@/components/admin/TeacherClassAssignment";
+import { errorMessage } from "@/lib/errors";
+import { gradeFor, gradeBadgeClass } from "@/lib/grading";
 
 const formOptions = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 const termOptions = ["Term 1", "Term 2", "Term 3"];
@@ -32,7 +36,7 @@ const examTypes = [
   { value: "mid_term", label: "Mid-Term" },
   { value: "end_of_term", label: "End of Term" },
   { value: "mock", label: "Mock Exam" },
-  { value: "zimsec", label: "CAPS" },
+  { value: "zimsec", label: "ZIMSEC" },
 ];
 const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 const timeSlots = [
@@ -62,50 +66,48 @@ const sportsActivityOptions = [
   "Music Club", "Science Club", "Art Club", "Computer Club", "Scouts", "Cadets",
 ];
 
-// CAPS grading
-function zimGrade(mark: number): string {
-  if (mark >= 90) return "A*";
-  if (mark >= 80) return "A";
-  if (mark >= 70) return "B";
-  if (mark >= 60) return "C";
-  if (mark >= 50) return "D";
-  if (mark >= 40) return "E";
-  if (mark >= 30) return "F";
-  return "U";
-}
-
-function gradeColor(grade: string): string {
-  if (["A*", "A"].includes(grade)) return "bg-green-100 text-green-800 border-green-300";
-  if (grade === "B") return "bg-blue-100 text-blue-800 border-blue-300";
-  if (grade === "C") return "bg-cyan-100 text-cyan-800 border-cyan-300";
-  if (grade === "D") return "bg-amber-100 text-amber-800 border-amber-300";
-  if (grade === "E") return "bg-orange-100 text-orange-800 border-orange-300";
-  return "bg-red-100 text-red-800 border-red-300";
-}
+const classesQuery = () => supabase.from("classes").select("*, staff:class_teacher_id(full_name)").order("name");
+type ClassesRow = QueryData<ReturnType<typeof classesQuery>>[number];
+const subjectsQuery = () => supabase.from("subjects").select("*").order("name");
+type SubjectsRow = QueryData<ReturnType<typeof subjectsQuery>>[number];
+const staffQuery = () => supabase.from("staff").select("id, full_name, role, subjects_taught").order("full_name");
+type StaffRow = QueryData<ReturnType<typeof staffQuery>>[number];
+const studentsQuery = () => supabase.from("students").select("id, full_name, admission_number, form, stream").eq("status", "active").order("full_name");
+type StudentsRow = QueryData<ReturnType<typeof studentsQuery>>[number];
+const timetableQuery = () => supabase.from("timetable_entries").select("*, subjects(name), staff(full_name), classes(name)").order("day_of_week");
+type TimetableRow = QueryData<ReturnType<typeof timetableQuery>>[number];
+const sportsQuery = () => supabase.from("sports_schedule").select("*, staff:coach_id(full_name), classes(name)").order("day_of_week");
+type SportsRow = QueryData<ReturnType<typeof sportsQuery>>[number];
+const classSubjectsQuery = () => supabase.from("class_subjects").select("*, classes(name), subjects(name), staff(full_name)").order("created_at");
+type ClassSubjectsRow = QueryData<ReturnType<typeof classSubjectsQuery>>[number];
+const examsQuery = () => supabase.from("exams").select("*").order("created_at", { ascending: false });
+type ExamsRow = QueryData<ReturnType<typeof examsQuery>>[number];
+const examResultsQuery = () => supabase.from("exam_results").select("*, students(full_name, admission_number), subjects(name)").order("created_at", { ascending: false });
+type ExamResultsRow = QueryData<ReturnType<typeof examResultsQuery>>[number];
 
 export default function AcademicManagement() {
   const { toast } = useToast();
   const { user } = useAuth();
 
   // ─── State ───
-  const [classes, setClasses] = useState<any[]>([]);
-  const [subjects, setSubjects] = useState<any[]>([]);
-  const [staff, setStaff] = useState<any[]>([]);
-  const [students, setStudents] = useState<any[]>([]);
-  const [timetableEntries, setTimetableEntries] = useState<any[]>([]);
-  const [classSubjects, setClassSubjects] = useState<any[]>([]);
-  const [attendance, setAttendance] = useState<any[]>([]);
-  const [exams, setExams] = useState<any[]>([]);
-  const [examResults, setExamResults] = useState<any[]>([]);
+  const [classes, setClasses] = useState<ClassesRow[]>([]);
+  const [subjects, setSubjects] = useState<SubjectsRow[]>([]);
+  const [staff, setStaff] = useState<StaffRow[]>([]);
+  const [students, setStudents] = useState<StudentsRow[]>([]);
+  const [timetableEntries, setTimetableEntries] = useState<TimetableRow[]>([]);
+  const [classSubjects, setClassSubjects] = useState<ClassSubjectsRow[]>([]);
+  const [attendance, setAttendance] = useState<Tables<"attendance">[]>([]);
+  const [exams, setExams] = useState<ExamsRow[]>([]);
+  const [examResults, setExamResults] = useState<ExamResultsRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Dialogs
   const [classDialogOpen, setClassDialogOpen] = useState(false);
-  const [editingClass, setEditingClass] = useState<any>(null);
+  const [editingClass, setEditingClass] = useState<ClassesRow | null>(null);
   const [classForm, setClassForm] = useState({ name: "", level: "Grade 8", stream: "", class_teacher_id: "", room: "", capacity: "40" });
 
   const [subjectDialogOpen, setSubjectDialogOpen] = useState(false);
-  const [editingSubject, setEditingSubject] = useState<any>(null);
+  const [editingSubject, setEditingSubject] = useState<SubjectsRow | null>(null);
   const [subjectForm, setSubjectForm] = useState({ name: "", code: "", department: "", is_examinable: true });
 
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
@@ -120,7 +122,7 @@ export default function AcademicManagement() {
   const [ttRoom, setTtRoom] = useState("");
 
   // Sports schedule state
-  const [sportsEntries, setSportsEntries] = useState<any[]>([]);
+  const [sportsEntries, setSportsEntries] = useState<SportsRow[]>([]);
   const [sportsViewClass, setSportsViewClass] = useState("");
   const [sportsEditCell, setSportsEditCell] = useState<{ day: number; slot: { start: string; end: string } } | null>(null);
   const [sportsActivity, setSportsActivity] = useState("");
@@ -134,7 +136,7 @@ export default function AcademicManagement() {
   const [attSaving, setAttSaving] = useState(false);
 
   const [examDialogOpen, setExamDialogOpen] = useState(false);
-  const [editingExam, setEditingExam] = useState<any>(null);
+  const [editingExam, setEditingExam] = useState<ExamsRow | null>(null);
   const [examForm, setExamForm] = useState({ name: "", exam_type: "end_of_term", form_level: "Grade 8", term: "Term 1", academic_year: "2026", start_date: "", end_date: "", subject_ids: [] as string[] });
 
   const [marksExam, setMarksExam] = useState("");
@@ -150,39 +152,39 @@ export default function AcademicManagement() {
 
   // ═══ FETCH ═══
   async function fetchClasses() {
-    const { data } = await supabase.from("classes").select("*, staff:class_teacher_id(full_name)").order("name");
+    const { data } = await classesQuery();
     if (data) setClasses(data);
   }
   async function fetchSubjects() {
-    const { data } = await supabase.from("subjects").select("*").order("name");
+    const { data } = await subjectsQuery();
     if (data) setSubjects(data);
   }
   async function fetchStaff() {
-    const { data } = await supabase.from("staff").select("id, full_name, role, subjects_taught").order("full_name");
+    const { data } = await staffQuery();
     if (data) setStaff(data);
   }
   async function fetchStudents() {
-    const { data } = await supabase.from("students").select("id, full_name, admission_number, form, stream").eq("status", "active").order("full_name");
+    const { data } = await studentsQuery();
     if (data) setStudents(data);
   }
   async function fetchTimetable() {
-    const { data } = await supabase.from("timetable_entries").select("*, subjects(name), staff(full_name), classes(name)").order("day_of_week");
+    const { data } = await timetableQuery();
     if (data) setTimetableEntries(data);
   }
   async function fetchSportsSchedule() {
-    const { data } = await supabase.from("sports_schedule").select("*, staff:coach_id(full_name), classes(name)").order("day_of_week");
+    const { data } = await sportsQuery();
     if (data) setSportsEntries(data);
   }
   async function fetchClassSubjects() {
-    const { data } = await supabase.from("class_subjects").select("*, classes(name), subjects(name), staff(full_name)").order("created_at");
+    const { data } = await classSubjectsQuery();
     if (data) setClassSubjects(data);
   }
   async function fetchExams() {
-    const { data } = await supabase.from("exams").select("*").order("created_at", { ascending: false });
+    const { data } = await examsQuery();
     if (data) setExams(data);
   }
   async function fetchExamResults() {
-    const { data } = await supabase.from("exam_results").select("*, students(full_name, admission_number), subjects(name)").order("created_at", { ascending: false });
+    const { data } = await examResultsQuery();
     if (data) setExamResults(data);
   }
 
@@ -192,7 +194,7 @@ export default function AcademicManagement() {
     setClassForm({ name: "", level: "Grade 8", stream: "", class_teacher_id: "", room: "", capacity: "40" });
     setClassDialogOpen(true);
   }
-  function openEditClass(c: any) {
+  function openEditClass(c: ClassesRow) {
     setEditingClass(c);
     setClassForm({ name: c.name, level: c.level || "Grade 8", stream: c.stream || "", class_teacher_id: c.class_teacher_id || "", room: c.room || "", capacity: String(c.capacity || 40) });
     setClassDialogOpen(true);
@@ -222,8 +224,8 @@ export default function AcademicManagement() {
       fetchClasses();
       fetchTimetable();
       fetchClassSubjects();
-    } catch (err: any) {
-      toast({ title: "Failed to delete class", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Failed to delete class", description: errorMessage(err), variant: "destructive" });
     }
   }
 
@@ -233,7 +235,7 @@ export default function AcademicManagement() {
     setSubjectForm({ name: "", code: "", department: "", is_examinable: true });
     setSubjectDialogOpen(true);
   }
-  function openEditSubject(s: any) {
+  function openEditSubject(s: SubjectsRow) {
     setEditingSubject(s);
     setSubjectForm({ name: s.name, code: s.code || "", department: s.department || "", is_examinable: s.is_examinable ?? true });
     setSubjectDialogOpen(true);
@@ -388,8 +390,8 @@ export default function AcademicManagement() {
     try {
       await saveClassAttendance(attClass, attDate, attRecords, user?.id || null);
       toast({ title: "Attendance saved" });
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Error", description: errorMessage(err), variant: "destructive" });
     }
     setAttSaving(false);
   }
@@ -406,7 +408,7 @@ export default function AcademicManagement() {
     setExamForm({ name: "", exam_type: "end_of_term", form_level: "Grade 8", term: "Term 1", academic_year: "2026", start_date: "", end_date: "", subject_ids: [] });
     setExamDialogOpen(true);
   }
-  function openEditExam(e: any) {
+  function openEditExam(e: ExamsRow) {
     setEditingExam(e);
     setExamForm({ name: e.name, exam_type: e.exam_type, form_level: e.form_level, term: e.term, academic_year: e.academic_year, start_date: e.start_date || "", end_date: e.end_date || "", subject_ids: e.subject_ids || [] });
     setExamDialogOpen(true);
@@ -414,7 +416,7 @@ export default function AcademicManagement() {
   async function saveExam() {
     if (!examForm.name) { toast({ title: "Name required", variant: "destructive" }); return; }
     if (examForm.subject_ids.length === 0) { toast({ title: "Select at least one subject", variant: "destructive" }); return; }
-    const payload = { ...examForm, start_date: examForm.start_date || null, end_date: examForm.end_date || null } as any;
+    const payload = { ...examForm, start_date: examForm.start_date || null, end_date: examForm.end_date || null };
     if (editingExam) {
       const { error } = await supabase.from("exams").update(payload).eq("id", editingExam.id);
       if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
@@ -434,7 +436,7 @@ export default function AcademicManagement() {
     fetchExams();
     fetchExamResults();
   }
-  async function togglePublish(exam: any) {
+  async function togglePublish(exam: ExamsRow) {
     if (!exam.is_published && !confirm("Publish results? Students will be able to view them.")) return;
     await supabase.from("exams").update({ is_published: !exam.is_published }).eq("id", exam.id);
     toast({ title: exam.is_published ? "Results unpublished" : "Results published" });
@@ -461,7 +463,7 @@ export default function AcademicManagement() {
       for (const [studentId, markStr] of Object.entries(marksEntries)) {
         const mark = parseFloat(markStr) || 0;
         if (mark < 0 || mark > 100) continue;
-        const grade = zimGrade(mark);
+        const grade = gradeFor(mark);
         const existing = currentExamResults.find(r => r.student_id === studentId);
         if (existing) {
           await supabase.from("exam_results").update({ mark, grade }).eq("id", existing.id);
@@ -471,8 +473,8 @@ export default function AcademicManagement() {
       }
       toast({ title: "Marks saved" });
       fetchExamResults();
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Error", description: errorMessage(err), variant: "destructive" });
     }
     setMarksSaving(false);
   }
@@ -878,7 +880,7 @@ export default function AcademicManagement() {
           <Card>
             <CardHeader>
               <CardTitle className="font-heading">Marks Entry</CardTitle>
-              <CardDescription>Enter marks per exam and subject (CAPS grading auto-applied)</CardDescription>
+              <CardDescription>Enter marks per exam and subject (ZIMSEC grading auto-applied)</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex gap-3 flex-wrap">
@@ -902,7 +904,7 @@ export default function AcademicManagement() {
                       <TableBody>
                         {marksStudents.map((s, i) => {
                           const mark = parseFloat(marksEntries[s.id] || "0") || 0;
-                          const grade = zimGrade(mark);
+                          const grade = gradeFor(mark);
                           return (
                             <TableRow key={s.id}>
                               <TableCell className="text-muted-foreground">{i + 1}</TableCell>
@@ -912,7 +914,7 @@ export default function AcademicManagement() {
                                 <Input type="number" min="0" max="100" className="h-8 w-20" value={marksEntries[s.id] || ""}
                                   onChange={e => setMarksEntries(p => ({ ...p, [s.id]: e.target.value }))} />
                               </TableCell>
-                              <TableCell><Badge variant="outline" className={gradeColor(grade)}>{grade}</Badge></TableCell>
+                              <TableCell><Badge variant="outline" className={gradeBadgeClass(grade)}>{grade}</Badge></TableCell>
                             </TableRow>
                           );
                         })}
@@ -965,7 +967,7 @@ export default function AcademicManagement() {
                         </TableRow></TableHeader>
                         <TableBody>
                           {rankings.map(r => {
-                            const grade = zimGrade(r.avg);
+                            const grade = gradeFor(r.avg);
                             return (
                               <TableRow key={r.id}>
                                 <TableCell className="font-bold">{r.position}</TableCell>
@@ -973,7 +975,7 @@ export default function AcademicManagement() {
                                 <TableCell className="text-xs">{r.adm}</TableCell>
                                 <TableCell className="text-right font-mono">{r.total.toFixed(1)}</TableCell>
                                 <TableCell className="text-right font-mono">{r.avg.toFixed(1)}%</TableCell>
-                                <TableCell><Badge variant="outline" className={gradeColor(grade)}>{grade}</Badge></TableCell>
+                                <TableCell><Badge variant="outline" className={gradeBadgeClass(grade)}>{grade}</Badge></TableCell>
                               </TableRow>
                             );
                           })}

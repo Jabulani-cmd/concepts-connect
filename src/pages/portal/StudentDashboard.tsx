@@ -7,6 +7,7 @@ import { User, LogOut, BookOpen, ClipboardCheck, Calendar, Bell, Megaphone, Doll
 import schoolLogo from "@/assets/mavingtech-logo.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 import NotificationBell from "@/components/NotificationBell";
 import PersonalTimetableEditor from "@/components/PersonalTimetableEditor";
 import StudentBottomNav from "@/components/student/StudentBottomNav";
@@ -60,11 +61,11 @@ export default function StudentDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabId>("home");
 
-  const [profile, setProfile] = useState<any>(null);
-  const [student, setStudent] = useState<any>(null);
+  const [profile, setProfile] = useState<Tables<"profiles"> | null>(null);
+  const [student, setStudent] = useState<Tables<"students"> | null>(null);
   const [studentClassId, setStudentClassId] = useState<string | null>(null);
   const [studentClassName, setStudentClassName] = useState<string | null>(null);
-  const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [announcements, setAnnouncements] = useState<Tables<"announcements">[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Metrics
@@ -134,78 +135,38 @@ export default function StudentDashboard() {
 
     // Fetch metrics in parallel
     const studentTableId = studentRec?.id;
-    const now = new Date().toISOString();
+    const today = new Date().toISOString().split("T")[0];
+    const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+    const none = Promise.resolve({ data: null });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const promises: Array<PromiseLike<any>> = [
-      // Announcements
-      supabase
-        .from("announcements")
-        .select("*")
-        .eq("is_public", true)
-        .order("created_at", { ascending: false })
-        .limit(20)
-        .then(r => r),
-    ];
+    const [annRes, attRes, invRes, upcomingRes, materialsRes] = await Promise.all([
+      supabase.from("announcements").select("*").eq("is_public", true).order("created_at", { ascending: false }).limit(20),
+      studentTableId ? supabase.from("attendance").select("status").eq("student_id", studentTableId) : none,
+      studentTableId ? supabase.from("invoices").select("total_usd, paid_usd").eq("student_id", studentTableId) : none,
+      classId
+        ? supabase.from("assessments").select("id").eq("class_id", classId).eq("is_published", true).gte("due_date", today)
+        : none,
+      classId
+        ? supabase.from("study_materials").select("id").eq("class_id", classId).eq("is_published", true).gte("created_at", weekAgo)
+        : none,
+    ]);
 
-    if (studentTableId) {
-      promises.push(
-        supabase.from("attendance").select("status").eq("student_id", studentTableId).then(r => r)
-      );
-      promises.push(
-        supabase.from("invoices").select("total_usd, paid_usd").eq("student_id", studentTableId).then(r => r)
-      );
+    setAnnouncements(annRes.data || []);
+
+    const attData = attRes.data || [];
+    if (attData.length > 0) {
+      const present = attData.filter((a) => a.status === "present" || a.status === "late").length;
+      setAttendancePercent(Math.round((present / attData.length) * 100));
+    }
+
+    const invData = invRes.data || [];
+    if (invData.length > 0) {
+      setFeeBalance(invData.reduce((sum, i) => sum + (i.total_usd - i.paid_usd), 0));
     }
 
     if (classId) {
-      promises.push(
-        supabase
-          .from("assessments")
-          .select("id")
-          .eq("class_id", classId)
-          .eq("is_published", true)
-          .gte("due_date", new Date().toISOString().split("T")[0])
-          .then(r => r)
-      );
-      const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
-      promises.push(
-        supabase
-          .from("study_materials")
-          .select("id")
-          .eq("class_id", classId)
-          .eq("is_published", true)
-          .gte("created_at", weekAgo)
-          .then(r => r)
-      );
-    }
-
-    const results = await Promise.all(promises);
-
-    // Process announcements
-    setAnnouncements(results[0]?.data || []);
-
-    let idx = 1;
-    if (studentTableId) {
-      // Attendance
-      const attData = results[idx]?.data || [];
-      if (attData.length > 0) {
-        const present = attData.filter((a: any) => a.status === "present" || a.status === "late").length;
-        setAttendancePercent(Math.round((present / attData.length) * 100));
-      }
-      idx++;
-      // Fees
-      const invData = results[idx]?.data || [];
-      if (invData.length > 0) {
-        const balance = invData.reduce((sum: number, i: any) => sum + (i.total_usd - i.paid_usd), 0);
-        setFeeBalance(balance);
-      }
-      idx++;
-    }
-
-    if (classId) {
-      setUpcomingAssessments(results[idx]?.data?.length || 0);
-      idx++;
-      setNewMaterials(results[idx]?.data?.length || 0);
+      setUpcomingAssessments(upcomingRes.data?.length || 0);
+      setNewMaterials(materialsRes.data?.length || 0);
     }
 
     setLoading(false);
@@ -323,11 +284,11 @@ interface TabContentProps {
   activeTab: TabId;
   setActiveTab: (tab: TabId) => void;
   displayName: string;
-  profile: any;
-  student: any;
+  profile: Tables<"profiles"> | null;
+  student: Tables<"students"> | null;
   studentClassId: string | null;
   studentClassName: string | null;
-  announcements: any[];
+  announcements: Tables<"announcements">[];
   attendancePercent: number;
   upcomingAssessments: number;
   newMaterials: number;

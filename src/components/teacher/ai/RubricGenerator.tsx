@@ -11,6 +11,7 @@ import { callTeacherAi, ZIM_LEVELS, ZIM_SUBJECTS } from "@/lib/teacherAi";
 import { addRow, removeRow, useDemoRows } from "@/lib/teacherAiStore";
 import { buildBrandedHtml } from "@/lib/print/printSection";
 import { openPrintWindow } from "@/lib/finance/print";
+import { errorMessage } from "@/lib/errors";
 
 interface Band { band: string; range: string; descriptor: string }
 interface Criterion { criterion: string; weight: number; bands: Band[] }
@@ -57,8 +58,8 @@ export default function RubricGenerator() {
     try {
       setRubric(await callTeacherAi<Rubric>("rubric", { assignment, subject, level }));
       toast({ title: "Rubric ready" });
-    } catch (e: any) {
-      toast({ title: "Could not generate rubric", description: e.message, variant: "destructive" });
+    } catch (e) {
+      toast({ title: "Could not generate rubric", description: errorMessage(e), variant: "destructive" });
     } finally {
       setLoading(false);
     }

@@ -193,6 +193,9 @@ ALTER TABLE public.teacher_resources ADD COLUMN IF NOT EXISTS subject_id uuid;
 ALTER TABLE public.teacher_resources ADD COLUMN IF NOT EXISTS tags text[] NOT NULL DEFAULT '{}'::text[];
 ALTER TABLE public.teacher_resources ADD COLUMN IF NOT EXISTS is_favorite boolean NOT NULL DEFAULT false;
 
+-- Assessments: optional link to external material (the create form already collects it)
+ALTER TABLE public.assessments ADD COLUMN IF NOT EXISTS link_url text;
+
 -- ============================================
 -- FOREIGN KEYS
 -- Needed for the related-table lookups the app performs (e.g. staff(full_name)).

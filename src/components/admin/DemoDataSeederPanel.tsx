@@ -12,6 +12,7 @@ import { useDemoPeople } from "@/contexts/DemoPeopleContext";
 import { generateDemoSeed, DEMO_PERIODS } from "@/lib/demoSeeder";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { errorMessage } from "@/lib/errors";
 
 const STEPS = [
   "Generating venues and classrooms",
@@ -288,20 +289,20 @@ export default function DemoDataSeederPanel() {
     setStepIdx(7);
     try {
       await persistStudentsToDb(seed);
-    } catch (e: any) {
-      toast({ title: "Saving students failed", description: e?.message || "Could not save students to the database", variant: "destructive" });
+    } catch (e) {
+      toast({ title: "Saving students failed", description: errorMessage(e, "Could not save students to the database"), variant: "destructive" });
     }
     try {
       await provisionAuthAccounts(seed);
-    } catch (e: any) {
-      toast({ title: "Account provisioning failed", description: e?.message || "Could not create login accounts", variant: "destructive" });
+    } catch (e) {
+      toast({ title: "Account provisioning failed", description: errorMessage(e, "Could not create login accounts"), variant: "destructive" });
     }
     // Auth accounts must exist before we can link staff.user_id via profiles email.
     try {
       await persistTimetableToDb(seed);
-    } catch (e: any) {
+    } catch (e) {
       console.error(e);
-      toast({ title: "Saving timetable failed", description: e?.message || "Could not save classes/timetable to the database", variant: "destructive" });
+      toast({ title: "Saving timetable failed", description: errorMessage(e, "Could not save classes/timetable to the database"), variant: "destructive" });
     }
     setStepIdx(8);
     await new Promise(r => setTimeout(r, 300));

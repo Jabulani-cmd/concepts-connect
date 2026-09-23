@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { Users, BookOpen, AlertTriangle, CheckCircle2, GraduationCap, MapPin } from "lucide-react";
+import { Users, BookOpen, AlertTriangle, CheckCircle2, GraduationCap, MapPin, type LucideIcon } from "lucide-react";
 import TimetableGrid from "@/components/allocation/TimetableGrid";
 
 export default function TeacherAllocations() {
@@ -281,7 +281,7 @@ export default function TeacherAllocations() {
   );
 }
 
-function StatCard({ label, value, icon: Icon, tone }: { label: string; value: number; icon: any; tone?: "success" | "warning" | "danger" }) {
+function StatCard({ label, value, icon: Icon, tone }: { label: string; value: number; icon: LucideIcon; tone?: "success" | "warning" | "danger" }) {
   const toneClass =
     tone === "success" ? "text-emerald-600 bg-emerald-50 border-emerald-200" :
     tone === "warning" ? "text-amber-700 bg-amber-50 border-amber-200" :

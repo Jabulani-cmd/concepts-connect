@@ -4,6 +4,7 @@ import { FileDown, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { downloadHtmlDocument } from "@/lib/finance/print";
 import { SCHOOL_ADDRESS, SCHOOL_LOGO_URL, SCHOOL_MOTTO, SCHOOL_NAME, SCHOOL_PHONE } from "@/lib/finance/pdf";
+import { GRADE_BANDS } from "@/lib/grading";
 
 interface ResultRow {
   subject_name: string;
@@ -30,6 +31,14 @@ interface ReportCardProps {
   studentId: string | null;
 }
 
+
+/** "A 75-100", "B 65-74", … generated from the shared grade bands. */
+function gradingKeyHtml(): string {
+  return GRADE_BANDS.map((band, i) => {
+    const max = i === 0 ? 100 : GRADE_BANDS[i - 1].min - 1;
+    return `<span class="grading-key-item"><strong>${band.grade}</strong> ${band.min}-${max}</span>`;
+  }).join("\n      ");
+}
 export default function ReportCardDownloadButton(props: ReportCardProps) {
   const [generating, setGenerating] = useState(false);
 
@@ -37,7 +46,7 @@ export default function ReportCardDownloadButton(props: ReportCardProps) {
     setGenerating(true);
 
     // Fetch attendance summary
-    let attendanceSummary = { total: 0, present: 0, absent: 0, late: 0 };
+    const attendanceSummary = { total: 0, present: 0, absent: 0, late: 0 };
     if (props.studentId) {
       const { data: att } = await supabase
         .from("attendance")
@@ -202,15 +211,9 @@ export default function ReportCardDownloadButton(props: ReportCardProps) {
   </div>
 
   <div class="grading-key">
-    <h3>CAPS Grading Key</h3>
+    <h3>ZIMSEC Grading Key</h3>
     <div class="grading-key-grid">
-      <span class="grading-key-item"><strong>A*</strong> 90-100</span>
-      <span class="grading-key-item"><strong>A</strong> 80-89</span>
-      <span class="grading-key-item"><strong>B</strong> 70-79</span>
-      <span class="grading-key-item"><strong>C</strong> 60-69</span>
-      <span class="grading-key-item"><strong>D</strong> 50-59</span>
-      <span class="grading-key-item"><strong>E</strong> 40-49</span>
-      <span class="grading-key-item"><strong>U</strong> 0-39</span>
+      ${gradingKeyHtml()}
     </div>
   </div>
 

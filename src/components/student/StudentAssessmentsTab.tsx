@@ -7,8 +7,19 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Textarea } from "@/components/ui/textarea";
 import { ClipboardList, Clock, CheckCircle2, Upload, Eye, Sparkles, Timer, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
+import type { QueryData } from "@supabase/supabase-js";
+import { parseQuestions } from "@/lib/assessments";
+
+const assessmentsQuery = (classId: string) =>
+  supabase.from("assessments").select("*, subjects(name), classes(name)").eq("is_published", true).eq("class_id", classId).order("due_date", { ascending: true });
+const resultsQuery = (studentId: string) =>
+  supabase.from("assessment_results").select("*, assessments(title, max_marks, subjects(name), questions)").eq("student_id", studentId).eq("is_published", true);
+type Assessment = QueryData<ReturnType<typeof assessmentsQuery>>[number];
+type Result = QueryData<ReturnType<typeof resultsQuery>>[number];
 import { useToast } from "@/hooks/use-toast";
 import { format, differenceInCalendarDays, endOfDay, isBefore } from "date-fns";
+import { gradeFor, gradeTextClass, PASS_MARK } from "@/lib/grading";
 
 interface Props {
   studentId: string | null;
@@ -25,11 +36,11 @@ function isOverdueDate(dueDateStr: string): boolean {
 
 export default function StudentAssessmentsTab({ studentId, studentClassId, userId }: Props) {
   const { toast } = useToast();
-  const [assessments, setAssessments] = useState<any[]>([]);
-  const [submissions, setSubmissions] = useState<any[]>([]);
-  const [results, setResults] = useState<any[]>([]);
+  const [assessments, setAssessments] = useState<Assessment[]>([]);
+  const [submissions, setSubmissions] = useState<Tables<"assessment_submissions">[]>([]);
+  const [results, setResults] = useState<Result[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedAssessment, setSelectedAssessment] = useState<any>(null);
+  const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null);
   const [showSubmit, setShowSubmit] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [showQuiz, setShowQuiz] = useState(false);
@@ -41,7 +52,7 @@ export default function StudentAssessmentsTab({ studentId, studentClassId, userI
   // Quiz state
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
-  const timerRef = useRef<any>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
     if (studentClassId && studentId) fetchAll();
@@ -62,9 +73,9 @@ export default function StudentAssessmentsTab({ studentId, studentClassId, userI
   const fetchAll = async () => {
     setLoading(true);
     const [{ data: assess }, { data: subs }, { data: res }] = await Promise.all([
-      supabase.from("assessments").select("*, subjects(name), classes(name)").eq("is_published", true).eq("class_id", studentClassId!).order("due_date", { ascending: true }),
+      assessmentsQuery(studentClassId!),
       supabase.from("assessment_submissions").select("*").eq("student_id", studentId!),
-      supabase.from("assessment_results").select("*, assessments(title, max_marks, subjects(name), questions)").eq("student_id", studentId!).eq("is_published", true),
+      resultsQuery(studentId!),
     ]);
     setAssessments(assess || []);
     setSubmissions(subs || []);
@@ -74,13 +85,13 @@ export default function StudentAssessmentsTab({ studentId, studentClassId, userI
 
   const getSubmission = (id: string) => submissions.find(s => s.assessment_id === id);
   const getResult = (id: string) => results.find(r => r.assessment_id === id);
-  const hasQuestions = (a: any) => Array.isArray(a?.questions) && a.questions.length > 0;
+  const hasQuestions = (a: Assessment) => parseQuestions(a.questions).length > 0;
 
   const upcoming = assessments.filter(a => a.due_date && !isOverdueDate(a.due_date) && !getResult(a.id) && !getSubmission(a.id));
   const pastDue = assessments.filter(a => a.due_date && isOverdueDate(a.due_date) && !getSubmission(a.id) && !getResult(a.id));
   const completed = assessments.filter(a => getResult(a.id) || getSubmission(a.id));
 
-  const openQuiz = (a: any) => {
+  const openQuiz = (a: Assessment) => {
     setSelectedAssessment(a);
     setAnswers({});
     setShowQuiz(true);
@@ -102,15 +113,15 @@ export default function StudentAssessmentsTab({ studentId, studentClassId, userI
     if (!selectedAssessment || !studentId) return;
     setSubmitting(true);
 
-    const qs = selectedAssessment.questions || [];
+    const qs = parseQuestions(selectedAssessment.questions);
     let obtained = 0;
-    const totalMarks = selectedAssessment.max_marks || qs.reduce((s: number, q: any) => s + (q.marks || 1), 0);
-    qs.forEach((q: any) => {
+    const totalMarks = selectedAssessment.max_marks || qs.reduce((s, q) => s + (q.marks || 1), 0);
+    qs.forEach((q) => {
       if (answers[q.id] === q.correct_index) obtained += (q.marks || 1);
     });
     const percentage = totalMarks > 0 ? (obtained / totalMarks) * 100 : 0;
-    const passMark = selectedAssessment.pass_mark || 50;
-    const grade = percentage >= 80 ? "A" : percentage >= 70 ? "B" : percentage >= 60 ? "C" : percentage >= passMark ? "D" : "F";
+    const grade = gradeFor(percentage);
+    const passed = percentage >= (selectedAssessment.pass_mark ?? PASS_MARK);
 
     const { data: sub, error: subErr } = await supabase.from("assessment_submissions").insert({
       assessment_id: selectedAssessment.id,
@@ -127,7 +138,7 @@ export default function StudentAssessmentsTab({ studentId, studentClassId, userI
       return;
     }
 
-    const feedback = qs.map((q: any, i: number) => {
+    const feedback = qs.map((q, i) => {
       const chosen = answers[q.id];
       const correct = chosen === q.correct_index;
       return `Q${i + 1}: ${correct ? "✓ Correct" : `✗ Your answer: ${q.options[chosen] ?? "—"} | Correct: ${q.options[q.correct_index]}`}${q.explanation ? ` — ${q.explanation}` : ""}`;
@@ -155,7 +166,7 @@ export default function StudentAssessmentsTab({ studentId, studentClassId, userI
     setShowQuiz(false);
     toast({
       title: auto ? "Time's up — auto submitted!" : "Submitted & auto-marked",
-      description: `${obtained}/${totalMarks} (${percentage.toFixed(0)}%) — ${grade}`,
+      description: `${obtained}/${totalMarks} (${percentage.toFixed(0)}%) — ${grade} · ${passed ? "Pass" : "Below pass mark"}`,
     });
     fetchAll();
   };
@@ -182,12 +193,11 @@ export default function StudentAssessmentsTab({ studentId, studentClassId, userI
     setSubmitting(false);
   };
 
-  const gradeColor = (g: string) => g === "A" ? "text-green-600" : g === "B" ? "text-blue-600" : g === "C" ? "text-yellow-600" : "text-muted-foreground";
   const fmtTime = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
   if (loading) return <div className="space-y-3">{[1, 2, 3].map(i => <div key={i} className="h-20 animate-pulse rounded-lg bg-muted" />)}</div>;
 
-  const renderCard = (a: any, showDue = true) => {
+  const renderCard = (a: Assessment, showDue = true) => {
     const sub = getSubmission(a.id);
     const res = getResult(a.id);
     // Calendar-day difference (ignores time-of-day) so "due today" reads as 0 days
@@ -218,7 +228,7 @@ export default function StudentAssessmentsTab({ studentId, studentClassId, userI
               )}
               {res && (
                 <div className="flex items-center gap-2 mt-1">
-                  <span className={`text-sm font-bold ${gradeColor(res.grade || "")}`}>{res.mark}/{a.max_marks} ({res.grade})</span>
+                  <span className={`text-sm font-bold ${gradeTextClass(res.grade)}`}>{res.mark}/{a.max_marks} ({res.grade})</span>
                 </div>
               )}
             </div>
@@ -284,12 +294,12 @@ export default function StudentAssessmentsTab({ studentId, studentClassId, userI
             <p className="text-xs text-muted-foreground bg-muted p-2 rounded">{selectedAssessment.instructions}</p>
           )}
           <div className="space-y-4">
-            {(selectedAssessment?.questions || []).map((q: any, i: number) => (
+            {parseQuestions(selectedAssessment?.questions).map((q, i) => (
               <Card key={q.id}>
                 <CardContent className="p-4 space-y-3">
                   <p className="text-sm font-medium">Q{i + 1}. {q.question}</p>
                   <div className="space-y-2">
-                    {q.options.map((opt: string, oi: number) => (
+                    {q.options.map((opt, oi) => (
                       <button
                         key={oi}
                         onClick={() => setAnswers(a => ({ ...a, [q.id]: oi }))}
@@ -306,7 +316,7 @@ export default function StudentAssessmentsTab({ studentId, studentClassId, userI
             ))}
             <div className="sticky bottom-0 bg-background pt-2 flex items-center justify-between gap-2">
               <p className="text-xs text-muted-foreground">
-                Answered {Object.keys(answers).length} / {selectedAssessment?.questions?.length || 0}
+                Answered {Object.keys(answers).length} / {parseQuestions(selectedAssessment?.questions).length || 0}
               </p>
               <Button onClick={() => submitQuiz(false)} disabled={submitting}>
                 {submitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Marking...</> : "Submit Quiz"}
@@ -341,7 +351,7 @@ export default function StudentAssessmentsTab({ studentId, studentClassId, userI
           {selectedResult && (
             <div className="space-y-4">
               <div className="text-center py-4">
-                <p className={`text-4xl font-bold ${gradeColor(selectedResult.grade || "")}`}>{selectedResult.grade || "—"}</p>
+                <p className={`text-4xl font-bold ${gradeTextClass(selectedResult.grade)}`}>{selectedResult.grade || "—"}</p>
                 <p className="text-lg font-medium mt-1">{selectedResult.mark} / {selectedAssessment?.max_marks}</p>
                 <p className="text-sm text-muted-foreground">{selectedResult.percentage?.toFixed(1)}%</p>
               </div>

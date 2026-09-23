@@ -9,9 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import { Sparkles, Loader2, RefreshCw, Copy, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { errorMessage } from "@/lib/errors";
+import type { StudentOption } from "@/types/school";
 
 interface Props {
-  students: any[];
+  students: StudentOption[];
   teacherName?: string;
   triggerLabel?: string;
 }
@@ -52,8 +54,8 @@ export default function ParentMessageComposer({ students, teacherName, triggerLa
         body: {
           recipient,
           purpose,
-          studentName: student?.first_name ? `${student.first_name} ${student.last_name || ""}`.trim() : (student?.name || "Student"),
-          formLevel: student?.form_level || student?.class_name,
+          studentName: student?.full_name || "Student",
+          formLevel: student?.form ?? undefined,
           teacherName: teacherName || "Class Teacher",
           context,
           schoolName: "MavingTech Business Solutions",
@@ -66,8 +68,8 @@ export default function ParentMessageComposer({ students, teacherName, triggerLa
       setMessage(data.message || "");
       setVariation(nextVariation);
       toast({ title: "Draft ready", description: "Edit before sending." });
-    } catch (e: any) {
-      toast({ title: "Generation failed", description: e.message || "Try again.", variant: "destructive" });
+    } catch (e) {
+      toast({ title: "Generation failed", description: errorMessage(e, "Try again."), variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -96,7 +98,7 @@ export default function ParentMessageComposer({ students, teacherName, triggerLa
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="space-y-2">
               <Label>Recipient</Label>
-              <Select value={recipient} onValueChange={v => setRecipient(v as any)}>
+              <Select value={recipient} onValueChange={v => setRecipient(v as typeof recipient)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="parent">Parent / Guardian</SelectItem>
@@ -120,7 +122,7 @@ export default function ParentMessageComposer({ students, teacherName, triggerLa
                 <SelectContent>
                   {students.map(s => (
                     <SelectItem key={s.id} value={s.id}>
-                      {s.first_name ? `${s.first_name} ${s.last_name || ""}` : (s.name || s.id)}
+                      {s.full_name}
                     </SelectItem>
                   ))}
                 </SelectContent>

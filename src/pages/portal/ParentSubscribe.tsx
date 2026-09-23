@@ -14,13 +14,29 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { paymentMethodLabel, type PaymentMethod } from "@/lib/finance/paymentMethods";
-import type { Enums } from "@/integrations/supabase/types";
+import type { Enums, Tables } from "@/integrations/supabase/types";
+import type { Dispatch, SetStateAction } from "react";
+
+type Plan = Tables<"subscription_plans">;
+type BankDetails = Tables<"school_bank_details">;
+type Child = Pick<Tables<"students">, "id" | "full_name" | "form" | "stream" | "admission_number">;
+type CompletedPayment = {
+  receiptNumber: string;
+  txId: string;
+  accessStart: Date;
+  accessEnd: Date;
+  plan: Plan;
+  method: PaymentMethod;
+  childName: string;
+};
+type OutcomeControls = { forceOutcome: Outcome; setForceOutcome: Dispatch<SetStateAction<Outcome>> };
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
 import { downloadSubscriptionReceipt } from "@/lib/receiptPdf";
 import { formatMoney } from "@/lib/currency";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
 import CurrencyConverter from "@/components/finance/CurrencyConverter";
+import { errorMessage } from "@/lib/errors";
 
 type Step = "plans" | "method" | "card" | "eft" | "gateway" | "qr" | "success" | "failed";
 
@@ -42,13 +58,13 @@ export default function ParentSubscribe() {
   const sub = useSubscription();
   const { usdToZig } = useExchangeRate();
 
-  const [plans, setPlans] = useState<any[]>([]);
-  const [children, setChildren] = useState<any[]>([]);
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [children, setChildren] = useState<Child[]>([]);
   const [selectedChild, setSelectedChild] = useState<string | null>(null);
-  const [bank, setBank] = useState<any>(null);
+  const [bank, setBank] = useState<BankDetails | null>(null);
 
   const [step, setStep] = useState<Step>("plans");
-  const [plan, setPlan] = useState<any | null>(null);
+  const [plan, setPlan] = useState<Plan | null>(null);
   const [method, setMethod] = useState<PaymentMethod>("card");
 
   // Card form
@@ -60,7 +76,7 @@ export default function ParentSubscribe() {
 
   const [proof, setProof] = useState<File | null>(null);
   const [processing, setProcessing] = useState(false);
-  const [completed, setCompleted] = useState<any>(null);
+  const [completed, setCompleted] = useState<CompletedPayment | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [failureReason, setFailureReason] = useState<string>("");
 
@@ -81,8 +97,8 @@ export default function ParentSubscribe() {
           supabase.from("parent_students").select("student_id").eq("parent_id", user.id),
         ]);
         const ids = Array.from(new Set([
-          ...(linkRows || []).map((r: any) => r.student_id),
-          ...(legacyRows || []).map((r: any) => r.student_id),
+          ...(linkRows || []).map((r) => r.student_id),
+          ...(legacyRows || []).map((r) => r.student_id),
         ].filter(Boolean)));
 
         if (!ids.length) {
@@ -106,7 +122,7 @@ export default function ParentSubscribe() {
     return found?.full_name || "your child";
   }, [children, selectedChild]);
 
-  function pickPlan(p: any) {
+  function pickPlan(p: Plan) {
     if (!selectedChild) {
       toast({ title: "Link a student first", description: "Please link a student to your account before choosing a plan.", variant: "destructive" });
       return;
@@ -267,8 +283,8 @@ export default function ParentSubscribe() {
       setStep("success");
       sub.refresh();
       toast({ title: "Payment successful 🎉", description: "Portal access activated." });
-    } catch (e: any) {
-      setError(e.message || "Failed to record payment.");
+    } catch (e) {
+      setError(errorMessage(e, "Failed to record payment."));
     } finally {
       setProcessing(false);
     }
@@ -372,7 +388,11 @@ export default function ParentSubscribe() {
 }
 
 // ────────── Step views ──────────
-function PlansView({ plans, onPick }: any) {
+// subscription_plans.features is a JSON array of strings.
+const planFeatures = (plan: Plan): string[] =>
+  Array.isArray(plan.features) ? plan.features.filter((f): f is string => typeof f === "string") : [];
+
+function PlansView({ plans, onPick }: { plans: Plan[]; onPick: (p: Plan) => void }) {
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
       {plans.map((p) => (
@@ -390,7 +410,7 @@ function PlansView({ plans, onPick }: any) {
             </div>
             <p className="text-sm mt-3">{p.description}</p>
             <ul className="mt-5 space-y-2">
-              {(p.features || []).slice(0, 10).map((f: string) => (
+              {planFeatures(p).slice(0, 10).map((f) => (
                 <li key={f} className="flex gap-2 text-sm">
                   <Check className="w-4 h-4 text-teal-600 mt-0.5 shrink-0" /><span>{f}</span>
                 </li>
@@ -441,8 +461,8 @@ function OutcomeSelect({ value, onChange, includeAuto = true }: { value: Outcome
   );
 }
 
-function MethodView({ plan, onPick }: any) {
-  const methods = [
+function MethodView({ plan, onPick }: { plan: Plan; onPick: (m: PaymentMethod) => void }) {
+  const methods: { id: PaymentMethod; label: string; icon: typeof CreditCard; note: string }[] = [
     { id: "card", label: "Card Payment", icon: CreditCard, note: "Visa / Mastercard — Paynow Zimbabwe" },
     { id: "eft", label: "Internet Banking", icon: Building2, note: "ZIPIT — CBZ, Stanbic, Steward, ZB Bank" },
     { id: "ecocash", label: "EcoCash", icon: CreditCard, note: "Pay from your EcoCash wallet" },
@@ -484,7 +504,14 @@ function MethodView({ plan, onPick }: any) {
   );
 }
 
-function CardView({ plan, cardNumber, setCardNumber, cardName, setCardName, cardExpiry, setCardExpiry, cardCvv, setCardCvv, forceOutcome, setForceOutcome, onPay, processing, error }: any) {
+function CardView({ plan, cardNumber, setCardNumber, cardName, setCardName, cardExpiry, setCardExpiry, cardCvv, setCardCvv, forceOutcome, setForceOutcome, onPay, processing, error }: OutcomeControls & {
+  plan: Plan;
+  cardNumber: string; setCardNumber: (v: string) => void;
+  cardName: string; setCardName: (v: string) => void;
+  cardExpiry: string; setCardExpiry: (v: string) => void;
+  cardCvv: string; setCardCvv: (v: string) => void;
+  onPay: () => void; processing: boolean; error: string | null;
+}) {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-md mx-auto">
       <Card className="p-6">
@@ -543,7 +570,7 @@ function CardView({ plan, cardNumber, setCardNumber, cardName, setCardName, card
   );
 }
 
-function GatewayView({ plan, processing, onStart, forceOutcome, setForceOutcome }: any) {
+function GatewayView({ plan, processing, onStart, forceOutcome, setForceOutcome }: OutcomeControls & { plan: Plan; processing: boolean; onStart: () => void }) {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-md mx-auto">
       <Card className="p-6 text-center">
@@ -572,7 +599,7 @@ function GatewayView({ plan, processing, onStart, forceOutcome, setForceOutcome 
   );
 }
 
-function QrView({ plan, method, processing, onConfirm, forceOutcome, setForceOutcome }: any) {
+function QrView({ plan, method, processing, onConfirm, forceOutcome, setForceOutcome }: OutcomeControls & { plan: Plan; method: PaymentMethod; processing: boolean; onConfirm: () => void }) {
   const brand = method === "ecocash" ? "EcoCash" : "OneMoney";
   const brandColor = method === "ecocash" ? "from-sky-500 to-blue-600" : "from-emerald-500 to-teal-600";
   return (
@@ -618,7 +645,10 @@ function QrView({ plan, method, processing, onConfirm, forceOutcome, setForceOut
   );
 }
 
-function BankView({ bank, proof, setProof, onSubmit, processing, error, plan }: any) {
+function BankView({ bank, proof, setProof, onSubmit, processing, error, plan }: {
+  bank: BankDetails | null; proof: File | null; setProof: (f: File | null) => void;
+  onSubmit: () => void; processing: boolean; error: string | null; plan: Plan;
+}) {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-xl mx-auto">
       <Card className="p-6">
@@ -666,7 +696,7 @@ function BankView({ bank, proof, setProof, onSubmit, processing, error, plan }: 
   );
 }
 
-function FailedView({ reason, onRetry, onChangeMethod }: any) {
+function FailedView({ reason, onRetry, onChangeMethod }: { reason: string; onRetry: () => void; onChangeMethod: () => void }) {
   return (
     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-md mx-auto text-center">
       <Card className="p-8">
@@ -684,7 +714,7 @@ function FailedView({ reason, onRetry, onChangeMethod }: any) {
   );
 }
 
-function SuccessView({ data, onDownload, onPortal }: any) {
+function SuccessView({ data, onDownload, onPortal }: { data: CompletedPayment; onDownload: () => void; onPortal: () => void }) {
   return (
     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-md mx-auto text-center">
       <Card className="p-8">

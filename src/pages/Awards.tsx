@@ -4,11 +4,12 @@ import Layout from "@/components/layout/Layout";
 import { Award } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import schoolLogo from "@/assets/mavingtech-logo.png";
+import type { Tables } from "@/integrations/supabase/types";
 
 export default function Awards() {
   const { t } = useTranslation();
-  const [awards, setAwards] = useState<any[]>([]);
-  const [photos, setPhotos] = useState<any[]>([]);
+  const [awards, setAwards] = useState<Tables<"awards">[]>([]);
+  const [photos, setPhotos] = useState<Tables<"award_photos">[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {

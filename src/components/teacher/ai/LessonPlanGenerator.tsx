@@ -12,6 +12,7 @@ import { callTeacherAi, ZIM_LEVELS, ZIM_SUBJECTS } from "@/lib/teacherAi";
 import { addRow, removeRow, useDemoRows } from "@/lib/teacherAiStore";
 import { buildBrandedHtml } from "@/lib/print/printSection";
 import { openPrintWindow } from "@/lib/finance/print";
+import { errorMessage } from "@/lib/errors";
 
 interface Plan {
   title: string;
@@ -63,8 +64,8 @@ export default function LessonPlanGenerator() {
       setTitle(plan.title || `${subject}: ${topic}`);
       setDraft(planToText(plan));
       toast({ title: "Lesson plan ready", description: "Edit anything before you save it." });
-    } catch (e: any) {
-      toast({ title: "Could not generate plan", description: e.message, variant: "destructive" });
+    } catch (e) {
+      toast({ title: "Could not generate plan", description: errorMessage(e), variant: "destructive" });
     } finally {
       setLoading(false);
     }

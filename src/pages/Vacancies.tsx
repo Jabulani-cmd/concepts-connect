@@ -6,10 +6,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, Briefcase } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 
 export default function Vacancies() {
   const { t } = useTranslation();
-  const [docs, setDocs] = useState<any[]>([]);
+  const [docs, setDocs] = useState<Tables<"downloads">[]>([]);
 
   useEffect(() => {
     supabase.from("downloads").select("*").eq("category", "vacancies").order("created_at", { ascending: false })

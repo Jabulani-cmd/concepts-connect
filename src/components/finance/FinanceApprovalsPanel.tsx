@@ -164,7 +164,7 @@ export default function FinanceApprovalsPanel() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <Select value={statusFilter} onValueChange={(v: any) => setStatusFilter(v)}>
+          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
             <SelectTrigger className="w-full sm:w-[170px]">
               <SelectValue />
             </SelectTrigger>

@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, KeyRound, Eye, EyeOff, Copy, ShieldAlert } from "lucide-react";
+import { errorMessage } from "@/lib/errors";
 
 type PortalUser = {
   id: string;
@@ -70,8 +71,8 @@ export default function PasswordManagement() {
       if (res.ok && data.users) {
         setUsers(data.users);
       }
-    } catch (err: any) {
-      toast({ title: "Failed to load users", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Failed to load users", description: errorMessage(err), variant: "destructive" });
     }
     setLoading(false);
   };
@@ -126,8 +127,8 @@ export default function PasswordManagement() {
       
       toast({ title: "Password reset successfully", description: `Password updated for ${selectedUser.full_name}` });
       setDialogOpen(false);
-    } catch (err: any) {
-      toast({ title: "Failed to reset password", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Failed to reset password", description: errorMessage(err), variant: "destructive" });
     }
     setResetting(false);
   };

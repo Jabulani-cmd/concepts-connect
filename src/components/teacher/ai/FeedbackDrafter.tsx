@@ -8,6 +8,7 @@ import { Copy, Loader2, MessageSquareQuote, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { callTeacherAi, ZIM_SUBJECTS } from "@/lib/teacherAi";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { errorMessage } from "@/lib/errors";
 
 interface Props {
   students?: { id: string; full_name?: string; name?: string }[];
@@ -35,8 +36,8 @@ export default function FeedbackDrafter({ students = [] }: Props) {
         student, assignment, subject, score, outOf, notes,
       });
       setComment(res.comment || "");
-    } catch (e: any) {
-      toast({ title: "Could not draft feedback", description: e.message, variant: "destructive" });
+    } catch (e) {
+      toast({ title: "Could not draft feedback", description: errorMessage(e), variant: "destructive" });
     } finally {
       setLoading(false);
     }

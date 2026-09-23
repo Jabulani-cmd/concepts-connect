@@ -39,7 +39,9 @@ import { Bell, Image, Users, Calendar, LogOut, Plus, Trash2, Upload, Layers, Gra
 import schoolLogo from "@/assets/mavingtech-logo.png";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables, TablesInsert } from "@/integrations/supabase/types";
 import { useAuth } from "@/contexts/AuthContext";
+import { errorMessage } from "@/lib/errors";
 
 const gradeOptions = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 const classOptions = ["A", "B", "C", "D"];
@@ -76,33 +78,33 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
   const navigate = useNavigate();
 
   // Announcements
-  const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [announcements, setAnnouncements] = useState<Tables<"announcements">[]>([]);
   const [newTitle, setNewTitle] = useState("");
   const [newText, setNewText] = useState("");
   const [showAnnouncementDialog, setShowAnnouncementDialog] = useState(false);
 
   // Carousel images
-  const [carouselImages, setCarouselImages] = useState<any[]>([]);
+  const [carouselImages, setCarouselImages] = useState<Tables<"carousel_images">[]>([]);
   const carouselFileRef = useRef<HTMLInputElement>(null);
   const [carouselCropSrc, setCarouselCropSrc] = useState<string | null>(null);
   const [carouselCropOpen, setCarouselCropOpen] = useState(false);
 
   // Gallery images
-  const [galleryImages, setGalleryImages] = useState<any[]>([]);
+  const [galleryImages, setGalleryImages] = useState<Tables<"gallery_images">[]>([]);
   const galleryFileRef = useRef<HTMLInputElement>(null);
   const [galleryCaption, setGalleryCaption] = useState("");
   const [galleryCropSrc, setGalleryCropSrc] = useState<string | null>(null);
   const [galleryCropOpen, setGalleryCropOpen] = useState(false);
 
   // Downloads
-  const [downloads, setDownloads] = useState<any[]>([]);
+  const [downloads, setDownloads] = useState<Tables<"downloads">[]>([]);
   const downloadFileRef = useRef<HTMLInputElement>(null);
   const [downloadTitle, setDownloadTitle] = useState("");
   const [downloadDesc, setDownloadDesc] = useState("");
   const [downloadCategory, setDownloadCategory] = useState("general");
 
   // Meetings
-  const [meetings, setMeetings] = useState<any[]>([]);
+  const [meetings, setMeetings] = useState<Tables<"meetings">[]>([]);
   const [meetingTitle, setMeetingTitle] = useState("");
   const [meetingDesc, setMeetingDesc] = useState("");
   const [meetingDate, setMeetingDate] = useState("");
@@ -143,8 +145,8 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
   const [teacherForm, setTeacherForm] = useState({ full_name: "", email: "", password: "", department: "", phone: "" });
 
   // Timetable management
-  const [ttClasses, setTtClasses] = useState<any[]>([]);
-  const [ttSubjects, setTtSubjects] = useState<any[]>([]);
+  const [ttClasses, setTtClasses] = useState<Pick<Tables<"classes">, "id" | "name">[]>([]);
+  const [ttSubjects, setTtSubjects] = useState<Pick<Tables<"subjects">, "id" | "name">[]>([]);
   const [ttSelectedClassId, setTtSelectedClassId] = useState("");
   const [ttGrid, setTtGrid] = useState<Record<string, string>>({});
   const [ttLoading, setTtLoading] = useState(false);
@@ -205,8 +207,8 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
       }
       setPrincipalPhotoUrl(url);
       toast({ title: "Principal photo updated!" });
-    } catch (err: any) {
-      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Upload failed", description: errorMessage(err), variant: "destructive" });
     }
     setUploading(false);
   };
@@ -236,8 +238,8 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
       }
       setAchievementsImageUrl(url);
       toast({ title: "Achievements image updated!" });
-    } catch (err: any) {
-      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Upload failed", description: errorMessage(err), variant: "destructive" });
     }
     setUploading(false);
   };
@@ -267,8 +269,8 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
       }
       setTraditionImageUrl(url);
       toast({ title: "Tradition image updated!" });
-    } catch (err: any) {
-      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Upload failed", description: errorMessage(err), variant: "destructive" });
     }
     setUploading(false);
   };
@@ -298,8 +300,8 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
       }
       setCtaImageUrl(url);
       toast({ title: "CTA image updated!" });
-    } catch (err: any) {
-      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Upload failed", description: errorMessage(err), variant: "destructive" });
     }
     setUploading(false);
   };
@@ -311,8 +313,8 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
       await supabase.from("site_settings").delete().eq("setting_key", settingKey);
       setter(null);
       toast({ title: "Image deleted successfully" });
-    } catch (err: any) {
-      toast({ title: "Delete failed", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Delete failed", description: errorMessage(err), variant: "destructive" });
     }
     setUploading(false);
   };
@@ -372,7 +374,7 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
     }
 
     const nextGrid: Record<string, string> = {};
-    (data || []).forEach((entry: any) => {
+    (data || []).forEach((entry) => {
       const key = getTimetableCellKey(entry.day_of_week, entry.start_time);
       nextGrid[key] = entry.subjects?.name || "";
     });
@@ -395,7 +397,7 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
 
     const subjectMap = new Map(ttSubjects.map((s) => [String(s.name).trim().toLowerCase(), s.id]));
     const unknownSubjects = new Set<string>();
-    const rows: any[] = [];
+    const rows: TablesInsert<"timetable_entries">[] = [];
 
     timetableSlots.forEach((slot) => {
       timetableDays.forEach((_, dayIndex) => {
@@ -507,8 +509,8 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
       if (error) throw error;
       toast({ title: "Carousel image added!" });
       fetchCarouselImages();
-    } catch (err: any) {
-      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Upload failed", description: errorMessage(err), variant: "destructive" });
     }
     setUploading(false);
   };
@@ -541,8 +543,8 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
       toast({ title: "Gallery image added!" });
       setGalleryCaption("");
       fetchGalleryImages();
-    } catch (err: any) {
-      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Upload failed", description: errorMessage(err), variant: "destructive" });
     }
     setUploading(false);
   };
@@ -567,8 +569,8 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
       toast({ title: "Document uploaded!" });
       setDownloadTitle(""); setDownloadDesc(""); setDownloadCategory("general");
       fetchDownloads();
-    } catch (err: any) {
-      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Upload failed", description: errorMessage(err), variant: "destructive" });
     }
     setUploading(false);
     if (downloadFileRef.current) downloadFileRef.current.value = "";
@@ -614,8 +616,8 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
       if (data.error) throw new Error(data.error);
       toast({ title: "Student registered successfully!" });
       setStudentForm({ full_name: "", email: "", password: "", grade: "", class_name: "", phone: "" });
-    } catch (err: any) {
-      toast({ title: "Registration failed", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Registration failed", description: errorMessage(err), variant: "destructive" });
     }
     setRegLoading(false);
   };
@@ -639,8 +641,8 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
       if (data.error) throw new Error(data.error);
       toast({ title: "Teacher registered successfully!" });
       setTeacherForm({ full_name: "", email: "", password: "", department: "", phone: "" });
-    } catch (err: any) {
-      toast({ title: "Registration failed", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Registration failed", description: errorMessage(err), variant: "destructive" });
     }
     setRegLoading(false);
   };

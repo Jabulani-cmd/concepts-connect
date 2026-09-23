@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Search, UserCheck, Loader2, CheckCircle, AlertTriangle, Users } from "lucide-react";
+import { errorMessage } from "@/lib/errors";
 
 const formOptions = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 const termOptions = ["Term 1", "Term 2", "Term 3"];
@@ -28,23 +30,23 @@ export default function TermRegistration() {
   const [term, setTerm] = useState(getCurrentTerm());
   const [formFilter, setFormFilter] = useState("all");
   const [search, setSearch] = useState("");
-  const [students, setStudents] = useState<any[]>([]);
-  const [registrations, setRegistrations] = useState<any[]>([]);
+  const [students, setStudents] = useState<Tables<"students">[]>([]);
+  const [registrations, setRegistrations] = useState<Tables<"term_registrations">[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dbSubjects, setDbSubjects] = useState<any[]>([]);
-  const [feeStructures, setFeeStructures] = useState<any[]>([]);
-  const [dbClasses, setDbClasses] = useState<any[]>([]);
+  const [dbSubjects, setDbSubjects] = useState<Pick<Tables<"subjects">, "id" | "name" | "department">[]>([]);
+  const [feeStructures, setFeeStructures] = useState<Tables<"fee_structures">[]>([]);
+  const [dbClasses, setDbClasses] = useState<Tables<"classes">[]>([]);
 
   // Single student registration dialog
   const [regDialogOpen, setRegDialogOpen] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState<any>(null);
+  const [selectedStudent, setSelectedStudent] = useState<Tables<"students"> | null>(null);
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
   const [boardingStatus, setBoardingStatus] = useState("day");
   const [saving, setSaving] = useState(false);
 
   // Bulk registration
   const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
-  const [bulkStudents, setBulkStudents] = useState<any[]>([]);
+  const [bulkStudents, setBulkStudents] = useState<Tables<"students">[]>([]);
   const [bulkLoading, setBulkLoading] = useState(false);
 
   useEffect(() => {
@@ -79,7 +81,7 @@ export default function TermRegistration() {
   const unregistered = filtered.filter((s) => !registeredIds.has(s.id));
   const registered = filtered.filter((s) => registeredIds.has(s.id));
 
-  function openRegister(student: any) {
+  function openRegister(student: Tables<"students">) {
     setSelectedStudent(student);
     const currentSubjects = (student.subject_combination || "").split(", ").filter(Boolean);
     setSelectedSubjects(currentSubjects);
@@ -122,8 +124,8 @@ export default function TermRegistration() {
           (f) => (!f.form || f.form === selectedStudent.form) && (!f.boarding_status || f.boarding_status === boardingStatus)
         );
         if (applicable.length > 0) {
-          const totalUsd = applicable.reduce((s, f) => s + parseFloat(f.amount_usd || 0), 0);
-          const totalZig = applicable.reduce((s, f) => s + parseFloat(f.amount_zig || 0), 0);
+          const totalUsd = applicable.reduce((s, f) => s + Number(f.amount_usd), 0);
+          const totalZig = applicable.reduce((s, f) => s + Number(f.amount_zig), 0);
           const invoiceNumber = `INV-${academicYear.slice(-2)}-${term.replace("Term ", "T")}-${Date.now().toString().slice(-5)}`;
 
           const { data: newInv, error: invErr } = await supabase
@@ -193,8 +195,8 @@ export default function TermRegistration() {
       toast({ title: "Student registered", description: `${selectedStudent.full_name} registered for ${term} ${academicYear}${invoiceId ? " with invoice created." : "."}` });
       setRegDialogOpen(false);
       fetchAll();
-    } catch (err: any) {
-      toast({ title: "Registration failed", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Registration failed", description: errorMessage(err), variant: "destructive" });
     }
     setSaving(false);
   }
@@ -235,8 +237,8 @@ export default function TermRegistration() {
             (f) => (!f.form || f.form === student.form) && (!f.boarding_status || f.boarding_status === bStatus)
           );
           if (applicable.length > 0) {
-            const totalUsd = applicable.reduce((s, f) => s + parseFloat(f.amount_usd || 0), 0);
-            const totalZig = applicable.reduce((s, f) => s + parseFloat(f.amount_zig || 0), 0);
+            const totalUsd = applicable.reduce((s, f) => s + Number(f.amount_usd), 0);
+            const totalZig = applicable.reduce((s, f) => s + Number(f.amount_zig), 0);
             const invoiceNumber = `INV-${academicYear.slice(-2)}-${term.replace("Term ", "T")}-${Date.now().toString().slice(-5)}`;
 
             const { data: newInv } = await supabase
@@ -501,7 +503,7 @@ export default function TermRegistration() {
                   .map((f) => (
                     <div key={f.id} className="flex justify-between text-sm">
                       <span>{f.description || `${f.form} ${f.boarding_status} fees`}</span>
-                      <span className="font-medium">USD {parseFloat(f.amount_usd).toFixed(2)}</span>
+                      <span className="font-medium">USD {Number(f.amount_usd).toFixed(2)}</span>
                     </div>
                   ))}
                 <div className="border-t pt-1 flex justify-between font-bold text-sm">
@@ -510,7 +512,7 @@ export default function TermRegistration() {
                     USD{" "}
                     {feeStructures
                       .filter((f) => (!f.form || f.form === selectedStudent?.form) && (!f.boarding_status || f.boarding_status === boardingStatus))
-                      .reduce((s, f) => s + parseFloat(f.amount_usd || 0), 0)
+                      .reduce((s, f) => s + Number(f.amount_usd), 0)
                       .toFixed(2)}
                   </span>
                 </div>

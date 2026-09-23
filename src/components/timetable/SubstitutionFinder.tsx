@@ -8,6 +8,7 @@ import { Sparkles, UserSearch, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { SlotRow, dayName } from "@/lib/timetableUtils";
+import { errorMessage } from "@/lib/errors";
 
 export default function SubstitutionFinder({ allSlots }: { allSlots: SlotRow[] }) {
   const { toast } = useToast();
@@ -49,8 +50,8 @@ export default function SubstitutionFinder({ allSlots }: { allSlots: SlotRow[] }
       });
       if (error) throw error;
       setRanked(data?.ranked ?? []);
-    } catch (e: any) {
-      toast({ variant: "destructive", title: "Substitute search failed", description: e?.message });
+    } catch (e) {
+      toast({ variant: "destructive", title: "Substitute search failed", description: errorMessage(e) });
     } finally { setLoading(false); }
   };
 

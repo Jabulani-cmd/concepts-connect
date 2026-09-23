@@ -12,6 +12,7 @@ import schoolLogo from "@/assets/mavingtech-logo.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { errorMessage } from "@/lib/errors";
 
 export default function Login() {
   const { t } = useTranslation();
@@ -32,8 +33,8 @@ export default function Login() {
       setEmail("admin@schooldemo.com");
       setPassword("Demo@2025");
       toast({ title: "Demo admin ready", description: "Credentials pre-filled — click Sign In." });
-    } catch (e: any) {
-      toast({ title: "Could not provision demo admin", description: e?.message || "Unknown error", variant: "destructive" });
+    } catch (e) {
+      toast({ title: "Could not provision demo admin", description: errorMessage(e, "Unknown error"), variant: "destructive" });
     } finally {
       setSeedingDemo(false);
     }
@@ -75,8 +76,8 @@ export default function Login() {
       const { error } = await signIn(email, password);
       if (error) toast({ title: t("login.loginFailed"), description: error.message, variant: "destructive" });
       else setJustLoggedIn(true);
-    } catch (err: any) {
-      toast({ title: t("login.loginFailed"), description: err?.message || "An unexpected error occurred", variant: "destructive" });
+    } catch (err) {
+      toast({ title: t("login.loginFailed"), description: errorMessage(err, "An unexpected error occurred"), variant: "destructive" });
     } finally {
       setLoading(false);
     }

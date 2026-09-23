@@ -12,6 +12,7 @@ import { Upload, FileSpreadsheet, CheckCircle, AlertTriangle, XCircle, Download 
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from "xlsx";
+import { errorMessage } from "@/lib/errors";
 
 type MigrationTarget = "students" | "staff" | "fee_structures" | "payments" | "classes" | "inventory_items";
 
@@ -179,8 +180,8 @@ export default function DataMigration() {
         toast({ title: "Import complete", description: `Successfully imported ${imported} ${TARGET_CONFIGS[target].label.toLowerCase()} records.` });
         setStep("done");
       }
-    } catch (err: any) {
-      toast({ title: "Import failed", description: err?.message || "An unexpected error occurred", variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Import failed", description: errorMessage(err, "An unexpected error occurred"), variant: "destructive" });
     } finally {
       setImporting(false);
     }

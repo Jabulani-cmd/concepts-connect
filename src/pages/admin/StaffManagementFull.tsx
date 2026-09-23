@@ -40,6 +40,7 @@ import {
 import { staffFormSchema, type StaffFormData } from "@/lib/validators";
 import ImageCropper from "@/components/ImageCropper";
 import WebcamCapture from "@/components/WebcamCapture";
+import { errorMessage } from "@/lib/errors";
 
 const roleOptions = ["principal", "deputy_principal", "hod", "admin", "bursar", "teacher", "senior_teacher", "housemaster", "counsellor", "librarian", "it_administrator", "groundskeeper", "matron", "secretary", "sports_director", "lab_technician", "school_administrator", "admin_clerk", "finance_clerk"];
 const departmentOptions = [
@@ -413,10 +414,10 @@ export default function StaffManagementFull() {
           setSaving(false);
           return;
         }
-      } catch (provErr: any) {
+      } catch (provErr) {
         toast({
           title: "Error creating staff member",
-          description: provErr?.message,
+          description: errorMessage(provErr),
           variant: "destructive",
         });
         setSaving(false);
@@ -447,8 +448,8 @@ export default function StaffManagementFull() {
         const result = await res.json();
         if (!res.ok) throw new Error(result.error);
         toast({ title: "Staff member permanently deleted" });
-      } catch (err: any) {
-        toast({ title: "Error", description: err.message, variant: "destructive" });
+      } catch (err) {
+        toast({ title: "Error", description: errorMessage(err), variant: "destructive" });
         return;
       }
     } else {
@@ -486,8 +487,8 @@ export default function StaffManagementFull() {
       const { data } = supabase.storage.from("school-media").getPublicUrl(path);
       setPhotoUrl(data.publicUrl);
       toast({ title: "Photo uploaded!" });
-    } catch (err: any) {
-      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Upload failed", description: errorMessage(err), variant: "destructive" });
     }
     setUploading(false);
   };

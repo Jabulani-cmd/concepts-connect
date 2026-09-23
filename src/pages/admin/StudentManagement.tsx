@@ -20,6 +20,7 @@ import TermRegistration from "@/components/admin/TermRegistration";
 import { studentFormSchema, type StudentFormData, zimPhoneRegex } from "@/lib/validators";
 import ImageCropper from "@/components/ImageCropper";
 import WebcamCapture from "@/components/WebcamCapture";
+import { errorMessage } from "@/lib/errors";
 
 const formOptions = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 const streamOptions = ["A", "B", "C", "D", "Arts", "Sciences", "Commercials"];
@@ -304,9 +305,9 @@ export default function StudentManagement() {
         } else {
           toast({ title: "Portal account NOT created", description: provData.error || `HTTP ${res.status}`, variant: "destructive" });
         }
-      } catch (provErr: any) {
+      } catch (provErr) {
         console.error("provision-student error:", provErr);
-        toast({ title: "Portal account NOT created", description: provErr?.message || "Network error", variant: "destructive" });
+        toast({ title: "Portal account NOT created", description: errorMessage(provErr, "Network error"), variant: "destructive" });
       }
 
       // Allocate boarding if applicable
@@ -341,8 +342,8 @@ export default function StudentManagement() {
         const result = await res.json();
         if (!res.ok) throw new Error(result.error);
         toast({ title: "Student permanently deleted" });
-      } catch (err: any) {
-        toast({ title: "Error", description: err.message, variant: "destructive" });
+      } catch (err) {
+        toast({ title: "Error", description: errorMessage(err), variant: "destructive" });
         return;
       }
     } else {
@@ -375,8 +376,8 @@ export default function StudentManagement() {
       const { data } = supabase.storage.from("school-media").getPublicUrl(path);
       setPhotoUrl(data.publicUrl);
       toast({ title: "Photo uploaded!" });
-    } catch (err: any) {
-      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Upload failed", description: errorMessage(err), variant: "destructive" });
     }
     setUploading(false);
   };
@@ -435,8 +436,8 @@ export default function StudentManagement() {
       } else {
         toast({ title: "Account creation failed", description: provData.error, variant: "destructive" });
       }
-    } catch (err: any) {
-      toast({ title: "Account creation failed", description: err?.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Account creation failed", description: errorMessage(err), variant: "destructive" });
     }
     setSaving(false);
   };

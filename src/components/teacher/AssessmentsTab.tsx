@@ -15,39 +15,39 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
+import type { QueryData } from "@supabase/supabase-js";
+
+const submissionsQuery = (assessmentId: string) =>
+  supabase.from("assessment_submissions").select("*, students(full_name, admission_number)").eq("assessment_id", assessmentId);
+const resultsQuery = (assessmentId: string) =>
+  supabase.from("assessment_results").select("*, students(full_name, admission_number)").eq("assessment_id", assessmentId);
+type Submission = QueryData<ReturnType<typeof submissionsQuery>>[number];
+type GradedResult = QueryData<ReturnType<typeof resultsQuery>>[number];
 import { format } from "date-fns";
 import { Sparkles } from "lucide-react";
 import AIAssessmentCreator from "./AIAssessmentCreator";
+import { gradeFor } from "@/lib/grading";
 
 const assessmentTypes = ["test", "exam", "assignment", "quiz", "project"];
 
-function zimGrade(pct: number): string {
-  if (pct >= 90) return "A*";
-  if (pct >= 80) return "A";
-  if (pct >= 70) return "B";
-  if (pct >= 60) return "C";
-  if (pct >= 50) return "D";
-  if (pct >= 40) return "E";
-  return "U";
-}
-
 interface Props {
   userId: string;
-  classes: any[];
-  subjects: any[];
-  students: any[];
+  classes: Pick<Tables<"classes">, "id" | "name" | "level">[];
+  subjects: Pick<Tables<"subjects">, "id" | "name">[];
+  students: Pick<Tables<"students">, "id" | "full_name" | "admission_number" | "form">[];
 }
 
 export default function AssessmentsTab({ userId, classes, subjects, students }: Props) {
   const { toast } = useToast();
-  const [assessments, setAssessments] = useState<any[]>([]);
+  const [assessments, setAssessments] = useState<Tables<"assessments">[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [aiCreating, setAiCreating] = useState(false);
-  const [selectedAssessment, setSelectedAssessment] = useState<any | null>(null);
+  const [selectedAssessment, setSelectedAssessment] = useState<Tables<"assessments"> | null>(null);
   const [gradingStudentIdx, setGradingStudentIdx] = useState(0);
-  const [results, setResults] = useState<any[]>([]);
-  const [submissions, setSubmissions] = useState<any[]>([]);
+  const [results, setResults] = useState<GradedResult[]>([]);
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
 
   // Create form
   const [form, setForm] = useState({
@@ -104,6 +104,7 @@ export default function AssessmentsTab({ userId, classes, subjects, students }: 
       due_date: form.due_date || null,
       instructions: form.instructions || null,
       file_url,
+      link_url: form.link_url || null,
       is_published: form.is_published,
     });
 
@@ -125,14 +126,14 @@ export default function AssessmentsTab({ userId, classes, subjects, students }: 
     toast({ title: "Assessment deleted" });
   };
 
-  const openAssessmentDetail = async (assessment: any) => {
+  const openAssessmentDetail = async (assessment: Tables<"assessments">) => {
     setSelectedAssessment(assessment);
     setGradingStudentIdx(0);
 
     // Fetch submissions and results
     const [{ data: subs }, { data: res }] = await Promise.all([
-      supabase.from("assessment_submissions").select("*, students(full_name, admission_number)").eq("assessment_id", assessment.id),
-      supabase.from("assessment_results").select("*, students(full_name, admission_number)").eq("assessment_id", assessment.id),
+      submissionsQuery(assessment.id),
+      resultsQuery(assessment.id),
     ]);
     setSubmissions(subs || []);
     setResults(res || []);
@@ -165,7 +166,7 @@ export default function AssessmentsTab({ userId, classes, subjects, students }: 
     const maxMarks = selectedAssessment.max_marks || 100;
     const marksObtained = parseFloat(gradeForm.marks);
     const pct = (marksObtained / maxMarks) * 100;
-    const grade = zimGrade(pct);
+    const grade = gradeFor(pct);
 
     if (currentResult) {
       await supabase.from("assessment_results").update({
@@ -329,7 +330,7 @@ export default function AssessmentsTab({ userId, classes, subjects, students }: 
                       <Input type="number" min="0" max={selectedAssessment.max_marks} value={gradeForm.marks} onChange={e => setGradeForm(p => ({ ...p, marks: e.target.value }))} />
                       {gradeForm.marks && (
                         <p className="text-xs text-muted-foreground">
-                          {((parseFloat(gradeForm.marks) / (selectedAssessment.max_marks || 100)) * 100).toFixed(0)}% — Grade: <span className="font-bold text-primary">{zimGrade((parseFloat(gradeForm.marks) / (selectedAssessment.max_marks || 100)) * 100)}</span>
+                          {((parseFloat(gradeForm.marks) / (selectedAssessment.max_marks || 100)) * 100).toFixed(0)}% — Grade: <span className="font-bold text-primary">{gradeFor((parseFloat(gradeForm.marks) / (selectedAssessment.max_marks || 100)) * 100)}</span>
                         </p>
                       )}
                     </div>

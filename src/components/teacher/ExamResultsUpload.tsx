@@ -8,47 +8,26 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { GraduationCap, Save, CheckCircle2, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables, TablesInsert } from "@/integrations/supabase/types";
 import { useToast } from "@/hooks/use-toast";
+import { gradeFor, gradeBadgeClass } from "@/lib/grading";
 
 interface Props {
   userId: string;
-  classes: any[];
-  subjects: any[];
-}
-
-function zimGrade(mark: number): string {
-  if (mark >= 90) return "A*";
-  if (mark >= 80) return "A";
-  if (mark >= 70) return "B";
-  if (mark >= 60) return "C";
-  if (mark >= 50) return "D";
-  if (mark >= 40) return "E";
-  return "U";
-}
-
-function getGradeColor(grade: string): string {
-  switch (grade) {
-    case "A*": return "bg-emerald-100 text-emerald-800";
-    case "A": return "bg-green-100 text-green-800";
-    case "B": return "bg-blue-100 text-blue-800";
-    case "C": return "bg-sky-100 text-sky-800";
-    case "D": return "bg-amber-100 text-amber-800";
-    case "E": return "bg-orange-100 text-orange-800";
-    case "U": return "bg-red-100 text-red-800";
-    default: return "bg-muted text-muted-foreground";
-  }
+  classes: Pick<Tables<"classes">, "id" | "name" | "level">[];
+  subjects: Pick<Tables<"subjects">, "id" | "name">[];
 }
 
 export default function ExamResultsUpload({ userId, classes, subjects }: Props) {
   const { toast } = useToast();
 
-  const [exams, setExams] = useState<any[]>([]);
+  const [exams, setExams] = useState<Tables<"exams">[]>([]);
   const [selectedExamId, setSelectedExamId] = useState("");
   const [selectedClassId, setSelectedClassId] = useState("");
   const [selectedSubjectId, setSelectedSubjectId] = useState("");
-  const [students, setStudents] = useState<any[]>([]);
+  const [students, setStudents] = useState<Pick<Tables<"students">, "id" | "full_name" | "admission_number">[]>([]);
   const [markEntries, setMarkEntries] = useState<Record<string, { mark: string; comment: string }>>({});
-  const [existingResults, setExistingResults] = useState<Record<string, any>>({});
+  const [existingResults, setExistingResults] = useState<Record<string, Tables<"exam_results">>>({});
   const [saving, setSaving] = useState(false);
   const [loadingStudents, setLoadingStudents] = useState(false);
 
@@ -119,7 +98,7 @@ export default function ExamResultsUpload({ userId, classes, subjects }: Props) 
       .eq("subject_id", selectedSubjectId)
       .in("student_id", studentIds);
 
-    const existing: Record<string, any> = {};
+    const existing: Record<string, Tables<"exam_results">> = {};
     const entries: Record<string, { mark: string; comment: string }> = {};
     
     (data || []).forEach((r) => {
@@ -155,7 +134,7 @@ export default function ExamResultsUpload({ userId, classes, subjects }: Props) 
     }
 
     setSaving(true);
-    const upserts: any[] = [];
+    const upserts: TablesInsert<"exam_results">[] = [];
     const errors: string[] = [];
 
     for (const student of students) {
@@ -168,13 +147,14 @@ export default function ExamResultsUpload({ userId, classes, subjects }: Props) 
         continue;
       }
 
-      const row: any = {
+      const row: TablesInsert<"exam_results"> = {
         exam_id: selectedExamId,
         subject_id: selectedSubjectId,
         student_id: student.id,
         mark,
-        grade: zimGrade(mark),
+        grade: gradeFor(mark),
         comment: entry.comment || null,
+        uploaded_by: userId,
       };
 
       // If existing, include id for upsert
@@ -328,7 +308,7 @@ export default function ExamResultsUpload({ userId, classes, subjects }: Props) 
                   {students.map((s, idx) => {
                     const entry = markEntries[s.id] || { mark: "", comment: "" };
                     const mark = parseInt(entry.mark);
-                    const grade = !isNaN(mark) ? zimGrade(mark) : "";
+                    const grade = !isNaN(mark) ? gradeFor(mark) : "";
                     const isExisting = !!existingResults[s.id];
 
                     return (
@@ -349,7 +329,7 @@ export default function ExamResultsUpload({ userId, classes, subjects }: Props) 
                         </td>
                         <td className="px-3 py-2 text-center">
                           {grade && (
-                            <Badge className={`text-xs ${getGradeColor(grade)}`} variant="outline">
+                            <Badge className={`text-xs ${gradeBadgeClass(grade)}`} variant="outline">
                               {grade}
                             </Badge>
                           )}

@@ -7,21 +7,25 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Trash2, Star, StarOff, ExternalLink, Link2, FileText, Video, Image, FolderOpen, Search } from "lucide-react";
+import { Plus, Trash2, Star, StarOff, ExternalLink, Link2, FileText, Video, Image, FolderOpen, Search, type LucideIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import type { SubjectOption } from "@/types/school";
+import type { Tables } from "@/integrations/supabase/types";
+
+type Resource = Tables<"teacher_resources"> & { subjects?: { name: string } | null };
 
 interface Props {
   userId: string;
-  subjects: any[];
+  subjects: SubjectOption[];
 }
 
-const typeIcons: Record<string, any> = { link: Link2, document: FileText, video: Video, image: Image };
+const typeIcons: Record<string, LucideIcon> = { link: Link2, document: FileText, video: Video, image: Image };
 const resourceTypes = ["link", "document", "video", "image", "other"];
 
 export default function ResourceLibraryTab({ userId, subjects }: Props) {
   const { toast } = useToast();
-  const [resources, setResources] = useState<any[]>([]);
+  const [resources, setResources] = useState<Resource[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({ subject_id: "", title: "", description: "", resource_type: "link", url: "", tags: "" });
   const [loading, setLoading] = useState(false);

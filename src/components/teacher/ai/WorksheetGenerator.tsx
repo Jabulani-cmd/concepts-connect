@@ -11,6 +11,7 @@ import { callTeacherAi, ZIM_LEVELS, ZIM_SUBJECTS } from "@/lib/teacherAi";
 import { addRow, removeRow, useDemoRows } from "@/lib/teacherAiStore";
 import { buildBrandedHtml } from "@/lib/print/printSection";
 import { openPrintWindow, openViewWindow } from "@/lib/finance/print";
+import { errorMessage } from "@/lib/errors";
 
 interface Question {
   number: number;
@@ -77,8 +78,8 @@ export default function WorksheetGenerator() {
       const result = await callTeacherAi<Sheet>("worksheet", { subject, level, topic, count, format, difficulty });
       setSheet(result);
       toast({ title: "Worksheet ready" });
-    } catch (e: any) {
-      toast({ title: "Could not generate worksheet", description: e.message, variant: "destructive" });
+    } catch (e) {
+      toast({ title: "Could not generate worksheet", description: errorMessage(e), variant: "destructive" });
     } finally {
       setLoading(false);
     }

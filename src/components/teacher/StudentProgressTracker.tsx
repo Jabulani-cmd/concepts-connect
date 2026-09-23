@@ -4,28 +4,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, Minus, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import type { ClassOption, SubjectOption } from "@/types/school";
+import type { Tables } from "@/integrations/supabase/types";
+import { gradeFor } from "@/lib/grading";
+
+/** A mark or exam result, normalised for trend display. */
+type ProgressMark = { student_id: string | null; mark: number; term: string; created_at: string; subjects?: { name: string } | null };
 
 interface Props {
   userId: string;
-  classes: any[];
-  subjects: any[];
-}
-
-function zimGrade(mark: number): string {
-  if (mark >= 90) return "A*";
-  if (mark >= 80) return "A";
-  if (mark >= 70) return "B";
-  if (mark >= 60) return "C";
-  if (mark >= 50) return "D";
-  if (mark >= 40) return "E";
-  return "U";
+  classes: ClassOption[];
+  subjects: SubjectOption[];
 }
 
 export default function StudentProgressTracker({ userId, classes, subjects }: Props) {
   const [selectedClass, setSelectedClass] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("all");
-  const [marks, setMarks] = useState<any[]>([]);
-  const [students, setStudents] = useState<any[]>([]);
+  const [marks, setMarks] = useState<ProgressMark[]>([]);
+  const [students, setStudents] = useState<Pick<Tables<"students">, "id" | "full_name" | "admission_number">[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -170,7 +166,7 @@ export default function StudentProgressTracker({ userId, classes, subjects }: Pr
                     {/* Overall */}
                     <div className="text-right">
                       <p className="text-lg font-bold text-primary">{s.avg !== null ? `${s.avg}%` : "—"}</p>
-                      {s.avg !== null && <Badge className="text-[10px]">{zimGrade(s.avg)}</Badge>}
+                      {s.avg !== null && <Badge className="text-[10px]">{gradeFor(s.avg)}</Badge>}
                     </div>
                     {/* Trend */}
                     {s.trend > 2 ? <TrendingUp className="h-5 w-5 text-green-500" /> :
@@ -181,7 +177,7 @@ export default function StudentProgressTracker({ userId, classes, subjects }: Pr
                 {/* Mini bar */}
                 {s.recent.length > 0 && (
                   <div className="flex gap-1 mt-2">
-                    {s.recent.map((m: any, mi: number) => (
+                    {s.recent.map((m, mi) => (
                       <div key={mi} className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
                         <div className="h-full rounded-full bg-primary" style={{ width: `${m.mark}%` }} />
                       </div>

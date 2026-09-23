@@ -8,6 +8,8 @@ import { Trash2, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import ImageCropper from "@/components/ImageCropper";
+import { errorMessage } from "@/lib/errors";
+import type { Tables } from "@/integrations/supabase/types";
 
 const facilityTypes = [
   { value: "boarding", label: "Boarding Facilities" },
@@ -24,7 +26,7 @@ const facilityTypes = [
 
 export default function FacilitiesManagement() {
   const { toast } = useToast();
-  const [images, setImages] = useState<any[]>([]);
+  const [images, setImages] = useState<Tables<"facility_images">[]>([]);
   const [uploading, setUploading] = useState(false);
   const [caption, setCaption] = useState("");
   const [facilityType, setFacilityType] = useState("boarding");
@@ -75,8 +77,8 @@ export default function FacilitiesManagement() {
       toast({ title: "Facility image added!" });
       setCaption("");
       fetchImages();
-    } catch (err: any) {
-      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Upload failed", description: errorMessage(err), variant: "destructive" });
     }
     setUploading(false);
   };

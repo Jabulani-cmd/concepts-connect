@@ -10,6 +10,7 @@ import { Lock, Eye, EyeOff, ShieldAlert } from "lucide-react";
 import schoolLogo from "@/assets/mavingtech-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { errorMessage } from "@/lib/errors";
 
 export default function ForceChangePassword() {
   const navigate = useNavigate();
@@ -43,8 +44,8 @@ export default function ForceChangePassword() {
       // Refresh session to pick up new metadata, then redirect
       await supabase.auth.refreshSession();
       navigate("/login");
-    } catch (err: any) {
-      toast({ title: "Error", description: err?.message || "Failed to update password", variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Error", description: errorMessage(err, "Failed to update password"), variant: "destructive" });
     } finally {
       setLoading(false);
     }

@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { Upload, FileSpreadsheet, Download, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { errorMessage } from "@/lib/errors";
 
 interface CsvRow {
   full_name: string;
@@ -166,8 +167,8 @@ export default function BulkUserImport({ onImportComplete }: { onImportComplete?
         } else {
           importResults.push({ row: rowIndex + 2, email: row.email, full_name: row.full_name, status: "success", message: "Created" });
         }
-      } catch (err: any) {
-        importResults.push({ row: rowIndex + 2, email: row.email, full_name: row.full_name, status: "error", message: err.message });
+      } catch (err) {
+        importResults.push({ row: rowIndex + 2, email: row.email, full_name: row.full_name, status: "error", message: errorMessage(err) });
       }
       setProgress(Math.round(((i + 1) / validRows.length) * 100));
     }

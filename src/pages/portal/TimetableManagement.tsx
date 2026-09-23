@@ -15,16 +15,22 @@ import TimetableViewModes from "@/components/timetable/TimetableViewModes";
 import TimetableAnalytics from "@/components/timetable/TimetableAnalytics";
 import SubstitutionFinder from "@/components/timetable/SubstitutionFinder";
 import ExamTimetableBuilder from "@/components/timetable/ExamTimetableBuilder";
-import { buildPeriodSchedule, colorForSubject, dayName, generateBlankSlots, SlotRow, printableTimetableHtml } from "@/lib/timetableUtils";
+import { buildPeriodSchedule, colorForSubject, dayName, generateBlankSlots, SlotRow, printableTimetableHtml, type BreakSpec } from "@/lib/timetableUtils";
+import type { Json, Tables, TablesInsert } from "@/integrations/supabase/types";
+import { errorMessage } from "@/lib/errors";
 
-interface Def {
-  id: string; name: string; type: "class" | "exam"; class_label: string | null;
-  term: string | null; academic_year: string | null;
-  start_date: string | null; end_date: string | null;
-  school_days: number[]; period_minutes: number; periods_per_day: number;
-  day_start_time: string; breaks: any; status: "draft" | "active" | "archived";
-  settings: any; created_at: string; updated_at: string;
-}
+type DefSettings = Partial<Pick<SetupValue, "aiMode" | "subjects" | "constraints" | "freeText">>;
+
+// tt_definitions row with its JSON columns given their real shapes.
+type Def = Omit<Tables<"tt_definitions">, "type" | "status" | "breaks" | "settings"> & {
+  type: "class" | "exam";
+  status: "draft" | "active" | "archived";
+  breaks: BreakSpec[] | null;
+  settings: DefSettings | null;
+};
+const toDef = (row: Tables<"tt_definitions">) => row as unknown as Def;
+
+type AiSlot = { day: number; period: number; subject: string; teacher?: string; room?: string; reasoning?: string };
 
 export default function TimetableManagement() {
   const { toast } = useToast();
@@ -33,7 +39,7 @@ export default function TimetableManagement() {
   const [setupOpen, setSetupOpen] = useState(false);
   const [defs, setDefs] = useState<Def[]>([]);
   const [allSlots, setAllSlots] = useState<SlotRow[]>([]);
-  const [examSlots, setExamSlots] = useState<any[]>([]);
+  const [examSlots, setExamSlots] = useState<Tables<"tt_exam_slots">[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [aiBusy, setAiBusy] = useState(false);
   const [view, setView] = useState<"list" | "builder" | "views" | "analytics">("list");
@@ -42,9 +48,9 @@ export default function TimetableManagement() {
 
   const loadAll = async () => {
     const { data: defData } = await supabase.from("tt_definitions").select("*").order("updated_at", { ascending: false });
-    setDefs((defData ?? []) as any);
+    setDefs((defData ?? []).map(toDef));
     const { data: slotData } = await supabase.from("tt_slots").select("*");
-    setAllSlots((slotData ?? []) as any);
+    setAllSlots(slotData ?? []);
     const { data: examData } = await supabase.from("tt_exam_slots").select("*");
     setExamSlots(examData ?? []);
   };
@@ -74,12 +80,12 @@ export default function TimetableManagement() {
     };
     const { data, error } = await supabase.from("tt_definitions").insert(insert).select().single();
     if (error) { toast({ variant: "destructive", title: "Create failed", description: error.message }); return; }
-    const def = data as Def;
+    const def = toDef(data);
 
     if (v.type === "class") {
       // Generate skeleton break slots only (teaching cells stay empty until assigned)
       const schedule = buildPeriodSchedule(v.dayStartTime, v.periodMinutes, v.periodsPerDay, v.breaks);
-      const rows: any[] = [];
+      const rows: TablesInsert<"tt_slots">[] = [];
       let counter = -1000;
       for (const day of v.schoolDays) {
         for (const p of schedule) {
@@ -102,7 +108,7 @@ export default function TimetableManagement() {
     setView("builder");
   };
 
-  const runAIGeneration = async (def: Def, v: SetupValue, feedback?: string) => {
+  const runAIGeneration = async (def: Def, v: DefSettings, feedback?: string) => {
     if (def.type !== "class") return;
     setAiBusy(true);
     try {
@@ -122,7 +128,7 @@ export default function TimetableManagement() {
       // wipe existing non-break slots
       await supabase.from("tt_slots").delete().eq("definition_id", def.id).eq("is_break", false);
       const schedule = buildPeriodSchedule(def.day_start_time, def.period_minutes, def.periods_per_day, def.breaks);
-      const rows = (data?.slots ?? []).map((s: any) => {
+      const rows = ((data?.slots ?? []) as AiSlot[]).map((s): TablesInsert<"tt_slots"> | null => {
         const p = schedule.find((x) => x.index === s.period && !x.isBreak);
         if (!p) return null;
         return {
@@ -131,16 +137,16 @@ export default function TimetableManagement() {
           subject_name: s.subject, subject_color: colorForSubject(s.subject),
           teacher_name: s.teacher ?? null, room: s.room ?? null, notes: s.reasoning ?? null,
         };
-      }).filter(Boolean);
+      }).filter((r): r is TablesInsert<"tt_slots"> => r !== null);
       if (rows.length) await supabase.from("tt_slots").insert(rows);
       await supabase.from("ai_timetable_logs").insert({
         definition_id: def.id, feature: feedback ? "regenerate" : "generate_class",
-        prompt_sent: payload, response_received: data, warnings: data?.warnings ?? [],
+        prompt_sent: payload as unknown as Json, response_received: data as Json, warnings: data?.warnings ?? [],
         conflicts_count: 0, optimization_score: data?.score ?? null, generation_time_ms: data?.generation_time_ms ?? null,
       });
       toast({ title: "AI timetable generated", description: data?.summary ?? "Done" });
-    } catch (e: any) {
-      toast({ variant: "destructive", title: "AI generation failed", description: e?.message });
+    } catch (e) {
+      toast({ variant: "destructive", title: "AI generation failed", description: errorMessage(e) });
     } finally {
       setAiBusy(false);
       await loadAll();
@@ -171,20 +177,20 @@ export default function TimetableManagement() {
           const { data: slotRows } = await supabase
             .from("tt_slots").select("*")
             .eq("definition_id", activeDef.id).eq("is_break", false);
-          const teaching = (slotRows ?? []).filter((s: any) => s.subject_name);
-          const subjectNames = Array.from(new Set(teaching.map((s: any) => s.subject_name)));
-          const teacherNames = Array.from(new Set(teaching.map((s: any) => s.teacher_name).filter(Boolean)));
+          const teaching = (slotRows ?? []).filter((s) => s.subject_name);
+          const subjectNames = Array.from(new Set(teaching.map((s) => s.subject_name)));
+          const teacherNames = Array.from(new Set(teaching.map((s) => s.teacher_name).filter(Boolean)));
           const [subsRes, stfRes] = await Promise.all([
             subjectNames.length
               ? supabase.from("subjects").select("id,name").in("name", subjectNames)
-              : Promise.resolve({ data: [] as any[] }),
+              : Promise.resolve({ data: [] as { id: string; name: string }[] }),
             teacherNames.length
               ? supabase.from("staff").select("id,full_name").in("full_name", teacherNames)
-              : Promise.resolve({ data: [] as any[] }),
+              : Promise.resolve({ data: [] as { id: string; full_name: string }[] }),
           ]);
-          const subMap = new Map((subsRes.data ?? []).map((r: any) => [r.name, r.id]));
-          const stfMap = new Map((stfRes.data ?? []).map((r: any) => [r.full_name, r.id]));
-          const entryRows = teaching.map((s: any) => ({
+          const subMap = new Map((subsRes.data ?? []).map((r) => [r.name, r.id]));
+          const stfMap = new Map((stfRes.data ?? []).map((r) => [r.full_name, r.id]));
+          const entryRows = teaching.map((s) => ({
             class_id: cls.id,
             subject_id: subMap.get(s.subject_name) ?? null,
             teacher_id: s.teacher_name ? (stfMap.get(s.teacher_name) ?? null) : null,
@@ -205,15 +211,20 @@ export default function TimetableManagement() {
       if (error) throw error;
       toast({ title: "Published", description: "Timetable is now live across all portals." });
       await loadAll();
-    } catch (e: any) {
-      toast({ variant: "destructive", title: "Publish failed", description: e?.message });
+    } catch (e) {
+      toast({ variant: "destructive", title: "Publish failed", description: errorMessage(e) });
     }
   };
 
   const duplicate = async (def: Def) => {
+    const { id: _id, created_at: _created, updated_at: _updated, ...copy } = def;
     const { data: newDef } = await supabase.from("tt_definitions").insert({
-      ...def, id: undefined, name: def.name + " (copy)", status: "draft", created_at: undefined, updated_at: undefined,
-    } as any).select().single();
+      ...copy,
+      name: def.name + " (copy)",
+      status: "draft",
+      breaks: copy.breaks as unknown as Json,
+      settings: copy.settings as unknown as Json,
+    }).select().single();
     if (!newDef) return;
     const mySlots = allSlots.filter((s) => s.definition_id === def.id);
     if (mySlots.length) {
@@ -287,7 +298,7 @@ export default function TimetableManagement() {
             ))}
           </div>
 
-          <Tabs value={tab} onValueChange={(t) => setTab(t as any)}>
+          <Tabs value={tab} onValueChange={(t) => setTab(t as "class" | "exam")}>
             <div className="flex items-center justify-between flex-wrap gap-2">
               <TabsList>
                 <TabsTrigger value="class">Class Timetables</TabsTrigger>
@@ -362,7 +373,7 @@ export default function TimetableManagement() {
               slots={activeSlots}
               onSave={saveSlots}
               onPublish={publish}
-              onAIRegenerate={(fb) => runAIGeneration(activeDef, { ...(activeDef.settings ?? {}), freeText: fb } as any, fb)}
+              onAIRegenerate={(fb) => runAIGeneration(activeDef, { ...(activeDef.settings ?? {}), freeText: fb }, fb)}
             />
           ) : (
             <ExamTimetableBuilder

@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /** HTML-escape a value to prevent XSS when injecting into template strings */
-export function safeHtml(s: any): string {
+export function safeHtml(s: unknown): string {
   return String(s ?? "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")

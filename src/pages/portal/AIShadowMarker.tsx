@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { errorMessage } from "@/lib/errors";
 
 type RubricScore = { criterion: string; score: number; max: number; comment: string };
 
@@ -141,8 +142,8 @@ export default function AIShadowMarker() {
         result: data,
       });
       toast({ title: "Graded by AI", description: `${data.grade}/100 — review and approve below.` });
-    } catch (e: any) {
-      toast({ title: "Grading failed", description: e.message ?? "Please try again.", variant: "destructive" });
+    } catch (e) {
+      toast({ title: "Grading failed", description: errorMessage(e, "Please try again."), variant: "destructive" });
     } finally {
       setEssayLoading(false);
     }
@@ -172,8 +173,8 @@ export default function AIShadowMarker() {
         result: data,
       });
       toast({ title: "Marked", description: `${data.correctCount}/${data.total} correct.` });
-    } catch (e: any) {
-      toast({ title: "Marking failed", description: e.message ?? "Please try again.", variant: "destructive" });
+    } catch (e) {
+      toast({ title: "Marking failed", description: errorMessage(e, "Please try again."), variant: "destructive" });
     } finally {
       setMcqLoading(false);
     }

@@ -13,6 +13,8 @@ import { Plus, Megaphone, Upload, Trash2, Paperclip, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import type { ClassOption } from "@/types/school";
+import type { Tables } from "@/integrations/supabase/types";
 
 const targetTypes = [
   { value: "whole_school", label: "Whole School" },
@@ -23,9 +25,9 @@ const targetTypes = [
 
 interface Props {
   userId: string;
-  classes: any[];
-  announcements: any[];
-  myAnnouncements: any[];
+  classes: ClassOption[];
+  announcements: Tables<"announcements">[];
+  myAnnouncements: Tables<"announcements">[];
   onRefresh: () => void;
 }
 
@@ -59,7 +61,7 @@ export default function EnhancedAnnouncementsTab({ userId, classes, announcement
     setSubmitting(true);
 
     // Upload attachments
-    let file_attachments: string[] = [];
+    const file_attachments: string[] = [];
     for (const file of attachments) {
       const ext = file.name.split(".").pop();
       const path = `announcements/${userId}/${Date.now()}-${file.name}`;
@@ -79,7 +81,7 @@ export default function EnhancedAnnouncementsTab({ userId, classes, announcement
       target_ids: form.target_ids.length > 0 ? form.target_ids : null,
       file_attachments: file_attachments.length > 0 ? file_attachments : null,
       expires_at: form.expires_at || null,
-    } as any);
+    });
 
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
     else {

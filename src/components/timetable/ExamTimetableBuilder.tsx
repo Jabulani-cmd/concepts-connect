@@ -7,11 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Trash2, Sparkles, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { errorMessage } from "@/lib/errors";
 
 interface ExamSlot {
   id?: string;
   exam_date: string;
-  session: "morning" | "afternoon";
+  session: string; // "morning" | "afternoon"
   start_time?: string;
   end_time?: string;
   subject_name: string;
@@ -20,6 +21,11 @@ interface ExamSlot {
   capacity?: number;
   invigilator_name?: string;
 }
+
+type AiExamSlot = {
+  date: string; session: string; start_time?: string; end_time?: string;
+  subject: string; grade: string; venue?: string; invigilator?: string;
+};
 
 interface Props {
   definitionId: string;
@@ -57,14 +63,15 @@ export default function ExamTimetableBuilder({ definitionId, startDate, endDate,
         body: { dates, existingSlots: slots, subjects: slots.map(s => s.subject_name).filter(Boolean) },
       });
       if (error) throw error;
-      const generated: ExamSlot[] = (data?.slots ?? []).map((s: any) => ({
+      const aiSlots: AiExamSlot[] = data?.slots ?? [];
+      const generated: ExamSlot[] = aiSlots.map((s) => ({
         exam_date: s.date, session: s.session, start_time: s.start_time, end_time: s.end_time,
         subject_name: s.subject, class_label: s.grade, venue: s.venue, invigilator_name: s.invigilator,
       }));
       setSlots(generated);
       toast({ title: "AI exam timetable generated", description: data?.summary });
-    } catch (e: any) {
-      toast({ variant: "destructive", title: "Generation failed", description: e?.message });
+    } catch (e) {
+      toast({ variant: "destructive", title: "Generation failed", description: errorMessage(e) });
     } finally { setBusy(false); }
   };
 
@@ -79,8 +86,8 @@ export default function ExamTimetableBuilder({ definitionId, startDate, endDate,
       }
       toast({ title: "Exam timetable saved" });
       onSaved();
-    } catch (e: any) {
-      toast({ variant: "destructive", title: "Save failed", description: e?.message });
+    } catch (e) {
+      toast({ variant: "destructive", title: "Save failed", description: errorMessage(e) });
     } finally { setBusy(false); }
   };
 
@@ -137,7 +144,7 @@ export default function ExamTimetableBuilder({ definitionId, startDate, endDate,
                 <tr key={i} className="border-t">
                   <td className="p-1"><Input type="date" min={startDate} max={endDate} value={s.exam_date} onChange={(e) => upd(i, { exam_date: e.target.value })} /></td>
                   <td className="p-1">
-                    <select className="w-full h-9 border rounded px-2 bg-background" value={s.session} onChange={(e) => upd(i, { session: e.target.value as any })}>
+                    <select className="w-full h-9 border rounded px-2 bg-background" value={s.session} onChange={(e) => upd(i, { session: e.target.value })}>
                       <option value="morning">Morning</option><option value="afternoon">Afternoon</option>
                     </select>
                   </td>

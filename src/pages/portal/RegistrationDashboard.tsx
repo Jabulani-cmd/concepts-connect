@@ -19,6 +19,7 @@ import {
   Plus, Search, Edit, Eye, LogOut, UserPlus, GraduationCap, Users, Save, Loader2, X
 } from "lucide-react";
 import schoolLogo from "@/assets/mavingtech-logo.png";
+import { errorMessage } from "@/lib/errors";
 
 const formOptions = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 const streamOptions = ["A", "B", "C", "D", "Arts", "Sciences", "Commercials"];
@@ -160,8 +161,8 @@ export default function RegistrationDashboard() {
       setShowRegister(false);
       setForm(emptyForm);
       fetchStudents();
-    } catch (err: any) {
-      toast({ title: "Registration failed", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Registration failed", description: errorMessage(err), variant: "destructive" });
     }
     setSaving(false);
   };
@@ -194,8 +195,8 @@ export default function RegistrationDashboard() {
       toast({ title: "Class assigned successfully!" });
       setShowClassAssign(null);
       setSelectedClassId("");
-    } catch (err: any) {
-      toast({ title: "Failed to assign class", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Failed to assign class", description: errorMessage(err), variant: "destructive" });
     }
     setSaving(false);
   };

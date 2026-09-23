@@ -20,6 +20,7 @@ import {
   Copy, Variable
 } from "lucide-react";
 import { format } from "date-fns";
+import { errorMessage } from "@/lib/errors";
 
 type Template = Tables<"sms_templates">;
 type CommLog = Tables<"communication_logs">;
@@ -274,8 +275,8 @@ export default function CommunicationModule() {
       setPreviewOpen(false);
       fetchLogs();
       fetchNotifications();
-    } catch (err: any) {
-      toast({ title: "Send failed", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Send failed", description: errorMessage(err), variant: "destructive" });
     }
     setSending(false);
   };

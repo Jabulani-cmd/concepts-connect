@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Copy, Loader2, Send, Sparkles, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { callTeacherAi } from "@/lib/teacherAi";
+import { errorMessage } from "@/lib/errors";
 
 const REASONS = [
   { value: "absence", label: "Absence" },
@@ -44,8 +45,8 @@ export default function ParentMessageDrafter({ students = [] }: Props) {
     try {
       const res = await callTeacherAi<{ message: string }>("parent_message", { student, reason, language, notes });
       setMessage(res.message || "");
-    } catch (e: any) {
-      toast({ title: "Could not draft message", description: e.message, variant: "destructive" });
+    } catch (e) {
+      toast({ title: "Could not draft message", description: errorMessage(e), variant: "destructive" });
     } finally {
       setLoading(false);
     }

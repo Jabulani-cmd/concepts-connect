@@ -169,7 +169,7 @@ export default function TimetableSetupDialog({ open, aiMode, onOpenChange, onSub
                     <div><Label className="text-xs">Teacher</Label><Input value={s.teacher ?? ""} onChange={(e) => updSubject(i, { teacher: e.target.value })} /></div>
                     <div><Label className="text-xs">Room</Label><Input value={s.room ?? ""} onChange={(e) => updSubject(i, { room: e.target.value })} /></div>
                     <div><Label className="text-xs">Time</Label>
-                      <Select value={s.preferredTime ?? "any"} onValueChange={(x) => updSubject(i, { preferredTime: x as any })}>
+                      <Select value={s.preferredTime ?? "any"} onValueChange={(x) => updSubject(i, { preferredTime: x as SetupValue["subjects"][number]["preferredTime"] })}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="any">Any</SelectItem>

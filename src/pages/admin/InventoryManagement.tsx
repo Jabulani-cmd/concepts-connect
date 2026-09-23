@@ -17,6 +17,7 @@ import {
   Package, Plus, Search, AlertTriangle, BookOpen, ArrowDownUp,
   BarChart3, Edit, Trash2, QrCode, Camera, X, ScanLine, Undo2
 } from "lucide-react";
+import { errorMessage } from "@/lib/errors";
 
 const itemsQuery = () => supabase.from("inventory_items").select("*, inventory_categories(*)").order("name");
 const issuesQuery = () =>
@@ -240,8 +241,8 @@ export default function InventoryManagement() {
           },
           () => {}
         );
-      } catch (e: any) {
-        toast({ title: "Scanner error", description: e.message || "Camera not available", variant: "destructive" });
+      } catch (e) {
+        toast({ title: "Scanner error", description: errorMessage(e, "Camera not available"), variant: "destructive" });
         setShowScannerDialog(false);
       }
     }, 300);

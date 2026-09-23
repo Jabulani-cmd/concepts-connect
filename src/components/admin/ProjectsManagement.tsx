@@ -8,10 +8,12 @@ import { Upload, Trash2, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import ImageCropper from "@/components/ImageCropper";
+import { errorMessage } from "@/lib/errors";
+import type { Tables } from "@/integrations/supabase/types";
 
 export default function ProjectsManagement() {
   const { toast } = useToast();
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState<Tables<"school_projects">[]>([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -65,8 +67,8 @@ export default function ProjectsManagement() {
       setTitle("");
       setDescription("");
       fetchProjects();
-    } catch (err: any) {
-      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Upload failed", description: errorMessage(err), variant: "destructive" });
     }
     setUploading(false);
   };

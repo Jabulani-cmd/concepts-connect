@@ -15,6 +15,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import type { ClassOption, SubjectOption } from "@/types/school";
+import type { Tables } from "@/integrations/supabase/types";
 
 const materialTypes = ["document", "video", "link", "presentation"];
 const typeIcons: Record<string, React.ReactNode> = {
@@ -26,9 +28,9 @@ const typeIcons: Record<string, React.ReactNode> = {
 
 interface Props {
   userId: string;
-  classes: any[];
-  subjects: any[];
-  materials: any[];
+  classes: ClassOption[];
+  subjects: SubjectOption[];
+  materials: (Tables<"study_materials"> & { classes?: { name: string } | null; subjects?: { name: string } | null })[];
   onRefresh: () => void;
 }
 
@@ -168,7 +170,7 @@ export default function EnhancedMaterialsTab({ userId, classes, subjects, materi
           <SelectTrigger className="w-32"><SelectValue placeholder="Type" /></SelectTrigger>
           <SelectContent><SelectItem value="all">All Types</SelectItem>{materialTypes.map(t => <SelectItem key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</SelectItem>)}</SelectContent>
         </Select>
-        <Select value={sortBy} onValueChange={v => setSortBy(v as any)}>
+        <Select value={sortBy} onValueChange={v => setSortBy(v as typeof sortBy)}>
           <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="date">Newest</SelectItem>

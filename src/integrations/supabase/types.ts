@@ -316,6 +316,7 @@ export type Database = {
           id: string
           instructions: string | null
           is_published: boolean
+          link_url: string | null
           max_marks: number | null
           pass_mark: number | null
           questions: Json | null
@@ -338,6 +339,7 @@ export type Database = {
           id?: string
           instructions?: string | null
           is_published?: boolean
+          link_url?: string | null
           max_marks?: number | null
           pass_mark?: number | null
           questions?: Json | null
@@ -360,6 +362,7 @@ export type Database = {
           id?: string
           instructions?: string | null
           is_published?: boolean
+          link_url?: string | null
           max_marks?: number | null
           pass_mark?: number | null
           questions?: Json | null

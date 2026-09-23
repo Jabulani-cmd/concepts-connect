@@ -4,32 +4,10 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BookOpen, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { gradeFor, gradeBadgeClass } from "@/lib/grading";
 
 interface Props {
   studentId: string | null;
-}
-
-function getCAPSGrade(mark: number): string {
-  if (mark >= 90) return "A*";
-  if (mark >= 80) return "A";
-  if (mark >= 70) return "B";
-  if (mark >= 60) return "C";
-  if (mark >= 50) return "D";
-  if (mark >= 40) return "E";
-  return "U";
-}
-
-function getGradeColor(grade: string): string {
-  switch (grade) {
-    case "A*": return "bg-emerald-100 text-emerald-800 border-emerald-300";
-    case "A": return "bg-green-100 text-green-800 border-green-300";
-    case "B": return "bg-blue-100 text-blue-800 border-blue-300";
-    case "C": return "bg-sky-100 text-sky-800 border-sky-300";
-    case "D": return "bg-amber-100 text-amber-800 border-amber-300";
-    case "E": return "bg-orange-100 text-orange-800 border-orange-300";
-    case "U": return "bg-red-100 text-red-800 border-red-300";
-    default: return "bg-muted text-muted-foreground";
-  }
 }
 
 const termOptions = ["Term 1", "Term 2", "Term 3"];
@@ -152,7 +130,7 @@ export default function StudentMarksTab({ studentId }: Props) {
                 </thead>
                 <tbody>
                   {filtered.map(r => {
-                    const grade = getCAPSGrade(r.percent);
+                    const grade = gradeFor(r.percent);
                     return (
                       <tr key={r.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors align-top">
                         <td className="px-3 py-3 font-medium">{r.subjectName}</td>
@@ -174,7 +152,7 @@ export default function StudentMarksTab({ studentId }: Props) {
                         </td>
                         <td className="px-3 py-3 text-center font-bold">{r.scoreLabel}</td>
                         <td className="px-3 py-3 text-center">
-                          <Badge className={`text-xs ${getGradeColor(grade)}`} variant="outline">{grade}</Badge>
+                          <Badge className={`text-xs ${gradeBadgeClass(grade)}`} variant="outline">{grade}</Badge>
                         </td>
                       </tr>
                     );

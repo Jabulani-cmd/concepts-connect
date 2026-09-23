@@ -46,6 +46,7 @@ import ImageCropper from "@/components/ImageCropper";
 import WebcamCapture from "@/components/WebcamCapture";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { errorMessage } from "@/lib/errors";
 
 const portalRoles = [
   { value: "admin", label: "System Administrator" },
@@ -333,9 +334,9 @@ export default function UserManagement() {
       console.log("Combined users:", combined);
 
       setUsers(combined);
-    } catch (err: any) {
+    } catch (err) {
       console.error("Failed to fetch users:", err);
-      toast({ title: "Error loading users", description: err.message, variant: "destructive" });
+      toast({ title: "Error loading users", description: errorMessage(err), variant: "destructive" });
     } finally {
       setLoading(false);
       console.log("-- fetchUsers finished --");
@@ -416,8 +417,8 @@ export default function UserManagement() {
       setCreatePhotoBlob(null);
       setCreatePhotoPreview(null);
       fetchUsers();
-    } catch (err: any) {
-      toast({ title: "Failed to create user", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Failed to create user", description: errorMessage(err), variant: "destructive" });
     }
     setCreating(false);
   };
@@ -470,8 +471,8 @@ export default function UserManagement() {
       if (data.error) throw new Error(data.error);
       toast({ title: "Password changed successfully" });
       setPasswordTarget(null);
-    } catch (err: any) {
-      toast({ title: "Failed to change password", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Failed to change password", description: errorMessage(err), variant: "destructive" });
     } finally {
       setResettingPassword(false);
     }
@@ -506,8 +507,8 @@ export default function UserManagement() {
       toast({ title: "User deleted" });
       setDeleteTarget(null);
       fetchUsers();
-    } catch (err: any) {
-      toast({ title: "Failed to delete user", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Failed to delete user", description: errorMessage(err), variant: "destructive" });
     } finally {
       setDeleting(false);
     }
@@ -674,8 +675,8 @@ export default function UserManagement() {
       setEditPhotoBlob(null);
       setEditPhotoPreview(null);
       fetchUsers();
-    } catch (err: any) {
-      toast({ title: "Failed to update user", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Failed to update user", description: errorMessage(err), variant: "destructive" });
     }
     setSaving(false);
   };

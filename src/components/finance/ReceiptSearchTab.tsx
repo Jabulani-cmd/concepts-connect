@@ -12,14 +12,24 @@ import { format } from "date-fns";
 import { buildReceiptHtml, SCHOOL_LOGO_URL } from "@/lib/finance/pdf";
 import { openPrintWindow, downloadHtmlDocument } from "@/lib/finance/print";
 import { generateAndStoreReceipt, isInstantMethod } from "@/lib/finance/receiptStorage";
+import { errorMessage } from "@/lib/errors";
+import { formatUSD } from "@/lib/currency";
+import type { QueryData } from "@supabase/supabase-js";
 
-const fmt = (n: any): string => { const v=Number(n); return "US$ " + new Intl.NumberFormat("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number.isFinite(v)?v:0); };
+const paymentsQuery = () =>
+  supabase
+    .from("payments")
+    .select("*, students:student_id (full_name, admission_number, form), invoices:invoice_id (invoice_number)")
+    .order("payment_date", { ascending: false });
+type Receipt = QueryData<ReturnType<typeof paymentsQuery>>[number];
+
+const fmt = formatUSD;
 
 export default function ReceiptSearchTab() {
   const { toast } = useToast();
   const { rate, usdToZig } = useExchangeRate();
   const [searchTerm, setSearchTerm] = useState("");
-  const [receipts, setReceipts] = useState<any[]>([]);
+  const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
 
@@ -45,19 +55,12 @@ export default function ReceiptSearchTab() {
 
     try {
       // Search payments with joined student & invoice data
-      const { data, error } = await supabase
-        .from("payments")
-        .select(`
-          *,
-          students:student_id (full_name, admission_number, form),
-          invoices:invoice_id (invoice_number)
-        `)
-        .order("payment_date", { ascending: false });
+      const { data, error } = await paymentsQuery();
 
       if (error) throw error;
 
       // Client-side filter for flexible matching
-      const filtered = (data || []).filter((p: any) => {
+      const filtered = (data || []).filter((p) => {
         const receipt = (p.receipt_number || "").toLowerCase();
         const studentName = (p.students?.full_name || "").toLowerCase();
         const admNum = (p.students?.admission_number || "").toLowerCase();
@@ -71,20 +74,20 @@ export default function ReceiptSearchTab() {
       });
 
       setReceipts(
-        filtered.map((p: any) => ({
+        filtered.map((p) => ({
           ...p,
           amount_zig: Number(usdToZig(Number(p.amount_usd || 0)).toFixed(2)),
         })),
       );
-    } catch (err: any) {
-      toast({ title: "Search failed", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Search failed", description: errorMessage(err), variant: "destructive" });
       setReceipts([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const viewReceipt = (payment: any) => {
+  const viewReceipt = (payment: Receipt) => {
     const receiptHtml = buildReceiptHtml({
       logoUrl: SCHOOL_LOGO_URL,
       receiptNumber: payment.receipt_number,
@@ -110,7 +113,7 @@ export default function ReceiptSearchTab() {
     }
   };
 
-  const printReceipt = (payment: any) => {
+  const printReceipt = (payment: Receipt) => {
     const receiptHtml = buildReceiptHtml({
       logoUrl: SCHOOL_LOGO_URL,
       receiptNumber: payment.receipt_number,
@@ -131,7 +134,7 @@ export default function ReceiptSearchTab() {
     openPrintWindow(receiptHtml);
   };
 
-  const downloadReceipt = async (payment: any) => {
+  const downloadReceipt = async (payment: Receipt) => {
     if (payment.receipt_url) {
       // Prefer the stored PDF file
       window.open(payment.receipt_url, "_blank");
@@ -166,7 +169,7 @@ export default function ReceiptSearchTab() {
         .eq("payment_status", "paid")
         .is("receipt_url", null);
       if (error) throw error;
-      const targets = (data || []).filter((p: any) => isInstantMethod(p.payment_method) && p.receipt_number);
+      const targets = (data || []).filter((p) => isInstantMethod(p.payment_method) && p.receipt_number);
       let ok = 0;
       for (const p of targets) {
         const url = await generateAndStoreReceipt({
@@ -188,8 +191,8 @@ export default function ReceiptSearchTab() {
       }
       toast({ title: "Backfill complete", description: `${ok} of ${targets.length} receipts generated.` });
       searchReceipts();
-    } catch (e: any) {
-      toast({ title: "Backfill failed", description: e.message, variant: "destructive" });
+    } catch (e) {
+      toast({ title: "Backfill failed", description: errorMessage(e), variant: "destructive" });
     } finally {
       setBackfilling(false);
     }

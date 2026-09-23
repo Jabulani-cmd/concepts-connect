@@ -145,7 +145,7 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
       setStep("success");
       toast({ title: "Payment successful", description: `Receipt ${receiptNumber}` });
       onPaid?.();
-    } catch (e: any) {
+    } catch (e) {
       // Real backend/schema error — do NOT show as a gateway decline.
       console.error("[PayInvoiceDialog] Failed to record payment:", e);
       setFailReason("Something went wrong processing your payment. Please try again later.");

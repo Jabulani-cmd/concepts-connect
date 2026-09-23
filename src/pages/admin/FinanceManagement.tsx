@@ -28,7 +28,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import type { Json } from "@/integrations/supabase/types";
+import type { Json, Tables } from "@/integrations/supabase/types";
 import { OFFICE_PAYMENT_METHODS, paymentMethodLabel, type PaymentMethod } from "@/lib/finance/paymentMethods";
 import { useAuth } from "@/contexts/AuthContext";
 import schoolLogo from "@/assets/mavingtech-logo.png";
@@ -77,6 +77,26 @@ import { safeHtml } from "@/lib/utils";
 import { buildBrandedHtml } from "@/lib/print/printSection";
 import BankReconciliation from "@/components/admin/BankReconciliation";
 import IncomeExpenditureReport from "@/components/admin/IncomeExpenditureReport";
+import { errorMessage } from "@/lib/errors";
+import { ilikeAny } from "@/lib/search";
+
+type FeeStructure = Tables<"fee_structures">;
+type StudentRef = Pick<Tables<"students">, "full_name" | "admission_number" | "form">;
+type Invoice = Tables<"invoices"> & { students?: StudentRef | null };
+type Payment = Tables<"payments"> & {
+  students?: StudentRef | null;
+  invoices?: Pick<Tables<"invoices">, "invoice_number"> | null;
+};
+type Expense = Tables<"expenses">;
+type PettyCash = Tables<"petty_cash">;
+type SupplierInvoice = Tables<"supplier_invoices">;
+type SupplierPayment = Tables<"supplier_payments"> & {
+  supplier_invoices?: Pick<SupplierInvoice, "supplier_name" | "invoice_number"> | null;
+};
+type InvoiceItem = Tables<"invoice_items">;
+type StudentHit = Pick<Tables<"students">, "id" | "full_name" | "admission_number" | "form"> & {
+  boarding_status?: string | null;
+};
 
 const formOptions = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 const termOptions = ["Term 1", "Term 2", "Term 3"];
@@ -95,15 +115,9 @@ const expenseCategories = [
   "Petty Cash",
   "General",
 ];
-const restrictionTypes = [
-  "Block Report Cards",
-  "Block Exam Results",
-  "Block Library Access",
-  "Block Sports Activities",
-];
 
 // ── helpers ──
-const fmt = (n: any): string => {
+const fmt = (n: unknown): string => {
   const v = Number(n);
   return `${new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number.isFinite(v) ? v : 0)}`;
 };
@@ -130,11 +144,11 @@ export default function FinanceManagement() {
   const { toast } = useToast();
   const { user, role } = useAuth();
   const { rate, usdToZig } = useExchangeRate();
-  const toNumber = (value: any) => {
+  const toNumber = (value: unknown) => {
     const n = Number(value);
     return Number.isFinite(n) ? n : 0;
   };
-  const convertUsdToZig = useCallback((usdValue: any) => Number(usdToZig(toNumber(usdValue)).toFixed(2)), [usdToZig]);
+  const convertUsdToZig = useCallback((usdValue: unknown) => Number(usdToZig(toNumber(usdValue)).toFixed(2)), [usdToZig]);
   const autoZig = useCallback(
     (usd: string) => {
       const n = Number(usd);
@@ -143,14 +157,14 @@ export default function FinanceManagement() {
     [convertUsdToZig],
   );
   const normalizeAmountRecord = useCallback(
-    (row: any) => ({
+    <T extends { amount_usd: number }>(row: T): T & { amount_zig: number } => ({
       ...row,
       amount_zig: convertUsdToZig(row.amount_usd),
     }),
     [convertUsdToZig],
   );
   const normalizeInvoiceRecord = useCallback(
-    (row: any) => ({
+    <T extends { total_usd: number; paid_usd: number }>(row: T): T => ({
       ...row,
       total_zig: convertUsdToZig(row.total_usd),
       paid_zig: convertUsdToZig(row.paid_usd),
@@ -158,7 +172,7 @@ export default function FinanceManagement() {
     [convertUsdToZig],
   );
   const normalizeSupplierInvoiceRecord = useCallback(
-    (row: any) => ({
+    (row: SupplierInvoice): SupplierInvoice => ({
       ...row,
       amount_zig: convertUsdToZig(row.amount_usd),
       paid_zig: convertUsdToZig(row.paid_usd),
@@ -201,9 +215,9 @@ export default function FinanceManagement() {
   }
 
   // ─── Fee Structures ───
-  const [feeStructures, setFeeStructures] = useState<any[]>([]);
+  const [feeStructures, setFeeStructures] = useState<FeeStructure[]>([]);
   const [feeDialogOpen, setFeeDialogOpen] = useState(false);
-  const [editingFee, setEditingFee] = useState<any>(null);
+  const [editingFee, setEditingFee] = useState<FeeStructure | null>(null);
   const [feeForm, setFeeForm] = useState({
     academic_year: "2026",
     term: "Term 1",
@@ -217,13 +231,13 @@ export default function FinanceManagement() {
 
   // ─── Delete Impact Modal ───
   const [deleteImpactOpen, setDeleteImpactOpen] = useState(false);
-  const [deleteTargetFee, setDeleteTargetFee] = useState<any>(null);
+  const [deleteTargetFee, setDeleteTargetFee] = useState<FeeStructure | null>(null);
   const [deleteImpactCount, setDeleteImpactCount] = useState<number | null>(null);
   const [deleteImpactLoading, setDeleteImpactLoading] = useState(false);
   const [deleteConfirmLoading, setDeleteConfirmLoading] = useState(false);
 
   // ─── Invoices ───
-  const [invoices, setInvoices] = useState<any[]>([]);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [invoiceSearch, setInvoiceSearch] = useState("");
   const [invoiceStatusFilter, setInvoiceStatusFilter] = useState("all");
   const [invoiceTermFilter, setInvoiceTermFilter] = useState("all");
@@ -249,15 +263,15 @@ export default function FinanceManagement() {
     amount_usd: "",
     amount_zig: "",
   });
-  const [singleInvStudentResults, setSingleInvStudentResults] = useState<any[]>([]);
-  const [singleInvSelectedStudent, setSingleInvSelectedStudent] = useState<any>(null);
+  const [singleInvStudentResults, setSingleInvStudentResults] = useState<StudentHit[]>([]);
+  const [singleInvSelectedStudent, setSingleInvSelectedStudent] = useState<StudentHit | null>(null);
   const [singleInvLoading, setSingleInvLoading] = useState(false);
   // NEW: for fee structure selection in single invoice
-  const [availableFeeStructures, setAvailableFeeStructures] = useState<any[]>([]);
-  const [selectedFeeStructure, setSelectedFeeStructure] = useState<any>(null);
+  const [availableFeeStructures, setAvailableFeeStructures] = useState<FeeStructure[]>([]);
+  const [selectedFeeStructure, setSelectedFeeStructure] = useState<FeeStructure | null>(null);
 
   // ─── Payments ───
-  const [payments, setPayments] = useState<any[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
   const [payDialogOpen, setPayDialogOpen] = useState(false);
   const [payForm, setPayForm] = useState({
     student_search: "",
@@ -269,15 +283,13 @@ export default function FinanceManagement() {
     payment_date: new Date().toISOString().split("T")[0],
     notes: "",
   });
-  const [studentResults, setStudentResults] = useState<any[]>([]);
-  const [selectedStudent, setSelectedStudent] = useState<any>(null);
-  const [studentInvoices, setStudentInvoices] = useState<any[]>([]);
+  const [studentResults, setStudentResults] = useState<StudentHit[]>([]);
+  const [selectedStudent, setSelectedStudent] = useState<StudentHit | null>(null);
+  const [studentInvoices, setStudentInvoices] = useState<Invoice[]>([]);
   const [payLoading, setPayLoading] = useState(false);
 
   // ─── Printing / PDFs ───
   const [pdfLoading, setPdfLoading] = useState(false);
-  const [lastReceipt, setLastReceipt] = useState<any>(null);
-  const [receiptDialogOpen, setReceiptDialogOpen] = useState(false);
 
   // ─── Debtor Restriction Settings ───
   const [restrictReportCards, setRestrictReportCards] = useState(false);
@@ -285,7 +297,7 @@ export default function FinanceManagement() {
   const [restrictLoading, setRestrictLoading] = useState(false);
 
   // ─── Expenses ───
-  const [expenses, setExpenses] = useState<any[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
   const [expDialogOpen, setExpDialogOpen] = useState(false);
   const [expForm, setExpForm] = useState({
     expense_date: new Date().toISOString().split("T")[0],
@@ -300,14 +312,14 @@ export default function FinanceManagement() {
   const receiptFileRef = useRef<HTMLInputElement>(null);
 
   // ─── Debtors ───
-  const [debtors, setDebtors] = useState<any[]>([]);
+  const [debtors, setDebtors] = useState<Invoice[]>([]);
   const [debtorsFormFilter, setDebtorsFormFilter] = useState("all");
   const [deleteDebtorOpen, setDeleteDebtorOpen] = useState(false);
-  const [debtorToDelete, setDebtorToDelete] = useState<any>(null);
+  const [debtorToDelete, setDebtorToDelete] = useState<Invoice | null>(null);
   const [deletingDebtor, setDeletingDebtor] = useState(false);
 
   // ─── Petty Cash ───
-  const [pettyCash, setPettyCash] = useState<any[]>([]);
+  const [pettyCash, setPettyCash] = useState<PettyCash[]>([]);
   const [pcDialogOpen, setPcDialogOpen] = useState(false);
   const [pcForm, setPcForm] = useState({
     transaction_date: new Date().toISOString().split("T")[0],
@@ -320,7 +332,7 @@ export default function FinanceManagement() {
   const [pcLoading, setPcLoading] = useState(false);
 
   // ─── Supplier Invoices & Payments ───
-  const [supplierInvoices, setSupplierInvoices] = useState<any[]>([]);
+  const [supplierInvoices, setSupplierInvoices] = useState<SupplierInvoice[]>([]);
   const [siDialogOpen, setSiDialogOpen] = useState(false);
   const [siForm, setSiForm] = useState({
     supplier_name: "",
@@ -334,7 +346,7 @@ export default function FinanceManagement() {
   });
   const [siLoading, setSiLoading] = useState(false);
   const [spDialogOpen, setSpDialogOpen] = useState(false);
-  const [spInvoice, setSpInvoice] = useState<any>(null);
+  const [spInvoice, setSpInvoice] = useState<SupplierInvoice | null>(null);
   const [spForm, setSpForm] = useState({
     payment_date: new Date().toISOString().split("T")[0],
     amount_usd: "",
@@ -344,7 +356,7 @@ export default function FinanceManagement() {
     notes: "",
   });
   const [spLoading, setSpLoading] = useState(false);
-  const [supplierPayments, setSupplierPayments] = useState<any[]>([]);
+  const [supplierPayments, setSupplierPayments] = useState<SupplierPayment[]>([]);
 
   // ─── Cash on Delivery (COD) ───
   const [codDialogOpen, setCodDialogOpen] = useState(false);
@@ -363,10 +375,10 @@ export default function FinanceManagement() {
 
   // ─── Student Statements ───
   const [stmtSearch, setStmtSearch] = useState("");
-  const [stmtStudentResults, setStmtStudentResults] = useState<any[]>([]);
-  const [stmtStudent, setStmtStudent] = useState<any>(null);
-  const [stmtInvoices, setStmtInvoices] = useState<any[]>([]);
-  const [stmtPayments, setStmtPayments] = useState<any[]>([]);
+  const [stmtStudentResults, setStmtStudentResults] = useState<StudentHit[]>([]);
+  const [stmtStudent, setStmtStudent] = useState<StudentHit | null>(null);
+  const [stmtInvoices, setStmtInvoices] = useState<Invoice[]>([]);
+  const [stmtPayments, setStmtPayments] = useState<Payment[]>([]);
   const [stmtLoading, setStmtLoading] = useState(false);
 
   // ─── Loading ───
@@ -410,9 +422,6 @@ export default function FinanceManagement() {
         fetchPayments();
         fetchInvoices();
       })
-      .on("postgres_changes", { event: "*", schema: "public", table: "student_restrictions" }, () => {
-        fetchInvoices();
-      })
       .on("postgres_changes", { event: "*", schema: "public", table: "bank_transactions" }, () => {
         // Refresh relevant data when bank transactions change
         fetchPayments();
@@ -426,7 +435,7 @@ export default function FinanceManagement() {
   // ═══ FETCH FUNCTIONS ═══
   async function fetchFeeStructures() {
     const { data } = await supabase.from("fee_structures").select("*").order("created_at", { ascending: false });
-    if (data) setFeeStructures(data.map((fee: any) => ({ ...fee, amount_zig: convertUsdToZig(fee.amount_usd) })));
+    if (data) setFeeStructures(data.map((fee) => ({ ...fee, amount_zig: convertUsdToZig(fee.amount_usd) })));
   }
 
   async function fetchInvoices() {
@@ -438,7 +447,7 @@ export default function FinanceManagement() {
       const normalized = data.map(normalizeInvoiceRecord);
       setInvoices(normalized);
       // compute debtors
-      const owing = normalized.filter((inv: any) => inv.status !== "paid");
+      const owing = normalized.filter((inv) => inv.status !== "paid");
       setDebtors(owing);
     }
   }
@@ -446,7 +455,7 @@ export default function FinanceManagement() {
   async function fetchPayments() {
     const { data } = await supabase
       .from("payments")
-      .select("*, students(full_name, admission_number), invoices(invoice_number)")
+      .select("*, students(full_name, admission_number, form), invoices(invoice_number)")
       .order("created_at", { ascending: false });
     if (data) setPayments(data.map(normalizeAmountRecord));
   }
@@ -476,7 +485,7 @@ export default function FinanceManagement() {
 
   async function savePettyCash() {
     setPcLoading(true);
-    const amountUsd = parseFloat(pcForm.amount_usd) || 0;
+    const amountUsd = Number(pcForm.amount_usd) || 0;
     const payload = {
       transaction_date: pcForm.transaction_date,
       transaction_type: pcForm.transaction_type,
@@ -512,7 +521,7 @@ export default function FinanceManagement() {
 
   async function saveSupplierInvoice() {
     setSiLoading(true);
-    const amountUsd = parseFloat(siForm.amount_usd) || 0;
+    const amountUsd = Number(siForm.amount_usd) || 0;
     const payload = {
       supplier_name: siForm.supplier_name,
       supplier_contact: siForm.supplier_contact || null,
@@ -554,7 +563,7 @@ export default function FinanceManagement() {
   async function saveSupplierPayment() {
     if (!spInvoice) return;
     setSpLoading(true);
-    const payUsd = parseFloat(spForm.amount_usd) || 0;
+    const payUsd = Number(spForm.amount_usd) || 0;
     const payZig = convertUsdToZig(payUsd);
     const { error } = await supabase.from("supplier_payments").insert({
       supplier_invoice_id: spInvoice.id,
@@ -590,7 +599,7 @@ export default function FinanceManagement() {
     setCodLoading(true);
     // Create a supplier invoice marked as paid + a matching payment
     const invNumber = `COD-${Date.now()}`;
-    const amtUsd = parseFloat(codForm.amount_usd) || 0;
+    const amtUsd = Number(codForm.amount_usd) || 0;
     const amtZig = convertUsdToZig(amtUsd);
     const { data: inv, error: invErr } = await supabase
       .from("supplier_invoices")
@@ -648,7 +657,7 @@ export default function FinanceManagement() {
       .select("*")
       .in("setting_key", ["restrict_report_cards", "restrict_exam_results"]);
     if (data) {
-      data.forEach((s: any) => {
+      data.forEach((s) => {
         if (s.setting_key === "restrict_report_cards") setRestrictReportCards(s.setting_value === "true");
         if (s.setting_key === "restrict_exam_results") setRestrictExamResults(s.setting_value === "true");
       });
@@ -669,7 +678,7 @@ export default function FinanceManagement() {
     setFeeDialogOpen(true);
   }
 
-  function openEditFee(fee: any) {
+  function openEditFee(fee: FeeStructure) {
     setEditingFee(fee);
     setFeeForm({
       academic_year: fee.academic_year,
@@ -683,7 +692,7 @@ export default function FinanceManagement() {
     setFeeDialogOpen(true);
   }
 
-  async function duplicateFee(fee: any) {
+  async function duplicateFee(fee: FeeStructure) {
     const { error } = await supabase.from("fee_structures").insert({
       academic_year: fee.academic_year,
       term: fee.term,
@@ -703,7 +712,7 @@ export default function FinanceManagement() {
 
   async function saveFee() {
     setFeeLoading(true);
-    const amountUsd = parseFloat(feeForm.amount_usd) || 0;
+    const amountUsd = Number(feeForm.amount_usd) || 0;
     const payload = {
       academic_year: feeForm.academic_year,
       term: feeForm.term,
@@ -735,7 +744,7 @@ export default function FinanceManagement() {
     fetchFeeStructures();
   }
 
-  async function openDeleteImpact(fee: any) {
+  async function openDeleteImpact(fee: FeeStructure) {
     setDeleteTargetFee(fee);
     setDeleteImpactCount(null);
     setDeleteImpactOpen(true);
@@ -814,14 +823,14 @@ export default function FinanceManagement() {
     const { data } = await supabase
       .from("students")
       .select("id, full_name, admission_number, form")
-      .or(`full_name.ilike.%${query}%,admission_number.ilike.%${query}%`)
+      .or(ilikeAny(["full_name", "admission_number"], query))
       .eq("status", "active")
       
       .limit(10);
     if (data) setStmtStudentResults(data);
   }
 
-  async function selectStmtStudent(student: any) {
+  async function selectStmtStudent(student: StudentHit) {
     setStmtStudent(student);
     setStmtStudentResults([]);
     setStmtSearch(student.full_name);
@@ -881,16 +890,15 @@ export default function FinanceManagement() {
     return buildBrandedHtml({ title, bodyHtml: body });
   }
 
-  function statusText(s: any) {
-    const raw = typeof s === "string" ? s : (s == null ? "" : String(s?.status ?? s?.label ?? ""));
-    const clean = raw.replace(/[^a-zA-Z]/g, "").toLowerCase();
+  function statusText(status: string | null) {
+    const clean = (status ?? "").replace(/[^a-zA-Z]/g, "").toLowerCase();
     const label = clean ? clean.charAt(0).toUpperCase() + clean.slice(1) : "—";
     return `<span class="status-${clean}">${safeHtml(label)}</span>`;
   }
 
   function buildStatementReportHtml() {
-    const totalInvoiced = stmtInvoices.reduce((s, i) => s + parseFloat(i.total_usd), 0);
-    const totalPaid = stmtPayments.reduce((s, p) => s + parseFloat(p.amount_usd), 0);
+    const totalInvoiced = stmtInvoices.reduce((s, i) => s + Number(i.total_usd), 0);
+    const totalPaid = stmtPayments.reduce((s, p) => s + Number(p.amount_usd), 0);
     const balance = totalInvoiced - totalPaid;
     const invRows = stmtInvoices.length
       ? stmtInvoices.map((i) => `<tr>
@@ -947,7 +955,7 @@ export default function FinanceManagement() {
   function buildDebtorsReportHtml() {
     const filtered =
       debtorsFormFilter === "all" ? debtors : debtors.filter((d) => d.students?.form === debtorsFormFilter);
-    const total = filtered.reduce((s, d) => s + (parseFloat(d.total_usd) - parseFloat(d.paid_usd)), 0);
+    const total = filtered.reduce((s, d) => s + (Number(d.total_usd) - Number(d.paid_usd)), 0);
     const rows = filtered.length
       ? filtered.map((d, i) => `<tr>
           <td>${i + 1}</td>
@@ -956,7 +964,7 @@ export default function FinanceManagement() {
           <td>${safeHtml(d.students?.form || "—")}</td>
           <td class="mono">${safeHtml(d.invoice_number)}</td>
           <td>${safeHtml(d.term)}</td>
-          <td class="right mono red">${formatMoney(parseFloat(d.total_usd) - parseFloat(d.paid_usd))}</td>
+          <td class="right mono red">${formatMoney(Number(d.total_usd) - Number(d.paid_usd))}</td>
           <td>${statusText(d.status)}</td>
         </tr>`).join("")
       : `<tr><td colspan="8" style="text-align:center;color:#64748b">No outstanding debts</td></tr>`;
@@ -1080,8 +1088,8 @@ export default function FinanceManagement() {
       toast({ title: `${created} invoices generated` });
       setBulkInvoiceOpen(false);
       fetchInvoices();
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Error", description: errorMessage(err), variant: "destructive" });
     }
     setBulkLoading(false);
   }
@@ -1095,14 +1103,14 @@ export default function FinanceManagement() {
     const { data } = await supabase
       .from("students")
       .select("id, full_name, admission_number, form, boarding_status")
-      .or(`full_name.ilike.%${query}%,admission_number.ilike.%${query}%`)
+      .or(ilikeAny(["full_name", "admission_number"], query))
       .eq("status", "active")
       
       .limit(10);
     if (data) setSingleInvStudentResults(data);
   }
 
-  function selectSingleInvStudent(student: any) {
+  function selectSingleInvStudent(student: StudentHit) {
     setSingleInvSelectedStudent(student);
     setSingleInvStudentResults([]);
     setSingleInvForm((f) => ({ ...f, student_search: student.full_name, student_id: student.id }));
@@ -1110,7 +1118,7 @@ export default function FinanceManagement() {
     fetchFeeStructuresForStudent(student);
   }
 
-  async function fetchFeeStructuresForStudent(student: any) {
+  async function fetchFeeStructuresForStudent(student: StudentHit | null) {
     if (!student) return;
     const { data: fs } = await supabase
       .from("fee_structures")
@@ -1147,7 +1155,7 @@ export default function FinanceManagement() {
       toast({ title: "Select a student", variant: "destructive" });
       return;
     }
-    const usd = parseFloat(singleInvForm.amount_usd) || 0;
+    const usd = Number(singleInvForm.amount_usd) || 0;
     const zig = convertUsdToZig(usd);
     if (usd === 0 && zig === 0) {
       toast({ title: "Enter an amount", variant: "destructive" });
@@ -1228,19 +1236,21 @@ export default function FinanceManagement() {
         amount_zig: "",
       });
       fetchInvoices();
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Error", description: errorMessage(err), variant: "destructive" });
     }
     setSingleInvLoading(false);
   }
 
-  async function downloadInvoicePdf(inv: any, student?: any, items?: any[]) {
+  async function downloadInvoicePdf(inv: Invoice, student?: StudentRef, items?: (Pick<InvoiceItem, "description" | "amount_usd"> & { amount_zig?: number })[]) {
     setPdfLoading(true);
     try {
       let logoDataUrl: string | undefined;
       try {
         logoDataUrl = await urlToDataUrl(SCHOOL_LOGO_URL);
-      } catch {}
+      } catch {
+        // Logo is optional; the PDF is still generated without it.
+      }
       let invoiceItems = items;
       if (!invoiceItems) {
         const { data } = await supabase.from("invoice_items").select("*").eq("invoice_id", inv.id);
@@ -1257,7 +1267,7 @@ export default function FinanceManagement() {
           admissionNumber: student?.admission_number || inv.students?.admission_number || "—",
           form: student?.form || inv.students?.form,
         },
-        items: invoiceItems.map((it: any) => ({
+        items: invoiceItems.map((it) => ({
           description: it.description,
           amount_usd: it.amount_usd,
           amount_zig: convertUsdToZig(it.amount_usd),
@@ -1265,17 +1275,16 @@ export default function FinanceManagement() {
         totals: { total_usd: inv.total_usd, total_zig: inv.total_zig, paid_usd: inv.paid_usd, paid_zig: inv.paid_zig },
       });
       doc.save(`${inv.invoice_number}.pdf`);
-    } catch (err: any) {
-      toast({ title: "Error generating PDF", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Error generating PDF", description: errorMessage(err), variant: "destructive" });
     }
     setPdfLoading(false);
   }
 
-  async function viewInvoiceHtml(inv: any) {
+  async function viewInvoiceHtml(inv: Invoice) {
     try {
-      let invoiceItems: any[] = [];
       const { data } = await supabase.from("invoice_items").select("*").eq("invoice_id", inv.id);
-      invoiceItems = data || [];
+      const invoiceItems = data || [];
       const html = buildInvoiceHtml({
         logoDataUrl: SCHOOL_LOGO_URL,
         invoiceNumber: inv.invoice_number,
@@ -1287,7 +1296,7 @@ export default function FinanceManagement() {
           admissionNumber: inv.students?.admission_number || "—",
           form: inv.students?.form,
         },
-        items: invoiceItems.map((it: any) => ({
+        items: invoiceItems.map((it) => ({
           description: it.description,
           amount_usd: it.amount_usd,
           amount_zig: convertUsdToZig(it.amount_usd),
@@ -1295,13 +1304,13 @@ export default function FinanceManagement() {
         totals: { total_usd: inv.total_usd, total_zig: inv.total_zig, paid_usd: inv.paid_usd, paid_zig: inv.paid_zig },
       });
       return html;
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Error", description: errorMessage(err), variant: "destructive" });
       return null;
     }
   }
 
-  async function openViewInvoice(inv: any) {
+  async function openViewInvoice(inv: Invoice) {
     const html = await viewInvoiceHtml(inv);
     if (html) {
       const w = window.open("", "_blank");
@@ -1313,7 +1322,7 @@ export default function FinanceManagement() {
     }
   }
 
-  async function printInvoice(inv: any) {
+  async function printInvoice(inv: Invoice) {
     const html = await viewInvoiceHtml(inv);
     if (html) openPrintWindow(html);
   }
@@ -1327,14 +1336,14 @@ export default function FinanceManagement() {
     const { data } = await supabase
       .from("students")
       .select("id, full_name, admission_number, form")
-      .or(`full_name.ilike.%${query}%,admission_number.ilike.%${query}%`)
+      .or(ilikeAny(["full_name", "admission_number"], query))
       .eq("status", "active")
       
       .limit(10);
     if (data) setStudentResults(data);
   }
 
-  async function selectStudentForPayment(student: any) {
+  async function selectStudentForPayment(student: StudentHit) {
     setSelectedStudent(student);
     setStudentResults([]);
     setPayForm((p) => ({ ...p, student_search: student.full_name }));
@@ -1371,7 +1380,7 @@ export default function FinanceManagement() {
       toast({ title: "Please select an invoice", variant: "destructive" });
       return;
     }
-    const usd = parseFloat(payForm.amount_usd) || 0;
+    const usd = Number(payForm.amount_usd) || 0;
     const zig = convertUsdToZig(usd);
     if (usd === 0 && zig === 0) {
       toast({ title: "Enter an amount", variant: "destructive" });
@@ -1492,8 +1501,8 @@ export default function FinanceManagement() {
       fetchInvoices();
       fetchPayments();
       if (stmtStudent) selectStmtStudent(stmtStudent);
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Error", description: errorMessage(err), variant: "destructive" });
     }
     setPayLoading(false);
   }
@@ -1505,7 +1514,7 @@ export default function FinanceManagement() {
       return;
     }
     setExpLoading(true);
-    const amountUsd = parseFloat(expForm.amount_usd) || 0;
+    const amountUsd = Number(expForm.amount_usd) || 0;
     const { error } = await supabase.from("expenses").insert({
       expense_date: expForm.expense_date,
       category: expForm.category,
@@ -1547,7 +1556,7 @@ export default function FinanceManagement() {
     fetchExpenses();
   }
 
-  async function deletePayment(payment: any) {
+  async function deletePayment(payment: Payment) {
     if (isFinanceClerk) {
       await requestApproval(
         "void_payment",
@@ -1581,12 +1590,12 @@ export default function FinanceManagement() {
       fetchPayments();
       fetchInvoices();
       if (stmtStudent) selectStmtStudent(stmtStudent);
-    } catch (err: any) {
-      toast({ title: "Error deleting payment", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Error deleting payment", description: errorMessage(err), variant: "destructive" });
     }
   }
 
-  async function deleteInvoice(invoice: any) {
+  async function deleteInvoice(invoice: Invoice) {
     if (isFinanceClerk) {
       await requestApproval(
         "void_invoice",
@@ -1618,8 +1627,8 @@ export default function FinanceManagement() {
       fetchInvoices();
       fetchPayments();
       if (stmtStudent) selectStmtStudent(stmtStudent);
-    } catch (err: any) {
-      toast({ title: "Error deleting invoice", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Error deleting invoice", description: errorMessage(err), variant: "destructive" });
     }
   }
 
@@ -1638,7 +1647,7 @@ export default function FinanceManagement() {
     return true;
   });
 
-  const filteredPayments = payments.filter((p: any) => {
+  const filteredPayments = payments.filter((p) => {
     if (!dateMatches(paymentDateFilter, p.payment_date)) return false;
     if (paymentSearch) {
       const s = paymentSearch.toLowerCase();
@@ -1648,7 +1657,7 @@ export default function FinanceManagement() {
     return true;
   });
 
-  const filteredExpenses = expenses.filter((e: any) => {
+  const filteredExpenses = expenses.filter((e) => {
     if (!dateMatches(expenseDateFilter, e.expense_date)) return false;
     if (expenseSearch) {
       const s = expenseSearch.toLowerCase();
@@ -1658,12 +1667,12 @@ export default function FinanceManagement() {
     return true;
   });
 
-  const totalOwedUsd = debtors.reduce((s, d) => s + (parseFloat(d.total_usd) - parseFloat(d.paid_usd)), 0);
-  const totalOwedZig = debtors.reduce((s, d) => s + (parseFloat(d.total_zig) - parseFloat(d.paid_zig)), 0);
-  const totalCollectedUsd = payments.reduce((s, p) => s + parseFloat(p.amount_usd || 0), 0);
-  const totalCollectedZig = payments.reduce((s, p) => s + parseFloat(p.amount_zig || 0), 0);
-  const totalExpensesUsd = expenses.reduce((s, e) => s + parseFloat(e.amount_usd || 0), 0);
-  const totalExpensesZig = expenses.reduce((s, e) => s + parseFloat(e.amount_zig || 0), 0);
+  const totalOwedUsd = debtors.reduce((s, d) => s + (Number(d.total_usd) - Number(d.paid_usd)), 0);
+  const totalOwedZig = debtors.reduce((s, d) => s + (Number(d.total_zig) - Number(d.paid_zig)), 0);
+  const totalCollectedUsd = payments.reduce((s, p) => s + Number(p.amount_usd), 0);
+  const totalCollectedZig = payments.reduce((s, p) => s + Number(p.amount_zig), 0);
+  const totalExpensesUsd = expenses.reduce((s, e) => s + Number(e.amount_usd), 0);
+  const totalExpensesZig = expenses.reduce((s, e) => s + Number(e.amount_zig), 0);
 
   if (loading) {
     return (
@@ -2205,7 +2214,7 @@ export default function FinanceManagement() {
                               <TableCell className="font-mono text-xs">{d.invoice_number}</TableCell>
                               <TableCell>{d.term}</TableCell>
                               <TableCell className="text-right font-mono text-destructive">
-                                {fmt(parseFloat(d.total_usd) - parseFloat(d.paid_usd))}
+                                {fmt(Number(d.total_usd) - Number(d.paid_usd))}
                               </TableCell>
                               <TableCell>{statusBadge(d.status)}</TableCell>
                               <TableCell className="text-right">
@@ -2520,7 +2529,7 @@ export default function FinanceManagement() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {supplierPayments.map((sp: any) => (
+                        {supplierPayments.map((sp) => (
                           <TableRow key={sp.id}>
                             <TableCell className="text-xs">{sp.payment_date}</TableCell>
                             <TableCell className="font-medium">{sp.supplier_invoices?.supplier_name || "—"}</TableCell>
@@ -2630,10 +2639,10 @@ export default function FinanceManagement() {
 
 
                   {(() => {
-                    const tInvUsd = stmtInvoices.reduce((s, i) => s + parseFloat(i.total_usd), 0);
-                    const tInvZig = stmtInvoices.reduce((s, i) => s + parseFloat(i.total_zig), 0);
-                    const tPaidUsd = stmtPayments.reduce((s, p) => s + parseFloat(p.amount_usd), 0);
-                    const tPaidZig = stmtPayments.reduce((s, p) => s + parseFloat(p.amount_zig), 0);
+                    const tInvUsd = stmtInvoices.reduce((s, i) => s + Number(i.total_usd), 0);
+                    const tInvZig = stmtInvoices.reduce((s, i) => s + Number(i.total_zig), 0);
+                    const tPaidUsd = stmtPayments.reduce((s, p) => s + Number(p.amount_usd), 0);
+                    const tPaidZig = stmtPayments.reduce((s, p) => s + Number(p.amount_zig), 0);
                     const balUsd = tInvUsd - tPaidUsd;
                     const balZig = tInvZig - tPaidZig;
                     const isCredit = balUsd < 0;
@@ -2698,8 +2707,8 @@ export default function FinanceManagement() {
                                 <TableCell className="font-mono text-xs">{i.invoice_number}</TableCell>
                                 <TableCell>{i.term}</TableCell>
                                 <TableCell>{i.academic_year}</TableCell>
-                                <TableCell className="text-right font-mono">{fmt(parseFloat(i.total_usd))}</TableCell>
-                                <TableCell className="text-right font-mono">{fmt(parseFloat(i.paid_usd))}</TableCell>
+                                <TableCell className="text-right font-mono">{fmt(Number(i.total_usd))}</TableCell>
+                                <TableCell className="text-right font-mono">{fmt(Number(i.paid_usd))}</TableCell>
                                 <TableCell>{statusBadge(i.status)}</TableCell>
                               </TableRow>
                             ))}
@@ -2791,7 +2800,7 @@ export default function FinanceManagement() {
               <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border bg-muted/30 px-3 py-2 text-xs">
                 <span className="text-muted-foreground">
                   Showing <strong>{filteredExpenses.length}</strong> of {expenses.length} · Total
-                  <strong className="text-destructive">{formatMoney(filteredExpenses.reduce((s, e) => s + parseFloat(e.amount_usd || 0), 0))}</strong>
+                  <strong className="text-destructive">{formatMoney(filteredExpenses.reduce((s, e) => s + Number(e.amount_usd), 0))}</strong>
                 </span>
                 <DocActionButtons
                   labels
@@ -2896,8 +2905,8 @@ export default function FinanceManagement() {
                   <h4 className="font-semibold text-sm">By Payment Method</h4>
                   {OFFICE_PAYMENT_METHODS.map((method) => {
                     const methodPayments = payments.filter((p) => p.payment_method === method);
-                    const mUsd = methodPayments.reduce((s, p) => s + parseFloat(p.amount_usd || 0), 0);
-                    const mZig = methodPayments.reduce((s, p) => s + parseFloat(p.amount_zig || 0), 0);
+                    const mUsd = methodPayments.reduce((s, p) => s + Number(p.amount_usd), 0);
+                    const mZig = methodPayments.reduce((s, p) => s + Number(p.amount_zig), 0);
                     if (mUsd === 0 && mZig === 0) return null;
                     return (
                       <div key={method} className="flex items-center justify-between text-sm border-b pb-1">
@@ -2968,8 +2977,8 @@ export default function FinanceManagement() {
                     {["Term 1", "Term 2", "Term 3"].map((term) => {
                       const termInvs = invoices.filter((i) => i.term === term);
                       if (termInvs.length === 0) return null;
-                      const totalUsd = termInvs.reduce((s, i) => s + parseFloat(i.total_usd), 0);
-                      const paidUsd = termInvs.reduce((s, i) => s + parseFloat(i.paid_usd), 0);
+                      const totalUsd = termInvs.reduce((s, i) => s + Number(i.total_usd), 0);
+                      const paidUsd = termInvs.reduce((s, i) => s + Number(i.paid_usd), 0);
                       const pct = totalUsd > 0 ? (paidUsd / totalUsd) * 100 : 0;
                       return (
                         <div key={term}>
@@ -3339,8 +3348,8 @@ export default function FinanceManagement() {
                   </SelectTrigger>
                   <SelectContent>
                     {studentInvoices.map((inv) => {
-                      const balUsd = parseFloat(inv.total_usd) - parseFloat(inv.paid_usd);
-                      const balZig = parseFloat(inv.total_zig) - parseFloat(inv.paid_zig);
+                      const balUsd = Number(inv.total_usd) - Number(inv.paid_usd);
+                      const balZig = Number(inv.total_zig) - Number(inv.paid_zig);
                       return (
                         <SelectItem key={inv.id} value={inv.id}>
                           {inv.invoice_number} —{" "}

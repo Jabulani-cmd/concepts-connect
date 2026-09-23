@@ -4,14 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Receipt, ArrowLeft, Sparkles, Clock, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { Receipt, ArrowLeft, Sparkles, Clock, CheckCircle2, XCircle, AlertCircle, type LucideIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
 import { downloadSubscriptionReceipt } from "@/lib/receiptPdf";
 import { formatMoney } from "@/lib/currency";
 
-const STATUS_STYLES: Record<string, { label: string; cls: string; icon: any }> = {
+const STATUS_STYLES: Record<string, { label: string; cls: string; icon: LucideIcon }> = {
   paid: { label: "Paid", cls: "bg-emerald-100 text-emerald-700", icon: CheckCircle2 },
   pending: { label: "Pending", cls: "bg-amber-100 text-amber-700", icon: Clock },
   awaiting_verification: { label: "Awaiting verification", cls: "bg-amber-100 text-amber-700", icon: Clock },
