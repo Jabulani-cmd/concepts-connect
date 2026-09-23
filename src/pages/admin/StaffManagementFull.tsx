@@ -41,6 +41,7 @@ import { staffFormSchema, type StaffFormData } from "@/lib/validators";
 import ImageCropper from "@/components/ImageCropper";
 import WebcamCapture from "@/components/WebcamCapture";
 import { errorMessage } from "@/lib/errors";
+import { STAFF_COLUMNS, withStaffPrivate } from "@/lib/staff";
 
 const roleOptions = ["principal", "deputy_principal", "hod", "admin", "bursar", "teacher", "senior_teacher", "housemaster", "counsellor", "librarian", "it_administrator", "groundskeeper", "matron", "secretary", "sports_director", "lab_technician", "school_administrator", "admin_clerk", "finance_clerk"];
 const departmentOptions = [
@@ -231,8 +232,8 @@ export default function StaffManagementFull() {
 
   const fetchStaff = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase.from("staff").select("*").order("full_name");
-    if (data) setStaff(data as unknown as StaffMember[]);
+    const { data, error } = await supabase.from("staff").select(STAFF_COLUMNS).order("full_name");
+    if (data) setStaff((await withStaffPrivate(data)) as unknown as StaffMember[]);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
     setLoading(false);
   }, [toast]);

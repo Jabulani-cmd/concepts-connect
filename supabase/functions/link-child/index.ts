@@ -66,14 +66,22 @@ Deno.serve(async (req) => {
       // Find student by admission number
       const { data: student } = await supabaseAdmin
         .from("students")
-        .select("id, full_name, form, admission_number")
+        .select("id, full_name, form, admission_number, guardian_email")
         .eq("admission_number", admission_number.trim())
         .eq("status", "active")
         .maybeSingle();
 
-      if (!student) {
-        return new Response(JSON.stringify({ error: "No active student found with this admission number" }), {
-          status: 404,
+      // Only the guardian the school has on record may link themselves; otherwise anyone
+      // could claim any child by guessing an admission number. The same message is used
+      // either way so admission numbers can't be probed.
+      const { data: caller } = await supabaseAdmin.auth.admin.getUserById(user.id);
+      const callerEmail = (caller?.user?.email ?? "").trim().toLowerCase();
+      const guardianEmail = (student?.guardian_email ?? "").trim().toLowerCase();
+      if (!student || !callerEmail || guardianEmail !== callerEmail) {
+        return new Response(JSON.stringify({
+          error: "We couldn't link this child to your account. Your email must match the guardian email the school has for this student — please contact the school office.",
+        }), {
+          status: 403,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }

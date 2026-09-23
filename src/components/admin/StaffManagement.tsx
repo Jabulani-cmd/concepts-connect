@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import ImageCropper from "@/components/ImageCropper";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { errorMessage } from "@/lib/errors";
+import { STAFF_COLUMNS } from "@/lib/staff";
 
 const categoryOptions = [
   { value: "leadership", label: "Leadership" },
@@ -52,7 +53,7 @@ export default function StaffManagement() {
   }, []);
 
   const fetchStaff = async () => {
-    const { data } = await supabase.from("staff").select("*").order("full_name");
+    const { data } = await supabase.from("staff").select(STAFF_COLUMNS).order("full_name");
     if (data) setStaff(data as StaffMember[]);
   };
 

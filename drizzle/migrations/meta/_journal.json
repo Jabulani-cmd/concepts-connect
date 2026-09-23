@@ -8,6 +8,13 @@
       "when": 1790162486249,
       "tag": "0000_schema_alignment_zimbabwe_forms_currency",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790163538420,
+      "tag": "0001_security_lockdown",
+      "breakpoints": true
     }
   ]
 }

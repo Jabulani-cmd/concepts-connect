@@ -1,7 +1,8 @@
 // Creates and links the demo school's login accounts.
 //
 // - With no body it only (re)creates the fixed demo administrator, so the Login
-//   page can bootstrap an empty demo system. No sign-in is needed for that.
+//   page can bootstrap an empty demo system. No sign-in is needed for that, which
+//   means anyone can become the demo administrator: set DEMO_MODE=off before real use.
 // - With `accounts` it requires a signed-in school administrator, only touches
 //   addresses on the demo domain, and links every login to its school record:
 //     student → students.user_id (by admission number)
@@ -131,6 +132,12 @@ async function linkRecords(admin: SupabaseClient, linked: { account: Account; ui
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  // Before a real school goes live, set the DEMO_MODE secret to "off": the known
+  // demo administrator login and demo seeding are then refused.
+  if ((Deno.env.get("DEMO_MODE") ?? "on").toLowerCase() === "off") {
+    return json({ error: "Demo mode is switched off for this school." }, 403);
+  }
 
   try {
     const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);

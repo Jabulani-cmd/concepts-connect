@@ -14,11 +14,12 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { paymentMethodLabel, type PaymentMethod } from "@/lib/finance/paymentMethods";
-import type { Enums, Tables } from "@/integrations/supabase/types";
+import type { Database, Enums, Tables } from "@/integrations/supabase/types";
 import type { Dispatch, SetStateAction } from "react";
 
 type Plan = Tables<"subscription_plans">;
-type BankDetails = Tables<"school_bank_details">;
+// The school's receiving account, as shown to payers (see get_school_bank_details).
+type BankDetails = Database["public"]["Functions"]["get_school_bank_details"]["Returns"][number];
 type Child = Pick<Tables<"students">, "id" | "full_name" | "form" | "stream" | "admission_number">;
 type CompletedPayment = {
   receiptNumber: string;
@@ -85,10 +86,10 @@ export default function ParentSubscribe() {
     (async () => {
       const [{ data: p }, { data: b }] = await Promise.all([
         supabase.from("subscription_plans").select("*").eq("is_active", true).order("amount_usd"),
-        supabase.from("school_bank_details").select("*").eq("is_active", true).maybeSingle(),
+        supabase.rpc("get_school_bank_details"),
       ]);
       setPlans(p || []);
-      setBank(b);
+      setBank(b?.[0] ?? null);
 
       if (user) {
         // No FK relationship exists between parent_students/parent_student_links and students,
