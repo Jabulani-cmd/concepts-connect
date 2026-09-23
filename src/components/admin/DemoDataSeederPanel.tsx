@@ -162,7 +162,7 @@ export default function DemoDataSeederPanel() {
     const { data: existingCls } = await supabase.from("classes").select("id, name").in("name", classNames);
     const clsByName = new Map((existingCls ?? []).map(c => [c.name, c.id]));
     const missingCls = seed.classes.filter(c => !clsByName.has(c.name)).map(c => ({
-      name: c.name, level: `Grade ${c.name.match(/\d+/)?.[0] ?? ""}`, stream: c.stream, capacity: 40,
+      name: c.name, level: `Form ${c.name.match(/\d+/)?.[0] ?? ""}`, stream: c.stream, capacity: c.studentCount ?? 40,
       academic_year: String(new Date().getFullYear()),
     }));
     if (missingCls.length) {
@@ -374,8 +374,8 @@ export default function DemoDataSeederPanel() {
       await supabase.from("timetable_entries").delete().eq("term", "DEMO");
       await supabase.from("tt_definitions").delete().like("name", "DEMO %");
       await supabase.from("class_subjects").delete().in("class_id",
-        (await supabase.from("classes").select("id").like("name", "Grade %")).data?.map(r => r.id) ?? []);
-      await supabase.from("classes").delete().like("name", "Grade %");
+        (await supabase.from("classes").select("id").like("name", "Form %")).data?.map(r => r.id) ?? []);
+      await supabase.from("classes").delete().like("name", "Form %");
       await supabase.from("staff").delete().like("email", "%@schooldemo.com");
     } catch (e) {
       console.error("Failed clearing demo data from DB", e);
@@ -388,7 +388,7 @@ export default function DemoDataSeederPanel() {
     const lines = ["role,full_name,reference,email,password"];
     lines.push(`admin,"Administrator","Full access",admin@schooldemo.com,Demo@2025`);
     alloc.teachers.forEach(t => lines.push(`teacher,"${t.name}","${t.employeeNumber}",${t.email},Teacher@2025`));
-    people.students.forEach(s => lines.push(`student,"${s.fullName}","${s.admissionNumber} • Grade ${s.form}${s.stream}",${s.email},${s.password}`));
+    people.students.forEach(s => lines.push(`student,"${s.fullName}","${s.admissionNumber} • Form ${s.form}${s.stream}",${s.email},${s.password}`));
     people.parents.forEach(p => {
       const child = people.students.find(s => s.id === p.studentId);
       lines.push(`parent (${p.relationship}),"${p.fullName}","Child: ${child?.fullName ?? ""}",${p.email},${p.password}`);
@@ -494,11 +494,11 @@ export default function DemoDataSeederPanel() {
           </DialogHeader>
           {summary && (
             <div className="space-y-2 text-sm">
-              <Row label="Students enrolled"   value={summary.students}  hint="Grade 8–12, 30 per form, 15 per stream" />
+              <Row label="Students enrolled"   value={summary.students}  hint="Form 1–6, 35 per O-level stream" />
               <Row label="Parents & guardians" value={summary.parents}   hint="2 per student with portal logins" />
               <Row label="Teachers"            value={summary.teachers}  hint="All subjects covered" />
               <Row label="Subjects"            value={summary.subjects}  hint="Linked to relevant forms" />
-              <Row label="Classes"             value={summary.classes}   hint="Grade 8A through Grade 12B" />
+              <Row label="Classes"             value={summary.classes}   hint="Form 1A through Upper 6B" />
               <Row label="Venues"              value={summary.rooms}     hint="Classrooms, labs, hall, sports field" />
               <Row label="Timetable periods"   value={summary.periods}   hint="Every slot filled with subject, teacher, venue, time" />
             </div>
