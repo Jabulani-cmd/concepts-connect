@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Search, UserCheck, Loader2, CheckCircle, AlertTriangle, Users } from "lucide-react";
 
-const formOptions = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
+const formOptions = ["Form 1", "Form 2", "Form 3", "Form 4", "Form 5", "Form 6"];
 const termOptions = ["Term 1", "Term 2", "Term 3"];
 
 function getCurrentTerm(): string {

@@ -16,10 +16,10 @@ import { supabase } from "@/integrations/supabase/client";
 
 const STEPS = [
   "Generating venues and classrooms",
-  "Creating subjects and curriculum",
-  "Provisioning teacher accounts",
-  "Enrolling 150 learners across Grade 8–12",
-  "Assigning 300 parents and guardians",
+  "Creating ZIMSEC subjects and curriculum",
+  "Provisioning 40 teacher accounts",
+  "Enrolling 500 learners across Form 1–6",
+  "Assigning 1 000 parents and guardians",
   "Building class allocations",
   "Solving weekly timetable",
   "Provisioning login accounts (admin + teachers)",
@@ -58,7 +58,7 @@ export default function DemoDataSeederPanel() {
     const { error: e1 } = await supabase.functions.invoke("seed-demo-accounts", { body: { accounts: priority } });
     if (e1) throw e1;
 
-    // Phase 2 (background): students + parents in chunks of 50.
+    // Phase 2 (background): students + parents in chunks of 50, then link accounts to records.
     const rest = [...studentAccts, ...parentAccts];
     (async () => {
       for (let i = 0; i < rest.length; i += 50) {
@@ -66,8 +66,48 @@ export default function DemoDataSeederPanel() {
         try { await supabase.functions.invoke("seed-demo-accounts", { body: { accounts: chunk } }); }
         catch (err) { console.error("seed-demo-accounts chunk failed", err); }
       }
-      toast({ title: "All demo logins ready", description: `Students & parents provisioned (${rest.length} accounts).` });
+      try { await linkPeopleAccounts(seed); }
+      catch (err) { console.error("linking demo accounts failed", err); }
+      toast({ title: "All demo logins ready", description: `Learners & parents provisioned and linked (${rest.length} accounts).` });
     })();
+  }
+
+  // Link learner logins to their student records and connect parents to their children,
+  // so student/parent portals resolve the right person at sign-in.
+  async function linkPeopleAccounts(seed: ReturnType<typeof generateDemoSeed>) {
+    const emails = [...seed.students.map(s => s.email), ...seed.parents.map(p => p.email)];
+    const uidByEmail = new Map<string, string>();
+    for (let i = 0; i < emails.length; i += 200) {
+      const { data } = await supabase.from("profiles").select("id, email").in("email", emails.slice(i, i + 200));
+      (data ?? []).forEach(p => { if (p.email) uidByEmail.set(p.email.toLowerCase(), p.id); });
+    }
+
+    const admNos = seed.students.map(s => s.admissionNumber);
+    const studentIdByAdm = new Map<string, string>();
+    for (let i = 0; i < admNos.length; i += 200) {
+      const { data } = await supabase.from("students").select("id, admission_number").in("admission_number", admNos.slice(i, i + 200));
+      (data ?? []).forEach(r => studentIdByAdm.set(r.admission_number, r.id));
+    }
+
+    // 1) students.user_id
+    for (const s of seed.students) {
+      const uid = uidByEmail.get(s.email.toLowerCase());
+      const sid = studentIdByAdm.get(s.admissionNumber);
+      if (uid && sid) await supabase.from("students").update({ user_id: uid }).eq("id", sid);
+    }
+
+    // 2) parent ↔ student links
+    const links = seed.parents.map(p => {
+      const stu = seed.students.find(s => s.id === p.studentId);
+      const parentUid = uidByEmail.get(p.email.toLowerCase());
+      const sid = stu ? studentIdByAdm.get(stu.admissionNumber) : null;
+      return parentUid && sid ? { parent_id: parentUid, student_id: sid } : null;
+    }).filter(Boolean) as Array<{ parent_id: string; student_id: string }>;
+    for (let i = 0; i < links.length; i += 100) {
+      const chunk = links.slice(i, i + 100);
+      await supabase.from("parent_students").upsert(chunk, { onConflict: "parent_id,student_id", ignoreDuplicates: true });
+      await supabase.from("parent_student_links").upsert(chunk, { onConflict: "parent_id,student_id", ignoreDuplicates: true });
+    }
   }
 
   async function persistStudentsToDb(seed: ReturnType<typeof generateDemoSeed>) {
@@ -85,10 +125,10 @@ export default function DemoDataSeederPanel() {
         email: s.email,
         date_of_birth: s.dob,
         gender: s.gender,
-        form: `Grade ${s.form}`,
+        form: `Form ${s.form}`,
         stream: s.stream,
-        class: `Grade ${s.form}${s.stream}`,
-        boarding_status: "day",
+        class: s.className,
+        boarding_status: s.boardingStatus,
         status: "active",
         guardian_name: parent?.fullName ?? null,
         guardian_phone: parent?.phone ?? null,
@@ -122,7 +162,7 @@ export default function DemoDataSeederPanel() {
     const { data: existingCls } = await supabase.from("classes").select("id, name").in("name", classNames);
     const clsByName = new Map((existingCls ?? []).map(c => [c.name, c.id]));
     const missingCls = seed.classes.filter(c => !clsByName.has(c.name)).map(c => ({
-      name: c.name, level: `Grade ${c.name.match(/\d+/)?.[0] ?? ""}`, stream: c.stream, capacity: 40,
+      name: c.name, level: `Form ${c.name.match(/\d+/)?.[0] ?? ""}`, stream: c.stream, capacity: c.studentCount ?? 40,
       academic_year: String(new Date().getFullYear()),
     }));
     if (missingCls.length) {
@@ -334,8 +374,8 @@ export default function DemoDataSeederPanel() {
       await supabase.from("timetable_entries").delete().eq("term", "DEMO");
       await supabase.from("tt_definitions").delete().like("name", "DEMO %");
       await supabase.from("class_subjects").delete().in("class_id",
-        (await supabase.from("classes").select("id").like("name", "Grade %")).data?.map(r => r.id) ?? []);
-      await supabase.from("classes").delete().like("name", "Grade %");
+        (await supabase.from("classes").select("id").like("name", "Form %")).data?.map(r => r.id) ?? []);
+      await supabase.from("classes").delete().like("name", "Form %");
       await supabase.from("staff").delete().like("email", "%@schooldemo.com");
     } catch (e) {
       console.error("Failed clearing demo data from DB", e);
@@ -348,7 +388,7 @@ export default function DemoDataSeederPanel() {
     const lines = ["role,full_name,reference,email,password"];
     lines.push(`admin,"Administrator","Full access",admin@schooldemo.com,Demo@2025`);
     alloc.teachers.forEach(t => lines.push(`teacher,"${t.name}","${t.employeeNumber}",${t.email},Teacher@2025`));
-    people.students.forEach(s => lines.push(`student,"${s.fullName}","${s.admissionNumber} • Grade ${s.form}${s.stream}",${s.email},${s.password}`));
+    people.students.forEach(s => lines.push(`student,"${s.fullName}","${s.admissionNumber} • Form ${s.form}${s.stream}",${s.email},${s.password}`));
     people.parents.forEach(p => {
       const child = people.students.find(s => s.id === p.studentId);
       lines.push(`parent (${p.relationship}),"${p.fullName}","Child: ${child?.fullName ?? ""}",${p.email},${p.password}`);
@@ -381,8 +421,8 @@ export default function DemoDataSeederPanel() {
               {seeded && <Badge className="bg-green-600 hover:bg-green-700"><CheckCircle2 className="h-3 w-3 mr-1" />Loaded</Badge>}
             </CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
-              One-click populate the entire system with realistic South African CAPS-aligned school data — students, parents,
-              teachers, subjects, classes, venues and a complete weekly timetable.
+              One-click populate the entire system with realistic Zimbabwean ZIMSEC-aligned school data — 500 learners in
+              Form 1–6, their parents, teachers, subjects, classes, venues and a complete weekly timetable.
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
@@ -454,11 +494,11 @@ export default function DemoDataSeederPanel() {
           </DialogHeader>
           {summary && (
             <div className="space-y-2 text-sm">
-              <Row label="Students enrolled"   value={summary.students}  hint="Grade 8–12, 30 per form, 15 per stream" />
+              <Row label="Students enrolled"   value={summary.students}  hint="Form 1–6, 35 per O-level stream" />
               <Row label="Parents & guardians" value={summary.parents}   hint="2 per student with portal logins" />
               <Row label="Teachers"            value={summary.teachers}  hint="All subjects covered" />
               <Row label="Subjects"            value={summary.subjects}  hint="Linked to relevant forms" />
-              <Row label="Classes"             value={summary.classes}   hint="Grade 8A through Grade 12B" />
+              <Row label="Classes"             value={summary.classes}   hint="Form 1A through Upper 6B" />
               <Row label="Venues"              value={summary.rooms}     hint="Classrooms, labs, hall, sports field" />
               <Row label="Timetable periods"   value={summary.periods}   hint="Every slot filled with subject, teacher, venue, time" />
             </div>

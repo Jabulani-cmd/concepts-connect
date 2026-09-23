@@ -21,7 +21,7 @@ import { studentFormSchema, type StudentFormData, zimPhoneRegex } from "@/lib/va
 import ImageCropper from "@/components/ImageCropper";
 import WebcamCapture from "@/components/WebcamCapture";
 
-const formOptions = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
+const formOptions = ["Form 1", "Form 2", "Form 3", "Form 4", "Form 5", "Form 6"];
 const streamOptions = ["A", "B", "C", "D", "Arts", "Sciences", "Commercials"];
 const statusOptions = ["active", "graduated", "withdrawn"];
 const genderOptions = ["Male", "Female"];
@@ -58,7 +58,7 @@ const emptyForm: StudentFormData = {
   admission_number: "",
   full_name: "",
   date_of_birth: "",
-  form: "Grade 8",
+  form: "Form 1",
   stream: "",
   subject_combination: "",
   gender: "",
