@@ -22,6 +22,13 @@
       "when": 1790164775086,
       "tag": "0002_apply_security_lockdown",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790165088397,
+      "tag": "0003_staff_directory_function",
+      "breakpoints": true
     }
   ]
 }

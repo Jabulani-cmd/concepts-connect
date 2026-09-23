@@ -93,7 +93,7 @@ export default function StudentTimetableTab({ studentClassId, studentId }: Props
       const [{ data: detailed }, { data: sports }] = await Promise.all([
         supabase
           .from("timetable_entries")
-          .select("*, subjects(name), staff:staff_public(full_name), classes(name)")
+          .select("*, subjects(name), classes(name)")
           .eq("class_id", resolvedClassId)
           .order("start_time"),
         supabase
@@ -103,8 +103,18 @@ export default function StudentTimetableTab({ studentClassId, studentId }: Props
           .order("start_time"),
       ]);
 
+      // Teacher names come from the staff directory: students and parents can't read staff records.
+      const teacherIds = [...new Set((detailed ?? []).map((e) => e.teacher_id).filter((id): id is string => !!id))];
+      const { data: directory } = teacherIds.length
+        ? await supabase.rpc("get_staff_directory", { _ids: teacherIds })
+        : { data: [] };
+      const teacherName = new Map((directory ?? []).map((t) => [t.id, t.full_name]));
+
       if (!mounted) return;
-      setEntries(detailed || []);
+      setEntries((detailed ?? []).map((e) => ({
+        ...e,
+        staff: e.teacher_id && teacherName.has(e.teacher_id) ? { full_name: teacherName.get(e.teacher_id)! } : null,
+      })));
       setSportsSchedule(sports || []);
       setLoading(false);
     };

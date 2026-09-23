@@ -4,9 +4,9 @@ import { useTranslation } from "react-i18next";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import type { Tables } from "@/integrations/supabase/types";
+import type { Database } from "@/integrations/supabase/types";
 
-type StaffMember = Omit<Tables<"staff_public">, "qualifications">;
+type StaffMember = Database["public"]["Functions"]["get_staff_directory"]["Returns"][number];
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -28,7 +28,7 @@ export default function Staff() {
   };
 
   useEffect(() => {
-    supabase.from("staff_public").select("id, full_name, title, department, bio, photo_url, category").order("full_name")
+    supabase.rpc("get_staff_directory")
       .then(({ data }) => { if (data) setStaff(data); });
     supabase.from("site_settings").select("setting_value").eq("setting_key", "staff_group_photo").limit(1)
       .then(({ data }) => { if (data && data.length > 0) setGroupPhoto(data[0].setting_value); });
