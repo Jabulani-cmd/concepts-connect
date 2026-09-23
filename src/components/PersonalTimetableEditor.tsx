@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +10,7 @@ import { Plus, Trash2, Edit2, Clock, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import type { Json } from "@/integrations/supabase/types";
 
 const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const dayShort = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -57,6 +57,7 @@ export default function PersonalTimetableEditor({ title = "My Timetable" }: { ti
   const { toast } = useToast();
   const { user } = useAuth();
   const [entries, setEntries] = useState<TimetableEntry[]>([]);
+  const [rowId, setRowId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -68,17 +69,30 @@ export default function PersonalTimetableEditor({ title = "My Timetable" }: { ti
     if (user) fetchEntries();
   }, [user]);
 
+  // Entries are stored as a JSON list in a single personal_timetables row per user.
   const fetchEntries = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("personal_timetables")
-      .select("*")
+      .select("id, data")
       .eq("user_id", user!.id)
-      .order("day_of_week")
-      .order("time_slot");
-    if (data) setEntries(data as TimetableEntry[]);
+      .maybeSingle();
     if (error) console.error(error);
+    setRowId(data?.id ?? null);
+    const stored = (data?.data as { entries?: TimetableEntry[] } | null)?.entries;
+    setEntries(Array.isArray(stored) ? stored : []);
     setLoading(false);
+  };
+
+  const persistEntries = async (next: TimetableEntry[]) => {
+    const data = { entries: next } as unknown as Json;
+    if (rowId) {
+      return supabase
+        .from("personal_timetables")
+        .update({ data, updated_at: new Date().toISOString() })
+        .eq("id", rowId);
+    }
+    return supabase.from("personal_timetables").insert({ user_id: user!.id, data });
   };
 
   const openAdd = () => {
@@ -108,8 +122,8 @@ export default function PersonalTimetableEditor({ title = "My Timetable" }: { ti
     }
     setSaving(true);
 
-    const payload = {
-      user_id: user!.id,
+    const entry: TimetableEntry = {
+      id: editingId ?? crypto.randomUUID(),
       day_of_week: parseInt(form.day_of_week),
       time_slot: form.time_slot,
       end_time: form.end_time || null,
@@ -118,21 +132,15 @@ export default function PersonalTimetableEditor({ title = "My Timetable" }: { ti
       description: form.description || null,
       location: form.location || null,
     };
+    const next = editingId
+      ? entries.map(e => (e.id === editingId ? entry : e))
+      : [...entries, entry];
 
-    if (editingId) {
-      const { error } = await supabase.from("personal_timetables").update(payload).eq("id", editingId);
-      if (error) {
-        toast({ title: "Error", description: error.message, variant: "destructive" });
-      } else {
-        toast({ title: "Entry updated!" });
-      }
+    const { error } = await persistEntries(next);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
-      const { error } = await supabase.from("personal_timetables").insert(payload);
-      if (error) {
-        toast({ title: "Error", description: error.message, variant: "destructive" });
-      } else {
-        toast({ title: "Entry added!" });
-      }
+      toast({ title: editingId ? "Entry updated!" : "Entry added!" });
     }
 
     setSaving(false);
@@ -141,7 +149,7 @@ export default function PersonalTimetableEditor({ title = "My Timetable" }: { ti
   };
 
   const handleDelete = async (id: string) => {
-    const { error } = await supabase.from("personal_timetables").delete().eq("id", id);
+    const { error } = await persistEntries(entries.filter(e => e.id !== id));
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {

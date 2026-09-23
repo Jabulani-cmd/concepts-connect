@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -96,11 +95,11 @@ export default function ExamResultsUpload({ userId, classes, subjects }: Props) 
     } else {
       // Fallback: get students by form level
       const cls = classes.find((c) => c.id === selectedClassId);
-      if (cls?.form_level) {
+      if (cls?.level) {
         const { data: studs } = await supabase
           .from("students")
           .select("id, full_name, admission_number")
-          .eq("form", cls.form_level)
+          .eq("form", cls.level)
           .eq("status", "active")
           .order("full_name");
         setStudents(studs || []);
@@ -127,7 +126,7 @@ export default function ExamResultsUpload({ userId, classes, subjects }: Props) 
       existing[r.student_id] = r;
       entries[r.student_id] = {
         mark: r.mark?.toString() || "",
-        comment: r.teacher_comment || "",
+        comment: r.comment || "",
       };
     });
 
@@ -175,7 +174,7 @@ export default function ExamResultsUpload({ userId, classes, subjects }: Props) 
         student_id: student.id,
         mark,
         grade: zimGrade(mark),
-        teacher_comment: entry.comment || null,
+        comment: entry.comment || null,
       };
 
       // If existing, include id for upsert

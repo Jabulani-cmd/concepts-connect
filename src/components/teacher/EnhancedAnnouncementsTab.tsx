@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -101,7 +100,7 @@ export default function EnhancedAnnouncementsTab({ userId, classes, announcement
 
   const displayList = viewTab === "mine" ? myAnnouncements : announcements;
 
-  const formLevels = [...new Set(classes.map(c => c.form_level).filter(Boolean))];
+  const formLevels = [...new Set(classes.map(c => c.level).filter(Boolean))];
 
   return (
     <div className="space-y-4">

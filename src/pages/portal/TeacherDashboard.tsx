@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -21,6 +20,7 @@ import schoolLogo from "@/assets/mavingtech-logo.png";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { saveClassAttendance } from "@/lib/attendance";
 import PersonalTimetableEditor from "@/components/PersonalTimetableEditor";
 import NotificationBell from "@/components/NotificationBell";
 import AssessmentsTab from "@/components/teacher/AssessmentsTab";
@@ -193,7 +193,7 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
         if (data) studs = data;
       } else {
         const cls = classes.find(c => c.id === attClass);
-        const grade = cls?.level || cls?.form_level;
+        const grade = cls?.level;
         if (grade) {
           let q = supabase.from("students").select("id, full_name, admission_number").eq("status", "active").or(`form.eq.${grade},class.eq.${cls?.name}`);
           const { data } = await q.order("full_name");
@@ -205,7 +205,7 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
       const defaults: Record<string, string> = {};
       studs.forEach(s => { defaults[s.id] = "present"; });
       if (studs.length > 0 && attDate) {
-        const { data: existing } = await supabase.from("attendance").select("student_id, status").eq("class_id", attClass).eq("attendance_date", attDate);
+        const { data: existing } = await supabase.from("attendance").select("student_id, status").eq("class_id", attClass).eq("date", attDate);
         if (existing) {
           existing.forEach(r => { defaults[r.student_id] = r.status; });
         }
@@ -218,7 +218,7 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
     const { student_id, subject_id, mark, term, assessment_type, description, comment } = markForm;
     if (!student_id || !subject_id || !mark) { toast({ title: "Fill all required fields", variant: "destructive" }); return; }
     setMarkLoading(true);
-    const { error } = await supabase.from("marks").insert({ student_id, subject_id, mark: parseInt(mark), term, assessment_type, description: description || null, teacher_id: user!.id });
+    const { error } = await supabase.from("marks").insert({ student_id, subject_id, mark: parseInt(mark), term, assessment_type, comment: [description, comment].filter(Boolean).join(" — ") || null, teacher_id: user!.id });
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
     else {
       toast({ title: `Mark submitted — Grade: ${zimGrade(parseInt(mark))}` });
@@ -248,10 +248,13 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
   const submitAttendance = async () => {
     if (!attClass || !attDate || attStudents.length === 0) { toast({ title: "Select class and date", variant: "destructive" }); return; }
     setAttLoading(true);
-    const records = attStudents.map(s => ({ student_id: s.id, class_id: attClass, attendance_date: attDate, status: attRecords[s.id] || "present", recorded_by: user!.id }));
-    const { error } = await supabase.from("attendance").upsert(records, { onConflict: "student_id,class_id,attendance_date", ignoreDuplicates: false });
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
-    else { toast({ title: `Attendance saved — ${Object.values(attRecords).filter(s => s === "present").length}/${attStudents.length} present` }); }
+    const statuses = Object.fromEntries(attStudents.map(s => [s.id, attRecords[s.id] || "present"]));
+    try {
+      await saveClassAttendance(attClass, attDate, statuses, user!.id);
+      toast({ title: `Attendance saved — ${Object.values(statuses).filter(s => s === "present").length}/${attStudents.length} present` });
+    } catch (e) {
+      toast({ title: "Error", description: e instanceof Error ? e.message : String(e), variant: "destructive" });
+    }
     setAttLoading(false);
   };
 

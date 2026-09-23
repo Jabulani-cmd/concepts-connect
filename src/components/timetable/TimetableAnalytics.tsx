@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { SlotRow } from "@/lib/timetableUtils";

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -106,7 +105,7 @@ export default function StudentExamResultsTab({ studentId, studentName, admissio
     const [{ data: myResults }, { data: rankingsData }] = await Promise.all([
       supabase
         .from("exam_results")
-        .select("id, mark, grade, teacher_comment, subject_id, subjects(name, code)")
+        .select("id, mark, grade, teacher_comment:comment, subject_id, subjects(name, code)")
         .eq("exam_id", selectedExamId)
         .eq("student_id", studentId)
         .order("mark", { ascending: false }),

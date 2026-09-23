@@ -1,4 +1,3 @@
-// @ts-nocheck
 // USD is the base currency; ZiG amounts are derived from the bursar-managed
 // USD → ZiG rate stored in the exchange_rates table.
 import { useCallback, useEffect, useState } from "react";

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -52,7 +51,7 @@ export default function ResourceLibraryTab({ userId, subjects }: Props) {
       title: form.title,
       description: form.description || null,
       resource_type: form.resource_type,
-      url: form.url || null,
+      file_url: form.url || null,
       tags: form.tags ? form.tags.split(",").map(t => t.trim()).filter(Boolean) : [],
     });
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -180,9 +179,9 @@ export default function ResourceLibraryTab({ userId, subjects }: Props) {
                       <Button variant="ghost" size="sm" onClick={() => toggleFav(r.id, r.is_favorite)}>
                         {r.is_favorite ? <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" /> : <StarOff className="h-3.5 w-3.5" />}
                       </Button>
-                      {r.url && (
+                      {r.file_url && (
                         <Button variant="ghost" size="sm" asChild>
-                          <a href={r.url} target="_blank" rel="noopener noreferrer"><ExternalLink className="h-3.5 w-3.5" /></a>
+                          <a href={r.file_url} target="_blank" rel="noopener noreferrer"><ExternalLink className="h-3.5 w-3.5" /></a>
                         </Button>
                       )}
                       <Button variant="ghost" size="sm" className="text-destructive" onClick={() => handleDelete(r.id)}><Trash2 className="h-3.5 w-3.5" /></Button>

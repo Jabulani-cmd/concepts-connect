@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +16,8 @@ type LeaveRequest = {
   end_date: string;
   reason: string | null;
   status: string;
-  approved_by: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
   created_at: string;
   staff?: { full_name: string; department: string | null; role: string | null };
 };
@@ -57,7 +57,7 @@ export default function StaffAvailabilityOverview() {
     const { data: { user } } = await supabase.auth.getUser();
     const { error } = await supabase
       .from("leave_requests")
-      .update({ status: action, approved_by: user?.id || null })
+      .update({ status: action, reviewed_by: user?.id || null, reviewed_at: new Date().toISOString() })
       .eq("id", id);
 
     if (error) {

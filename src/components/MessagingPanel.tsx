@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect, useRef, useCallback } from "react";
 import {
   MessageSquare, Send, Plus, Users, User, Search, ArrowLeft,
@@ -143,9 +142,9 @@ export default function MessagingPanel() {
     if (!user) return;
     const { data } = await supabase
       .from("user_blocks")
-      .select("blocked_id")
-      .eq("blocker_id", user.id);
-    if (data) setBlockedIds(data.map(b => b.blocked_id));
+      .select("blocked_user_id")
+      .eq("blocked_by", user.id);
+    if (data) setBlockedIds(data.map(b => b.blocked_user_id));
   }, [user]);
 
   // Fetch conversations
@@ -419,7 +418,10 @@ export default function MessagingPanel() {
     let results: UserProfile[] = profiles
       .filter(p => !blockedIds.includes(p.id))
       .map(p => ({
-        ...p,
+        id: p.id,
+        full_name: p.full_name ?? "",
+        email: p.email,
+        avatar_url: null,
         role: roleMap[p.id] || "user",
       }));
 
@@ -561,16 +563,16 @@ export default function MessagingPanel() {
   // Block a user
   const blockUser = async (targetId: string, targetName: string) => {
     if (!user) return;
+    if (blockedIds.includes(targetId)) {
+      toast({ title: "Already blocked", description: `${targetName} is already blocked.` });
+      return;
+    }
     const { error } = await supabase.from("user_blocks").insert({
-      blocker_id: user.id,
-      blocked_id: targetId,
+      blocked_by: user.id,
+      blocked_user_id: targetId,
     });
     if (error) {
-      if (error.code === "23505") {
-        toast({ title: "Already blocked", description: `${targetName} is already blocked.` });
-      } else {
-        toast({ title: "Error blocking user", description: error.message, variant: "destructive" });
-      }
+      toast({ title: "Error blocking user", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "User blocked", description: `${targetName} has been blocked. You will no longer see their messages.` });
       setBlockedIds(prev => [...prev, targetId]);
@@ -582,8 +584,8 @@ export default function MessagingPanel() {
   const unblockUser = async (targetId: string, targetName: string) => {
     if (!user) return;
     const { error } = await supabase.from("user_blocks").delete()
-      .eq("blocker_id", user.id)
-      .eq("blocked_id", targetId);
+      .eq("blocked_by", user.id)
+      .eq("blocked_user_id", targetId);
     if (!error) {
       toast({ title: "User unblocked", description: `${targetName} has been unblocked.` });
       setBlockedIds(prev => prev.filter(id => id !== targetId));
@@ -605,9 +607,8 @@ export default function MessagingPanel() {
     setSubmittingReport(true);
     const { error } = await supabase.from("user_reports").insert({
       reporter_id: user.id,
-      reported_id: reportTargetId,
-      reason: reportReason,
-      details: reportDetails || null,
+      reported_user_id: reportTargetId,
+      reason: reportDetails ? `${reportReason}: ${reportDetails}` : reportReason,
     });
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });

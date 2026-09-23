@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -57,7 +56,7 @@ export default function ProjectsManagement() {
     try {
       const url = await uploadFile(blob, "projects");
       const { error } = await supabase.from("school_projects").insert({
-        title,
+        name: title,
         description: description || null,
         image_url: url,
       });
@@ -75,7 +74,7 @@ export default function ProjectsManagement() {
   const addProjectWithoutImage = async () => {
     if (!title) return;
     const { error } = await supabase.from("school_projects").insert({
-      title,
+      name: title,
       description: description || null,
     });
     if (error) {
@@ -137,10 +136,10 @@ export default function ProjectsManagement() {
             <Card key={p.id}>
               <CardContent className="flex items-start gap-3 p-4">
                 {p.image_url && (
-                  <img src={p.image_url} alt={p.title} className="h-20 w-28 shrink-0 rounded-md object-cover" />
+                  <img src={p.image_url} alt={p.name} className="h-20 w-28 shrink-0 rounded-md object-cover" />
                 )}
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold truncate">{p.title}</h3>
+                  <h3 className="font-semibold truncate">{p.name}</h3>
                   {p.description && <p className="text-sm text-muted-foreground line-clamp-2">{p.description}</p>}
                   <span className="text-xs text-muted-foreground">{new Date(p.created_at).toLocaleDateString()}</span>
                 </div>

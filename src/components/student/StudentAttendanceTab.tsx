@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -37,7 +36,7 @@ export default function StudentAttendanceTab({ studentId }: Props) {
       .from("attendance")
       .select("*, classes(name)")
       .eq("student_id", studentId!)
-      .order("attendance_date", { ascending: false });
+      .order("date", { ascending: false });
     setAttendance(data || []);
     setLoading(false);
   };
@@ -49,11 +48,11 @@ export default function StudentAttendanceTab({ studentId }: Props) {
   const percent = totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 0;
 
   // Generate month options from attendance data
-  const months = [...new Set(attendance.map((a) => format(new Date(a.attendance_date), "yyyy-MM")))];
+  const months = [...new Set(attendance.map((a) => format(new Date(a.date), "yyyy-MM")))];
 
   const filtered = monthFilter === "all"
     ? attendance
-    : attendance.filter((a) => format(new Date(a.attendance_date), "yyyy-MM") === monthFilter);
+    : attendance.filter((a) => format(new Date(a.date), "yyyy-MM") === monthFilter);
 
   if (loading) {
     return <div className="space-y-3">{[1, 2, 3].map((i) => <div key={i} className="h-16 animate-pulse rounded-lg bg-muted" />)}</div>;
@@ -124,7 +123,7 @@ export default function StudentAttendanceTab({ studentId }: Props) {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium">
-                    {format(new Date(a.attendance_date), "EEEE, MMM d")}
+                    {format(new Date(a.date), "EEEE, MMM d")}
                   </p>
                   {a.notes && <p className="text-[11px] text-muted-foreground truncate">{a.notes}</p>}
                 </div>

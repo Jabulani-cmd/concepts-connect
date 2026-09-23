@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -15,6 +14,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
 import { formatMoney } from "@/lib/currency";
+import type { Database, Tables } from "@/integrations/supabase/types";
+
+type StudentLookup = Database["public"]["Functions"]["lookup_student_for_payment"]["Returns"][number];
 
 export default function PayOnline() {
   const [searchParams] = useSearchParams();
@@ -71,7 +73,7 @@ export default function PayOnline() {
 function FeePaymentForm() {
   const { rate, usdToZig } = useExchangeRate();
   const [studentNumber, setStudentNumber] = useState("");
-  const [studentInfo, setStudentInfo] = useState<any>(null);
+  const [studentInfo, setStudentInfo] = useState<StudentLookup | null>(null);
   const [searching, setSearching] = useState(false);
   const [notFound, setNotFound] = useState(false);
   const [amount, setAmount] = useState("");
@@ -87,14 +89,11 @@ function FeePaymentForm() {
     setNotFound(false);
     setStudentInfo(null);
 
-    const { data } = await supabase
-      .from("students")
-      .select("id, first_name, last_name, admission_number, form")
-      .eq("admission_number", studentNumber.trim().toUpperCase())
-      .maybeSingle();
+    // Anonymous visitors cannot read the students table; this function returns only name and Form.
+    const { data } = await supabase.rpc("lookup_student_for_payment", { _admission_number: studentNumber });
 
-    if (data) {
-      setStudentInfo(data);
+    if (data && data.length > 0) {
+      setStudentInfo(data[0]);
     } else {
       setNotFound(true);
     }
@@ -114,7 +113,7 @@ function FeePaymentForm() {
       payer_email: payerEmail,
       payer_phone: payerPhone || null,
       amount_usd: parseFloat(amount),
-      description: `Fee payment for ${studentInfo.first_name} ${studentInfo.last_name} (${studentInfo.admission_number})`,
+      description: `Fee payment for ${studentInfo.full_name} (${studentInfo.admission_number})`,
       status: "pending",
     });
 
@@ -122,7 +121,7 @@ function FeePaymentForm() {
       toast({ title: "Error", description: "Failed to initiate payment. Please try again.", variant: "destructive" });
     } else {
       setSubmitted(true);
-      toast({ title: "Payment Initiated", description: "Your payment request has been recorded. Stripe checkout will be available soon." });
+      toast({ title: "Payment request recorded", description: "The bursar will confirm your payment once it is received." });
     }
     setSubmitting(false);
   };
@@ -138,7 +137,7 @@ function FeePaymentForm() {
             <strong>{studentInfo?.admission_number}</strong> has been recorded.
           </p>
           <p className="mt-4 text-sm text-muted-foreground">
-            Online payment processing via Stripe will be activated soon. For now, please proceed with bank transfer or visit the school bursar.
+            Please complete payment by EcoCash, bank transfer (RTGS/ZIPIT) using the student number as reference, or at the bursar's office. You will receive a receipt once the bursar confirms it.
           </p>
           <Button className="mt-6" onClick={() => { setSubmitted(false); setStudentInfo(null); setAmount(""); }}>
             Make Another Payment
@@ -191,7 +190,7 @@ function FeePaymentForm() {
                 <span className="text-sm font-medium text-green-800">Student Found</span>
               </div>
               <p className="mt-1 text-sm text-green-700">
-                <strong>{studentInfo.first_name} {studentInfo.last_name}</strong>
+                <strong>{studentInfo.full_name}</strong>
                 <Badge variant="outline" className="ml-2 text-xs">{studentInfo.form || "N/A"}</Badge>
               </p>
             </div>
@@ -250,7 +249,7 @@ function FeePaymentForm() {
               </Button>
 
               <p className="text-center text-xs text-muted-foreground">
-                Payments are processed securely via Stripe. You will receive a receipt by email.
+                Your request is sent to the bursar. Pay by EcoCash, bank transfer (RTGS/ZIPIT) or at the bursar's office.
               </p>
             </>
           )}
@@ -262,7 +261,7 @@ function FeePaymentForm() {
 
 function DonationForm({ initialProjectId }: { initialProjectId: string }) {
   const { rate, usdToZig } = useExchangeRate();
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState<Pick<Tables<"school_projects">, "id" | "name">[]>([]);
   const [selectedProject, setSelectedProject] = useState(initialProjectId);
   const [amount, setAmount] = useState("");
   const [payerName, setPayerName] = useState("");
@@ -274,9 +273,9 @@ function DonationForm({ initialProjectId }: { initialProjectId: string }) {
   useEffect(() => {
     supabase
       .from("school_projects")
-      .select("id, title")
+      .select("id, name")
       .eq("is_active", true)
-      .order("title")
+      .order("name")
       .then(({ data }) => { if (data) setProjects(data); });
   }, []);
 
@@ -285,7 +284,7 @@ function DonationForm({ initialProjectId }: { initialProjectId: string }) {
     if (!amount || !payerName || !payerEmail) return;
 
     setSubmitting(true);
-    const selectedTitle = projects.find((p) => p.id === selectedProject)?.title || "General Fund";
+    const selectedTitle = projects.find((p) => p.id === selectedProject)?.name || "General Fund";
 
     const { error } = await supabase.from("online_payments").insert({
       payment_type: "donation",
@@ -317,7 +316,7 @@ function DonationForm({ initialProjectId }: { initialProjectId: string }) {
             Your donation of <strong>{formatMoney(amount)}</strong> has been recorded.
           </p>
           <p className="mt-4 text-sm text-muted-foreground">
-            Online payment processing via Stripe will be activated soon. For now, please proceed with bank transfer.
+            Please complete your donation by EcoCash or bank transfer (RTGS/ZIPIT). The bursar will send a receipt once it is received.
           </p>
           <Button className="mt-6" onClick={() => { setSubmitted(false); setAmount(""); }}>
             Make Another Donation
@@ -349,7 +348,7 @@ function DonationForm({ initialProjectId }: { initialProjectId: string }) {
               <SelectContent>
                 <SelectItem value="general">General School Fund</SelectItem>
                 {projects.map((p) => (
-                  <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
+                  <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -419,7 +418,7 @@ function DonationForm({ initialProjectId }: { initialProjectId: string }) {
           </Button>
 
           <p className="text-center text-xs text-muted-foreground">
-            Donations are processed securely via Stripe. You will receive a receipt by email.
+            Your pledge is sent to the bursar. Pay by EcoCash or bank transfer (RTGS/ZIPIT).
           </p>
         </form>
       </CardContent>

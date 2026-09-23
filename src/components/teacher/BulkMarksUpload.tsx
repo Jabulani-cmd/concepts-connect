@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -49,7 +48,7 @@ export default function BulkMarksUpload({ userId, classes, subjects, students, o
   const classStudents = classId
     ? students.filter(s => {
         const cls = classes.find(c => c.id === classId);
-        return cls ? s.form === cls.form_level : false;
+        return cls ? s.form === cls.level : false;
       })
     : [];
 

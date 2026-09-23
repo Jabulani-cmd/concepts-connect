@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -46,7 +45,7 @@ type Student = {
   created_at: string;
 };
 
-type ClassOption = { id: string; name: string; form_level: string | null; stream: string | null };
+type ClassOption = { id: string; name: string; level: string | null; stream: string | null };
 
 const emptyForm = {
   full_name: "",
@@ -105,7 +104,7 @@ export default function RegistrationDashboard() {
   };
 
   const fetchClasses = async () => {
-    const { data } = await supabase.from("classes").select("id, name, form_level, stream").order("name");
+    const { data } = await supabase.from("classes").select("id, name, level, stream").order("name");
     if (data) setClasses(data);
   };
 
@@ -529,7 +528,7 @@ export default function RegistrationDashboard() {
                   <SelectContent>
                     {classes.map((c) => (
                       <SelectItem key={c.id} value={c.id}>
-                        {c.name} {c.form_level ? `(${c.form_level})` : ""}
+                        {c.name} {c.level ? `(${c.level})` : ""}
                       </SelectItem>
                     ))}
                   </SelectContent>

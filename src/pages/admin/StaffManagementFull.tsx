@@ -1,6 +1,6 @@
-// @ts-nocheck
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { emptyToNull } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -341,7 +341,7 @@ export default function StaffManagementFull() {
 
     const parsed = { ...result.data, photo_url: photoUrl };
     // Convert empty strings to null for date and optional fields to avoid "invalid input syntax for type date"
-    const payload = Object.fromEntries(Object.entries(parsed).map(([k, v]) => [k, v === "" ? null : v]));
+    const payload = emptyToNull(parsed);
 
     if (editingId) {
       const { error } = await supabase.from("staff").update(payload).eq("id", editingId);
@@ -932,14 +932,14 @@ export default function StaffManagementFull() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label>UIF Number</Label>
+                  <Label>NSSA Number</Label>
                   <Input
                     value={formData.nssa_number || ""}
                     onChange={(e) => updateField("nssa_number", e.target.value)}
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label>SARS PAYE Number</Label>
+                  <Label>ZIMRA PAYE / TIN Number</Label>
                   <Input
                     value={formData.paye_number || ""}
                     onChange={(e) => updateField("paye_number", e.target.value)}
@@ -1063,8 +1063,8 @@ export default function StaffManagementFull() {
                     {[
                       ["Employment Date", selectedStaff.employment_date],
                       ["Qualifications", selectedStaff.qualifications],
-                      ["UIF Number", selectedStaff.nssa_number],
-                      ["SARS PAYE Number", selectedStaff.paye_number],
+                      ["NSSA Number", selectedStaff.nssa_number],
+                      ["ZIMRA PAYE / TIN Number", selectedStaff.paye_number],
                       ["Bank Details", selectedStaff.bank_details],
                     ].map(([label, value]) => (
                       <div key={label as string}>

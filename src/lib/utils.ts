@@ -14,3 +14,10 @@ export function safeHtml(s: any): string {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 }
+
+/** Replaces empty-string values with null, e.g. so optional date columns are not sent as "". */
+export function emptyToNull<T extends Record<string, unknown>>(obj: T): { [K in keyof T]: T[K] extends string ? T[K] | null : T[K] } {
+  return Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, v === "" ? null : v])) as {
+    [K in keyof T]: T[K] extends string ? T[K] | null : T[K];
+  };
+}

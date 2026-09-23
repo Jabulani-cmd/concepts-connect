@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,7 +26,7 @@ export default function AwardsManagement() {
 
   const fetchAll = async () => {
     const [a, p] = await Promise.all([
-      supabase.from("awards").select("*").order("year_issued", { ascending: false }),
+      supabase.from("awards").select("*").order("year", { ascending: false }),
       supabase.from("award_photos").select("*").order("created_at", { ascending: false }),
     ]);
     if (a.data) setAwards(a.data);
@@ -37,9 +36,9 @@ export default function AwardsManagement() {
   const addAward = async () => {
     if (!studentName || !awardName) return;
     const { error } = await supabase.from("awards").insert({
-      student_name: studentName,
-      award_name: awardName,
-      year_issued: parseInt(yearIssued) || new Date().getFullYear(),
+      recipient: studentName,
+      title: awardName,
+      year: parseInt(yearIssued) || new Date().getFullYear(),
     });
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
     toast({ title: "Award added!" });
@@ -120,8 +119,8 @@ export default function AwardsManagement() {
                 <Card key={a.id}>
                   <CardContent className="flex items-center justify-between p-4">
                     <div>
-                      <h3 className="font-semibold">{a.student_name}</h3>
-                      <p className="text-sm text-muted-foreground">{a.award_name} — {a.year_issued}</p>
+                      <h3 className="font-semibold">{a.recipient}</h3>
+                      <p className="text-sm text-muted-foreground">{a.title} — {a.year}</p>
                     </div>
                     <Button variant="ghost" size="icon" onClick={() => deleteAward(a.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                   </CardContent>

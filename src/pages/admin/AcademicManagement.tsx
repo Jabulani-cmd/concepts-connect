@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -13,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { saveClassAttendance } from "@/lib/attendance";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   BookOpen, Plus, Pencil, Trash2, Users, Clock, Calendar,
@@ -102,7 +102,7 @@ export default function AcademicManagement() {
   // Dialogs
   const [classDialogOpen, setClassDialogOpen] = useState(false);
   const [editingClass, setEditingClass] = useState<any>(null);
-  const [classForm, setClassForm] = useState({ name: "", form_level: "Grade 8", stream: "", class_teacher_id: "", room: "", capacity: "40" });
+  const [classForm, setClassForm] = useState({ name: "", level: "Grade 8", stream: "", class_teacher_id: "", room: "", capacity: "40" });
 
   const [subjectDialogOpen, setSubjectDialogOpen] = useState(false);
   const [editingSubject, setEditingSubject] = useState<any>(null);
@@ -189,16 +189,16 @@ export default function AcademicManagement() {
   // ═══ CLASS CRUD ═══
   function openAddClass() {
     setEditingClass(null);
-    setClassForm({ name: "", form_level: "Grade 8", stream: "", class_teacher_id: "", room: "", capacity: "40" });
+    setClassForm({ name: "", level: "Grade 8", stream: "", class_teacher_id: "", room: "", capacity: "40" });
     setClassDialogOpen(true);
   }
   function openEditClass(c: any) {
     setEditingClass(c);
-    setClassForm({ name: c.name, form_level: c.form_level || "Grade 8", stream: c.stream || "", class_teacher_id: c.class_teacher_id || "", room: c.room || "", capacity: String(c.capacity || 40) });
+    setClassForm({ name: c.name, level: c.level || "Grade 8", stream: c.stream || "", class_teacher_id: c.class_teacher_id || "", room: c.room || "", capacity: String(c.capacity || 40) });
     setClassDialogOpen(true);
   }
   async function saveClass() {
-    const payload = { name: classForm.name, form_level: classForm.form_level, stream: classForm.stream || null, class_teacher_id: classForm.class_teacher_id || null, room: classForm.room || null, capacity: parseInt(classForm.capacity) || 40 };
+    const payload = { name: classForm.name, level: classForm.level, stream: classForm.stream || null, class_teacher_id: classForm.class_teacher_id || null, room: classForm.room || null, capacity: parseInt(classForm.capacity) || 40 };
     if (!payload.name) { toast({ title: "Name required", variant: "destructive" }); return; }
     if (editingClass) {
       const { error } = await supabase.from("classes").update(payload).eq("id", editingClass.id);
@@ -342,7 +342,7 @@ export default function AcademicManagement() {
     const existing = getSportsEntry(sportsEditCell.day, sportsEditCell.slot.start, sportsEditCell.slot.end);
 
     const payload = {
-      class_id: sportsViewClass, activity_name: sportsActivity, activity_type: sportsType,
+      class_id: sportsViewClass, sport: sportsActivity, activity_name: sportsActivity, activity_type: sportsType,
       day_of_week: sportsEditCell.day, start_time: sportsEditCell.slot.start, end_time: sportsEditCell.slot.end,
       venue: sportsVenue || null, coach_id: sportsCoach || null,
     };
@@ -367,7 +367,7 @@ export default function AcademicManagement() {
 
   const attStudents = students.filter(s => {
     const cls = classes.find(c => c.id === attClass);
-    return cls && s.form === cls.form_level && (!cls.stream || s.stream === cls.stream);
+    return cls && s.form === cls.level && (!cls.stream || s.stream === cls.stream);
   });
 
   useEffect(() => {
@@ -375,7 +375,7 @@ export default function AcademicManagement() {
   }, [attClass, attDate]);
 
   async function loadAttendance() {
-    const { data } = await supabase.from("attendance").select("*").eq("class_id", attClass).eq("attendance_date", attDate);
+    const { data } = await supabase.from("attendance").select("*").eq("class_id", attClass).eq("date", attDate);
     const records: Record<string, string> = {};
     if (data) data.forEach(r => { records[r.student_id] = r.status; });
     // Default to present for students not yet recorded
@@ -386,14 +386,7 @@ export default function AcademicManagement() {
   async function saveAttendance() {
     setAttSaving(true);
     try {
-      for (const [studentId, status] of Object.entries(attRecords)) {
-        const { data: existing } = await supabase.from("attendance").select("id").eq("student_id", studentId).eq("attendance_date", attDate);
-        if (existing && existing.length > 0) {
-          await supabase.from("attendance").update({ status, updated_at: new Date().toISOString() }).eq("id", existing[0].id);
-        } else {
-          await supabase.from("attendance").insert({ student_id: studentId, class_id: attClass, attendance_date: attDate, status, recorded_by: user?.id || null });
-        }
-      }
+      await saveClassAttendance(attClass, attDate, attRecords, user?.id || null);
       toast({ title: "Attendance saved" });
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -558,7 +551,7 @@ export default function AcademicManagement() {
                       {classes.map(c => (
                         <TableRow key={c.id}>
                           <TableCell className="font-medium">{c.name}</TableCell>
-                          <TableCell>{c.form_level}</TableCell>
+                          <TableCell>{c.level}</TableCell>
                           <TableCell>{c.stream || "—"}</TableCell>
                           <TableCell>{c.staff?.full_name || "—"}</TableCell>
                           <TableCell>{c.room || "—"}</TableCell>
@@ -1015,7 +1008,7 @@ export default function AcademicManagement() {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2"><Label>Name</Label><Input value={classForm.name} onChange={e => setClassForm(p => ({ ...p, name: e.target.value }))} placeholder="e.g. Grade 8A" /></div>
               <div className="space-y-2"><Label>Form Level</Label>
-                <Select value={classForm.form_level} onValueChange={v => setClassForm(p => ({ ...p, form_level: v }))}>
+                <Select value={classForm.level} onValueChange={v => setClassForm(p => ({ ...p, level: v }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>{formOptions.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}</SelectContent>
                 </Select>

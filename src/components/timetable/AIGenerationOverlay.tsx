@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useEffect, useState } from "react";
 import { Sparkles, CheckCircle2, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";

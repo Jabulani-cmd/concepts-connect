@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import FullWeekTimetable from "@/components/shared/FullWeekTimetable";
@@ -46,7 +45,7 @@ export default function StudentTimetableTab({ studentClassId, studentId }: Props
         const { data: exact } = await supabase
           .from("classes")
           .select("id")
-          .eq("form_level", student.form)
+          .eq("level", student.form)
           .eq("stream", student.stream)
           .limit(1)
           .maybeSingle();
@@ -57,7 +56,7 @@ export default function StudentTimetableTab({ studentClassId, studentId }: Props
         const { data: fallback } = await supabase
           .from("classes")
           .select("id")
-          .eq("form_level", student.form)
+          .eq("level", student.form)
           .order("name")
           .limit(1)
           .maybeSingle();

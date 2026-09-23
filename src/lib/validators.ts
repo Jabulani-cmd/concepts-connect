@@ -91,8 +91,8 @@ export const staffFormSchema = z.object({
   emergency_contact: saPhoneSchema.optional().or(z.literal("")),
   employment_date: z.string().optional(),
   qualifications: z.string().optional(),
-  sars_number: z.string().optional(),      // SARS tax number (was PAYE)
-  uif_number: z.string().optional(),       // UIF number (was NSSA)
+  nssa_number: z.string().optional(),      // National Social Security Authority number
+  paye_number: z.string().optional(),      // ZIMRA PAYE / TIN number
   bank_details: z.string().optional(),
   national_id: saIdSchema.optional().or(z.literal("")),
   status: z.string().default("active"),

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -120,15 +119,13 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
       const assessIds = (assessments || []).map((a: any) => a.id);
 
       // 6. AI/teacher-graded assessment results — separately, not embedded.
-      //    IMPORTANT: this table's real columns are marks_obtained / percentage /
-      //    grade / is_published (matching what the student quiz submission writes),
-      //    NOT "mark" — using the wrong column name here is what silently produced
-      //    0 records even after a student successfully submitted and was marked.
+      //    Scores live in `mark`; `percentage`, `grade` and `is_published` are set
+      //    when the teacher (or the auto-marker) grades the submission.
       let arRows: any[] = [];
       if (assessIds.length > 0) {
         const { data: ar, error: arErr } = await supabase
           .from("assessment_results")
-          .select("id, marks_obtained, percentage, grade, is_published, created_at, graded_by, assessment_id, student_id")
+          .select("id, mark, percentage, grade, is_published, created_at, graded_by, assessment_id, student_id")
           .eq("is_published", true)
           .in("assessment_id", assessIds)
           .in("student_id", studentIds);
@@ -163,7 +160,7 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
         const max = Number(a?.max_marks) || Number(a?.total_marks) || 0;
         const pct = r.percentage != null
           ? Math.round(Number(r.percentage))
-          : (max > 0 ? Math.round((Number(r.marks_obtained) / max) * 100) : Number(r.marks_obtained) || 0);
+          : (max > 0 ? Math.round((Number(r.mark) / max) * 100) : Number(r.mark) || 0);
         return {
           id: `r-${r.id}`,
           source: r.graded_by ? "teacher" : "ai",
@@ -175,7 +172,7 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
           description: a?.title || "Assessment",
           type: a?.assessment_type || "assessment",
           term: a?.term || "—",
-          scoreLabel: max > 0 ? `${r.marks_obtained}/${max}` : `${r.marks_obtained}`,
+          scoreLabel: max > 0 ? `${r.mark}/${max}` : `${r.mark}`,
           percent: pct,
           created_at: r.created_at,
         };

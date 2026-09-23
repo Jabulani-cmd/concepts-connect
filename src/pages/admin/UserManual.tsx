@@ -183,7 +183,7 @@ export default function UserManual() {
             <Step n={3} text="Fill in: Staff Number, Full Name, Role (teacher, admin, bursar, etc.), Department." />
             <Step n={4} text="Upload a photo using 'Upload Photo' or 'Take Photo' for webcam capture." />
             <Step n={5} text="If the staff member is a teacher, select the subjects they teach." />
-            <Step n={6} text="Enter National ID, UIF Number, SARS PAYE Number as applicable." />
+            <Step n={6} text="Enter National ID, NSSA Number and ZIMRA PAYE / TIN Number as applicable." />
             <Step n={7} text="Click 'Save' — the staff member will now appear in the system and on the public Staff page." />
           </ManualSection>
           <Warning>Staff members should ONLY be added through the Staff Directory tab, not the Staff (Website) tab. The Staff Directory issues proper user credentials and HR records.</Warning>

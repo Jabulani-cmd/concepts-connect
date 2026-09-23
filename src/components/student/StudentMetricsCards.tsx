@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { CalendarCheck, ClipboardList, BookOpen, DollarSign } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatMoney } from "@/lib/currency";

@@ -1,4 +1,3 @@
-// @ts-nocheck
 // Demo data seeder — generates a complete realistic South African high school dataset
 // (Grades 8–12, CAPS curriculum, ZAR fees, +27 phone numbers).
 import type {

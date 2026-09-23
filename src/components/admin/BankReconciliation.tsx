@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useExchangeRate } from "@/hooks/useExchangeRate";
 import { safeHtml } from "@/lib/utils";
 import { useState, useEffect, useCallback } from "react";

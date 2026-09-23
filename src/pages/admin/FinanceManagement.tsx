@@ -1,4 +1,3 @@
-// @ts-nocheck
 import ExchangeRateCard from "@/components/finance/ExchangeRateCard";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
 import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react";
@@ -29,6 +28,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
+import { OFFICE_PAYMENT_METHODS, paymentMethodLabel, type PaymentMethod } from "@/lib/finance/paymentMethods";
 import { useAuth } from "@/contexts/AuthContext";
 import schoolLogo from "@/assets/mavingtech-logo.png";
 import {
@@ -83,7 +84,6 @@ const boardingOptions = [
   { value: "day", label: "Day Scholar" },
   { value: "boarding", label: "Boarding" },
 ];
-const paymentMethods = ["Cash", "EcoCash", "OneMoney", "Bank Transfer", "EFT", "Swipe"];
 const expenseCategories = [
   "Salaries",
   "Utilities",
@@ -179,11 +179,11 @@ export default function FinanceManagement() {
     targetTable: string,
     targetId: string,
     description: string,
-    metadata?: any,
+    metadata?: Json,
   ) {
     const { error } = await supabase.from("finance_approval_requests").insert({
       requested_by: user?.id,
-      action_type: actionType,
+      request_type: actionType,
       target_table: targetTable,
       target_id: targetId,
       description,
@@ -264,7 +264,7 @@ export default function FinanceManagement() {
     invoice_id: "",
     amount_usd: "",
     amount_zig: "",
-    payment_method: "Cash",
+    payment_method: "cash" as PaymentMethod,
     reference_number: "",
     payment_date: new Date().toISOString().split("T")[0],
     notes: "",
@@ -293,7 +293,7 @@ export default function FinanceManagement() {
     description: "",
     amount_usd: "",
     amount_zig: "",
-    payment_method: "Cash",
+    payment_method: "cash",
     reference_number: "",
   });
   const [expLoading, setExpLoading] = useState(false);
@@ -339,7 +339,7 @@ export default function FinanceManagement() {
     payment_date: new Date().toISOString().split("T")[0],
     amount_usd: "",
     amount_zig: "",
-    payment_method: "Cash",
+    payment_method: "cash",
     reference_number: "",
     notes: "",
   });
@@ -354,7 +354,7 @@ export default function FinanceManagement() {
     description: "",
     amount_usd: "",
     amount_zig: "",
-    payment_method: "Cash",
+    payment_method: "cash",
     payment_date: new Date().toISOString().split("T")[0],
     reference_number: "",
     notes: "",
@@ -562,7 +562,7 @@ export default function FinanceManagement() {
       amount_usd: payUsd,
       amount_zig: payZig,
       payment_method: spForm.payment_method,
-      reference_number: spForm.reference_number || null,
+      reference: spForm.reference_number || null,
       notes: spForm.notes || null,
       recorded_by: user?.id,
     });
@@ -620,7 +620,7 @@ export default function FinanceManagement() {
       amount_usd: amtUsd,
       amount_zig: amtZig,
       payment_method: codForm.payment_method,
-      reference_number: codForm.reference_number || null,
+      reference: codForm.reference_number || null,
       notes: codForm.notes || "Cash on Delivery",
       recorded_by: user?.id,
     });
@@ -633,7 +633,7 @@ export default function FinanceManagement() {
       description: "",
       amount_usd: "",
       amount_zig: "",
-      payment_method: "Cash",
+      payment_method: "cash",
       payment_date: new Date().toISOString().split("T")[0],
       reference_number: "",
       notes: "",
@@ -908,7 +908,7 @@ export default function FinanceManagement() {
           <td>${safeHtml(p.payment_date)}</td>
           <td class="mono">${safeHtml(p.invoices?.invoice_number || "—")}</td>
           <td class="right mono">${formatMoney(p.amount_usd)}</td>
-          <td>${safeHtml(p.payment_method)}</td>
+          <td>${safeHtml(paymentMethodLabel(p.payment_method))}</td>
         </tr>`).join("")
       : `<tr><td colspan="5" style="text-align:center;color:#64748b">No payments on record</td></tr>`;
     const body = `
@@ -1434,6 +1434,7 @@ export default function FinanceManagement() {
         receipt_number: receiptNumber,
         invoice_id: invoiceId,
         student_id: selectedStudent.id,
+        amount: usd,
         amount_usd: usd,
         amount_zig: zig,
         payment_method: payForm.payment_method,
@@ -1483,7 +1484,7 @@ export default function FinanceManagement() {
         invoice_id: "",
         amount_usd: "",
         amount_zig: "",
-        payment_method: "Cash",
+        payment_method: "cash",
         reference_number: "",
         payment_date: new Date().toISOString().split("T")[0],
         notes: "",
@@ -1528,7 +1529,7 @@ export default function FinanceManagement() {
       description: "",
       amount_usd: "",
       amount_zig: "",
-      payment_method: "Cash",
+      payment_method: "cash",
       reference_number: "",
     });
     setExpLoading(false);
@@ -1995,7 +1996,7 @@ export default function FinanceManagement() {
                         invoice_id: "",
                         amount_usd: "",
                         amount_zig: "",
-                        payment_method: "Cash",
+                        payment_method: "cash",
                         reference_number: "",
                         payment_date: new Date().toISOString().split("T")[0],
                         notes: "",
@@ -2012,7 +2013,7 @@ export default function FinanceManagement() {
                         payment_date: new Date().toISOString().split("T")[0],
                         amount_usd: "",
                         amount_zig: "",
-                        payment_method: "Cash",
+                        payment_method: "cash",
                         reference_number: "",
                         notes: "",
                       });
@@ -2029,7 +2030,7 @@ export default function FinanceManagement() {
                         description: "",
                         amount_usd: "",
                         amount_zig: "",
-                        payment_method: "Cash",
+                        payment_method: "cash",
                         payment_date: new Date().toISOString().split("T")[0],
                         reference_number: "",
                         notes: "",
@@ -2074,7 +2075,7 @@ export default function FinanceManagement() {
                           <TableCell>{pay.students?.full_name || "—"}</TableCell>
                           <TableCell className="font-mono text-xs">{pay.invoices?.invoice_number || "—"}</TableCell>
                           <TableCell className="text-right font-mono">{formatMoney(pay.amount_usd)}</TableCell>
-                          <TableCell>{pay.payment_method}</TableCell>
+                          <TableCell>{paymentMethodLabel(pay.payment_method)}</TableCell>
                           <TableCell className="text-xs">{pay.reference_number || "—"}</TableCell>
                           {isFinanceOrAdmin && (
                             <TableCell>
@@ -2474,7 +2475,7 @@ export default function FinanceManagement() {
                                         payment_date: new Date().toISOString().split("T")[0],
                                         amount_usd: "",
                                         amount_zig: "",
-                                        payment_method: "Cash",
+                                        payment_method: "cash",
                                         reference_number: "",
                                         notes: "",
                                       });
@@ -2526,8 +2527,8 @@ export default function FinanceManagement() {
                             <TableCell className="font-mono text-xs">
                               {sp.supplier_invoices?.invoice_number || "—"}
                             </TableCell>
-                            <TableCell>{sp.payment_method}</TableCell>
-                            <TableCell className="font-mono text-xs">{sp.reference_number || "—"}</TableCell>
+                            <TableCell>{paymentMethodLabel(sp.payment_method)}</TableCell>
+                            <TableCell className="font-mono text-xs">{sp.reference || "—"}</TableCell>
                             <TableCell className="text-right font-mono">{formatMoney(sp.amount_usd)}</TableCell>
                             <TableCell className="max-w-[200px] truncate">{sp.notes || "—"}</TableCell>
                           </TableRow>
@@ -2732,7 +2733,7 @@ export default function FinanceManagement() {
                                 <TableCell>{p.payment_date}</TableCell>
                                 <TableCell className="font-mono text-xs">{p.invoices?.invoice_number || "—"}</TableCell>
                                 <TableCell className="text-right font-mono">{formatMoney(p.amount_usd)}</TableCell>
-                                <TableCell>{p.payment_method}</TableCell>
+                                <TableCell>{paymentMethodLabel(p.payment_method)}</TableCell>
                                 <TableCell className="text-xs">{p.reference_number || "—"}</TableCell>
                               </TableRow>
                             ))}
@@ -2764,7 +2765,7 @@ export default function FinanceManagement() {
                     description: "",
                     amount_usd: "",
                     amount_zig: "",
-                    payment_method: "Cash",
+                    payment_method: "cash",
                     reference_number: "",
                   });
                 }}
@@ -2833,7 +2834,7 @@ export default function FinanceManagement() {
                           </TableCell>
                           <TableCell className="max-w-[250px] truncate">{exp.description}</TableCell>
                           <TableCell className="text-right font-mono">{formatMoney(exp.amount_usd)}</TableCell>
-                          <TableCell>{exp.payment_method}</TableCell>
+                          <TableCell>{paymentMethodLabel(exp.payment_method)}</TableCell>
                           <TableCell className="text-center">
                             <DocActionButtons
                               actions={expensesListActions({
@@ -2893,14 +2894,14 @@ export default function FinanceManagement() {
                 </div>
                 <div className="space-y-2">
                   <h4 className="font-semibold text-sm">By Payment Method</h4>
-                  {paymentMethods.map((method) => {
+                  {OFFICE_PAYMENT_METHODS.map((method) => {
                     const methodPayments = payments.filter((p) => p.payment_method === method);
                     const mUsd = methodPayments.reduce((s, p) => s + parseFloat(p.amount_usd || 0), 0);
                     const mZig = methodPayments.reduce((s, p) => s + parseFloat(p.amount_zig || 0), 0);
                     if (mUsd === 0 && mZig === 0) return null;
                     return (
                       <div key={method} className="flex items-center justify-between text-sm border-b pb-1">
-                        <span>{method}</span>
+                        <span>{paymentMethodLabel(method)}</span>
                         <span className="font-mono">
                            US$ {fmt(mUsd)} / ZiG {fmt(mZig)}
                         </span>
@@ -3388,21 +3389,21 @@ export default function FinanceManagement() {
                 <Label>Payment Method</Label>
                 <Select
                   value={payForm.payment_method}
-                  onValueChange={(v) => setPayForm((p) => ({ ...p, payment_method: v }))}
+                  onValueChange={(v) => setPayForm((p) => ({ ...p, payment_method: v as PaymentMethod }))}
                 >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {paymentMethods.map((m) => (
+                    {OFFICE_PAYMENT_METHODS.map((m) => (
                       <SelectItem key={m} value={m}>
-                        {m}
+                        {paymentMethodLabel(m)}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-              {payForm.payment_method !== "Cash" && (
+              {payForm.payment_method !== "cash" && (
                 <div className="space-y-2">
                   <Label>Reference #</Label>
                   <Input
@@ -3604,9 +3605,9 @@ export default function FinanceManagement() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {paymentMethods.map((m) => (
+                    {OFFICE_PAYMENT_METHODS.map((m) => (
                       <SelectItem key={m} value={m}>
-                        {m}
+                        {paymentMethodLabel(m)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -3722,9 +3723,9 @@ export default function FinanceManagement() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {paymentMethods.map((m) => (
+                    {OFFICE_PAYMENT_METHODS.map((m) => (
                       <SelectItem key={m} value={m}>
-                        {m}
+                        {paymentMethodLabel(m)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -3933,12 +3934,10 @@ export default function FinanceManagement() {
                 >
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Cash">Cash</SelectItem>
-                    <SelectItem value="EFT">EFT</SelectItem>
-                    <SelectItem value="Card">Card</SelectItem>
-                    <SelectItem value="EcoCash">EcoCash</SelectItem>
-                    <SelectItem value="OneMoney">OneMoney</SelectItem>
-                    <SelectItem value="Cheque">Cheque</SelectItem>
+                    {OFFICE_PAYMENT_METHODS.map((m) => (
+                      <SelectItem key={m} value={m}>{paymentMethodLabel(m)}</SelectItem>
+                    ))}
+                    <SelectItem value="cheque">Cheque</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

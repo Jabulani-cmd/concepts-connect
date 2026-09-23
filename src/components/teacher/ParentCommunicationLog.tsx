@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -54,9 +53,9 @@ export default function ParentCommunicationLog({ userId, students }: Props) {
       teacher_id: userId,
       student_id: form.student_id || null,
       parent_name: form.parent_name || null,
-      communication_type: form.communication_type,
+      channel: form.communication_type,
       subject: form.subject,
-      notes: form.notes || null,
+      message: form.notes || null,
       follow_up_date: form.follow_up_date || null,
     });
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -155,7 +154,7 @@ export default function ParentCommunicationLog({ userId, students }: Props) {
       ) : (
         <div className="space-y-2">
           {filtered.map(log => {
-            const typeInfo = commTypes.find(t => t.value === log.communication_type) || commTypes[0];
+            const typeInfo = commTypes.find(t => t.value === log.channel) || commTypes[0];
             const Icon = typeInfo.icon;
             const isOverdue = log.follow_up_date && !log.follow_up_completed && new Date(log.follow_up_date) <= new Date();
             return (
@@ -174,7 +173,7 @@ export default function ParentCommunicationLog({ userId, students }: Props) {
                         {log.parent_name ? `${log.parent_name} · ` : ""}
                         {new Date(log.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                       </p>
-                      {log.notes && <p className="text-xs text-muted-foreground mt-1">{log.notes}</p>}
+                      {log.message && <p className="text-xs text-muted-foreground mt-1">{log.message}</p>}
                       {log.follow_up_date && (
                         <div className="flex items-center gap-2 mt-2">
                           <Calendar className="h-3.5 w-3.5 text-muted-foreground" />

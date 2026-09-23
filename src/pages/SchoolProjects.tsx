@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -48,11 +47,11 @@ export default function SchoolProjects() {
                   <Card className="h-full overflow-hidden border-none shadow-maroon transition-transform hover:-translate-y-1">
                     {p.image_url && (
                       <div className="aspect-video w-full overflow-hidden">
-                        <img src={p.image_url} alt={p.title} className="h-full w-full object-cover" />
+                        <img src={p.image_url} alt={p.name} className="h-full w-full object-cover" />
                       </div>
                     )}
                     <CardContent className="p-6">
-                      <h3 className="font-heading text-lg font-semibold text-foreground">{p.title}</h3>
+                      <h3 className="font-heading text-lg font-semibold text-foreground">{p.name}</h3>
                       {p.description && (<p className="mt-2 text-sm leading-relaxed text-muted-foreground">{p.description}</p>)}
                       <div className="mt-3 flex items-center justify-between">
                         <p className="text-xs text-muted-foreground">

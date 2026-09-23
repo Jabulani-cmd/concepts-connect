@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect, useRef } from "react";
 import { Bell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";

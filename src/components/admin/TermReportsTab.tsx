@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -119,7 +118,7 @@ export default function TermReportsTab() {
       // Get assessment results for students in this form
       const { data: assessmentResults } = await supabase
         .from("assessment_results")
-        .select("student_id, marks_obtained, percentage, grade")
+        .select("student_id, mark, percentage, grade")
         .in("student_id", formStudents.map(s => s.id))
         .eq("is_published", true);
 

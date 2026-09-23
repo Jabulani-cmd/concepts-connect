@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { User, Phone, Mail, MapPin, AlertTriangle, Lock, Shield, Calendar, Hash, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import type { PostgrestError } from "@supabase/supabase-js";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -56,7 +56,7 @@ export default function StudentProfileTab({ profile, student, studentClassName, 
 
   const handleSaveProfile = async () => {
     setSaving(true);
-    const updates: Promise<any>[] = [];
+    const updates: PromiseLike<{ error: PostgrestError | null }>[] = [];
 
     // Update profile phone
     if (profile?.id) {

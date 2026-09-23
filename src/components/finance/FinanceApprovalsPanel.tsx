@@ -1,4 +1,3 @@
-// @ts-nocheck
 // Bursar-facing approvals panel — reviews void / delete requests submitted by
 // Finance Clerks, then executes the approved action against the underlying
 // finance tables. Extracted so it can live inside the Bursar Portal without
@@ -16,30 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-
-interface ApprovalRequest {
-  id: string;
-  requested_by: string;
-  action_type: string;
-  target_table: string;
-  target_id: string;
-  description: string;
-  status: string;
-  review_notes: string | null;
-  metadata: any;
-  created_at: string;
-  reviewed_at?: string | null;
-  reviewed_by?: string | null;
-}
-
-const actionTypeLabels: Record<string, string> = {
-  delete_fee_structure: "Delete Fee Structure",
-  delete_expense: "Delete Expense",
-  delete_petty_cash: "Delete Petty Cash Entry",
-  delete_supplier_invoice: "Delete Supplier Invoice",
-  void_invoice: "Void Invoice",
-  void_payment: "Void Payment",
-};
+import { approvalTypeLabels, executeApprovedRequest, type ApprovalRequest } from "@/lib/finance/approvals";
 
 export default function FinanceApprovalsPanel() {
   const { user } = useAuth();
@@ -74,8 +50,8 @@ export default function FinanceApprovalsPanel() {
       .select("*")
       .order("created_at", { ascending: false });
     if (!data) return;
-    setRequests(data as ApprovalRequest[]);
-    const ids = [...new Set(data.map((r: any) => r.requested_by).filter(Boolean))];
+    setRequests(data);
+    const ids = [...new Set(data.map(r => r.requested_by).filter(Boolean))];
     if (ids.length) {
       const { data: profs } = await supabase
         .from("profiles")
@@ -83,7 +59,7 @@ export default function FinanceApprovalsPanel() {
         .in("id", ids);
       if (profs) {
         const map: Record<string, string> = {};
-        profs.forEach((p: any) => {
+        profs.forEach(p => {
           map[p.id] = p.full_name || p.email || "Unknown";
         });
         setProfiles(map);
@@ -112,26 +88,11 @@ export default function FinanceApprovalsPanel() {
     }
 
     if (action === "approved") {
-      const { target_table, target_id, action_type } = selected;
       try {
-        if (action_type.startsWith("delete_")) {
-          if (target_table === "fee_structures") {
-            await supabase.from("invoice_items").update({ fee_structure_id: null }).eq("fee_structure_id", target_id);
-          }
-          const { error: delErr } = await supabase.from(target_table as any).delete().eq("id", target_id);
-          if (delErr) throw delErr;
-          toast({ title: "Approved & deleted", description: `${target_table.replace(/_/g, " ")} record removed.` });
-        } else if (action_type === "void_invoice") {
-          const { error: vErr } = await supabase.from("invoices").update({ status: "voided" } as any).eq("id", target_id);
-          if (vErr) throw vErr;
-          toast({ title: "Invoice voided" });
-        } else if (action_type === "void_payment") {
-          const { error: pErr } = await supabase.from("payments").delete().eq("id", target_id);
-          if (pErr) throw pErr;
-          toast({ title: "Payment voided & reversed" });
-        }
-      } catch (e: any) {
-        toast({ title: "Execution failed", description: e?.message || String(e), variant: "destructive" });
+        const summary = await executeApprovedRequest(selected);
+        toast({ title: "Request approved", description: summary });
+      } catch (e) {
+        toast({ title: "Execution failed", description: e instanceof Error ? e.message : String(e), variant: "destructive" });
       }
     } else {
       toast({ title: "Request rejected" });
@@ -156,7 +117,7 @@ export default function FinanceApprovalsPanel() {
     if (statusFilter !== "all" && r.status !== statusFilter) return false;
     if (search) {
       const s = search.toLowerCase();
-      const haystack = `${r.description} ${r.action_type} ${r.target_table} ${profiles[r.requested_by] || ""}`.toLowerCase();
+      const haystack = `${r.description} ${r.request_type} ${r.target_table ?? ""} ${profiles[r.requested_by] || ""}`.toLowerCase();
       if (!haystack.includes(s)) return false;
     }
     return true;
@@ -249,7 +210,7 @@ export default function FinanceApprovalsPanel() {
                       {profiles[req.requested_by] || "Unknown clerk"}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline">{actionTypeLabels[req.action_type] || req.action_type}</Badge>
+                      <Badge variant="outline">{approvalTypeLabels[req.request_type] || req.request_type}</Badge>
                     </TableCell>
                     <TableCell className="text-sm max-w-[300px] truncate">{req.description}</TableCell>
                     <TableCell>
@@ -305,7 +266,7 @@ export default function FinanceApprovalsPanel() {
               <div>
                 <p className="text-muted-foreground">Requested action</p>
                 <p className="font-medium">
-                  {actionTypeLabels[selected.action_type] || selected.action_type}
+                  {approvalTypeLabels[selected.request_type] || selected.request_type}
                 </p>
               </div>
               <div>

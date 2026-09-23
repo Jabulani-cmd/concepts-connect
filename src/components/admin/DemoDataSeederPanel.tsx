@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Database, Sparkles, Trash2, CheckCircle2, Loader2, Download, Users, GraduationCap, BookOpen, Building2, CalendarClock, UserCog } from "lucide-react";

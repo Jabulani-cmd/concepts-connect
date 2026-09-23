@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Bot, Send, Sparkles, CheckCircle2, AlertTriangle, Upload, RotateCcw } from "lucide-react";

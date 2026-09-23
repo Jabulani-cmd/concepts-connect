@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Layout from "@/components/layout/Layout";
@@ -14,7 +13,7 @@ export default function Awards() {
   useEffect(() => {
     const fetchData = async () => {
       const [awardsRes, photosRes] = await Promise.all([
-        supabase.from("awards").select("*").order("year_issued", { ascending: false }),
+        supabase.from("awards").select("*").order("year", { ascending: false }),
         supabase.from("award_photos").select("*").eq("is_active", true).order("created_at", { ascending: false }),
       ]);
       if (awardsRes.data) setAwards(awardsRes.data);
@@ -66,12 +65,12 @@ export default function Awards() {
               <tbody>
                 {awards.map((a, i) => (
                   <tr key={a.id} className={i % 2 === 0 ? "bg-background" : "bg-muted/50"}>
-                    <td className="px-4 py-3 font-medium">{a.student_name}</td>
+                    <td className="px-4 py-3 font-medium">{a.recipient}</td>
                     <td className="px-4 py-3 flex items-center gap-2">
                       <Award className="h-4 w-4 text-accent shrink-0" />
-                      {a.award_name}
+                      {a.title}
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">{a.year_issued}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{a.year}</td>
                   </tr>
                 ))}
               </tbody>

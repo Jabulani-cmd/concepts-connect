@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -48,7 +47,7 @@ export default function LessonPlansTab({ userId, classes, subjects }: Props) {
   const fetchPlans = async () => {
     const { data } = await supabase
       .from("lesson_plans")
-      .select("*, subjects(name), classes(name, form_level)")
+      .select("*, subjects(name), classes(name, level)")
       .eq("teacher_id", userId)
       .order("date", { ascending: false });
     if (data) setPlans(data);
@@ -160,7 +159,7 @@ export default function LessonPlansTab({ userId, classes, subjects }: Props) {
           topic: aiTopic.trim(),
           subject: selectedSubject?.name || "",
           className: selectedClass?.name || "",
-          formLevel: selectedClass?.form_level || "",
+          formLevel: selectedClass?.level || "",
           duration_minutes: parseInt(aiDuration) || 40,
         },
       });

@@ -1,4 +1,3 @@
-// @ts-nocheck
 // Reusable Year / Month / Day filter for finance tables. Provides a single
 // `matches(dateInput)` helper that the parent can use to filter any list.
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";

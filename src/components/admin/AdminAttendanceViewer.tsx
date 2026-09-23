@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -38,9 +37,9 @@ export default function AdminAttendanceViewer() {
       .from("attendance")
       .select("*, students:student_id(id, full_name, admission_number)")
       .eq("class_id", selectedClass)
-      .gte("attendance_date", dateFrom)
-      .lte("attendance_date", dateTo)
-      .order("attendance_date", { ascending: false });
+      .gte("date", dateFrom)
+      .lte("date", dateTo)
+      .order("date", { ascending: false });
 
     if (error) {
       toast({ title: "Error fetching attendance", description: error.message, variant: "destructive" });
@@ -90,7 +89,7 @@ export default function AdminAttendanceViewer() {
     const className = classes.find(c => c.id === selectedClass)?.name || "class";
     const header = "Student Name,Admission No,Date,Status,Notes\n";
     const rows = filtered.map(r =>
-      `"${r.students?.full_name || ""}","${r.students?.admission_number || ""}","${r.attendance_date}","${r.status}","${r.notes || ""}"`
+      `"${r.students?.full_name || ""}","${r.students?.admission_number || ""}","${r.date}","${r.status}","${r.notes || ""}"`
     ).join("\n");
     const blob = new Blob([header + rows], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
@@ -217,7 +216,7 @@ export default function AdminAttendanceViewer() {
                       <TableRow key={r.id}>
                         <TableCell className="font-medium">{r.students?.full_name || "—"}</TableCell>
                         <TableCell>{r.students?.admission_number || "—"}</TableCell>
-                        <TableCell>{new Date(r.attendance_date).toLocaleDateString()}</TableCell>
+                        <TableCell>{new Date(r.date).toLocaleDateString()}</TableCell>
                         <TableCell>
                           <Badge variant={statusBadgeVariant(r.status)} className="gap-1">
                             {statusIcon(r.status)} {r.status}

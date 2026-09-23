@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect, useRef } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -143,7 +142,7 @@ interface ManagedUser {
 interface ClassOption {
   id: string;
   name: string;
-  form_level: string | null;
+  level: string | null;
 }
 
 export default function UserManagement() {
@@ -234,7 +233,7 @@ export default function UserManagement() {
 
   const fetchClasses = async () => {
     try {
-      const { data } = await supabase.from("classes").select("id, name, form_level").order("name");
+      const { data } = await supabase.from("classes").select("id, name, level").order("name");
       if (data) setClasses(data);
     } catch (err) {
       console.error("Failed to fetch classes:", err);
@@ -828,7 +827,7 @@ export default function UserManagement() {
                       {classes.map((c) => (
                         <SelectItem key={c.id} value={c.id}>
                           {c.name}
-                          {c.form_level ? ` (${c.form_level})` : ""}
+                          {c.level ? ` (${c.level})` : ""}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -881,7 +880,7 @@ export default function UserManagement() {
                             setForm((p) => ({ ...p, teaching_class_ids: updated }));
                           }}
                         >
-                          {c.name}{c.form_level ? ` (${c.form_level})` : ""}
+                          {c.name}{c.level ? ` (${c.level})` : ""}
                         </Badge>
                       ))}
                     </div>
@@ -1262,7 +1261,7 @@ export default function UserManagement() {
                         {classes.map((c) => (
                           <SelectItem key={c.id} value={c.id}>
                             {c.name}
-                            {c.form_level ? ` (${c.form_level})` : ""}
+                            {c.level ? ` (${c.level})` : ""}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -1346,14 +1345,14 @@ export default function UserManagement() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>UIF Number</Label>
+                      <Label>NSSA Number</Label>
                       <Input
                         value={editForm.nssa_number}
                         onChange={(e) => setEditForm((p) => ({ ...p, nssa_number: e.target.value }))}
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>SARS PAYE Number</Label>
+                      <Label>ZIMRA PAYE / TIN Number</Label>
                       <Input
                         value={editForm.paye_number}
                         onChange={(e) => setEditForm((p) => ({ ...p, paye_number: e.target.value }))}

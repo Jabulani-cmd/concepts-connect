@@ -1,4 +1,3 @@
-// @ts-nocheck
 // Centralised view / print / download / email helpers for finance documents.
 // Every document goes through the buildXxxHtml helpers which already render
 // the school logo, address and contact details at the top.

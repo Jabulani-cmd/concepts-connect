@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -28,8 +27,7 @@ import {
   Printer,
   ClipboardList,
   CreditCard,
-  Search,
-} from "lucide-react";
+  Search, type LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import schoolLogo from "@/assets/mavingtech-logo.png";
 import { useAuth } from "@/contexts/AuthContext";
@@ -73,6 +71,9 @@ type TabId =
   | "announcements"
   | "exam-timetable"
   | "reports";
+
+// "billing" is a link to its own page rather than an in-page tab.
+type NavItemId = TabId | "billing";
 
 interface ChildInfo {
   id: string;
@@ -212,7 +213,7 @@ export default function ParentDashboard() {
         .from("attendance")
         .select("*")
         .eq("student_id", studentId)
-        .order("attendance_date", { ascending: false }),
+        .order("date", { ascending: false }),
       supabase.from("invoices").select("*").eq("student_id", studentId).order("created_at", { ascending: false }),
       supabase
         .from("payments")
@@ -249,7 +250,7 @@ export default function ParentDashboard() {
     const [{ data: results }, { data: rankData }] = await Promise.all([
       supabase
         .from("exam_results")
-        .select("id, mark, grade, teacher_comment, subject_id, subjects(name, code)")
+        .select("id, mark, grade, teacher_comment:comment, subject_id, subjects(name, code)")
         .eq("exam_id", selectedExamId)
         .eq("student_id", selectedChildId)
         .order("mark", { ascending: false }),
@@ -292,7 +293,7 @@ export default function ParentDashboard() {
     );
   }
 
-  const tabs: { id: TabId; label: string; icon: any }[] = [
+  const tabs: { id: NavItemId; label: string; icon: LucideIcon }[] = [
     { id: "overview", label: "Overview", icon: Users },
     { id: "grades", label: "Grades", icon: GraduationCap },
     { id: "marks", label: "Marks", icon: ClipboardList },
@@ -345,8 +346,9 @@ export default function ParentDashboard() {
                 </Link>
               );
             }
+            const tabId = item.id;
             return (
-              <button key={item.id} onClick={() => setActiveTab(item.id)} className={cls}>
+              <button key={item.id} onClick={() => setActiveTab(tabId)} className={cls}>
                 <Icon className="h-4 w-4" />
                 {item.label}
               </button>
@@ -407,8 +409,9 @@ export default function ParentDashboard() {
               if (t.id === "billing") {
                 return <Link key={t.id} to="/portal/parent/billing" className={cls}>{t.label}</Link>;
               }
+              const tabId = t.id;
               return (
-                <button key={t.id} onClick={() => setActiveTab(t.id)} className={cls}>
+                <button key={t.id} onClick={() => setActiveTab(tabId)} className={cls}>
                   {t.label}
                 </button>
               );
@@ -922,7 +925,7 @@ function TabContentInner(props: TabContentProps) {
     return (
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
         <PrintableSection title={`Marks — ${child.full_name}`} subtitle={`Admission ${child.admission_number || ""}`} fileName={`marks-${child.admission_number || child.full_name}`} bare>
-          <StudentMarksTab studentId={child.id} studentClassId={null} userId="" />
+          <StudentMarksTab studentId={child.id} />
         </PrintableSection>
       </motion.div>
     );
@@ -991,7 +994,7 @@ function TabContentInner(props: TabContentProps) {
                     {recentRecords.map((a: any) => (
                       <tr key={a.id} className="border-b last:border-0">
                         <td className="px-3 py-2 text-foreground">
-                          {format(new Date(a.attendance_date), "dd MMM yyyy")}
+                          {format(new Date(a.date), "dd MMM yyyy")}
                         </td>
                         <td className="px-3 py-2 text-center">
                           <Badge

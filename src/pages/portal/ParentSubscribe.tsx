@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -14,6 +13,8 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { paymentMethodLabel, type PaymentMethod } from "@/lib/finance/paymentMethods";
+import type { Enums } from "@/integrations/supabase/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
 import { downloadSubscriptionReceipt } from "@/lib/receiptPdf";
@@ -23,13 +24,6 @@ import CurrencyConverter from "@/components/finance/CurrencyConverter";
 
 type Step = "plans" | "method" | "card" | "eft" | "gateway" | "qr" | "success" | "failed";
 
-const METHOD_LABEL: Record<string, string> = {
-  card: "Card (Visa / Mastercard)",
-  eft: "Instant EFT",
-  bank_transfer: "Bank Transfer / Manual EFT",
-  ecocash: "EcoCash",
-  onemoney: "OneMoney",
-};
 
 type Outcome = "auto" | "approve" | "insufficient" | "declined";
 
@@ -55,7 +49,7 @@ export default function ParentSubscribe() {
 
   const [step, setStep] = useState<Step>("plans");
   const [plan, setPlan] = useState<any | null>(null);
-  const [method, setMethod] = useState<string>("card");
+  const [method, setMethod] = useState<PaymentMethod>("card");
 
   // Card form
   const [cardNumber, setCardNumber] = useState("");
@@ -119,7 +113,7 @@ export default function ParentSubscribe() {
     }
     setPlan(p); setStep("method");
   }
-  function pickMethod(m: string) {
+  function pickMethod(m: PaymentMethod) {
     setMethod(m); setError(null);
     if (m === "card") setStep("card");
     else if (m === "eft") setStep("gateway");
@@ -130,7 +124,7 @@ export default function ParentSubscribe() {
   function outcomeReason(o: Outcome): string {
     if (o === "insufficient") return "Payment Declined — Insufficient Funds. Please use a different card or method.";
     if (o === "declined") return "Transaction Failed — Card Declined by your bank. Please try again or use another method.";
-    return "Your bank declined the transaction. Please try a different card or use Instant EFT.";
+    return "Your bank declined the transaction. Please try a different card or use Internet Banking (ZIPIT).";
   }
 
   async function processCard() {
@@ -197,9 +191,12 @@ export default function ParentSubscribe() {
         payment_method: method,
         transaction_id: txId,
         receipt_number: null,
-        payment_status: forceOutcome === "insufficient" ? "declined_insufficient" : "declined",
+        payment_status: "failed",
+        rejection_reason: forceOutcome === "insufficient" ? "Insufficient funds" : "Declined by bank",
       });
-    } catch {}
+    } catch (e) {
+      console.error("Could not record failed payment attempt", e);
+    }
   }
 
   async function submitBankTransfer() {
@@ -211,7 +208,7 @@ export default function ParentSubscribe() {
     nav("/portal/parent/payments");
   }
 
-  async function createPayment(paymentStatus: string, subStatus: string) {
+  async function createPayment(paymentStatus: Enums<"payment_status">, subStatus: Enums<"subscription_status">) {
     const accessStart = new Date();
     const accessEnd = new Date(accessStart.getTime() + plan.duration_days * 86_400_000);
     const txId = "SPS-" + Date.now().toString(36).toUpperCase();
@@ -358,7 +355,7 @@ export default function ParentSubscribe() {
                 studentName: completed.childName,
                 amount: Number(completed.plan.amount_usd),
                 currency: "USD",
-                method: METHOD_LABEL[completed.method],
+                method: paymentMethodLabel(completed.method),
                 transactionId: completed.txId,
                 plan: completed.plan.name,
                 accessStart: completed.accessStart,
@@ -447,10 +444,10 @@ function OutcomeSelect({ value, onChange, includeAuto = true }: { value: Outcome
 function MethodView({ plan, onPick }: any) {
   const methods = [
     { id: "card", label: "Card Payment", icon: CreditCard, note: "Visa / Mastercard — Paynow Zimbabwe" },
-    { id: "eft", label: "Instant EFT", icon: Building2, note: "CBZ, Stanbic, Steward, ZB Bank" },
+    { id: "eft", label: "Internet Banking", icon: Building2, note: "ZIPIT — CBZ, Stanbic, Steward, ZB Bank" },
     { id: "ecocash", label: "EcoCash", icon: CreditCard, note: "Pay from your EcoCash wallet" },
     { id: "onemoney", label: "OneMoney", icon: CreditCard, note: "Pay from your OneMoney wallet" },
-    { id: "bank_transfer", label: "Bank Transfer", icon: Building2, note: "Manual EFT — upload proof of payment" },
+    { id: "bank_transfer", label: "Bank Transfer", icon: Building2, note: "RTGS transfer — upload proof of payment" },
   ];
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-3xl mx-auto">
@@ -551,7 +548,7 @@ function GatewayView({ plan, processing, onStart, forceOutcome, setForceOutcome 
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-md mx-auto">
       <Card className="p-6 text-center">
         <Building2 className="w-12 h-12 mx-auto mb-3 text-teal-600" />
-        <h3 className="font-semibold text-lg">Paynow Zimbabwe — Instant EFT</h3>
+        <h3 className="font-semibold text-lg">Paynow Zimbabwe — Internet Banking (ZIPIT)</h3>
         <p className="text-sm text-muted-foreground mt-1 mb-5">
           You will be redirected to your bank to authorise a {formatMoney(plan.amount_usd)} payment.
         </p>
@@ -626,7 +623,7 @@ function BankView({ bank, proof, setProof, onSubmit, processing, error, plan }: 
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-xl mx-auto">
       <Card className="p-6">
         <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
-          <Building2 className="w-5 h-5 text-teal-600" /> Manual EFT / Bank Transfer
+          <Building2 className="w-5 h-5 text-teal-600" /> Bank Transfer (RTGS)
         </h3>
         {bank ? (
           <div className="bg-muted/40 rounded-lg p-4 space-y-1 text-sm">
@@ -702,7 +699,7 @@ function SuccessView({ data, onDownload, onPortal }: any) {
           <div className="flex justify-between"><span className="text-muted-foreground">Receipt</span> <strong>{data.receiptNumber}</strong></div>
           <div className="flex justify-between"><span className="text-muted-foreground">Plan</span> <strong>{data.plan.name}</strong></div>
           <div className="flex justify-between"><span className="text-muted-foreground">Amount</span> <strong>{formatMoney(data.plan.amount_usd)}</strong></div>
-          <div className="flex justify-between"><span className="text-muted-foreground">Method</span> <strong>{METHOD_LABEL[data.method]}</strong></div>
+          <div className="flex justify-between"><span className="text-muted-foreground">Method</span> <strong>{paymentMethodLabel(data.method)}</strong></div>
           <div className="flex justify-between"><span className="text-muted-foreground">Access until</span> <strong>{new Date(data.accessEnd).toLocaleDateString("en-ZA")}</strong></div>
         </div>
 

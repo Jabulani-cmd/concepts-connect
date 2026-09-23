@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -137,10 +136,10 @@ export default function StudentAssessmentsTab({ studentId, studentClassId, userI
     const { error: resultErr } = await supabase.from("assessment_results").insert({
       assessment_id: selectedAssessment.id,
       student_id: studentId,
-      marks_obtained: obtained,
+      mark: obtained,
       percentage,
       grade,
-      teacher_feedback: feedback,
+      feedback: feedback,
       is_published: true,
       graded_by: userId,
       graded_date: new Date().toISOString(),
@@ -173,8 +172,8 @@ export default function StudentAssessmentsTab({ studentId, studentClassId, userI
     const { error } = await supabase.from("assessment_submissions").insert({
       assessment_id: selectedAssessment.id,
       student_id: studentId,
-      file_url: fileUrl,
-      comments: submitComment || null,
+      submission_url: fileUrl,
+      notes: submitComment || null,
       status: "submitted",
       submission_date: new Date().toISOString(),
     });
@@ -219,7 +218,7 @@ export default function StudentAssessmentsTab({ studentId, studentClassId, userI
               )}
               {res && (
                 <div className="flex items-center gap-2 mt-1">
-                  <span className={`text-sm font-bold ${gradeColor(res.grade || "")}`}>{res.marks_obtained}/{a.max_marks} ({res.grade})</span>
+                  <span className={`text-sm font-bold ${gradeColor(res.grade || "")}`}>{res.mark}/{a.max_marks} ({res.grade})</span>
                 </div>
               )}
             </div>
@@ -343,13 +342,13 @@ export default function StudentAssessmentsTab({ studentId, studentClassId, userI
             <div className="space-y-4">
               <div className="text-center py-4">
                 <p className={`text-4xl font-bold ${gradeColor(selectedResult.grade || "")}`}>{selectedResult.grade || "—"}</p>
-                <p className="text-lg font-medium mt-1">{selectedResult.marks_obtained} / {selectedAssessment?.max_marks}</p>
+                <p className="text-lg font-medium mt-1">{selectedResult.mark} / {selectedAssessment?.max_marks}</p>
                 <p className="text-sm text-muted-foreground">{selectedResult.percentage?.toFixed(1)}%</p>
               </div>
-              {selectedResult.teacher_feedback && (
+              {selectedResult.feedback && (
                 <div className="bg-muted p-3 rounded-lg">
                   <p className="text-xs font-medium text-muted-foreground mb-1">Feedback</p>
-                  <pre className="text-xs whitespace-pre-wrap font-sans">{selectedResult.teacher_feedback}</pre>
+                  <pre className="text-xs whitespace-pre-wrap font-sans">{selectedResult.feedback}</pre>
                 </div>
               )}
             </div>

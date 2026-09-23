@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
+import type { QueryData } from "@supabase/supabase-js";
 import {
   Plus, Trash2, Loader2, UserCheck, CalendarClock, Wand2
 } from "lucide-react";
@@ -28,17 +29,25 @@ const timeSlots = [
   { start: "14:30", end: "15:10" },
 ];
 
+const assignmentsQuery = () =>
+  supabase.from("class_subjects").select("*, classes(name, level), subjects(name), staff(full_name)").order("created_at");
+const timetableQuery = () =>
+  supabase.from("timetable_entries").select("*, classes(name), subjects(name), staff(full_name)").order("day_of_week");
+type Assignment = QueryData<ReturnType<typeof assignmentsQuery>>[number];
+type TimetableEntry = QueryData<ReturnType<typeof timetableQuery>>[number];
+type NewTimetableEntry = Pick<Tables<"timetable_entries">, "class_id" | "subject_id" | "teacher_id" | "day_of_week" | "start_time" | "end_time">;
+
 interface Props {
-  classes: any[];
-  subjects: any[];
-  staff: any[];
+  classes: Pick<Tables<"classes">, "id" | "name" | "level">[];
+  subjects: Pick<Tables<"subjects">, "id" | "name">[];
+  staff: Pick<Tables<"staff">, "id" | "full_name" | "role">[];
   onRefresh: () => void;
 }
 
 export default function TeacherClassAssignment({ classes, subjects, staff, onRefresh }: Props) {
   const { toast } = useToast();
-  const [assignments, setAssignments] = useState<any[]>([]);
-  const [timetableEntries, setTimetableEntries] = useState<any[]>([]);
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [timetableEntries, setTimetableEntries] = useState<TimetableEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTeacher, setSelectedTeacher] = useState("all");
 
@@ -61,8 +70,8 @@ export default function TeacherClassAssignment({ classes, subjects, staff, onRef
   async function fetchData() {
     setLoading(true);
     const [{ data: cs }, { data: tt }] = await Promise.all([
-      supabase.from("class_subjects").select("*, classes(name, form_level), subjects(name), staff(full_name)").order("created_at"),
-      supabase.from("timetable_entries").select("*, classes(name), subjects(name), staff(full_name)").order("day_of_week"),
+      assignmentsQuery(),
+      timetableQuery(),
     ]);
     setAssignments(cs || []);
     setTimetableEntries(tt || []);
@@ -151,7 +160,7 @@ export default function TeacherClassAssignment({ classes, subjects, staff, onRef
 
     // Get existing timetable entries to avoid clashes
     const { data: allTT } = await supabase.from("timetable_entries").select("*");
-    const existingEntries = allTT || [];
+    const existingEntries: NewTimetableEntry[] = allTT || [];
 
     // Helper: check if slot is free for teacher and class
     function isSlotFree(day: number, start: string, end: string, classId: string) {
@@ -163,7 +172,7 @@ export default function TeacherClassAssignment({ classes, subjects, staff, onRef
 
     // Distribute assignments across the week
     // Each assignment gets ~2 slots per week (typical for secondary school)
-    const newEntries: any[] = [];
+    const newEntries: NewTimetableEntry[] = [];
     let slotIdx = 0;
 
     for (const assignment of teacherAssignments) {
@@ -176,7 +185,7 @@ export default function TeacherClassAssignment({ classes, subjects, staff, onRef
         const slot = timeSlots[timeIdx];
 
         if (isSlotFree(dayIdx, slot.start, slot.end, assignment.class_id)) {
-          const entry = {
+          const entry: NewTimetableEntry = {
             class_id: assignment.class_id,
             subject_id: assignment.subject_id,
             teacher_id: autoTTTeacher,
@@ -408,7 +417,7 @@ export default function TeacherClassAssignment({ classes, subjects, staff, onRef
               <Select value={assignClass} onValueChange={v => { setAssignClass(v); setAssignSubjects([]); }}>
                 <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
                 <SelectContent>
-                  {classes.map(c => <SelectItem key={c.id} value={c.id}>{c.name} ({c.form_level})</SelectItem>)}
+                  {classes.map(c => <SelectItem key={c.id} value={c.id}>{c.name}{c.level ? ` (${c.level})` : ""}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>

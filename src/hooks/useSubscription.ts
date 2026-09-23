@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -143,12 +142,14 @@ export function useSubscription(): SubscriptionState {
       }
     }
 
-    const comp = (grants || []).find((g: any) => {
-      const end = g.access_end ? new Date(g.access_end) : null;
-      return g.grant_type === "complimentary" && (!end || end > now);
-    });
+    const liveGrant = (type: "complimentary" | "trial") =>
+      (grants || []).find((g) => {
+        const end = g.access_end ? new Date(g.access_end) : null;
+        return g.grant_type === type && (!end || end > now);
+      });
+    const comp = liveGrant("complimentary") ?? liveGrant("trial");
     if (comp && status !== "active") {
-      status = "complimentary";
+      status = comp.grant_type === "trial" ? "trial" : "complimentary";
     }
 
     const isActive = status === "active" || status === "complimentary" || status === "trial";

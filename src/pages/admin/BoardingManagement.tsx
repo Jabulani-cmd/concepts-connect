@@ -1,6 +1,6 @@
-// @ts-nocheck
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,27 +15,12 @@ import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Building, Plus, Edit, Trash2, Users, BedDouble, Heart, Search, Download, Eye, Phone, ArrowRightLeft, GripVertical } from "lucide-react";
 
-type Hostel = {
-  id: string; name: string; total_capacity: number; current_occupancy: number;
-  housemaster_id: string | null; assistant_housemaster_id: string | null;
-  phone: string | null; location: string | null; description: string | null;
-  is_active: boolean; created_at: string;
-};
-type Room = {
-  id: string; hostel_id: string; room_number: string; room_type: string;
-  capacity: number; current_occupancy: number; floor: number | null; notes: string | null;
-};
-type BedAllocation = {
-  id: string; room_id: string; student_id: string; bed_number: string | null;
-  allocation_start_date: string; allocation_end_date: string | null;
-  status: string; created_at: string;
-};
-type HealthVisit = {
-  id: string; student_id: string; visit_date: string; symptoms: string | null;
-  diagnosis: string | null; treatment: string | null; medication_given: string | null;
-  follow_up_date: string | null; visited_by: string | null; notes: string | null;
-  parent_notified: boolean; created_at: string;
-};
+type Hostel = Tables<"hostels">;
+type Room = Tables<"rooms">;
+type BedAllocation = Tables<"bed_allocations">;
+type HealthVisit = Tables<"health_visits">;
+type StudentOption = Pick<Tables<"students">, "id" | "full_name" | "admission_number" | "form" | "stream" | "guardian_phone" | "emergency_contact">;
+type StaffOption = Pick<Tables<"staff">, "id" | "full_name" | "role">;
 
 const roomTypes = ["dormitory", "single", "double", "suite"];
 
@@ -48,8 +33,8 @@ export default function BoardingManagement() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [allocations, setAllocations] = useState<BedAllocation[]>([]);
   const [healthVisits, setHealthVisits] = useState<HealthVisit[]>([]);
-  const [students, setStudents] = useState<any[]>([]);
-  const [staff, setStaff] = useState<any[]>([]);
+  const [students, setStudents] = useState<StudentOption[]>([]);
+  const [staff, setStaff] = useState<StaffOption[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Dialogs
@@ -61,7 +46,7 @@ export default function BoardingManagement() {
 
   // Forms
   const [editingHostelId, setEditingHostelId] = useState<string | null>(null);
-  const [hostelForm, setHostelForm] = useState({ name: "", total_capacity: 0, phone: "", location: "", description: "", housemaster_id: "", assistant_housemaster_id: "" });
+  const [hostelForm, setHostelForm] = useState({ name: "", capacity: 0, phone: "", location: "", description: "", housemaster_id: "", assistant_housemaster_id: "" });
   const [editingRoomId, setEditingRoomId] = useState<string | null>(null);
   const [roomForm, setRoomForm] = useState({ hostel_id: "", room_number: "", room_type: "dormitory", capacity: 1, floor: 0, notes: "" });
   const [allocForm, setAllocForm] = useState({ room_id: "", student_id: "", bed_number: "" });
@@ -85,10 +70,10 @@ export default function BoardingManagement() {
       supabase.from("students").select("id, full_name, admission_number, form, stream, guardian_phone, emergency_contact").eq("status", "active").order("full_name"),
       supabase.from("staff").select("id, full_name, role").order("full_name"),
     ]);
-    if (h.data) setHostels(h.data as Hostel[]);
-    if (r.data) setRooms(r.data as Room[]);
-    if (a.data) setAllocations(a.data as BedAllocation[]);
-    if (hv.data) setHealthVisits(hv.data as HealthVisit[]);
+    if (h.data) setHostels(h.data);
+    if (r.data) setRooms(r.data);
+    if (a.data) setAllocations(a.data);
+    if (hv.data) setHealthVisits(hv.data);
     if (s.data) setStudents(s.data);
     if (st.data) setStaff(st.data);
     setLoading(false);
@@ -97,12 +82,12 @@ export default function BoardingManagement() {
   // =========== HOSTELS ===========
   const openAddHostel = () => {
     setEditingHostelId(null);
-    setHostelForm({ name: "", total_capacity: 0, phone: "", location: "", description: "", housemaster_id: "", assistant_housemaster_id: "" });
+    setHostelForm({ name: "", capacity: 0, phone: "", location: "", description: "", housemaster_id: "", assistant_housemaster_id: "" });
     setHostelDialog(true);
   };
   const openEditHostel = (h: Hostel) => {
     setEditingHostelId(h.id);
-    setHostelForm({ name: h.name, total_capacity: h.total_capacity, phone: h.phone || "", location: h.location || "", description: h.description || "", housemaster_id: h.housemaster_id || "", assistant_housemaster_id: h.assistant_housemaster_id || "" });
+    setHostelForm({ name: h.name, capacity: h.capacity ?? 0, phone: h.phone || "", location: h.location || "", description: h.description || "", housemaster_id: h.housemaster_id || "", assistant_housemaster_id: h.assistant_housemaster_id || "" });
     setHostelDialog(true);
   };
   const saveHostel = async () => {
@@ -158,25 +143,13 @@ export default function BoardingManagement() {
       bed_number: allocForm.bed_number || null, status: "active",
     });
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
-    // Update occupancy
-    const room = rooms.find(r => r.id === allocForm.room_id);
-    if (room) {
-      await supabase.from("rooms").update({ current_occupancy: room.current_occupancy + 1 }).eq("id", room.id);
-      const hostel = hostels.find(h => h.id === room.hostel_id);
-      if (hostel) await supabase.from("hostels").update({ current_occupancy: hostel.current_occupancy + 1 }).eq("id", hostel.id);
-    }
     toast({ title: "Student allocated" });
     setAllocDialog(false);
     fetchAll();
   };
   const vacateStudent = async (alloc: BedAllocation) => {
-    await supabase.from("bed_allocations").update({ status: "vacated", allocation_end_date: new Date().toISOString().split("T")[0] }).eq("id", alloc.id);
-    const room = rooms.find(r => r.id === alloc.room_id);
-    if (room) {
-      await supabase.from("rooms").update({ current_occupancy: Math.max(0, room.current_occupancy - 1) }).eq("id", room.id);
-      const hostel = hostels.find(h => h.id === room.hostel_id);
-      if (hostel) await supabase.from("hostels").update({ current_occupancy: Math.max(0, hostel.current_occupancy - 1) }).eq("id", hostel.id);
-    }
+    const { error } = await supabase.from("bed_allocations").update({ status: "vacated", allocation_end_date: new Date().toISOString().split("T")[0] }).eq("id", alloc.id);
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
     toast({ title: "Student vacated" });
     fetchAll();
   };
@@ -211,7 +184,7 @@ export default function BoardingManagement() {
     if (!targetRoom || !sourceRoom) { setDragAlloc(null); return; }
 
     const targetAllocs = allocations.filter(a => a.room_id === targetRoomId);
-    if (targetAllocs.length >= targetRoom.capacity) {
+    if (targetAllocs.length >= (targetRoom.capacity ?? 0)) {
       toast({ title: "Room is full", description: `${targetRoom.room_number} has no vacancies`, variant: "destructive" });
       setDragAlloc(null);
       return;
@@ -220,18 +193,6 @@ export default function BoardingManagement() {
     // Update allocation to new room
     const { error } = await supabase.from("bed_allocations").update({ room_id: targetRoomId, status: "active" }).eq("id", dragAlloc.id);
     if (error) { toast({ title: "Transfer failed", description: error.message, variant: "destructive" }); setDragAlloc(null); return; }
-
-    // Update occupancy counts
-    await supabase.from("rooms").update({ current_occupancy: Math.max(0, sourceRoom.current_occupancy - 1) }).eq("id", sourceRoom.id);
-    await supabase.from("rooms").update({ current_occupancy: targetRoom.current_occupancy + 1 }).eq("id", targetRoom.id);
-
-    // If different hostels, update hostel occupancy too
-    if (sourceRoom.hostel_id !== targetRoom.hostel_id) {
-      const sourceHostel = hostels.find(h => h.id === sourceRoom.hostel_id);
-      const targetHostel = hostels.find(h => h.id === targetRoom.hostel_id);
-      if (sourceHostel) await supabase.from("hostels").update({ current_occupancy: Math.max(0, sourceHostel.current_occupancy - 1) }).eq("id", sourceHostel.id);
-      if (targetHostel) await supabase.from("hostels").update({ current_occupancy: targetHostel.current_occupancy + 1 }).eq("id", targetHostel.id);
-    }
 
     toast({ title: "Student transferred", description: `Moved ${studentName(dragAlloc.student_id)} to room ${targetRoom.room_number}` });
     setDragAlloc(null);
@@ -313,10 +274,10 @@ export default function BoardingManagement() {
 
               {/* Summary cards */}
               <div className="grid gap-4 sm:grid-cols-4">
-                <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-primary">{detailHostel.total_capacity}</p><p className="text-xs text-muted-foreground">Total Capacity</p></CardContent></Card>
+                <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-primary">{detailHostel.capacity}</p><p className="text-xs text-muted-foreground">Total Capacity</p></CardContent></Card>
                 <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-secondary">{detailAllocations.length}</p><p className="text-xs text-muted-foreground">Current Boarders</p></CardContent></Card>
                 <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-accent">{detailRooms.length}</p><p className="text-xs text-muted-foreground">Rooms</p></CardContent></Card>
-                <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold">{detailHostel.total_capacity - detailAllocations.length}</p><p className="text-xs text-muted-foreground">Vacancies</p></CardContent></Card>
+                <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold">{detailHostel.capacity - detailAllocations.length}</p><p className="text-xs text-muted-foreground">Vacancies</p></CardContent></Card>
               </div>
 
               {/* Housemaster info */}
@@ -405,7 +366,7 @@ export default function BoardingManagement() {
                 {hostels.map(h => {
                   const hostelRooms = rooms.filter(r => r.hostel_id === h.id);
                   const hostelAllocs = hostelRooms.flatMap(r => allocations.filter(a => a.room_id === r.id));
-                  const pct = h.total_capacity > 0 ? Math.round((hostelAllocs.length / h.total_capacity) * 100) : 0;
+                  const pct = h.capacity > 0 ? Math.round((hostelAllocs.length / h.capacity) * 100) : 0;
                   return (
                     <Card key={h.id} className="hover:shadow-md transition-shadow">
                       <CardHeader className="pb-2">
@@ -430,7 +391,7 @@ export default function BoardingManagement() {
                         <div className="space-y-2">
                           <div className="flex items-center justify-between text-sm">
                             <span className="text-muted-foreground">Occupancy</span>
-                            <span className="font-semibold">{hostelAllocs.length}/{h.total_capacity} ({pct}%)</span>
+                            <span className="font-semibold">{hostelAllocs.length}/{h.capacity} ({pct}%)</span>
                           </div>
                           <div className="h-2 rounded-full bg-muted overflow-hidden">
                             <div className={`h-full rounded-full transition-all ${pct >= 90 ? "bg-destructive" : pct >= 70 ? "bg-orange-500" : "bg-green-500"}`} style={{ width: `${Math.min(pct, 100)}%` }} />
@@ -585,7 +546,7 @@ export default function BoardingManagement() {
           <DialogHeader><DialogTitle className="font-heading">{editingHostelId ? "Edit Hostel" : "Add Hostel"}</DialogTitle></DialogHeader>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2 space-y-1"><Label>Name *</Label><Input value={hostelForm.name} onChange={e => setHostelForm(f => ({ ...f, name: e.target.value }))} /></div>
-            <div className="space-y-1"><Label>Total Capacity *</Label><Input type="number" value={hostelForm.total_capacity} onChange={e => setHostelForm(f => ({ ...f, total_capacity: parseInt(e.target.value) || 0 }))} /></div>
+            <div className="space-y-1"><Label>Total Capacity *</Label><Input type="number" value={hostelForm.capacity} onChange={e => setHostelForm(f => ({ ...f, capacity: parseInt(e.target.value) || 0 }))} /></div>
             <div className="space-y-1"><Label>Phone</Label><Input value={hostelForm.phone} onChange={e => setHostelForm(f => ({ ...f, phone: e.target.value }))} /></div>
             <div className="space-y-1"><Label>Location</Label><Input value={hostelForm.location} onChange={e => setHostelForm(f => ({ ...f, location: e.target.value }))} /></div>
             <div className="space-y-1">
