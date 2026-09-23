@@ -4126,12 +4126,6 @@ export type Database = {
         Args: { _student_id: string }
         Returns: string
       }
-      delete_class_cascade: { Args: { _class_id: string }; Returns: undefined }
-      delete_staff_cascade: { Args: { _staff_id: string }; Returns: undefined }
-      delete_student_cascade: {
-        Args: { _student_id: string }
-        Returns: undefined
-      }
       can_view_profile: {
         Args: { _target: string; _viewer: string }
         Returns: boolean
@@ -4139,6 +4133,16 @@ export type Database = {
       can_view_student: {
         Args: { _student_id: string; _uid: string }
         Returns: boolean
+      }
+      delete_class_cascade: { Args: { _class_id: string }; Returns: undefined }
+      delete_staff_cascade: { Args: { _staff_id: string }; Returns: undefined }
+      delete_student_cascade: {
+        Args: { _student_id: string }
+        Returns: undefined
+      }
+      get_exam_rankings: {
+        Args: { p_exam_id: string; p_student_id: string }
+        Returns: Json
       }
       get_school_bank_details: {
         Args: never
@@ -4162,10 +4166,6 @@ export type Database = {
           paye_number: string
         }[]
       }
-      get_exam_rankings: {
-        Args: { p_exam_id: string; p_student_id: string }
-        Returns: Json
-      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
@@ -4184,11 +4184,11 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_finance_admin: { Args: { _uid: string }; Returns: boolean }
       is_conversation_member: {
         Args: { _conversation_id: string; _uid: string }
         Returns: boolean
       }
+      is_finance_admin: { Args: { _uid: string }; Returns: boolean }
       is_finance_staff: { Args: { _uid: string }; Returns: boolean }
       is_office_staff: { Args: { _uid: string }; Returns: boolean }
       is_school_admin: { Args: { _uid: string }; Returns: boolean }

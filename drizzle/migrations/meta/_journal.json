@@ -15,6 +15,13 @@
       "when": 1790163538420,
       "tag": "0001_security_lockdown",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790164775086,
+      "tag": "0002_apply_security_lockdown",
+      "breakpoints": true
     }
   ]
 }
