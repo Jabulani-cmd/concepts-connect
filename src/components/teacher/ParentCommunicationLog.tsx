@@ -1,5 +1,4 @@
-// @ts-nocheck
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,15 +6,24 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Phone, Mail, MessageSquare, Users as UsersIcon, Calendar, CheckCircle2, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import type { StudentOption } from "@/types/school";
+import type { QueryData } from "@supabase/supabase-js";
+
+const logsQuery = (teacherId: string) =>
+  supabase
+    .from("parent_communication_logs")
+    .select("*, students(full_name, admission_number)")
+    .eq("teacher_id", teacherId)
+    .order("created_at", { ascending: false });
+type CommunicationLog = QueryData<ReturnType<typeof logsQuery>>[number];
 
 interface Props {
   userId: string;
-  students: any[];
+  students: StudentOption[];
 }
 
 const commTypes = [
@@ -27,25 +35,21 @@ const commTypes = [
 
 export default function ParentCommunicationLog({ userId, students }: Props) {
   const { toast } = useToast();
-  const [logs, setLogs] = useState<any[]>([]);
+  const [logs, setLogs] = useState<CommunicationLog[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({
     student_id: "", parent_name: "", communication_type: "phone_call",
     subject: "", notes: "", follow_up_date: "",
   });
   const [loading, setLoading] = useState(false);
-  const [filter, setFilter] = useState("all"); // all, pending, completed
+  const [filter, setFilter] = useState("all");
 
-  useEffect(() => { fetchLogs(); }, []);
-
-  const fetchLogs = async () => {
-    const { data } = await supabase
-      .from("parent_communication_logs")
-      .select("*, students(full_name, admission_number)")
-      .eq("teacher_id", userId)
-      .order("created_at", { ascending: false });
+  const fetchLogs = useCallback(async () => {
+    const { data } = await logsQuery(userId);
     if (data) setLogs(data);
-  };
+  }, [userId]);
+
+  useEffect(() => { fetchLogs(); }, [fetchLogs]);
 
   const handleSubmit = async () => {
     if (!form.subject) { toast({ title: "Subject is required", variant: "destructive" }); return; }
@@ -54,9 +58,9 @@ export default function ParentCommunicationLog({ userId, students }: Props) {
       teacher_id: userId,
       student_id: form.student_id || null,
       parent_name: form.parent_name || null,
-      communication_type: form.communication_type,
+      channel: form.communication_type,
       subject: form.subject,
-      notes: form.notes || null,
+      message: form.notes || null,
       follow_up_date: form.follow_up_date || null,
     });
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -155,7 +159,7 @@ export default function ParentCommunicationLog({ userId, students }: Props) {
       ) : (
         <div className="space-y-2">
           {filtered.map(log => {
-            const typeInfo = commTypes.find(t => t.value === log.communication_type) || commTypes[0];
+            const typeInfo = commTypes.find(t => t.value === log.channel) || commTypes[0];
             const Icon = typeInfo.icon;
             const isOverdue = log.follow_up_date && !log.follow_up_completed && new Date(log.follow_up_date) <= new Date();
             return (
@@ -174,7 +178,7 @@ export default function ParentCommunicationLog({ userId, students }: Props) {
                         {log.parent_name ? `${log.parent_name} · ` : ""}
                         {new Date(log.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                       </p>
-                      {log.notes && <p className="text-xs text-muted-foreground mt-1">{log.notes}</p>}
+                      {log.message && <p className="text-xs text-muted-foreground mt-1">{log.message}</p>}
                       {log.follow_up_date && (
                         <div className="flex items-center gap-2 mt-2">
                           <Calendar className="h-3.5 w-3.5 text-muted-foreground" />

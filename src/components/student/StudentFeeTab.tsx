@@ -1,5 +1,4 @@
-// @ts-nocheck
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -10,7 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { useIsMobile } from "@/hooks/use-mobile";
 import DocActionButtons from "@/components/finance/DocActionButtons";
-import DateRangeFilter, { dateMatches, emptyDateFilter, type FinanceDateFilter } from "@/components/finance/DateRangeFilter";
+import DateRangeFilter from "@/components/finance/DateRangeFilter";
+import { dateMatches, emptyDateFilter, type FinanceDateFilter } from "@/lib/finance/dateFilter";
 import {
   invoiceActions,
   receiptActions,
@@ -18,33 +18,25 @@ import {
 } from "@/lib/finance/documentActions";
 import { formatMoney } from "@/lib/currency";
 import CurrencyConverter from "@/components/finance/CurrencyConverter";
+import type { Tables } from "@/integrations/supabase/types";
 
 interface Props {
   studentId: string | null;
 }
 
+type FeePayment = Tables<"payments"> & { invoices?: { invoice_number: string | null } | null };
+
 export default function StudentFeeTab({ studentId }: Props) {
   const { toast } = useToast();
   const isMobile = useIsMobile();
-  const [invoices, setInvoices] = useState<any[]>([]);
-  const [payments, setPayments] = useState<any[]>([]);
-  const [student, setStudent] = useState<any>(null);
+  const [invoices, setInvoices] = useState<Tables<"invoices">[]>([]);
+  const [payments, setPayments] = useState<FeePayment[]>([]);
+  const [student, setStudent] = useState<Pick<Tables<"students">, "full_name" | "admission_number" | "form"> | null>(null);
   const [loading, setLoading] = useState(true);
   const [dateFilter, setDateFilter] = useState<FinanceDateFilter>(emptyDateFilter());
   const [searchTerm, setSearchTerm] = useState("");
 
-  useEffect(() => {
-    if (!studentId) { setLoading(false); return; }
-    fetchData();
-    const ch = supabase
-      .channel(`student-fees-${studentId}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "payments", filter: `student_id=eq.${studentId}` }, () => fetchData())
-      .on("postgres_changes", { event: "*", schema: "public", table: "invoices", filter: `student_id=eq.${studentId}` }, () => fetchData())
-      .subscribe();
-    return () => { supabase.removeChannel(ch); };
-  }, [studentId]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     const [invRes, payRes, stuRes] = await Promise.all([
       supabase
@@ -69,7 +61,18 @@ export default function StudentFeeTab({ studentId }: Props) {
     else setPayments(payRes.data || []);
     setStudent(stuRes.data || null);
     setLoading(false);
-  };
+  }, [studentId, toast]);
+
+  useEffect(() => {
+    if (!studentId) { setLoading(false); return; }
+    fetchData();
+    const ch = supabase
+      .channel(`student-fees-${studentId}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "payments", filter: `student_id=eq.${studentId}` }, () => fetchData())
+      .on("postgres_changes", { event: "*", schema: "public", table: "invoices", filter: `student_id=eq.${studentId}` }, () => fetchData())
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [fetchData, studentId]);
 
   const docStudent = {
     fullName: student?.full_name || "—",
@@ -77,8 +80,8 @@ export default function StudentFeeTab({ studentId }: Props) {
     form: student?.form || null,
   };
 
-  const totalInvoicedUsd = invoices.reduce((sum, i) => sum + parseFloat(i.total_usd || 0), 0);
-  const totalPaidUsd = invoices.reduce((sum, i) => sum + parseFloat(i.paid_usd || 0), 0);
+  const totalInvoicedUsd = invoices.reduce((sum, i) => sum + Number(i.total_usd), 0);
+  const totalPaidUsd = invoices.reduce((sum, i) => sum + Number(i.paid_usd), 0);
   const balanceUsd = totalInvoicedUsd - totalPaidUsd;
 
   const statusBadge = (status: string) => (
@@ -110,11 +113,11 @@ export default function StudentFeeTab({ studentId }: Props) {
   const matchesSearch = (text?: string | null) =>
     !q || (text || "").toString().toLowerCase().includes(q);
 
-  const filteredInvoices = invoices.filter((i: any) =>
+  const filteredInvoices = invoices.filter((i) =>
     dateMatches(dateFilter, i.created_at || i.due_date) &&
     (matchesSearch(i.invoice_number) || matchesSearch(i.term) || matchesSearch(i.academic_year) || matchesSearch(i.status)),
   );
-  const filteredPayments = payments.filter((p: any) =>
+  const filteredPayments = payments.filter((p) =>
     dateMatches(dateFilter, p.payment_date) &&
     (matchesSearch(p.receipt_number) || matchesSearch(p.invoices?.invoice_number) || matchesSearch(p.payment_method) || matchesSearch(p.reference_number)),
   );

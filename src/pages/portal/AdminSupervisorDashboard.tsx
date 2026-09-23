@@ -1,8 +1,7 @@
-// @ts-nocheck
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { LogOut, ShieldCheck, Bell, CheckCircle, XCircle, Clock, DollarSign } from "lucide-react";
+import { LogOut, ShieldCheck, CheckCircle, XCircle, Clock, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -27,28 +26,8 @@ import EMISReports from "@/pages/admin/EMISReports";
 import AuditLogs from "@/pages/admin/AuditLogs";
 import FinanceManagement from "@/pages/admin/FinanceManagement";
 import UserManagement from "@/components/admin/UserManagement";
+import { approvalTypeLabels, executeApprovedRequest, type ApprovalRequest } from "@/lib/finance/approvals";
 
-interface ApprovalRequest {
-  id: string;
-  requested_by: string;
-  action_type: string;
-  target_table: string;
-  target_id: string;
-  description: string;
-  status: string;
-  review_notes: string | null;
-  metadata: any;
-  created_at: string;
-}
-
-const actionTypeLabels: Record<string, string> = {
-  delete_fee_structure: "Delete Fee Structure",
-  delete_expense: "Delete Expense",
-  delete_petty_cash: "Delete Petty Cash Entry",
-  delete_supplier_invoice: "Delete Supplier Invoice",
-  void_invoice: "Void Invoice",
-  void_payment: "Void Payment",
-};
 
 export default function AdminSupervisorDashboard() {
   const { signOut, user } = useAuth();
@@ -85,14 +64,14 @@ export default function AdminSupervisorDashboard() {
       .select("*")
       .order("created_at", { ascending: false });
     if (data) {
-      setApprovalRequests(data as ApprovalRequest[]);
+      setApprovalRequests(data);
       // Fetch requester profiles
-      const userIds = [...new Set(data.map((r: any) => r.requested_by))];
+      const userIds = [...new Set(data.map(r => r.requested_by).filter(Boolean))];
       if (userIds.length > 0) {
         const { data: profs } = await supabase.from("profiles").select("id, full_name").in("id", userIds);
         if (profs) {
           const map: Record<string, string> = {};
-          profs.forEach((p: any) => { map[p.id] = p.full_name; });
+          profs.forEach(p => { map[p.id] = p.full_name ?? ""; });
           setProfiles(map);
         }
       }
@@ -119,28 +98,12 @@ export default function AdminSupervisorDashboard() {
       return;
     }
 
-    // If approved, execute the actual delete
     if (action === "approved") {
-      const { target_table, target_id, action_type } = selectedRequest;
-
-      if (action_type.startsWith("delete_")) {
-        // For fee structures, unlink invoice items first
-        if (target_table === "fee_structures") {
-          await supabase.from("invoice_items").update({ fee_structure_id: null }).eq("fee_structure_id", target_id);
-        }
-        const { error: delError } = await supabase.from(target_table as any).delete().eq("id", target_id);
-        if (delError) {
-          toast({ title: "Delete failed", description: delError.message, variant: "destructive" });
-        } else {
-          toast({ title: "Approved & deleted", description: `The ${target_table.replace(/_/g, " ")} record has been deleted.` });
-        }
-      } else if (action_type === "void_invoice") {
-        await supabase.from("invoices").update({ status: "voided" } as any).eq("id", target_id);
-        toast({ title: "Invoice voided" });
-      } else if (action_type === "void_payment") {
-        // Invoice totals are synchronized automatically by backend payment triggers.
-        await supabase.from("payments").delete().eq("id", target_id);
-        toast({ title: "Payment voided & reversed" });
+      try {
+        const summary = await executeApprovedRequest(selectedRequest);
+        toast({ title: "Request approved", description: summary });
+      } catch (e) {
+        toast({ title: "Execution failed", description: e instanceof Error ? e.message : String(e), variant: "destructive" });
       }
     } else {
       toast({ title: "Request rejected" });
@@ -239,7 +202,7 @@ export default function AdminSupervisorDashboard() {
                               <TableCell className="text-sm">{new Date(req.created_at).toLocaleDateString("en-GB")}</TableCell>
                               <TableCell className="text-sm font-medium">{profiles[req.requested_by] || "Unknown"}</TableCell>
                               <TableCell>
-                                <Badge variant="outline">{actionTypeLabels[req.action_type] || req.action_type}</Badge>
+                                <Badge variant="outline">{approvalTypeLabels[req.request_type] || req.request_type}</Badge>
                               </TableCell>
                               <TableCell className="text-sm max-w-[300px] truncate">{req.description}</TableCell>
                               <TableCell>
@@ -288,7 +251,7 @@ export default function AdminSupervisorDashboard() {
             <div className="space-y-4">
               <div>
                 <p className="text-sm text-muted-foreground">Action</p>
-                <p className="font-medium">{actionTypeLabels[selectedRequest.action_type] || selectedRequest.action_type}</p>
+                <p className="font-medium">{approvalTypeLabels[selectedRequest.request_type] || selectedRequest.request_type}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Requested By</p>

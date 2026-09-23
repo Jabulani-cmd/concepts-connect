@@ -11,23 +11,23 @@ import { callTeacherAi, ZIM_LEVELS, ZIM_SUBJECTS } from "@/lib/teacherAi";
 import { addRow, removeRow, useDemoRows } from "@/lib/teacherAiStore";
 import { buildBrandedHtml } from "@/lib/print/printSection";
 import { openPrintWindow } from "@/lib/finance/print";
+import { errorMessage } from "@/lib/errors";
+import { safeHtml } from "@/lib/utils";
 
 interface Band { band: string; range: string; descriptor: string }
 interface Criterion { criterion: string; weight: number; bands: Band[] }
 interface Rubric { title: string; total_marks: number; criteria: Criterion[] }
 
-function esc(s: any) {
-  return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;");
-}
+type SavedRubric = { subject: string; level: string; assignment: string; content: Rubric };
 
-function rubricHtml(row: any) {
-  const r: Rubric = row.content;
+function rubricHtml(row: SavedRubric) {
+  const r = row.content;
   const rows = (r.criteria || [])
     .map((c) =>
       (c.bands || [])
         .map(
           (b, i) =>
-            `<tr>${i === 0 ? `<td rowspan="${c.bands.length}"><strong>${esc(c.criterion)}</strong><br/><small>${esc(c.weight)} marks</small></td>` : ""}<td>${esc(b.band)}</td><td>${esc(b.range)}</td><td>${esc(b.descriptor)}</td></tr>`,
+            `<tr>${i === 0 ? `<td rowspan="${c.bands.length}"><strong>${safeHtml(c.criterion)}</strong><br/><small>${safeHtml(c.weight)} marks</small></td>` : ""}<td>${safeHtml(b.band)}</td><td>${safeHtml(b.range)}</td><td>${safeHtml(b.descriptor)}</td></tr>`,
         )
         .join(""),
     )
@@ -41,7 +41,7 @@ function rubricHtml(row: any) {
 
 export default function RubricGenerator() {
   const { toast } = useToast();
-  const saved = useDemoRows<any>("rubrics");
+  const saved = useDemoRows<SavedRubric>("rubrics");
   const [subject, setSubject] = useState("English Language");
   const [level, setLevel] = useState("Form 4");
   const [assignment, setAssignment] = useState("");
@@ -57,8 +57,8 @@ export default function RubricGenerator() {
     try {
       setRubric(await callTeacherAi<Rubric>("rubric", { assignment, subject, level }));
       toast({ title: "Rubric ready" });
-    } catch (e: any) {
-      toast({ title: "Could not generate rubric", description: e.message, variant: "destructive" });
+    } catch (e) {
+      toast({ title: "Could not generate rubric", description: errorMessage(e), variant: "destructive" });
     } finally {
       setLoading(false);
     }

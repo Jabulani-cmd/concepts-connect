@@ -1,29 +1,20 @@
-// @ts-nocheck
 import { useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Download, Upload, CheckCircle2, AlertCircle, FileText } from "lucide-react";
+import { Download, Upload, CheckCircle2, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-
-function zimGrade(mark: number): string {
-  if (mark >= 90) return "A*";
-  if (mark >= 80) return "A";
-  if (mark >= 70) return "B";
-  if (mark >= 60) return "C";
-  if (mark >= 50) return "D";
-  if (mark >= 40) return "E";
-  return "U";
-}
+import type { ClassOption, SubjectOption, StudentOption } from "@/types/school";
+import { gradeFor } from "@/lib/grading";
 
 interface Props {
   userId: string;
-  classes: any[];
-  subjects: any[];
-  students: any[];
+  classes: ClassOption[];
+  subjects: SubjectOption[];
+  students: StudentOption[];
   onMarksUploaded: () => void;
 }
 
@@ -49,7 +40,7 @@ export default function BulkMarksUpload({ userId, classes, subjects, students, o
   const classStudents = classId
     ? students.filter(s => {
         const cls = classes.find(c => c.id === classId);
-        return cls ? s.form === cls.form_level : false;
+        return cls ? s.form === cls.level : false;
       })
     : [];
 
@@ -212,7 +203,7 @@ export default function BulkMarksUpload({ userId, classes, subjects, students, o
                       <td className="px-3 py-1.5">{r.admission_number}</td>
                       <td className="px-3 py-1.5">{r.student_name}</td>
                       <td className="px-3 py-1.5 text-center font-medium">{r.error ? "—" : r.mark}</td>
-                      <td className="px-3 py-1.5 text-center">{r.error ? "—" : <Badge className="text-[10px]">{zimGrade(r.mark)}</Badge>}</td>
+                      <td className="px-3 py-1.5 text-center">{r.error ? "—" : <Badge className="text-[10px]">{gradeFor(r.mark)}</Badge>}</td>
                       <td className="px-3 py-1.5">{r.error ? <span className="text-xs text-destructive">{r.error}</span> : <CheckCircle2 className="h-4 w-4 text-green-600" />}</td>
                     </tr>
                   ))}

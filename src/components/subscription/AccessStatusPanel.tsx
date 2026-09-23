@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ShieldCheck, ShieldAlert, Clock, Users, CalendarDays, Sparkles, Link as LinkIcon } from "lucide-react";
@@ -38,7 +37,7 @@ export default function AccessStatusPanel({ className = "" }: { className?: stri
             .from("parent_students")
             .select("student_id")
             .eq("parent_id", user.id);
-          const studentIds = (links || []).map((l: any) => l.student_id).filter(Boolean);
+          const studentIds = (links || []).map((l) => l.student_id).filter(Boolean);
           if (studentIds.length === 0) {
             if (!cancelled) setLinked([]);
           } else {
@@ -48,7 +47,7 @@ export default function AccessStatusPanel({ className = "" }: { className?: stri
               .in("id", studentIds);
             if (!cancelled) {
               setLinked(
-                (students || []).map((s: any) => ({
+                (students || []).map((s) => ({
                   id: s.id,
                   name: s.full_name || "Student",
                   detail: [s.admission_number, s.form, s.stream].filter(Boolean).join(" · "),
@@ -68,7 +67,7 @@ export default function AccessStatusPanel({ className = "" }: { className?: stri
             .from("parent_students")
             .select("parent_id")
             .in("student_id", ids);
-          const parentIds = Array.from(new Set((links || []).map((l: any) => l.parent_id).filter(Boolean)));
+          const parentIds = Array.from(new Set((links || []).map((l) => l.parent_id).filter(Boolean)));
           if (parentIds.length === 0) {
             if (!cancelled) setLinked([]);
           } else {
@@ -79,7 +78,7 @@ export default function AccessStatusPanel({ className = "" }: { className?: stri
             if (!cancelled) {
               setLinked(
                 parentIds.map((pid) => {
-                  const p = (profiles || []).find((x: any) => x.user_id === pid);
+                  const p = (profiles || []).find((x) => x.user_id === pid);
                   return {
                     id: pid,
                     name: p?.full_name || "Parent / Guardian",
@@ -98,13 +97,13 @@ export default function AccessStatusPanel({ className = "" }: { className?: stri
     return () => {
       cancelled = true;
     };
-  }, [user?.id, role]);
+  }, [user, role]);
 
   const isParent = role === "parent";
   const isStudent = role === "student";
   if (!isParent && !isStudent) return null;
 
-  const activeGrants = (sub.grants || []).filter((g: any) => {
+  const activeGrants = (sub.grants || []).filter((g) => {
     const end = g.access_end ? new Date(g.access_end) : null;
     return g.is_active && (!end || end > new Date());
   });
@@ -193,7 +192,7 @@ export default function AccessStatusPanel({ className = "" }: { className?: stri
                 Active access grants
               </div>
               <ul className="space-y-1">
-                {activeGrants.slice(0, 3).map((g: any) => (
+                {activeGrants.slice(0, 3).map((g) => (
                   <li key={g.id} className="flex items-center justify-between text-xs gap-2">
                     <span className="capitalize font-medium">
                       {(g.grant_type || "grant").replace("_", " ")}

@@ -1,4 +1,3 @@
-// @ts-nocheck
 // Simple HTML→print-window receipt generator (US$).
 import { openPrintWindow } from "@/lib/finance/print";
 import { SCHOOL_LOGO_URL } from "@/lib/finance/pdf";
@@ -19,7 +18,7 @@ interface ReceiptData {
 }
 
 const fmt = (d: Date | string) =>
-  new Date(d).toLocaleString("en-ZA", { dateStyle: "medium", timeStyle: "short" });
+  new Date(d).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
 
 export function buildSubscriptionReceiptHtml(r: ReceiptData) {
   const origin = typeof window !== "undefined" ? window.location.origin : "";
@@ -54,7 +53,7 @@ export function buildSubscriptionReceiptHtml(r: ReceiptData) {
 
   <table>
     <tr><td>Parent</td><td>${r.parentName}</td></tr>
-    <tr><td>Learner</td><td>${r.studentName}</td></tr>
+    <tr><td>Student</td><td>${r.studentName}</td></tr>
     <tr><td>Plan</td><td>${r.plan}</td></tr>
     <tr><td>Payment Method</td><td>${r.method}</td></tr>
     <tr><td>Transaction ID</td><td>${r.transactionId}</td></tr>

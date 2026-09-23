@@ -1,15 +1,24 @@
-// @ts-nocheck
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Video, Link as LinkIcon, Presentation, Download, Search, Eye, Printer } from "lucide-react";
+import { BookOpen, FileText, Video, Link as LinkIcon, Presentation, Download, Search, Eye, Printer, type LucideIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
+import type { QueryData } from "@supabase/supabase-js";
+
+const materialsQuery = () =>
+  supabase
+    .from("study_materials")
+    .select("*, subjects(name), classes(name)")
+    .eq("is_published", true)
+    .order("created_at", { ascending: false });
+type Material = QueryData<ReturnType<typeof materialsQuery>>[number];
 import { format } from "date-fns";
 
-const typeIcons: Record<string, any> = {
+const typeIcons: Record<string, LucideIcon> = {
   document: FileText,
   video: Video,
   link: LinkIcon,
@@ -21,24 +30,15 @@ interface Props {
 }
 
 export default function StudentMaterialsTab({ studentClassId }: Props) {
-  const [materials, setMaterials] = useState<any[]>([]);
-  const [subjects, setSubjects] = useState<any[]>([]);
+  const [materials, setMaterials] = useState<Material[]>([]);
+  const [subjects, setSubjects] = useState<Pick<Tables<"subjects">, "id" | "name">[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [subjectFilter, setSubjectFilter] = useState("all");
 
-  useEffect(() => {
-    fetchMaterials();
-    fetchSubjects();
-  }, [studentClassId]);
-
-  const fetchMaterials = async () => {
+  const fetchMaterials = useCallback(async () => {
     setLoading(true);
-    let query = supabase
-      .from("study_materials")
-      .select("*, subjects(name), classes(name)")
-      .eq("is_published", true)
-      .order("created_at", { ascending: false });
+    let query = materialsQuery();
 
     if (studentClassId) {
       query = query.eq("class_id", studentClassId);
@@ -47,7 +47,12 @@ export default function StudentMaterialsTab({ studentClassId }: Props) {
     const { data } = await query;
     setMaterials(data || []);
     setLoading(false);
-  };
+  }, [studentClassId]);
+
+  useEffect(() => {
+    fetchMaterials();
+    fetchSubjects();
+  }, [fetchMaterials, studentClassId]);
 
   const fetchSubjects = async () => {
     const { data } = await supabase.from("subjects").select("id, name").order("name");
@@ -60,29 +65,36 @@ export default function StudentMaterialsTab({ studentClassId }: Props) {
     return matchSearch && matchSubject;
   });
 
-  const bumpCount = (m: any) => {
+  const bumpCount = (m: Material) => {
     supabase.from("study_materials").update({ download_count: (m.download_count || 0) + 1 }).eq("id", m.id).then();
   };
 
-  const openView = (m: any) => {
+  const openView = (m: Material) => {
     const url = m.file_url || m.link_url;
     if (!url) return;
     window.open(url, "_blank", "noopener,noreferrer");
     bumpCount(m);
   };
 
-  const openPrint = (m: any) => {
+  const openPrint = (m: Material) => {
     const url = m.file_url || m.link_url;
     if (!url) return;
     const w = window.open(url, "_blank");
     if (w) {
       // Give the browser a moment to load the file, then trigger print
-      setTimeout(() => { try { w.focus(); w.print(); } catch {} }, 1200);
+      setTimeout(() => {
+        try {
+          w.focus();
+          w.print();
+        } catch {
+          // Cross-origin files cannot be printed programmatically; the tab stays open for manual printing.
+        }
+      }, 1200);
     }
     bumpCount(m);
   };
 
-  const handleDownload = async (m: any) => {
+  const handleDownload = async (m: Material) => {
     const url = m.file_url || m.link_url;
     if (!url) return;
     try {
@@ -142,7 +154,7 @@ export default function StudentMaterialsTab({ studentClassId }: Props) {
       {filtered.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <BookOpenIcon className="mx-auto mb-3 h-10 w-10 text-muted-foreground/50" />
+            <BookOpen className="mx-auto mb-3 h-10 w-10 text-muted-foreground/50" />
             <p className="text-sm text-muted-foreground">No study materials available yet.</p>
             <p className="text-xs text-muted-foreground mt-1">Check back later for new uploads from your teachers.</p>
           </CardContent>
@@ -196,14 +208,5 @@ export default function StudentMaterialsTab({ studentClassId }: Props) {
         </div>
       )}
     </div>
-  );
-}
-
-function BookOpenIcon(props: any) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-    </svg>
   );
 }

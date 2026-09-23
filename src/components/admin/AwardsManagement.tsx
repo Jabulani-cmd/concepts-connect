@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,11 +8,13 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import ImageCropper from "@/components/ImageCropper";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { errorMessage } from "@/lib/errors";
+import type { Tables } from "@/integrations/supabase/types";
 
 export default function AwardsManagement() {
   const { toast } = useToast();
-  const [awards, setAwards] = useState<any[]>([]);
-  const [photos, setPhotos] = useState<any[]>([]);
+  const [awards, setAwards] = useState<Tables<"awards">[]>([]);
+  const [photos, setPhotos] = useState<Tables<"award_photos">[]>([]);
   const [studentName, setStudentName] = useState("");
   const [awardName, setAwardName] = useState("");
   const [yearIssued, setYearIssued] = useState(String(new Date().getFullYear()));
@@ -27,7 +28,7 @@ export default function AwardsManagement() {
 
   const fetchAll = async () => {
     const [a, p] = await Promise.all([
-      supabase.from("awards").select("*").order("year_issued", { ascending: false }),
+      supabase.from("awards").select("*").order("year", { ascending: false }),
       supabase.from("award_photos").select("*").order("created_at", { ascending: false }),
     ]);
     if (a.data) setAwards(a.data);
@@ -37,9 +38,9 @@ export default function AwardsManagement() {
   const addAward = async () => {
     if (!studentName || !awardName) return;
     const { error } = await supabase.from("awards").insert({
-      student_name: studentName,
-      award_name: awardName,
-      year_issued: parseInt(yearIssued) || new Date().getFullYear(),
+      recipient: studentName,
+      title: awardName,
+      year: parseInt(yearIssued) || new Date().getFullYear(),
     });
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
     toast({ title: "Award added!" });
@@ -79,8 +80,8 @@ export default function AwardsManagement() {
       toast({ title: "Photo uploaded!" });
       setCaption("");
       fetchAll();
-    } catch (err: any) {
-      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Upload failed", description: errorMessage(err), variant: "destructive" });
     }
     setUploading(false);
   };
@@ -108,7 +109,7 @@ export default function AwardsManagement() {
             <Card>
               <CardHeader><CardTitle className="font-heading">Add Award</CardTitle></CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2"><Label>Student Name *</Label><Input value={studentName} onChange={e => setStudentName(e.target.value)} placeholder="e.g. Sipho Zulu" /></div>
+                <div className="space-y-2"><Label>Student Name *</Label><Input value={studentName} onChange={e => setStudentName(e.target.value)} placeholder="e.g. Tatenda Moyo" /></div>
                 <div className="space-y-2"><Label>Award Name *</Label><Input value={awardName} onChange={e => setAwardName(e.target.value)} placeholder="e.g. Best in Mathematics" /></div>
                 <div className="space-y-2"><Label>Year Issued</Label><Input type="number" value={yearIssued} onChange={e => setYearIssued(e.target.value)} /></div>
                 <Button onClick={addAward} disabled={!studentName || !awardName}><Plus className="mr-1 h-4 w-4" /> Add Award</Button>
@@ -120,8 +121,8 @@ export default function AwardsManagement() {
                 <Card key={a.id}>
                   <CardContent className="flex items-center justify-between p-4">
                     <div>
-                      <h3 className="font-semibold">{a.student_name}</h3>
-                      <p className="text-sm text-muted-foreground">{a.award_name} — {a.year_issued}</p>
+                      <h3 className="font-semibold">{a.recipient}</h3>
+                      <p className="text-sm text-muted-foreground">{a.title} — {a.year}</p>
                     </div>
                     <Button variant="ghost" size="icon" onClick={() => deleteAward(a.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                   </CardContent>

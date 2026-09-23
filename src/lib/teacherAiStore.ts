@@ -29,26 +29,25 @@ export function listRows<T>(key: StoreKey): T[] {
   return read<T>(key);
 }
 
-export function addRow<T extends Record<string, any>>(key: StoreKey, row: T): T & { id: string; created_at: string } {
-  const full = { id: crypto.randomUUID(), created_at: new Date().toISOString(), ...row } as T & {
-    id: string;
-    created_at: string;
-  };
+export type StoredRow = { id: string; created_at: string };
+
+export function addRow<T extends object>(key: StoreKey, row: T): T & StoredRow {
+  const full: T & StoredRow = { id: crypto.randomUUID(), created_at: new Date().toISOString(), ...row };
   write(key, [full, ...read<T>(key)]);
   return full;
 }
 
-export function updateRow(key: StoreKey, id: string, patch: Record<string, any>) {
+export function updateRow(key: StoreKey, id: string, patch: Record<string, unknown>) {
   write(
     key,
-    read<Record<string, any>>(key).map((r) => (r.id === id ? { ...r, ...patch } : r)),
+    read<StoredRow>(key).map((r) => (r.id === id ? { ...r, ...patch } : r)),
   );
 }
 
 export function removeRow(key: StoreKey, id: string) {
   write(
     key,
-    read<Record<string, any>>(key).filter((r) => r.id !== id),
+    read<StoredRow>(key).filter((r) => r.id !== id),
   );
 }
 
@@ -57,10 +56,10 @@ export function replaceAll<T>(key: StoreKey, rows: T[]) {
 }
 
 /** Live view of a demo table. */
-export function useDemoRows<T = any>(key: StoreKey): T[] {
-  const [rows, setRows] = useState<T[]>(() => read<T>(key));
+export function useDemoRows<T>(key: StoreKey): (T & StoredRow)[] {
+  const [rows, setRows] = useState<(T & StoredRow)[]>(() => read<T & StoredRow>(key));
   useEffect(() => {
-    const update = () => setRows(read<T>(key));
+    const update = () => setRows(read<T & StoredRow>(key));
     listeners.add(update);
     window.addEventListener("storage", update);
     return () => {

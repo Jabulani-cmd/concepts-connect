@@ -37,7 +37,7 @@ serve(async (req) => {
       `- ${g.subject}: ${g.mark ?? "n/a"}${g.grade ? ` (${g.grade})` : ""}${g.comment ? ` — ${g.comment}` : ""}`
     ).join("\n") || "(no marks supplied)";
 
-    const systemPrompt = `You are an experienced South African secondary school teacher writing report card comments.
+    const systemPrompt = `You are an experienced Zimbabwean secondary school teacher writing report card comments.
 You write 3-4 sentences, professional, in British English, age-appropriate for secondary students.
 Refer to the student by first name. Never invent marks. Do not exceed 4 sentences. Do not use markdown.`;
 

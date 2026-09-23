@@ -1,5 +1,4 @@
-// @ts-nocheck
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -21,6 +20,10 @@ import schoolLogo from "@/assets/mavingtech-logo.png";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { saveClassAttendance } from "@/lib/attendance";
+import { errorMessage } from "@/lib/errors";
+import type { Tables } from "@/integrations/supabase/types";
+import type { QueryData } from "@supabase/supabase-js";
 import PersonalTimetableEditor from "@/components/PersonalTimetableEditor";
 import NotificationBell from "@/components/NotificationBell";
 import AssessmentsTab from "@/components/teacher/AssessmentsTab";
@@ -39,40 +42,57 @@ import ResourceLibraryTab from "@/components/teacher/ResourceLibraryTab";
 import ParentCommunicationLog from "@/components/teacher/ParentCommunicationLog";
 import FullWeekTimetable from "@/components/shared/FullWeekTimetable";
 import PublishedTimetableWidget from "@/components/timetable/PublishedTimetableWidget";
+import { gradeFor } from "@/lib/grading";
 const termOptions = ["Term 1", "Term 2", "Term 3"];
 const assessmentTypes = ["test", "exam", "assignment", "project"];
-
-function zimGrade(mark: number): string {
-  if (mark >= 90) return "A*";
-  if (mark >= 80) return "A";
-  if (mark >= 70) return "B";
-  if (mark >= 60) return "C";
-  if (mark >= 50) return "D";
-  if (mark >= 40) return "E";
-  return "U";
-}
 
 interface TeacherDashboardProps {
   embedded?: boolean;
 }
+
+
+const materialsQuery = (teacherId: string) =>
+  supabase.from("study_materials").select("*, classes(name), subjects(name)").eq("teacher_id", teacherId).order("created_at", { ascending: false });
+const marksQuery = (teacherId: string) =>
+  supabase.from("marks").select("*, subjects(name)").eq("teacher_id", teacherId).order("created_at", { ascending: false }).limit(50);
+const homeworkQuery = (teacherId: string) =>
+  supabase.from("homework").select("*, subjects(name), classes:class_id(name)").eq("teacher_id", teacherId).order("due_date", { ascending: false }).limit(50);
+const aiResultsQuery = (assessmentIds: string[]) =>
+  supabase
+    .from("assessment_results")
+    .select("id, mark, feedback, graded_by, created_at, assessment_id, student_id, assessments(title, max_marks, assessment_type, subjects(name)), students(full_name)")
+    .in("assessment_id", assessmentIds)
+    .order("created_at", { ascending: false })
+    .limit(100);
+const timetableQuery = (classId: string) =>
+  supabase.from("timetable_entries").select("*, subjects(name), staff(full_name)").eq("class_id", classId).order("start_time");
+
+type Material = QueryData<ReturnType<typeof materialsQuery>>[number];
+type Mark = QueryData<ReturnType<typeof marksQuery>>[number];
+type Homework = QueryData<ReturnType<typeof homeworkQuery>>[number];
+type AiResult = QueryData<ReturnType<typeof aiResultsQuery>>[number];
+type TimetableRow = QueryData<ReturnType<typeof timetableQuery>>[number];
+type ClassRow = Tables<"classes">;
+type StudentRow = Pick<Tables<"students">, "id" | "full_name" | "form" | "stream" | "admission_number">;
+type AttendanceStudent = Pick<Tables<"students">, "id" | "full_name" | "admission_number">;
 
 export default function TeacherDashboard({ embedded = false }: TeacherDashboardProps) {
   const { toast } = useToast();
   const { signOut, user } = useAuth();
   const navigate = useNavigate();
 
-  const [profile, setProfile] = useState<any>(null);
-  const [staffInfo, setStaffInfo] = useState<any>(null);
-  const [classes, setClasses] = useState<any[]>([]);
-  const [subjects, setSubjects] = useState<any[]>([]);
-  const [students, setStudents] = useState<any[]>([]);
-  const [myMaterials, setMyMaterials] = useState<any[]>([]);
-  const [marks, setMarks] = useState<any[]>([]);
-  const [aiResults, setAiResults] = useState<any[]>([]);
-  const [homework, setHomework] = useState<any[]>([]);
-  const [announcements, setAnnouncements] = useState<any[]>([]);
-  const [myAnnouncements, setMyAnnouncements] = useState<any[]>([]);
-  const [attendanceClasses, setAttendanceClasses] = useState<any[]>([]);
+  const [profile, setProfile] = useState<Tables<"profiles"> | null>(null);
+  const [staffInfo, setStaffInfo] = useState<Pick<Tables<"staff">, "id" | "staff_number" | "department" | "role" | "full_name"> | null>(null);
+  const [classes, setClasses] = useState<ClassRow[]>([]);
+  const [subjects, setSubjects] = useState<Tables<"subjects">[]>([]);
+  const [students, setStudents] = useState<StudentRow[]>([]);
+  const [myMaterials, setMyMaterials] = useState<Material[]>([]);
+  const [marks, setMarks] = useState<Mark[]>([]);
+  const [aiResults, setAiResults] = useState<AiResult[]>([]);
+  const [homework, setHomework] = useState<Homework[]>([]);
+  const [announcements, setAnnouncements] = useState<Tables<"announcements">[]>([]);
+  const [myAnnouncements, setMyAnnouncements] = useState<Tables<"announcements">[]>([]);
+  const [attendanceClasses, setAttendanceClasses] = useState<ClassRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [stats, setStats] = useState({ classCount: 0, pendingGrading: 0, materialsCount: 0, upcomingHw: 0 });
@@ -88,23 +108,21 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
   // Attendance
   const [attClass, setAttClass] = useState("");
   const [attDate, setAttDate] = useState(new Date().toISOString().split("T")[0]);
-  const [attStudents, setAttStudents] = useState<any[]>([]);
+  const [attStudents, setAttStudents] = useState<AttendanceStudent[]>([]);
   const [attRecords, setAttRecords] = useState<Record<string, string>>({});
   const [attLoading, setAttLoading] = useState(false);
 
   // Timetable
   const [selectedTTClass, setSelectedTTClass] = useState("");
-  const [timetableData, setTimetableData] = useState<any[]>([]);
+  const [timetableData, setTimetableData] = useState<TimetableRow[]>([]);
 
-  useEffect(() => { if (user) fetchAll(); }, [user]);
-
-  const fetchAll = async () => {
+  const fetchAll = useCallback(async () => {
     setLoading(true);
     const [profRes, subRes, allClassRes, staffRes] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", user!.id).single(),
       supabase.from("subjects").select("*").order("name"),
       supabase.from("classes").select("*").order("name"),
-      supabase.from("staff").select("id, staff_number, department, role").eq("user_id", user!.id).single(),
+      supabase.from("staff").select("id, full_name, staff_number, department, role").eq("user_id", user!.id).single(),
     ]);
     if (profRes.data) setProfile(profRes.data);
     if (staffRes.data) setStaffInfo(staffRes.data);
@@ -144,13 +162,13 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
     const { data: allStudents } = await supabase.from("students").select("id, full_name, form, stream, admission_number").eq("status", "active").order("full_name");
     if (allStudents) setStudents(allStudents);
 
-    const { data: mats } = await supabase.from("study_materials").select("*, classes(name), subjects(name)").eq("teacher_id", user!.id).order("created_at", { ascending: false });
+    const { data: mats } = await materialsQuery(user!.id);
     if (mats) setMyMaterials(mats);
 
-    const { data: marksData } = await supabase.from("marks").select("*, subjects(name)").eq("teacher_id", user!.id).order("created_at", { ascending: false }).limit(50);
+    const { data: marksData } = await marksQuery(user!.id);
     if (marksData) setMarks(marksData);
 
-    const { data: hwData } = await supabase.from("homework").select("*, subjects(name), classes:class_id(name)").eq("teacher_id", user!.id).order("due_date", { ascending: false }).limit(50);
+    const { data: hwData } = await homeworkQuery(user!.id);
     if (hwData) setHomework(hwData);
 
     const { data: ann } = await supabase.from("announcements").select("*").eq("is_public", true).order("created_at", { ascending: false }).limit(20);
@@ -164,12 +182,12 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
     setStats({ classCount, pendingGrading: 0, materialsCount: mats?.length || 0, upcomingHw });
 
     setLoading(false);
-  };
+  }, [user]);
 
   useEffect(() => {
     if (!selectedTTClass) return;
     const loadTT = () => {
-      supabase.from("timetable_entries").select("*, subjects(name), staff(full_name)").eq("class_id", selectedTTClass).order("start_time").then(({ data }) => {
+      timetableQuery(selectedTTClass).then(({ data }) => {
         if (data) setTimetableData(data || []);
       });
     };
@@ -186,18 +204,22 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
     (async () => {
       // Load students for this class
       const { data: sc } = await supabase.from("student_classes").select("student_id").eq("class_id", attClass);
-      let studs: any[] = [];
+      let studs: AttendanceStudent[] = [];
       if (sc && sc.length > 0) {
         const ids = sc.map(s => s.student_id);
         const { data } = await supabase.from("students").select("id, full_name, admission_number").in("id", ids).eq("status", "active").order("full_name");
         if (data) studs = data;
       } else {
         const cls = classes.find(c => c.id === attClass);
-        const grade = cls?.level || cls?.form_level;
+        const grade = cls?.level;
         if (grade) {
-          let q = supabase.from("students").select("id, full_name, admission_number").eq("status", "active").or(`form.eq.${grade},class.eq.${cls?.name}`);
-          const { data } = await q.order("full_name");
-          if (data) studs = cls?.stream ? data.filter((_: any, i: number, a: any[]) => true) : data;
+          const { data } = await supabase
+            .from("students")
+            .select("id, full_name, admission_number, stream")
+            .eq("status", "active")
+            .or(`form.eq."${grade}",class.eq."${cls.name}"`)
+            .order("full_name");
+          if (data) studs = data.filter(st => !cls.stream || !st.stream || st.stream === cls.stream);
         }
       }
       setAttStudents(studs);
@@ -205,26 +227,26 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
       const defaults: Record<string, string> = {};
       studs.forEach(s => { defaults[s.id] = "present"; });
       if (studs.length > 0 && attDate) {
-        const { data: existing } = await supabase.from("attendance").select("student_id, status").eq("class_id", attClass).eq("attendance_date", attDate);
+        const { data: existing } = await supabase.from("attendance").select("student_id, status").eq("class_id", attClass).eq("date", attDate);
         if (existing) {
           existing.forEach(r => { defaults[r.student_id] = r.status; });
         }
       }
       setAttRecords(defaults);
     })();
-  }, [attClass, attDate]);
+  }, [attClass, attDate, classes]);
 
   const submitMark = async () => {
     const { student_id, subject_id, mark, term, assessment_type, description, comment } = markForm;
     if (!student_id || !subject_id || !mark) { toast({ title: "Fill all required fields", variant: "destructive" }); return; }
     setMarkLoading(true);
-    const { error } = await supabase.from("marks").insert({ student_id, subject_id, mark: parseInt(mark), term, assessment_type, description: description || null, teacher_id: user!.id });
+    const { error } = await supabase.from("marks").insert({ student_id, subject_id, mark: parseInt(mark), term, assessment_type, comment: [description, comment].filter(Boolean).join(" — ") || null, teacher_id: user!.id });
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
     else {
-      toast({ title: `Mark submitted — Grade: ${zimGrade(parseInt(mark))}` });
-      await supabase.from("notifications").insert({ user_id: user!.id, title: "Mark Recorded", message: `Grade ${zimGrade(parseInt(mark))} recorded for ${assessment_type}.`, type: "mark" });
+      toast({ title: `Mark submitted — Grade: ${gradeFor(parseInt(mark))}` });
+      await supabase.from("notifications").insert({ user_id: user!.id, title: "Mark Recorded", message: `Grade ${gradeFor(parseInt(mark))} recorded for ${assessment_type}.`, type: "mark" });
       setMarkForm({ student_id: "", subject_id: "", mark: "", term: "Term 1", assessment_type: "test", description: "", comment: "" });
-      const { data } = await supabase.from("marks").select("*, subjects(name)").eq("teacher_id", user!.id).order("created_at", { ascending: false }).limit(50);
+      const { data } = await marksQuery(user!.id);
       if (data) setMarks(data);
     }
     setMarkLoading(false);
@@ -239,7 +261,7 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
     else {
       toast({ title: "Homework posted!" });
       setHwForm({ class_id: "", subject_id: "", title: "", due_date: "", description: "" });
-      const { data } = await supabase.from("homework").select("*, subjects(name), classes:class_id(name)").eq("teacher_id", user!.id).order("due_date", { ascending: false }).limit(50);
+      const { data } = await homeworkQuery(user!.id);
       if (data) setHomework(data);
     }
     setHwLoading(false);
@@ -248,10 +270,13 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
   const submitAttendance = async () => {
     if (!attClass || !attDate || attStudents.length === 0) { toast({ title: "Select class and date", variant: "destructive" }); return; }
     setAttLoading(true);
-    const records = attStudents.map(s => ({ student_id: s.id, class_id: attClass, attendance_date: attDate, status: attRecords[s.id] || "present", recorded_by: user!.id }));
-    const { error } = await supabase.from("attendance").upsert(records, { onConflict: "student_id,class_id,attendance_date", ignoreDuplicates: false });
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
-    else { toast({ title: `Attendance saved — ${Object.values(attRecords).filter(s => s === "present").length}/${attStudents.length} present` }); }
+    const statuses = Object.fromEntries(attStudents.map(s => [s.id, attRecords[s.id] || "present"]));
+    try {
+      await saveClassAttendance(attClass, attDate, statuses, user!.id);
+      toast({ title: `Attendance saved — ${Object.values(statuses).filter(s => s === "present").length}/${attStudents.length} present` });
+    } catch (e) {
+      toast({ title: "Error", description: errorMessage(e), variant: "destructive" });
+    }
     setAttLoading(false);
   };
 
@@ -259,7 +284,7 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
   const markAllAbsent = () => { const r: Record<string, string> = {}; attStudents.forEach(s => { r[s.id] = "absent"; }); setAttRecords(r); };
 
   const refreshMaterials = async () => {
-    const { data } = await supabase.from("study_materials").select("*, classes(name), subjects(name)").eq("teacher_id", user!.id).order("created_at", { ascending: false });
+    const { data } = await materialsQuery(user!.id);
     if (data) { setMyMaterials(data); setStats(p => ({ ...p, materialsCount: data.length })); }
   };
 
@@ -273,24 +298,21 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
   };
 
   const refreshMarks = async () => {
-    const { data } = await supabase.from("marks").select("*, subjects(name)").eq("teacher_id", user!.id).order("created_at", { ascending: false }).limit(50);
+    const { data } = await marksQuery(user!.id);
     if (data) setMarks(data);
     await refreshAiResults();
   };
 
-  const refreshAiResults = async () => {
+  const refreshAiResults = useCallback(async () => {
     // Load AI-marked (graded_by IS NULL) results for assessments owned by this teacher
     const { data: myAssess } = await supabase.from("assessments").select("id").eq("teacher_id", user!.id);
     const ids = (myAssess || []).map(a => a.id);
     if (ids.length === 0) { setAiResults([]); return; }
-    const { data } = await supabase
-      .from("assessment_results")
-      .select("id, mark, feedback, graded_by, created_at, assessment_id, student_id, assessments(title, max_marks, assessment_type, subjects(name)), students(full_name)")
-      .in("assessment_id", ids)
-      .order("created_at", { ascending: false })
-      .limit(100);
+    const { data } = await aiResultsQuery(ids);
     if (data) setAiResults(data);
-  };
+  }, [user]);
+
+  useEffect(() => { if (user) fetchAll(); }, [fetchAll, user]);
 
   // Realtime: refresh AI results when new rows land
   useEffect(() => {
@@ -301,32 +323,10 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
       .on("postgres_changes", { event: "*", schema: "public", table: "assessment_results" }, () => refreshAiResults())
       .subscribe();
     return () => { supabase.removeChannel(ch); };
-  }, [user]);
+  }, [refreshAiResults, user]);
 
   const handleLogout = async () => { await signOut(); navigate("/login"); };
   const displayName = profile?.full_name || user?.user_metadata?.full_name || "Teacher";
-  const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
-  const ttTimeSlots = [
-    { start: "07:30", end: "08:10" },
-    { start: "08:10", end: "08:50" },
-    { start: "08:50", end: "09:30" },
-    { start: "09:30", end: "09:50", isBreak: true, label: "Break" },
-    { start: "09:50", end: "10:30" },
-    { start: "10:30", end: "11:10" },
-    { start: "11:10", end: "11:50" },
-    { start: "11:50", end: "12:30" },
-    { start: "12:30", end: "13:10" },
-    { start: "13:10", end: "13:50", isBreak: true, label: "Lunch" },
-    { start: "13:50", end: "14:30" },
-    { start: "14:30", end: "15:10" },
-    { start: "15:10", end: "15:30", isBreak: true, label: "Break" },
-    { start: "15:30", end: "16:10", isSports: true },
-    { start: "16:10", end: "17:00", isSports: true },
-  ];
-  const getTimetableCell = (start: string, di: number) => {
-    const entry = timetableData.find(t => t.start_time === start && t.day_of_week === di);
-    return entry?.subjects?.name || "—";
-  };
 
   if (loading) return <div className="flex min-h-screen items-center justify-center"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
 
@@ -470,7 +470,7 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
                   </div>
                   <div className="space-y-2"><Label>Description *</Label><Input value={markForm.description} onChange={e => setMarkForm(p => ({ ...p, description: e.target.value }))} placeholder="e.g. Test 1, Assignment 2, Mid-term Exam" /></div>
                   <div className="space-y-2"><Label>Mark (%) *</Label><Input type="number" min="0" max="100" value={markForm.mark} onChange={e => setMarkForm(p => ({ ...p, mark: e.target.value }))} />
-                    {markForm.mark && <p className="text-xs text-muted-foreground">Grade: <span className="font-bold text-primary">{zimGrade(parseInt(markForm.mark))}</span></p>}
+                    {markForm.mark && <p className="text-xs text-muted-foreground">Grade: <span className="font-bold text-primary">{gradeFor(parseInt(markForm.mark))}</span></p>}
                   </div>
                   <div className="space-y-2"><Label>Comment</Label><Textarea rows={2} value={markForm.comment} onChange={e => setMarkForm(p => ({ ...p, comment: e.target.value }))} /></div>
                   <Button onClick={submitMark} disabled={markLoading} className="w-full">{markLoading ? "Submitting..." : "Submit Mark"}</Button>
@@ -478,13 +478,13 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
               </Card>
               <div className="space-y-6">
                 {(() => {
-                  const manualRows = marks.map((m: any) => ({
+                  const manualRows = marks.map((m) => ({
                     id: `m-${m.id}`, source: "manual", studentName: null,
-                    subject: m.subjects?.name || "—", description: m.description || "—",
+                    subject: m.subjects?.name || "—", description: m.comment || "—",
                     type: m.assessment_type, scoreLabel: `${m.mark}%`, percent: Number(m.mark) || 0,
                     created_at: m.created_at,
                   }));
-                  const aiRows = aiResults.map((r: any) => {
+                  const aiRows = aiResults.map((r) => {
                     const max = Number(r.assessments?.max_marks) || 0;
                     const scored = Number(r.mark) || 0;
                     const pct = max > 0 ? Math.round((scored / max) * 100) : scored;
@@ -528,7 +528,7 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
                                     : <Badge variant="outline">Teacher</Badge>}
                                 </td>
                                 <td className="px-3 py-2 text-center font-bold">{r.scoreLabel}</td>
-                                <td className="px-3 py-2 text-center"><Badge>{zimGrade(r.percent)}</Badge></td>
+                                <td className="px-3 py-2 text-center"><Badge>{gradeFor(r.percent)}</Badge></td>
                               </tr>
                             ))}</tbody>
                           </table>
@@ -672,7 +672,7 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
 
           {/* STUDENT PROGRESS */}
           <TabsContent value="progress">
-            <StudentProgressTracker userId={user!.id} classes={classes} subjects={subjects} />
+            <StudentProgressTracker classes={classes} subjects={subjects} />
           </TabsContent>
 
           {/* RESOURCE LIBRARY */}

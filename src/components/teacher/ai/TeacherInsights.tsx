@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Clock, Lightbulb, Loader2, Sparkles, TrendingDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { callTeacherAi } from "@/lib/teacherAi";
+import { errorMessage } from "@/lib/errors";
 
 interface Props {
   /** Optional real marks: { topic, score } */
@@ -46,8 +47,8 @@ export default function TeacherInsights({ topicScores, turnaroundDays }: Props) 
         data: { topics, average_marking_turnaround_days: avgTurnaround, recent_turnaround_days: recent },
       });
       setSummary(res);
-    } catch (e: any) {
-      toast({ title: "Could not build insights", description: e.message, variant: "destructive" });
+    } catch (e) {
+      toast({ title: "Could not build insights", description: errorMessage(e), variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -87,7 +88,7 @@ export default function TeacherInsights({ topicScores, turnaroundDays }: Props) 
           <p className="text-3xl font-bold">{avgTurnaround} days</p>
           <p className="mt-1 text-sm text-muted-foreground">
             {trendingSlow
-              ? `Your last few sets took about ${recent} days — a little slower than usual. Learners benefit most from marks returned within a week.`
+              ? `Your last few sets took about ${recent} days — a little slower than usual. Students benefit most from marks returned within a week.`
               : "You are keeping pace with your usual turnaround. Nicely done."}
           </p>
         </CardContent>

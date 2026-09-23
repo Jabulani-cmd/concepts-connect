@@ -1,5 +1,4 @@
-// @ts-nocheck
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -47,6 +46,9 @@ import ImageCropper from "@/components/ImageCropper";
 import WebcamCapture from "@/components/WebcamCapture";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { errorMessage } from "@/lib/errors";
+import type { Tables } from "@/integrations/supabase/types";
+import { FORM_LEVELS } from "@/lib/forms";
 
 const portalRoles = [
   { value: "admin", label: "System Administrator" },
@@ -107,7 +109,6 @@ const departmentOptions = [
   "Sports",
   "Administration",
 ];
-const gradeOptions = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 const subjectsList = [
   "Mathematics",
   "English",
@@ -143,7 +144,7 @@ interface ManagedUser {
 interface ClassOption {
   id: string;
   name: string;
-  form_level: string | null;
+  level: string | null;
 }
 
 export default function UserManagement() {
@@ -227,30 +228,23 @@ export default function UserManagement() {
     return urlData.publicUrl;
   };
 
-  useEffect(() => {
-    fetchUsers();
-    fetchClasses();
-  }, []);
-
   const fetchClasses = async () => {
     try {
-      const { data } = await supabase.from("classes").select("id, name, form_level").order("name");
+      const { data } = await supabase.from("classes").select("id, name, level").order("name");
       if (data) setClasses(data);
     } catch (err) {
       console.error("Failed to fetch classes:", err);
     }
   };
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      console.log("-- fetchUsers started --");
 
       // 1. Fetch staff users via Edge Function
       const {
         data: { session },
       } = await supabase.auth.getSession();
-      console.log("Session:", session);
       if (!session?.access_token) {
         toast({ title: "Session expired", description: "Please log in again.", variant: "destructive" });
         setLoading(false);
@@ -267,11 +261,8 @@ export default function UserManagement() {
         body: JSON.stringify({ action: "list-users" }),
       });
       const data = await res.json();
-      console.log("Edge Function response:", data);
       if (data.error) throw new Error(data.error);
       const staffUsersFromEdge: ManagedUser[] = data.users || [];
-      console.log("Staff users from Edge count:", staffUsersFromEdge.length);
-      console.log("Staff users from Edge:", staffUsersFromEdge);
 
       // 2. Fetch staff users directly from staff table (as backup)
       const { data: staffData, error: staffError } = await supabase
@@ -279,15 +270,14 @@ export default function UserManagement() {
         .select("id, user_id, staff_number, full_name, role, department, email, phone")
         .not("user_id", "is", null)
         ;
-      console.log("Staff data from table:", staffData);
       if (staffError) console.error("Staff error:", staffError);
 
       // Fetch actual portal roles from user_roles table to get correct mapping
       const { data: userRolesData } = await supabase.from("user_roles").select("user_id, role");
       const portalRoleMap: Record<string, string> = {};
-      (userRolesData || []).forEach((r: any) => { portalRoleMap[r.user_id] = r.role; });
+      (userRolesData || []).forEach((r) => { portalRoleMap[r.user_id] = r.role; });
 
-      const staffUsersFromTable: ManagedUser[] = (staffData || []).map((s: any) => ({
+      const staffUsersFromTable: ManagedUser[] = (staffData || []).map((s) => ({
         id: s.user_id,
         email: s.email || `${s.staff_number}@mbsmavingtech.ac.zw`,
         full_name: s.full_name,
@@ -296,8 +286,6 @@ export default function UserManagement() {
         department: s.department,
         created_at: new Date().toISOString(),
       }));
-      console.log("Staff users from table count:", staffUsersFromTable.length);
-      console.log("Staff users from table:", staffUsersFromTable);
 
       // 3. Fetch student users from students table (optional — table may not exist in demo)
       const { data: studentsData, error: studentsError } = await supabase
@@ -306,7 +294,7 @@ export default function UserManagement() {
         .not("user_id", "is", null);
       if (studentsError) console.warn("Students table unavailable:", studentsError.message);
 
-      const studentUsers: ManagedUser[] = (studentsData || []).map((s: any) => ({
+      const studentUsers: ManagedUser[] = (studentsData || []).map((s) => ({
         id: s.user_id,
         email: `mhs${(s.admission_number || "").toLowerCase().replace(/^mhs/, "")}@mbsmavingtech.ac.zw`,
         full_name: s.full_name,
@@ -315,8 +303,6 @@ export default function UserManagement() {
         department: undefined,
         created_at: s.enrollment_date,
       }));
-      console.log("Student users count:", studentUsers.length);
-      console.log("Student users:", studentUsers);
 
       // 4. Merge all sources (avoid duplicates by id)
       const combined = [...staffUsersFromEdge];
@@ -330,18 +316,20 @@ export default function UserManagement() {
           combined.push(student);
         }
       }
-      console.log("Combined users count:", combined.length);
-      console.log("Combined users:", combined);
 
       setUsers(combined);
-    } catch (err: any) {
+    } catch (err) {
       console.error("Failed to fetch users:", err);
-      toast({ title: "Error loading users", description: err.message, variant: "destructive" });
+      toast({ title: "Error loading users", description: errorMessage(err), variant: "destructive" });
     } finally {
       setLoading(false);
-      console.log("-- fetchUsers finished --");
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchUsers();
+    fetchClasses();
+  }, [fetchUsers]);
 
   const handleCreate = async () => {
     if (!form.full_name || !form.email || !form.password) {
@@ -417,8 +405,8 @@ export default function UserManagement() {
       setCreatePhotoBlob(null);
       setCreatePhotoPreview(null);
       fetchUsers();
-    } catch (err: any) {
-      toast({ title: "Failed to create user", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Failed to create user", description: errorMessage(err), variant: "destructive" });
     }
     setCreating(false);
   };
@@ -471,8 +459,8 @@ export default function UserManagement() {
       if (data.error) throw new Error(data.error);
       toast({ title: "Password changed successfully" });
       setPasswordTarget(null);
-    } catch (err: any) {
-      toast({ title: "Failed to change password", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Failed to change password", description: errorMessage(err), variant: "destructive" });
     } finally {
       setResettingPassword(false);
     }
@@ -507,8 +495,8 @@ export default function UserManagement() {
       toast({ title: "User deleted" });
       setDeleteTarget(null);
       fetchUsers();
-    } catch (err: any) {
-      toast({ title: "Failed to delete user", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Failed to delete user", description: errorMessage(err), variant: "destructive" });
     } finally {
       setDeleting(false);
     }
@@ -544,7 +532,7 @@ export default function UserManagement() {
     setEditPhotoBlob(null);
     setEditPhotoPreview(null);
     let currentClassId = "";
-    let staffDetails: any = {};
+    let staffDetails: Partial<Tables<"staff">> = {};
     let photoUrl = "";
     if (["teacher", "admin", "principal", "deputy_principal", "hod", "finance", "finance_clerk", "bursar", "admin_supervisor", "registration"].includes(user.portal_role)) {
       const { data: staffRecord } = await supabase.from("staff").select("*").eq("user_id", user.id).maybeSingle();
@@ -675,8 +663,8 @@ export default function UserManagement() {
       setEditPhotoBlob(null);
       setEditPhotoPreview(null);
       fetchUsers();
-    } catch (err: any) {
-      toast({ title: "Failed to update user", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Failed to update user", description: errorMessage(err), variant: "destructive" });
     }
     setSaving(false);
   };
@@ -828,7 +816,7 @@ export default function UserManagement() {
                       {classes.map((c) => (
                         <SelectItem key={c.id} value={c.id}>
                           {c.name}
-                          {c.form_level ? ` (${c.form_level})` : ""}
+                          {c.level ? ` (${c.level})` : ""}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -881,7 +869,7 @@ export default function UserManagement() {
                             setForm((p) => ({ ...p, teaching_class_ids: updated }));
                           }}
                         >
-                          {c.name}{c.form_level ? ` (${c.form_level})` : ""}
+                          {c.name}{c.level ? ` (${c.level})` : ""}
                         </Badge>
                       ))}
                     </div>
@@ -898,13 +886,13 @@ export default function UserManagement() {
             {form.portal_role === "student" && (
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>Grade</Label>
+                  <Label>Form</Label>
                   <Select value={form.grade} onValueChange={(v) => setForm((p) => ({ ...p, grade: v }))}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
-                      {gradeOptions.map((g) => (
+                      {FORM_LEVELS.map((g) => (
                         <SelectItem key={g} value={g}>
                           {g}
                         </SelectItem>
@@ -1262,7 +1250,7 @@ export default function UserManagement() {
                         {classes.map((c) => (
                           <SelectItem key={c.id} value={c.id}>
                             {c.name}
-                            {c.form_level ? ` (${c.form_level})` : ""}
+                            {c.level ? ` (${c.level})` : ""}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -1346,14 +1334,14 @@ export default function UserManagement() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>UIF Number</Label>
+                      <Label>NSSA Number</Label>
                       <Input
                         value={editForm.nssa_number}
                         onChange={(e) => setEditForm((p) => ({ ...p, nssa_number: e.target.value }))}
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>SARS PAYE Number</Label>
+                      <Label>ZIMRA PAYE / TIN Number</Label>
                       <Input
                         value={editForm.paye_number}
                         onChange={(e) => setEditForm((p) => ({ ...p, paye_number: e.target.value }))}

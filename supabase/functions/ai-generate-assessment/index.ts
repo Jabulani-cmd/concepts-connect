@@ -21,10 +21,10 @@ Deno.serve(async (req) => {
     const totalMarks = body.totalMarks ?? count;
     const marksPerQ = +(totalMarks / count).toFixed(2);
 
-    const sys = `You generate high-quality multiple-choice questions for South African CAPS curriculum. Respond ONLY with valid JSON matching the given tool schema.`;
+    const sys = `You generate high-quality multiple-choice questions for the Zimbabwean ZIMSEC secondary curriculum (O-Level and A-Level). Respond ONLY with valid JSON matching the given tool schema.`;
     const user = `Create ${count} multiple-choice questions.
 Subject: ${body.subject || 'General'}
-Grade: ${body.grade || 'Grade 8'}
+Form: ${body.grade || 'Form 1'}
 Topic(s): ${body.topic || 'General'}
 Difficulty: ${body.difficulty || 'medium'}
 Each question must have exactly 4 options, one correct, and a brief explanation.`;
@@ -81,7 +81,8 @@ Each question must have exactly 4 options, one correct, and a brief explanation.
     const call = data.choices?.[0]?.message?.tool_calls?.[0];
     if (!call) return json({ error: 'No tool call in response' }, 500);
     const parsed = JSON.parse(call.function.arguments);
-    const questions = (parsed.questions || []).map((q: any, i: number) => ({
+    type AiQuestion = { question: string; options: string[]; correct_index: number; explanation: string };
+    const questions = ((parsed.questions || []) as AiQuestion[]).map((q, i) => ({
       id: `q${i + 1}`,
       question: q.question,
       options: q.options,

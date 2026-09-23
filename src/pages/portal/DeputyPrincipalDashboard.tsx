@@ -1,4 +1,3 @@
-// @ts-nocheck
 // Deputy Principal portal renders the full Admin dashboard with all features (same as Principal)
 import AdminDashboard from "@/pages/portal/AdminDashboard";
 

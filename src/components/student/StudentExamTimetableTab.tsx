@@ -1,11 +1,10 @@
-// @ts-nocheck
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Calendar, Clock, MapPin, Loader2, AlertCircle } from "lucide-react";
-import { format, isAfter, isBefore, isToday } from "date-fns";
+import { format, isAfter, isToday } from "date-fns";
 
 interface ExamTimetableEntry {
   id: string;
@@ -35,18 +34,7 @@ export default function StudentExamTimetableTab({ studentId, formLevel, showAll 
   const [loading, setLoading] = useState(true);
   const [studentForm, setStudentForm] = useState<string | null>(formLevel || null);
 
-  useEffect(() => {
-    if (showAll) {
-      fetchAllTimetables();
-    } else if (formLevel) {
-      setStudentForm(formLevel);
-      fetchTimetable(formLevel);
-    } else {
-      fetchStudentInfo();
-    }
-  }, [user, studentId, formLevel, showAll]);
-
-  async function fetchStudentInfo() {
+  const fetchStudentInfo = useCallback(async () => {
     if (!user?.id && !studentId) { setLoading(false); return; }
     
     let query = supabase.from("students").select("form");
@@ -63,7 +51,18 @@ export default function StudentExamTimetableTab({ studentId, formLevel, showAll 
     } else {
       setLoading(false);
     }
-  }
+  }, [studentId, user]);
+
+  useEffect(() => {
+    if (showAll) {
+      fetchAllTimetables();
+    } else if (formLevel) {
+      setStudentForm(formLevel);
+      fetchTimetable(formLevel);
+    } else {
+      fetchStudentInfo();
+    }
+  }, [user, studentId, formLevel, showAll, fetchStudentInfo]);
 
   async function fetchAllTimetables() {
     const { data } = await supabase

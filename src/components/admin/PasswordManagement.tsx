@@ -1,8 +1,7 @@
-// @ts-nocheck
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, KeyRound, Eye, EyeOff, Copy, ShieldAlert } from "lucide-react";
+import { errorMessage } from "@/lib/errors";
 
 type PortalUser = {
   id: string;
@@ -47,11 +47,7 @@ export default function PasswordManagement() {
   const [resetting, setResetting] = useState(false);
   const [forceChange, setForceChange] = useState(true);
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -71,11 +67,15 @@ export default function PasswordManagement() {
       if (res.ok && data.users) {
         setUsers(data.users);
       }
-    } catch (err: any) {
-      toast({ title: "Failed to load users", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Failed to load users", description: errorMessage(err), variant: "destructive" });
     }
     setLoading(false);
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const filtered = users.filter(u => {
     const matchSearch = u.full_name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -127,8 +127,8 @@ export default function PasswordManagement() {
       
       toast({ title: "Password reset successfully", description: `Password updated for ${selectedUser.full_name}` });
       setDialogOpen(false);
-    } catch (err: any) {
-      toast({ title: "Failed to reset password", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Failed to reset password", description: errorMessage(err), variant: "destructive" });
     }
     setResetting(false);
   };

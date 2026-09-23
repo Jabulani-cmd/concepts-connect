@@ -23,7 +23,7 @@ export default function AIAssistantHub({ students = [] }: Props) {
           <Badge variant="secondary">ZIMSEC aligned</Badge>
         </CardTitle>
         <CardDescription>
-          Plan lessons, build worksheets and rubrics, draft feedback and parent messages, and see which learners and
+          Plan lessons, build worksheets and rubrics, draft feedback and parent messages, and see which students and
           topics need attention. Everything is editable before you save or send.
         </CardDescription>
       </CardHeader>

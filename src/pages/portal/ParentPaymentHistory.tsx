@@ -1,18 +1,18 @@
-// @ts-nocheck
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Receipt, ArrowLeft, Sparkles, Clock, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { Receipt, ArrowLeft, Sparkles, Clock, CheckCircle2, XCircle, AlertCircle, type LucideIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
 import { downloadSubscriptionReceipt } from "@/lib/receiptPdf";
 import { formatMoney } from "@/lib/currency";
+import type { Tables } from "@/integrations/supabase/types";
 
-const STATUS_STYLES: Record<string, { label: string; cls: string; icon: any }> = {
+const STATUS_STYLES: Record<string, { label: string; cls: string; icon: LucideIcon }> = {
   paid: { label: "Paid", cls: "bg-emerald-100 text-emerald-700", icon: CheckCircle2 },
   pending: { label: "Pending", cls: "bg-amber-100 text-amber-700", icon: Clock },
   awaiting_verification: { label: "Awaiting verification", cls: "bg-amber-100 text-amber-700", icon: Clock },
@@ -22,11 +22,15 @@ const STATUS_STYLES: Record<string, { label: string; cls: string; icon: any }> =
   refunded: { label: "Refunded", cls: "bg-slate-100 text-slate-700", icon: AlertCircle },
 };
 
+type SubscriptionPayment = Tables<"payments"> & {
+  subscriptions?: (Partial<Tables<"subscriptions">> & { subscription_plans?: { name: string } | null }) | null;
+};
+
 export default function ParentPaymentHistory() {
   const nav = useNavigate();
   const { user } = useAuth();
   const sub = useSubscription();
-  const [rows, setRows] = useState<any[]>([]);
+  const [rows, setRows] = useState<SubscriptionPayment[]>([]);
 
   useEffect(() => {
     if (!user) return;

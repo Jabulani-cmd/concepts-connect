@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -8,11 +7,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, FileText, CreditCard } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 
 export default function Fees() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [docs, setDocs] = useState<any[]>([]);
+  const [docs, setDocs] = useState<Tables<"downloads">[]>([]);
 
   useEffect(() => {
     supabase

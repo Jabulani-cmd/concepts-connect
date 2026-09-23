@@ -57,7 +57,7 @@ export default function Footer() {
               <a href="#" aria-label="Twitter" className="rounded-full border border-white/20 p-2 transition-colors hover:border-primary hover:text-primary"><Twitter className="h-4 w-4" /></a>
               <a href="#" aria-label="Facebook" className="rounded-full border border-white/20 p-2 transition-colors hover:border-primary hover:text-primary"><Facebook className="h-4 w-4" /></a>
               <a href="#" aria-label="Instagram" className="rounded-full border border-white/20 p-2 transition-colors hover:border-primary hover:text-primary"><Instagram className="h-4 w-4" /></a>
-              <a href="https://wa.me/27000000000" aria-label="WhatsApp" className="rounded-full border border-white/20 p-2 transition-colors hover:border-primary hover:text-primary"><MessageCircle className="h-4 w-4" /></a>
+              <a href="https://wa.me/263242550123" aria-label="WhatsApp" className="rounded-full border border-white/20 p-2 transition-colors hover:border-primary hover:text-primary"><MessageCircle className="h-4 w-4" /></a>
             </div>
           </div>
 

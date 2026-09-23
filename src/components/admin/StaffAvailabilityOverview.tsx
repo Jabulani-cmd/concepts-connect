@@ -1,11 +1,10 @@
-// @ts-nocheck
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { CheckCircle2, XCircle, Clock, UserCheck, UserX, AlertCircle, CalendarOff, MessageSquare } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, UserCheck, UserX, CalendarOff, MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -17,7 +16,8 @@ type LeaveRequest = {
   end_date: string;
   reason: string | null;
   status: string;
-  approved_by: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
   created_at: string;
   staff?: { full_name: string; department: string | null; role: string | null };
 };
@@ -57,7 +57,7 @@ export default function StaffAvailabilityOverview() {
     const { data: { user } } = await supabase.auth.getUser();
     const { error } = await supabase
       .from("leave_requests")
-      .update({ status: action, approved_by: user?.id || null })
+      .update({ status: action, reviewed_by: user?.id || null, reviewed_at: new Date().toISOString() })
       .eq("id", id);
 
     if (error) {
@@ -148,7 +148,7 @@ export default function StaffAvailabilityOverview() {
 
       {/* Filter */}
       <div className="flex items-center gap-3">
-        <Select value={filter} onValueChange={(v: any) => setFilter(v)}>
+        <Select value={filter} onValueChange={(v) => setFilter(v as typeof filter)}>
           <SelectTrigger className="w-[200px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="active">Currently on Leave</SelectItem>

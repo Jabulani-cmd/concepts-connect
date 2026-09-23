@@ -1,13 +1,12 @@
-// @ts-nocheck
-import { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -15,42 +14,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Plus, Search, Edit, Trash2, Eye, Upload, Download, AlertTriangle, User, Copy, Camera, KeyRound, UserCheck } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Eye, Upload, Download, AlertTriangle, User, Users, Copy, Camera, KeyRound, UserCheck } from "lucide-react";
 import TermRegistration from "@/components/admin/TermRegistration";
-import { studentFormSchema, type StudentFormData, zimPhoneRegex } from "@/lib/validators";
+import { studentFormSchema, type StudentFormData } from "@/lib/validators";
 import ImageCropper from "@/components/ImageCropper";
 import WebcamCapture from "@/components/WebcamCapture";
+import { errorMessage } from "@/lib/errors";
+import { DEFAULT_FORM, FORM_LEVELS } from "@/lib/forms";
 
-const formOptions = ["Form 1", "Form 2", "Form 3", "Form 4", "Form 5", "Form 6"];
 const streamOptions = ["A", "B", "C", "D", "Arts", "Sciences", "Commercials"];
 const statusOptions = ["active", "graduated", "withdrawn"];
 const genderOptions = ["Male", "Female"];
 
-type Student = {
-  id: string;
-  admission_number: string;
-  full_name: string;
-  date_of_birth: string | null;
-  form: string;
-  stream: string | null;
-  subject_combination: string | null;
-  gender: string | null;
-  guardian_name: string | null;
-  guardian_phone: string | null;
-  guardian_email: string | null;
-  emergency_contact: string | null;
-  medical_conditions: string | null;
-  has_medical_alert: boolean;
-  address: string | null;
-  enrollment_date: string | null;
-  status: string;
-  profile_photo_url: string | null;
-  deleted_at: string | null;
-  created_at: string;
-  sports_activities: string[] | null;
-  user_id: string | null;
-  email: string | null;
-};
+type Student = Tables<"students">;
 
 const sportsOptions = ["Rugby", "Soccer", "Cricket", "Tennis", "Athletics", "Swimming", "Volleyball", "Basketball", "Hockey", "Netball", "Chess", "Table Tennis"];
 
@@ -58,7 +34,7 @@ const emptyForm: StudentFormData = {
   admission_number: "",
   full_name: "",
   date_of_birth: "",
-  form: "Form 1",
+  form: DEFAULT_FORM,
   stream: "",
   subject_combination: "",
   gender: "",
@@ -102,14 +78,13 @@ export default function StudentManagement() {
   const [provisionDialogOpen, setProvisionDialogOpen] = useState(false);
 
   // Boarding fields
-  const [hostels, setHostels] = useState<{ id: string; name: string; total_capacity: number; current_occupancy: number }[]>([]);
-  const [rooms, setRooms] = useState<{ id: string; hostel_id: string; room_number: string; room_type: string | null; capacity: number; current_occupancy: number }[]>([]);
+  const [hostels, setHostels] = useState<Pick<Tables<"hostels">, "id" | "name" | "capacity">[]>([]);
+  const [rooms, setRooms] = useState<Pick<Tables<"rooms">, "id" | "hostel_id" | "room_number" | "room_type" | "capacity">[]>([]);
+  const [occupiedRoomIds, setOccupiedRoomIds] = useState<string[]>([]);
   const [selectedHostel, setSelectedHostel] = useState("");
   const [selectedDormitoryType, setSelectedDormitoryType] = useState("all");
   const [selectedRoom, setSelectedRoom] = useState("");
   const [bedNumber, setBedNumber] = useState("");
-
-  useEffect(() => { fetchStudents(); fetchSubjects(); fetchBoardingData(); }, []);
 
   const fetchSubjects = async () => {
     const { data } = await supabase.from("subjects").select("id, name, department").order("name");
@@ -117,24 +92,32 @@ export default function StudentManagement() {
   };
 
   const fetchBoardingData = async () => {
-    const [h, r] = await Promise.all([
-      supabase.from("hostels").select("id, name, total_capacity, current_occupancy").eq("is_active", true).order("name"),
-      supabase.from("rooms").select("id, hostel_id, room_number, room_type, capacity, current_occupancy").order("room_number"),
+    const [h, r, a] = await Promise.all([
+      supabase.from("hostels").select("id, name, capacity").eq("is_active", true).order("name"),
+      supabase.from("rooms").select("id, hostel_id, room_number, room_type, capacity").order("room_number"),
+      supabase.from("bed_allocations").select("room_id").eq("status", "active"),
     ]);
     if (h.data) setHostels(h.data);
     if (r.data) setRooms(r.data);
+    if (a.data) setOccupiedRoomIds(a.data.map(x => x.room_id).filter(Boolean));
   };
 
-  const fetchStudents = async () => {
+  const roomOccupancy = (roomId: string) => occupiedRoomIds.filter(id => id === roomId).length;
+  const hostelOccupancy = (hostelId: string) =>
+    rooms.filter(r => r.hostel_id === hostelId).reduce((sum, r) => sum + roomOccupancy(r.id), 0);
+
+  const fetchStudents = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("students")
       .select("*")
       .order("full_name");
-    if (data) setStudents(data as Student[]);
+    if (data) setStudents(data);
     if (error) toast({ title: "Error loading students", description: error.message, variant: "destructive" });
     setLoading(false);
-  };
+  }, [toast]);
+
+  useEffect(() => { fetchStudents(); fetchSubjects(); fetchBoardingData(); }, [fetchStudents]);
 
   const filtered = students.filter(s => {
     const matchSearch = s.full_name.toLowerCase().includes(search.toLowerCase()) ||
@@ -188,12 +171,12 @@ export default function StudentManagement() {
       enrollment_date: s.enrollment_date || "",
       status: s.status,
       sports_activities: s.sports_activities || [],
-      boarding_status: (s as any).boarding_status || "day",
+      boarding_status: s.boarding_status || "day",
     });
     setPhotoUrl(s.profile_photo_url);
     setErrors({});
     // Load existing boarding allocation if boarder
-    if ((s as any).boarding_status === "boarder") {
+    if (s.boarding_status === "boarder") {
       supabase.from("bed_allocations").select("room_id, bed_number").eq("student_id", s.id).eq("status", "active").maybeSingle().then(({ data: alloc }) => {
         if (alloc) {
           const room = rooms.find(r => r.id === alloc.room_id);
@@ -232,7 +215,7 @@ export default function StudentManagement() {
 
     // Helper to allocate boarding
     const allocateBoarding = async (studentId: string) => {
-      if ((formData as any).boarding_status === "boarder" && selectedRoom) {
+      if (formData.boarding_status === "boarder" && selectedRoom) {
         // Remove existing active allocation for this student
         await supabase.from("bed_allocations").update({ status: "vacated", allocation_end_date: new Date().toISOString().split("T")[0] }).eq("student_id", studentId).eq("status", "active");
         // Create new allocation
@@ -244,29 +227,10 @@ export default function StudentManagement() {
         });
         if (allocErr) {
           toast({ title: "Warning", description: "Student saved but hostel allocation failed: " + allocErr.message, variant: "destructive" });
-        } else {
-          // Update room & hostel occupancy
-          const room = rooms.find(r => r.id === selectedRoom);
-          if (room) {
-            await supabase.from("rooms").update({ current_occupancy: room.current_occupancy + 1 }).eq("id", room.id);
-            const hostel = hostels.find(h => h.id === room.hostel_id);
-            if (hostel) await supabase.from("hostels").update({ current_occupancy: hostel.current_occupancy + 1 }).eq("id", hostel.id);
-          }
         }
-      } else if ((formData as any).boarding_status === "day") {
+      } else if (formData.boarding_status === "day") {
         // If changed to day, vacate any active allocation
-        const { data: existing } = await supabase.from("bed_allocations").select("id, room_id").eq("student_id", studentId).eq("status", "active");
-        if (existing && existing.length > 0) {
-          for (const alloc of existing) {
-            await supabase.from("bed_allocations").update({ status: "vacated", allocation_end_date: new Date().toISOString().split("T")[0] }).eq("id", alloc.id);
-            const room = rooms.find(r => r.id === alloc.room_id);
-            if (room) {
-              await supabase.from("rooms").update({ current_occupancy: Math.max(0, room.current_occupancy - 1) }).eq("id", room.id);
-              const hostel = hostels.find(h => h.id === room.hostel_id);
-              if (hostel) await supabase.from("hostels").update({ current_occupancy: Math.max(0, hostel.current_occupancy - 1) }).eq("id", hostel.id);
-            }
-          }
-        }
+        await supabase.from("bed_allocations").update({ status: "vacated", allocation_end_date: new Date().toISOString().split("T")[0] }).eq("student_id", studentId).eq("status", "active");
       }
     };
 
@@ -284,12 +248,10 @@ export default function StudentManagement() {
       const { admission_number, ...rest } = payload;
       const insertPayload = { ...rest, admission_number: nextAdmissionNumber };
       
-      console.log("Attempting student insert with admission:", nextAdmissionNumber);
-      console.log("Full payload keys:", Object.keys(insertPayload));
       
       const { data: newStudent, error } = await supabase
         .from("students")
-        .insert(insertPayload as any)
+        .insert(insertPayload)
         .select("id, admission_number")
         .single();
       
@@ -327,7 +289,6 @@ export default function StudentManagement() {
           }
         );
         const provData = await res.json();
-        console.log("provision-student response:", res.status, provData);
         if (res.ok) {
           provisioned = true;
           setProvisionResult({
@@ -340,9 +301,9 @@ export default function StudentManagement() {
         } else {
           toast({ title: "Portal account NOT created", description: provData.error || `HTTP ${res.status}`, variant: "destructive" });
         }
-      } catch (provErr: any) {
+      } catch (provErr) {
         console.error("provision-student error:", provErr);
-        toast({ title: "Portal account NOT created", description: provErr?.message || "Network error", variant: "destructive" });
+        toast({ title: "Portal account NOT created", description: errorMessage(provErr, "Network error"), variant: "destructive" });
       }
 
       // Allocate boarding if applicable
@@ -356,6 +317,7 @@ export default function StudentManagement() {
     setSaving(false);
     setDialogOpen(false);
     fetchStudents();
+    fetchBoardingData();
   };
 
   const handleDelete = async (id: string) => {
@@ -376,8 +338,8 @@ export default function StudentManagement() {
         const result = await res.json();
         if (!res.ok) throw new Error(result.error);
         toast({ title: "Student permanently deleted" });
-      } catch (err: any) {
-        toast({ title: "Error", description: err.message, variant: "destructive" });
+      } catch (err) {
+        toast({ title: "Error", description: errorMessage(err), variant: "destructive" });
         return;
       }
     } else {
@@ -410,8 +372,8 @@ export default function StudentManagement() {
       const { data } = supabase.storage.from("school-media").getPublicUrl(path);
       setPhotoUrl(data.publicUrl);
       toast({ title: "Photo uploaded!" });
-    } catch (err: any) {
-      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Upload failed", description: errorMessage(err), variant: "destructive" });
     }
     setUploading(false);
   };
@@ -427,7 +389,7 @@ export default function StudentManagement() {
     URL.revokeObjectURL(url);
   };
 
-  const updateField = (key: string, value: any) => {
+  const updateField = <K extends keyof StudentFormData>(key: K, value: StudentFormData[K]) => {
     setFormData(prev => ({ ...prev, [key]: value }));
     if (errors[key]) setErrors(prev => { const n = { ...prev }; delete n[key]; return n; });
   };
@@ -470,8 +432,8 @@ export default function StudentManagement() {
       } else {
         toast({ title: "Account creation failed", description: provData.error, variant: "destructive" });
       }
-    } catch (err: any) {
-      toast({ title: "Account creation failed", description: err?.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Account creation failed", description: errorMessage(err), variant: "destructive" });
     }
     setSaving(false);
   };
@@ -512,7 +474,7 @@ export default function StudentManagement() {
             <SelectTrigger className="w-[140px]"><SelectValue placeholder="Form" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Forms</SelectItem>
-              {formOptions.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+              {FORM_LEVELS.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
             </SelectContent>
           </Select>
           <Select value={filterStatus} onValueChange={setFilterStatus}>
@@ -666,7 +628,7 @@ export default function StudentManagement() {
               <Label>Form *</Label>
               <Select value={formData.form} onValueChange={v => updateField("form", v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>{formOptions.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}</SelectContent>
+                <SelectContent>{FORM_LEVELS.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div className="space-y-1">
@@ -766,7 +728,7 @@ export default function StudentManagement() {
 
             <div className="space-y-1">
               <Label>Boarding Status *</Label>
-              <Select value={(formData as any).boarding_status || "day"} onValueChange={v => { updateField("boarding_status", v); if (v === "day") { setSelectedHostel(""); setSelectedDormitoryType("all"); setSelectedRoom(""); setBedNumber(""); } }}>
+              <Select value={formData.boarding_status || "day"} onValueChange={v => { updateField("boarding_status", v); if (v === "day") { setSelectedHostel(""); setSelectedDormitoryType("all"); setSelectedRoom(""); setBedNumber(""); } }}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="day">Day Scholar</SelectItem>
@@ -775,7 +737,7 @@ export default function StudentManagement() {
               </Select>
             </div>
 
-            {(formData as any).boarding_status === "boarder" && (
+            {formData.boarding_status === "boarder" && (
               <div className="col-span-full rounded-lg border border-dashed border-primary/30 bg-primary/5 p-4 space-y-3">
                 <p className="text-sm font-semibold text-primary flex items-center gap-2">
                   <Users className="h-4 w-4" /> Hostel Allocation
@@ -788,7 +750,7 @@ export default function StudentManagement() {
                       <SelectContent>
                         {hostels.map(h => (
                           <SelectItem key={h.id} value={h.id}>
-                            {h.name} ({h.current_occupancy}/{h.total_capacity})
+                            {h.name} ({hostelOccupancy(h.id)}/{h.capacity ?? 0})
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -815,7 +777,7 @@ export default function StudentManagement() {
                       <SelectContent>
                         {filteredRooms.map(r => (
                           <SelectItem key={r.id} value={r.id}>
-                            Room {r.room_number} ({r.current_occupancy}/{r.capacity})
+                            Room {r.room_number} ({roomOccupancy(r.id)}/{r.capacity ?? 0})
                           </SelectItem>
                         ))}
                       </SelectContent>

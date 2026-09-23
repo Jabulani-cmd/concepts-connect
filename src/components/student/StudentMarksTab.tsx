@@ -1,79 +1,51 @@
-// @ts-nocheck
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BookOpen, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { gradeFor, gradeBadgeClass } from "@/lib/grading";
 
 interface Props {
   studentId: string | null;
 }
 
-function getCAPSGrade(mark: number): string {
-  if (mark >= 90) return "A*";
-  if (mark >= 80) return "A";
-  if (mark >= 70) return "B";
-  if (mark >= 60) return "C";
-  if (mark >= 50) return "D";
-  if (mark >= 40) return "E";
-  return "U";
-}
-
-function getGradeColor(grade: string): string {
-  switch (grade) {
-    case "A*": return "bg-emerald-100 text-emerald-800 border-emerald-300";
-    case "A": return "bg-green-100 text-green-800 border-green-300";
-    case "B": return "bg-blue-100 text-blue-800 border-blue-300";
-    case "C": return "bg-sky-100 text-sky-800 border-sky-300";
-    case "D": return "bg-amber-100 text-amber-800 border-amber-300";
-    case "E": return "bg-orange-100 text-orange-800 border-orange-300";
-    case "U": return "bg-red-100 text-red-800 border-red-300";
-    default: return "bg-muted text-muted-foreground";
-  }
-}
-
 const termOptions = ["Term 1", "Term 2", "Term 3"];
 
+type MarkRow = {
+  id: string;
+  source: "manual" | "teacher" | "ai";
+  subjectName: string;
+  description: string;
+  assessmentType: string;
+  term: string | null;
+  percent: number;
+  scoreLabel: string;
+  feedback: string | null;
+  created_at: string;
+};
+
 export default function StudentMarksTab({ studentId }: Props) {
-  const [rows, setRows] = useState<any[]>([]);
+  const [rows, setRows] = useState<MarkRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTerm, setSelectedTerm] = useState("all");
 
-  useEffect(() => {
-    if (!studentId) { setLoading(false); return; }
-    fetchAll();
-
-    const ch = supabase
-      .channel(`student-marks-${studentId}-${Math.random().toString(36).slice(2)}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "marks", filter: `student_id=eq.${studentId}` }, () => fetchAll())
-      .on("postgres_changes", { event: "*", schema: "public", table: "assessment_results", filter: `student_id=eq.${studentId}` }, () => fetchAll())
-      .subscribe();
-
-
-    const onFocus = () => fetchAll();
-    window.addEventListener("focus", onFocus);
-    return () => {
-      supabase.removeChannel(ch);
-      window.removeEventListener("focus", onFocus);
-    };
-  }, [studentId]);
-
-  const fetchAll = async () => {
+  const fetchAll = useCallback(async () => {
     setLoading(true);
     const [{ data: marks }, { data: results }] = await Promise.all([
       supabase.from("marks").select("*, subjects(name)").eq("student_id", studentId).order("created_at", { ascending: false }),
       supabase.from("assessment_results")
         .select("id, mark, feedback, graded_by, created_at, assessment_id, assessments(title, max_marks, assessment_type, subjects(name))")
         .eq("student_id", studentId)
+        .eq("is_published", true)
         .order("created_at", { ascending: false }),
     ]);
 
-    const manual = (marks || []).map((m: any) => ({
+    const manual: MarkRow[] = (marks || []).map((m) => ({
       id: `m-${m.id}`,
       source: "manual" as const,
       subjectName: m.subjects?.name || "—",
-      description: m.comment || m.description || "—",
+      description: m.comment || "—",
       assessmentType: m.assessment_type || "—",
       term: m.term,
       percent: Number(m.mark) || 0,
@@ -82,7 +54,7 @@ export default function StudentMarksTab({ studentId }: Props) {
       created_at: m.created_at,
     }));
 
-    const ai = (results || []).map((r: any) => {
+    const ai: MarkRow[] = (results || []).map((r) => {
       const max = Number(r.assessments?.max_marks) || 0;
       const scored = Number(r.mark) || 0;
       const pct = max > 0 ? Math.round((scored / max) * 100) : scored;
@@ -105,7 +77,26 @@ export default function StudentMarksTab({ studentId }: Props) {
     );
     setRows(merged);
     setLoading(false);
-  };
+  }, [studentId]);
+
+  useEffect(() => {
+    if (!studentId) { setLoading(false); return; }
+    fetchAll();
+
+    const ch = supabase
+      .channel(`student-marks-${studentId}-${Math.random().toString(36).slice(2)}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "marks", filter: `student_id=eq.${studentId}` }, () => fetchAll())
+      .on("postgres_changes", { event: "*", schema: "public", table: "assessment_results", filter: `student_id=eq.${studentId}` }, () => fetchAll())
+      .subscribe();
+
+
+    const onFocus = () => fetchAll();
+    window.addEventListener("focus", onFocus);
+    return () => {
+      supabase.removeChannel(ch);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, [fetchAll, studentId]);
 
   const filtered = rows.filter(r => selectedTerm === "all" || r.term === selectedTerm);
 
@@ -153,7 +144,7 @@ export default function StudentMarksTab({ studentId }: Props) {
                 </thead>
                 <tbody>
                   {filtered.map(r => {
-                    const grade = getCAPSGrade(r.percent);
+                    const grade = gradeFor(r.percent);
                     return (
                       <tr key={r.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors align-top">
                         <td className="px-3 py-3 font-medium">{r.subjectName}</td>
@@ -175,7 +166,7 @@ export default function StudentMarksTab({ studentId }: Props) {
                         </td>
                         <td className="px-3 py-3 text-center font-bold">{r.scoreLabel}</td>
                         <td className="px-3 py-3 text-center">
-                          <Badge className={`text-xs ${getGradeColor(grade)}`} variant="outline">{grade}</Badge>
+                          <Badge className={`text-xs ${gradeBadgeClass(grade)}`} variant="outline">{grade}</Badge>
                         </td>
                       </tr>
                     );

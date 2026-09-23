@@ -1,11 +1,12 @@
-// @ts-nocheck
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Trophy, Award, TrendingUp, BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import ReportCardDownloadButton from "./ReportCardPDF";
+import { gradeFor, gradeBadgeClass } from "@/lib/grading";
+import type { ExamRankings } from "@/types/school";
 
 interface Props {
   studentId: string | null;
@@ -35,29 +36,6 @@ interface ResultRow {
   class_size: number | null;
 }
 
-function getCAPSGrade(mark: number): string {
-  if (mark >= 90) return "A*";
-  if (mark >= 80) return "A";
-  if (mark >= 70) return "B";
-  if (mark >= 60) return "C";
-  if (mark >= 50) return "D";
-  if (mark >= 40) return "E";
-  return "U";
-}
-
-function getGradeColor(grade: string): string {
-  switch (grade) {
-    case "A*": return "bg-emerald-100 text-emerald-800 border-emerald-300";
-    case "A": return "bg-green-100 text-green-800 border-green-300";
-    case "B": return "bg-blue-100 text-blue-800 border-blue-300";
-    case "C": return "bg-sky-100 text-sky-800 border-sky-300";
-    case "D": return "bg-amber-100 text-amber-800 border-amber-300";
-    case "E": return "bg-orange-100 text-orange-800 border-orange-300";
-    case "U": return "bg-red-100 text-red-800 border-red-300";
-    default: return "bg-muted text-muted-foreground";
-  }
-}
-
 function getMarkBarColor(mark: number): string {
   if (mark >= 80) return "bg-emerald-500";
   if (mark >= 60) return "bg-blue-500";
@@ -77,10 +55,6 @@ export default function StudentExamResultsTab({ studentId, studentName, admissio
     if (studentId) fetchExams();
   }, [studentId]);
 
-  useEffect(() => {
-    if (selectedExamId && studentId) fetchResults();
-  }, [selectedExamId]);
-
   const fetchExams = async () => {
     setLoading(true);
     const { data } = await supabase
@@ -98,7 +72,7 @@ export default function StudentExamResultsTab({ studentId, studentName, admissio
     setLoading(false);
   };
 
-  const fetchResults = async () => {
+  const fetchResults = useCallback(async () => {
     if (!selectedExamId || !studentId) return;
     setResultsLoading(true);
 
@@ -106,14 +80,14 @@ export default function StudentExamResultsTab({ studentId, studentName, admissio
     const [{ data: myResults }, { data: rankingsData }] = await Promise.all([
       supabase
         .from("exam_results")
-        .select("id, mark, grade, teacher_comment, subject_id, subjects(name, code)")
+        .select("id, mark, grade, teacher_comment:comment, subject_id, subjects(name, code)")
         .eq("exam_id", selectedExamId)
         .eq("student_id", studentId)
         .order("mark", { ascending: false }),
       supabase.rpc("get_exam_rankings", { p_exam_id: selectedExamId, p_student_id: studentId }),
     ]);
 
-    const rankings = (rankingsData as any) || {};
+    const rankings = (rankingsData as ExamRankings | null) ?? {};
     const subjectRankings = rankings.subject_rankings || {};
 
     setOverallRank(
@@ -123,25 +97,29 @@ export default function StudentExamResultsTab({ studentId, studentName, admissio
     );
 
     // Build result rows
-    const rows: ResultRow[] = (myResults || []).map((r: any) => {
+    const rows: ResultRow[] = (myResults || []).map((r) => {
       const subjectId = r.subject_id;
-      const sr = subjectRankings[subjectId] || {};
+      const sr = subjectId ? subjectRankings[subjectId] : undefined;
 
       return {
         id: r.id,
         mark: r.mark,
-        grade: r.grade || getCAPSGrade(r.mark),
+        grade: r.grade || gradeFor(r.mark),
         teacher_comment: r.teacher_comment,
         subject_name: r.subjects?.name || "Unknown",
         subject_code: r.subjects?.code || null,
-        class_rank: sr.rank || null,
-        class_size: sr.total || null,
+        class_rank: sr?.rank ?? null,
+        class_size: sr?.total ?? null,
       };
     });
 
     setResults(rows);
     setResultsLoading(false);
-  };
+  }, [selectedExamId, studentId]);
+
+  useEffect(() => {
+    if (selectedExamId && studentId) fetchResults();
+  }, [fetchResults, selectedExamId, studentId]);
 
   if (loading) {
     return (
@@ -168,7 +146,7 @@ export default function StudentExamResultsTab({ studentId, studentName, admissio
   const selectedExam = exams.find((e) => e.id === selectedExamId);
   const totalMarks = results.reduce((sum, r) => sum + r.mark, 0);
   const avgMark = results.length > 0 ? Math.round(totalMarks / results.length) : 0;
-  const avgGrade = getCAPSGrade(avgMark);
+  const avgGrade = gradeFor(avgMark);
   const bestSubject = results.length > 0 ? results[0] : null;
 
   return (
@@ -211,7 +189,7 @@ export default function StudentExamResultsTab({ studentId, studentName, admissio
                 <TrendingUp className="mx-auto mb-1 h-5 w-5 text-secondary" />
                 <p className="text-lg font-bold text-secondary">{avgMark}%</p>
                 <p className="text-[10px] text-muted-foreground">Average</p>
-                <Badge className={`mt-1 text-[10px] ${getGradeColor(avgGrade)}`} variant="outline">
+                <Badge className={`mt-1 text-[10px] ${gradeBadgeClass(avgGrade)}`} variant="outline">
                   {avgGrade}
                 </Badge>
               </CardContent>
@@ -255,7 +233,7 @@ export default function StudentExamResultsTab({ studentId, studentName, admissio
                 subject_name: r.subject_name,
                 subject_code: r.subject_code,
                 mark: r.mark,
-                grade: r.grade || getCAPSGrade(r.mark),
+                grade: r.grade || gradeFor(r.mark),
                 teacher_comment: r.teacher_comment,
                 class_rank: r.class_rank,
                 class_size: r.class_size,
@@ -303,7 +281,7 @@ export default function StudentExamResultsTab({ studentId, studentName, admissio
                           </div>
                         </td>
                         <td className="px-3 py-3 text-center">
-                          <Badge className={`text-xs ${getGradeColor(r.grade || "U")}`} variant="outline">
+                          <Badge className={`text-xs ${gradeBadgeClass(r.grade || "U")}`} variant="outline">
                             {r.grade}
                           </Badge>
                         </td>
@@ -325,7 +303,7 @@ export default function StudentExamResultsTab({ studentId, studentName, admissio
                       <td className="px-3 py-2.5">Overall Average</td>
                       <td className="px-3 py-2.5 text-center font-bold">{avgMark}%</td>
                       <td className="px-3 py-2.5 text-center">
-                        <Badge className={`text-xs ${getGradeColor(avgGrade)}`} variant="outline">
+                        <Badge className={`text-xs ${gradeBadgeClass(avgGrade)}`} variant="outline">
                           {avgGrade}
                         </Badge>
                       </td>

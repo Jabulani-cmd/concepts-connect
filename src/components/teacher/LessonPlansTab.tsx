@@ -1,5 +1,4 @@
-// @ts-nocheck
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,12 +10,19 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Plus, Edit2, Trash2, Eye, Copy, BookOpen, Download, Printer, Sparkles, Loader2 } from "lucide-react";
 import { printLessonPlan, downloadLessonPlan, type LessonPlanPrintData } from "@/lib/lesson-plan-print";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
+import type { QueryData } from "@supabase/supabase-js";
+
+const plansQuery = (teacherId: string) =>
+  supabase.from("lesson_plans").select("*, subjects(name), classes(name, level)").eq("teacher_id", teacherId).order("date", { ascending: false });
+type LessonPlan = QueryData<ReturnType<typeof plansQuery>>[number];
 import { useToast } from "@/hooks/use-toast";
+import { errorMessage } from "@/lib/errors";
 
 interface Props {
   userId: string;
-  classes: any[];
-  subjects: any[];
+  classes: Pick<Tables<"classes">, "id" | "name" | "level">[];
+  subjects: Pick<Tables<"subjects">, "id" | "name">[];
 }
 
 const emptyForm = {
@@ -27,11 +33,11 @@ const emptyForm = {
 
 export default function LessonPlansTab({ userId, classes, subjects }: Props) {
   const { toast } = useToast();
-  const [plans, setPlans] = useState<any[]>([]);
+  const [plans, setPlans] = useState<LessonPlan[]>([]);
   const [form, setForm] = useState({ ...emptyForm });
   const [editing, setEditing] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [viewPlan, setViewPlan] = useState<any>(null);
+  const [viewPlan, setViewPlan] = useState<LessonPlan | null>(null);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState({ subject: "all", status: "all" });
 
@@ -43,16 +49,12 @@ export default function LessonPlansTab({ userId, classes, subjects }: Props) {
   const [aiDuration, setAiDuration] = useState("40");
   const [aiGenerating, setAiGenerating] = useState(false);
 
-  useEffect(() => { fetchPlans(); }, []);
-
-  const fetchPlans = async () => {
-    const { data } = await supabase
-      .from("lesson_plans")
-      .select("*, subjects(name), classes(name, form_level)")
-      .eq("teacher_id", userId)
-      .order("date", { ascending: false });
+  const fetchPlans = useCallback(async () => {
+    const { data } = await plansQuery(userId);
     if (data) setPlans(data);
-  };
+  }, [userId]);
+
+  useEffect(() => { fetchPlans(); }, [fetchPlans]);
 
   const handleSubmit = async () => {
     if (!form.title || !form.date) {
@@ -96,7 +98,7 @@ export default function LessonPlansTab({ userId, classes, subjects }: Props) {
     setLoading(false);
   };
 
-  const handleEdit = (plan: any) => {
+  const handleEdit = (plan: LessonPlan) => {
     setForm({
       subject_id: plan.subject_id || "",
       class_id: plan.class_id || "",
@@ -117,7 +119,7 @@ export default function LessonPlansTab({ userId, classes, subjects }: Props) {
     setDialogOpen(true);
   };
 
-  const handleDuplicate = (plan: any) => {
+  const handleDuplicate = (plan: LessonPlan) => {
     setForm({
       subject_id: plan.subject_id || "",
       class_id: plan.class_id || "",
@@ -160,7 +162,7 @@ export default function LessonPlansTab({ userId, classes, subjects }: Props) {
           topic: aiTopic.trim(),
           subject: selectedSubject?.name || "",
           className: selectedClass?.name || "",
-          formLevel: selectedClass?.form_level || "",
+          formLevel: selectedClass?.level || "",
           duration_minutes: parseInt(aiDuration) || 40,
         },
       });
@@ -193,11 +195,11 @@ export default function LessonPlansTab({ userId, classes, subjects }: Props) {
       setDialogOpen(true);
 
       toast({ title: "AI lesson plan generated!", description: "Review and edit before saving." });
-    } catch (err: any) {
+    } catch (err) {
       console.error("AI generation error:", err);
       toast({
         title: "Failed to generate lesson plan",
-        description: err.message || "Please try again.",
+        description: errorMessage(err, "Please try again."),
         variant: "destructive",
       });
     } finally {
@@ -205,7 +207,7 @@ export default function LessonPlansTab({ userId, classes, subjects }: Props) {
     }
   };
 
-  const toPrintData = (p: any): LessonPlanPrintData => ({
+  const toPrintData = (p: LessonPlan): LessonPlanPrintData => ({
     title: p.title, date: p.date, duration_minutes: p.duration_minutes,
     subjectName: p.subjects?.name, className: p.classes?.name,
     objectives: p.objectives, materials_needed: p.materials_needed,

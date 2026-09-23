@@ -1,6 +1,10 @@
-// @ts-nocheck
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Enums, Tables } from "@/integrations/supabase/types";
+
+export type Subscription = Tables<"subscriptions"> & {
+  subscription_plans?: Pick<Tables<"subscription_plans">, "name" | "plan_type"> | null;
+};
 import { useAuth } from "@/contexts/AuthContext";
 
 export type SubStatus = "active" | "expired" | "pending" | "suspended" | "complimentary" | "trial" | "none";
@@ -10,11 +14,11 @@ export interface SubscriptionState {
   isActive: boolean;
   status: SubStatus;
   plan: string | null;
-  planType: "monthly" | "term" | null;
+  planType: Enums<"subscription_plan_type"> | null;
   expiresAt: Date | null;
   daysRemaining: number;
-  subscription: any | null;
-  grants: any[];
+  subscription: Subscription | null;
+  grants: Tables<"access_grants">[];
   refresh: () => Promise<void>;
 }
 
@@ -119,11 +123,11 @@ export function useSubscription(): SubscriptionState {
       .eq("is_active", true);
 
     const now = new Date();
-    let activeSub: any = null;
+    let activeSub: Subscription | null = null;
     let status: SubStatus = "none";
 
     if (subs && subs.length) {
-      const live = subs.find((s: any) => {
+      const live = subs.find((s) => {
         const end = s.access_end ? new Date(s.access_end) : null;
         return s.status === "active" && end && end > now;
       });
@@ -131,8 +135,8 @@ export function useSubscription(): SubscriptionState {
         activeSub = live;
         status = "active";
       } else {
-        const pending = subs.find((s: any) => s.status === "pending");
-        const expired = subs.find((s: any) => s.status === "expired" || (s.access_end && new Date(s.access_end) < now));
+        const pending = subs.find((s) => s.status === "pending");
+        const expired = subs.find((s) => s.status === "expired" || (s.access_end && new Date(s.access_end) < now));
         if (pending) {
           status = "pending";
           activeSub = pending;
@@ -143,12 +147,14 @@ export function useSubscription(): SubscriptionState {
       }
     }
 
-    const comp = (grants || []).find((g: any) => {
-      const end = g.access_end ? new Date(g.access_end) : null;
-      return g.grant_type === "complimentary" && (!end || end > now);
-    });
+    const liveGrant = (type: "complimentary" | "trial") =>
+      (grants || []).find((g) => {
+        const end = g.access_end ? new Date(g.access_end) : null;
+        return g.grant_type === type && (!end || end > now);
+      });
+    const comp = liveGrant("complimentary") ?? liveGrant("trial");
     if (comp && status !== "active") {
-      status = "complimentary";
+      status = comp.grant_type === "trial" ? "trial" : "complimentary";
     }
 
     const isActive = status === "active" || status === "complimentary" || status === "trial";

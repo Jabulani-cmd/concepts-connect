@@ -1,5 +1,4 @@
-// @ts-nocheck
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,22 +10,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { FileText, Loader2, RefreshCw, CheckCircle, Send, Eye } from "lucide-react";
+import { FileText, Loader2, RefreshCw, CheckCircle, Send } from "lucide-react";
 import { format } from "date-fns";
+import { errorMessage } from "@/lib/errors";
+import { gradeFor, gradeBadgeClass } from "@/lib/grading";
+import { DEFAULT_FORM, FORM_LEVELS } from "@/lib/forms";
 
-const formOptions = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 const termOptions = ["Term 1", "Term 2", "Term 3"];
-
-function zimGrade(mark: number): string {
-  if (mark >= 90) return "A*";
-  if (mark >= 80) return "A";
-  if (mark >= 70) return "B";
-  if (mark >= 60) return "C";
-  if (mark >= 50) return "D";
-  if (mark >= 40) return "E";
-  if (mark >= 30) return "F";
-  return "U";
-}
 
 interface TermReport {
   id: string;
@@ -59,7 +49,7 @@ export default function TermReportsTab() {
   const [students, setStudents] = useState<Student[]>([]);
   
   // Filters
-  const [filterForm, setFilterForm] = useState("Grade 8");
+  const [filterForm, setFilterForm] = useState(DEFAULT_FORM);
   const [filterTerm, setFilterTerm] = useState("Term 1");
   const [filterYear, setFilterYear] = useState(new Date().getFullYear().toString());
   
@@ -69,10 +59,6 @@ export default function TermReportsTab() {
   useEffect(() => {
     fetchData();
   }, []);
-
-  useEffect(() => {
-    fetchReports();
-  }, [filterForm, filterTerm, filterYear]);
 
   async function fetchData() {
     const { data } = await supabase
@@ -85,7 +71,7 @@ export default function TermReportsTab() {
     setLoading(false);
   }
 
-  async function fetchReports() {
+  const fetchReports = useCallback(async () => {
     const { data } = await supabase
       .from("term_reports")
       .select("*, students(full_name, admission_number)")
@@ -94,7 +80,11 @@ export default function TermReportsTab() {
       .eq("academic_year", filterYear)
       .order("class_rank", { nullsFirst: false });
     if (data) setReports(data);
-  }
+  }, [filterForm, filterTerm, filterYear]);
+
+  useEffect(() => {
+    fetchReports();
+  }, [fetchReports, filterForm, filterTerm, filterYear]);
 
   async function generateReports() {
     setGenerating(true);
@@ -119,7 +109,7 @@ export default function TermReportsTab() {
       // Get assessment results for students in this form
       const { data: assessmentResults } = await supabase
         .from("assessment_results")
-        .select("student_id, marks_obtained, percentage, grade")
+        .select("student_id, mark, percentage, grade")
         .in("student_id", formStudents.map(s => s.id))
         .eq("is_published", true);
 
@@ -183,7 +173,7 @@ export default function TermReportsTab() {
           form_level: filterForm,
           total_marks: s.total,
           average_mark: Math.round(s.avg * 100) / 100,
-          overall_grade: zimGrade(s.avg),
+          overall_grade: gradeFor(s.avg),
           class_rank: idx + 1,
           class_size: classSize,
           assessment_data: assessmentResults?.filter(r => r.student_id === s.id) || [],
@@ -199,8 +189,8 @@ export default function TermReportsTab() {
 
       toast({ title: "Reports generated", description: `${reportsToInsert.length} reports created` });
       fetchReports();
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Error", description: errorMessage(err), variant: "destructive" });
     }
     setGenerating(false);
   }
@@ -281,7 +271,7 @@ export default function TermReportsTab() {
             <Select value={filterForm} onValueChange={setFilterForm}>
               <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
               <SelectContent>
-                {formOptions.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+                {FORM_LEVELS.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
@@ -362,12 +352,7 @@ export default function TermReportsTab() {
                     <TableCell className="text-xs">{report.students?.admission_number}</TableCell>
                     <TableCell className="font-semibold">{report.average_mark}%</TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={
-                        ["A*", "A"].includes(report.overall_grade) ? "bg-green-100 text-green-800" :
-                        report.overall_grade === "B" ? "bg-blue-100 text-blue-800" :
-                        report.overall_grade === "C" ? "bg-cyan-100 text-cyan-800" :
-                        "bg-amber-100 text-amber-800"
-                      }>
+                      <Badge variant="outline" className={gradeBadgeClass(report.overall_grade)}>
                         {report.overall_grade}
                       </Badge>
                     </TableCell>

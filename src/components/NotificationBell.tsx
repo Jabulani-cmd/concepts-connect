@@ -1,5 +1,4 @@
-// @ts-nocheck
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Bell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,24 +27,6 @@ export default function NotificationBell() {
 
   useEffect(() => {
     if (!user) return;
-    fetchNotifications();
-
-    const channel = supabase
-      .channel("teacher-notifications")
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
-        (payload) => {
-          setNotifications((prev) => [payload.new as Notification, ...prev]);
-        }
-      )
-      .subscribe();
-
-    return () => { supabase.removeChannel(channel); };
-  }, [user]);
-
-  useEffect(() => {
-    if (!user) return;
 
     const clearMessageNotifications = (event: Event) => {
       const conversationId = (event as CustomEvent<{ conversationId?: string }>).detail?.conversationId;
@@ -62,7 +43,7 @@ export default function NotificationBell() {
     return () => window.removeEventListener("messages:conversation-read", clearMessageNotifications);
   }, [user]);
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     const { data } = await supabase
       .from("notifications")
       .select("*")
@@ -70,7 +51,25 @@ export default function NotificationBell() {
       .order("created_at", { ascending: false })
       .limit(20);
     if (data) setNotifications(data);
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    fetchNotifications();
+
+    const channel = supabase
+      .channel("teacher-notifications")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
+        (payload) => {
+          setNotifications((prev) => [payload.new as Notification, ...prev]);
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [fetchNotifications, user]);
 
   const markAsRead = async (id: string) => {
     await supabase.from("notifications").update({ is_read: true }).eq("id", id);

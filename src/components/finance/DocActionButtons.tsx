@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Eye, Printer, Download, Mail } from "lucide-react";
@@ -7,7 +6,6 @@ import EmailDocumentDialog from "./EmailDocumentDialog";
 
 interface Props {
   actions: DocActions | (() => Promise<DocActions> | DocActions);
-  size?: "sm" | "icon";
   labels?: boolean;
   /** Enable the Email button (uses the document HTML to compose an email). */
   email?: {
@@ -23,7 +21,7 @@ async function resolve(a: Props["actions"]): Promise<DocActions> {
   return a;
 }
 
-export default function DocActionButtons({ actions, size = "icon", labels = false, email }: Props) {
+export default function DocActionButtons({ actions, labels = false, email }: Props) {
   const [emailOpen, setEmailOpen] = useState(false);
   const [emailHtml, setEmailHtml] = useState("");
 
@@ -34,9 +32,7 @@ export default function DocActionButtons({ actions, size = "icon", labels = fals
 
   const openEmail = async () => {
     const resolved = await resolve(actions);
-    // Pull the HTML from the action helpers via a hidden getter.
-    const html = (resolved as any).html ? (resolved as any).html() : "";
-    setEmailHtml(html);
+    setEmailHtml(resolved.html());
     setEmailOpen(true);
   };
 

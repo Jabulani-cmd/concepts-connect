@@ -1,5 +1,4 @@
-// @ts-nocheck
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,21 +7,25 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Trash2, Star, StarOff, ExternalLink, Link2, FileText, Video, Image, FolderOpen, Search } from "lucide-react";
+import { Plus, Trash2, Star, StarOff, ExternalLink, Link2, FileText, Video, Image, FolderOpen, Search, type LucideIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import type { SubjectOption } from "@/types/school";
+import type { Tables } from "@/integrations/supabase/types";
+
+type Resource = Tables<"teacher_resources"> & { subjects?: { name: string } | null };
 
 interface Props {
   userId: string;
-  subjects: any[];
+  subjects: SubjectOption[];
 }
 
-const typeIcons: Record<string, any> = { link: Link2, document: FileText, video: Video, image: Image };
+const typeIcons: Record<string, LucideIcon> = { link: Link2, document: FileText, video: Video, image: Image };
 const resourceTypes = ["link", "document", "video", "image", "other"];
 
 export default function ResourceLibraryTab({ userId, subjects }: Props) {
   const { toast } = useToast();
-  const [resources, setResources] = useState<any[]>([]);
+  const [resources, setResources] = useState<Resource[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({ subject_id: "", title: "", description: "", resource_type: "link", url: "", tags: "" });
   const [loading, setLoading] = useState(false);
@@ -31,9 +34,7 @@ export default function ResourceLibraryTab({ userId, subjects }: Props) {
   const [filterType, setFilterType] = useState("all");
   const [showFavOnly, setShowFavOnly] = useState(false);
 
-  useEffect(() => { fetchResources(); }, []);
-
-  const fetchResources = async () => {
+  const fetchResources = useCallback(async () => {
     const { data } = await supabase
       .from("teacher_resources")
       .select("*, subjects(name)")
@@ -41,7 +42,9 @@ export default function ResourceLibraryTab({ userId, subjects }: Props) {
       .order("is_favorite", { ascending: false })
       .order("created_at", { ascending: false });
     if (data) setResources(data);
-  };
+  }, [userId]);
+
+  useEffect(() => { fetchResources(); }, [fetchResources]);
 
   const handleSubmit = async () => {
     if (!form.title) { toast({ title: "Title is required", variant: "destructive" }); return; }
@@ -52,7 +55,7 @@ export default function ResourceLibraryTab({ userId, subjects }: Props) {
       title: form.title,
       description: form.description || null,
       resource_type: form.resource_type,
-      url: form.url || null,
+      file_url: form.url || null,
       tags: form.tags ? form.tags.split(",").map(t => t.trim()).filter(Boolean) : [],
     });
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -99,7 +102,7 @@ export default function ResourceLibraryTab({ userId, subjects }: Props) {
           <DialogContent>
             <DialogHeader><DialogTitle className="font-heading">Add Resource</DialogTitle></DialogHeader>
             <div className="space-y-4">
-              <div className="space-y-2"><Label>Title *</Label><Input value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="e.g. CAPS Past Papers 2024" /></div>
+              <div className="space-y-2"><Label>Title *</Label><Input value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="e.g. ZIMSEC Past Papers 2025" /></div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label>Subject</Label>
@@ -180,9 +183,9 @@ export default function ResourceLibraryTab({ userId, subjects }: Props) {
                       <Button variant="ghost" size="sm" onClick={() => toggleFav(r.id, r.is_favorite)}>
                         {r.is_favorite ? <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" /> : <StarOff className="h-3.5 w-3.5" />}
                       </Button>
-                      {r.url && (
+                      {r.file_url && (
                         <Button variant="ghost" size="sm" asChild>
-                          <a href={r.url} target="_blank" rel="noopener noreferrer"><ExternalLink className="h-3.5 w-3.5" /></a>
+                          <a href={r.file_url} target="_blank" rel="noopener noreferrer"><ExternalLink className="h-3.5 w-3.5" /></a>
                         </Button>
                       )}
                       <Button variant="ghost" size="sm" className="text-destructive" onClick={() => handleDelete(r.id)}><Trash2 className="h-3.5 w-3.5" /></Button>

@@ -6,7 +6,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 export default function StudentMyTimetable() {
   const { classes } = useAllocation();
   const subscription = useSubscription();
-  const myClass = classes[0]; // demo: Grade 8A
+  const myClass = classes[0]; // demo: Form 1A
 
   if (subscription.loading || !subscription.isActive) {
     return <SubscriptionGate feature="the timetable" hard><span /></SubscriptionGate>;

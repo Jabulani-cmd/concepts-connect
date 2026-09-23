@@ -1,16 +1,23 @@
-// @ts-nocheck
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import FullWeekTimetable from "@/components/shared/FullWeekTimetable";
+import type { Tables } from "@/integrations/supabase/types";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 
 interface Props {
   studentClassId: string | null;
   studentId?: string | null;
 }
 
+type TimetableEntry = Tables<"timetable_entries"> & {
+  subjects?: { name: string } | null;
+  staff?: { full_name: string } | null;
+  classes?: { name: string } | null;
+};
+
 export default function StudentTimetableTab({ studentClassId, studentId }: Props) {
-  const [entries, setEntries] = useState<any[]>([]);
-  const [sportsSchedule, setSportsSchedule] = useState<any[]>([]);
+  const [entries, setEntries] = useState<TimetableEntry[]>([]);
+  const [sportsSchedule, setSportsSchedule] = useState<Tables<"sports_schedule">[]>([]);
   const [sportsActivities, setSportsActivities] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [resolvedClassId, setResolvedClassId] = useState<string | null | undefined>(undefined);
@@ -46,7 +53,7 @@ export default function StudentTimetableTab({ studentClassId, studentId }: Props
         const { data: exact } = await supabase
           .from("classes")
           .select("id")
-          .eq("form_level", student.form)
+          .eq("level", student.form)
           .eq("stream", student.stream)
           .limit(1)
           .maybeSingle();
@@ -57,7 +64,7 @@ export default function StudentTimetableTab({ studentClassId, studentId }: Props
         const { data: fallback } = await supabase
           .from("classes")
           .select("id")
-          .eq("form_level", student.form)
+          .eq("level", student.form)
           .order("name")
           .limit(1)
           .maybeSingle();
@@ -106,7 +113,7 @@ export default function StudentTimetableTab({ studentClassId, studentId }: Props
 
     // Realtime: refresh whenever any timetable_entries row for this class changes
     // (e.g. admin published a new manual edit).
-    let channel: any;
+    let channel: RealtimeChannel | undefined;
     if (resolvedClassId) {
       channel = supabase
         .channel(`student-tt-${resolvedClassId}`)

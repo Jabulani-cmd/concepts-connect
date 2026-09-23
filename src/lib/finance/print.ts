@@ -45,7 +45,7 @@ export function openViewWindow(html: string) {
 // Render a fully-formed HTML document string into an offscreen iframe,
 // snapshot its body with html2canvas, and paginate onto an A4 jsPDF —
 // producing a real .pdf file that mirrors the on-screen branded template.
-async function renderHtmlToPdf(html: string): Promise<jsPDF> {
+export async function renderHtmlToPdf(html: string): Promise<jsPDF> {
   const iframe = document.createElement("iframe");
   iframe.style.position = "fixed";
   iframe.style.left = "-10000px";
@@ -77,8 +77,7 @@ async function renderHtmlToPdf(html: string): Promise<jsPDF> {
             }),
       ),
     );
-    // @ts-ignore
-    if (doc.fonts?.ready) { try { await doc.fonts.ready; } catch {} }
+    await doc.fonts?.ready.catch(() => undefined);
     await new Promise((r) => setTimeout(r, 100));
 
     const target = (doc.body || doc.documentElement) as HTMLElement;

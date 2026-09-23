@@ -10,6 +10,7 @@ import { Mail, ArrowLeft, CheckCircle } from "lucide-react";
 import schoolLogo from "@/assets/mavingtech-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { errorMessage } from "@/lib/errors";
 
 export default function ForgotPassword() {
   const { toast } = useToast();
@@ -29,8 +30,8 @@ export default function ForgotPassword() {
       } else {
         setSent(true);
       }
-    } catch (err: any) {
-      toast({ title: "Error", description: err?.message || "An unexpected error occurred", variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Error", description: errorMessage(err, "An unexpected error occurred"), variant: "destructive" });
     } finally {
       setLoading(false);
     }

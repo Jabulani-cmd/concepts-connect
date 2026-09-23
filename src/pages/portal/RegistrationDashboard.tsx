@@ -1,7 +1,5 @@
-// @ts-nocheck
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -13,15 +11,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Plus, Search, Edit, Eye, LogOut, UserPlus, GraduationCap, Users, Save, Loader2, X
+  Plus,
+  Search,
+  Eye,
+  LogOut,
+  UserPlus,
+  GraduationCap,
+  Users,
+  Save,
+  Loader2,
 } from "lucide-react";
 import schoolLogo from "@/assets/mavingtech-logo.png";
+import { errorMessage } from "@/lib/errors";
+import type { TablesInsert } from "@/integrations/supabase/types";
+import { DEFAULT_FORM, FORM_LEVELS } from "@/lib/forms";
 
-const formOptions = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 const streamOptions = ["A", "B", "C", "D", "Arts", "Sciences", "Commercials"];
 const genderOptions = ["Male", "Female"];
 
@@ -46,12 +53,12 @@ type Student = {
   created_at: string;
 };
 
-type ClassOption = { id: string; name: string; form_level: string | null; stream: string | null };
+type ClassOption = { id: string; name: string; level: string | null; stream: string | null };
 
 const emptyForm = {
   full_name: "",
   date_of_birth: "",
-  form: "Grade 8",
+  form: DEFAULT_FORM,
   stream: "",
   subject_combination: "",
   gender: "",
@@ -67,7 +74,7 @@ const emptyForm = {
 
 export default function RegistrationDashboard() {
   const { toast } = useToast();
-  const { signOut, user } = useAuth();
+  const { signOut } = useAuth();
   const navigate = useNavigate();
 
   const [students, setStudents] = useState<Student[]>([]);
@@ -100,12 +107,12 @@ export default function RegistrationDashboard() {
       .from("students")
       .select("*")
       .order("created_at", { ascending: false });
-    if (!error && data) setStudents(data as any);
+    if (!error && data) setStudents(data);
     setLoading(false);
   };
 
   const fetchClasses = async () => {
-    const { data } = await supabase.from("classes").select("id, name, form_level, stream").order("name");
+    const { data } = await supabase.from("classes").select("id, name, level, stream").order("name");
     if (data) setClasses(data);
   };
 
@@ -116,7 +123,7 @@ export default function RegistrationDashboard() {
     }
     setSaving(true);
     try {
-      const payload: any = {
+      const payload: TablesInsert<"students"> = {
         full_name: form.full_name.trim(),
         form: form.form,
         status: "active",
@@ -161,8 +168,8 @@ export default function RegistrationDashboard() {
       setShowRegister(false);
       setForm(emptyForm);
       fetchStudents();
-    } catch (err: any) {
-      toast({ title: "Registration failed", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Registration failed", description: errorMessage(err), variant: "destructive" });
     }
     setSaving(false);
   };
@@ -195,8 +202,8 @@ export default function RegistrationDashboard() {
       toast({ title: "Class assigned successfully!" });
       setShowClassAssign(null);
       setSelectedClassId("");
-    } catch (err: any) {
-      toast({ title: "Failed to assign class", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Failed to assign class", description: errorMessage(err), variant: "destructive" });
     }
     setSaving(false);
   };
@@ -299,7 +306,7 @@ export default function RegistrationDashboard() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Forms</SelectItem>
-                  {formOptions.map((f) => (
+                  {FORM_LEVELS.map((f) => (
                     <SelectItem key={f} value={f}>{f}</SelectItem>
                   ))}
                 </SelectContent>
@@ -388,7 +395,7 @@ export default function RegistrationDashboard() {
               <Select value={form.form} onValueChange={(v) => setForm({ ...form, form: v })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {formOptions.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+                  {FORM_LEVELS.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -529,7 +536,7 @@ export default function RegistrationDashboard() {
                   <SelectContent>
                     {classes.map((c) => (
                       <SelectItem key={c.id} value={c.id}>
-                        {c.name} {c.form_level ? `(${c.form_level})` : ""}
+                        {c.name} {c.level ? `(${c.level})` : ""}
                       </SelectItem>
                     ))}
                   </SelectContent>

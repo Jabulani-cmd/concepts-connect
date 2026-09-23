@@ -23,10 +23,10 @@ export default function Academics() {
     { icon: Palette, name: t("academics.subjects.arts.name"), desc: t("academics.subjects.arts.desc") },
   ];
   const results = [
-    { year: "2025", level: "NSC (Grade 10–11)", rate: "95%", distinctions: 142 },
-    { year: "2025", level: "NSC (Grade 12) / Matric", rate: "89%", distinctions: 67 },
-    { year: "2024", level: "NSC (Grade 10–11)", rate: "93%", distinctions: 128 },
-    { year: "2024", level: "NSC (Grade 12) / Matric", rate: "87%", distinctions: 58 },
+    { year: "2025", level: "ZIMSEC O-Level (Form 4)", rate: "95%", distinctions: 142 },
+    { year: "2025", level: "ZIMSEC A-Level (Upper Sixth)", rate: "89%", distinctions: 67 },
+    { year: "2024", level: "ZIMSEC O-Level (Form 4)", rate: "93%", distinctions: 128 },
+    { year: "2024", level: "ZIMSEC A-Level (Upper Sixth)", rate: "87%", distinctions: 58 },
   ];
 
   return (

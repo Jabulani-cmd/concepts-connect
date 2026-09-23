@@ -1,9 +1,6 @@
-// @ts-nocheck
-import { safeHtml } from "@/lib/utils";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -12,10 +9,19 @@ import { Search, Loader2, TrendingUp, TrendingDown, BarChart3 } from "lucide-rea
 import DocActionButtons from "@/components/finance/DocActionButtons";
 import { incomeExpenditureActions } from "@/lib/finance/documentActions";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
-import { formatMoney } from "@/lib/currency";
+import { formatMoney, formatUSD, fmtUSD } from "@/lib/currency";
+import type { Tables } from "@/integrations/supabase/types";
+import type { QueryData } from "@supabase/supabase-js";
 
-const fmt = (n: any): string => { const v=Number(n); return `US$ ${new Intl.NumberFormat("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number.isFinite(v)?v:0)}`; };
-const fmtZ = (n: any): string => { const v=Number(n); return `ZiG ${new Intl.NumberFormat("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number.isFinite(v)?v:0)}`; };
+const fmt = formatUSD;
+/** Formats an amount that is already in ZiG. */
+const fmtZ = (zig: number): string => `ZiG ${fmtUSD(zig)}`;
+
+const paymentsQuery = () => supabase.from("payments").select("*, students(full_name)").order("payment_date", { ascending: false });
+const supplierPaymentsQuery = () =>
+  supabase.from("supplier_payments").select("*, supplier_invoices(supplier_name)").order("payment_date", { ascending: false });
+type Payment = QueryData<ReturnType<typeof paymentsQuery>>[number];
+type SupplierPayment = QueryData<ReturnType<typeof supplierPaymentsQuery>>[number];
 const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 export default function IncomeExpenditureReport() {
@@ -24,42 +30,42 @@ export default function IncomeExpenditureReport() {
   const { rate, usdToZig } = useExchangeRate();
 
   const convertUsdToZig = useCallback(
-    (usdValue: any) => {
+    (usdValue: unknown) => {
       const usd = Number(usdValue);
       return Number.isFinite(usd) ? Number(usdToZig(usd).toFixed(2)) : 0;
     },
     [usdToZig],
   );
   const normalizeAmount = useCallback(
-    (row: any) => ({
+    <T extends { amount_usd: number }>(row: T): T & { amount_zig: number } => ({
       ...row,
       amount_zig: convertUsdToZig(row.amount_usd),
     }),
     [convertUsdToZig],
   );
 
-  const [payments, setPayments] = useState<any[]>([]);
-  const [expenses, setExpenses] = useState<any[]>([]);
-  const [supplierPayments, setSupplierPayments] = useState<any[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [expenses, setExpenses] = useState<Tables<"expenses">[]>([]);
+  const [supplierPayments, setSupplierPayments] = useState<SupplierPayment[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedYear, setSelectedYear] = useState(String(currentYear));
   const [selectedMonth, setSelectedMonth] = useState(String(currentMonth));
   const [search, setSearch] = useState("");
 
-  useEffect(() => { fetchData(); }, [rate]);
-
-  async function fetchData() {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     const [payRes, expRes, spRes] = await Promise.all([
-      supabase.from("payments").select("*, students(full_name)").order("payment_date", { ascending: false }),
+      paymentsQuery(),
       supabase.from("expenses").select("*").order("expense_date", { ascending: false }),
-      supabase.from("supplier_payments").select("*, supplier_invoices(supplier_name)").order("payment_date", { ascending: false }),
+      supplierPaymentsQuery(),
     ]);
     if (payRes.data) setPayments(payRes.data.map(normalizeAmount));
     if (expRes.data) setExpenses(expRes.data.map(normalizeAmount));
     if (spRes.data) setSupplierPayments(spRes.data.map(normalizeAmount));
     setLoading(false);
-  }
+  }, [normalizeAmount]);
+
+  useEffect(() => { fetchData(); }, [fetchData, rate]);
 
   const yearOptions = useMemo(() => {
     const years = new Set<string>();
@@ -67,7 +73,7 @@ export default function IncomeExpenditureReport() {
     expenses.forEach(e => years.add(new Date(e.expense_date).getFullYear().toString()));
     years.add(String(currentYear));
     return Array.from(years).sort().reverse();
-  }, [payments, expenses]);
+  }, [payments, expenses, currentYear]);
 
   // Filter by selected month/year
   const filterByMonth = (date: string) => {
@@ -95,7 +101,7 @@ export default function IncomeExpenditureReport() {
   const searchedSupplierPayments = monthSupplierPayments.filter(sp => {
     if (!search) return true;
     const s = search.toLowerCase();
-    return sp.supplier_invoices?.supplier_name?.toLowerCase().includes(s) || sp.reference_number?.toLowerCase().includes(s);
+    return sp.supplier_invoices?.supplier_name?.toLowerCase().includes(s) || sp.reference?.toLowerCase().includes(s);
   });
 
   // Totals
@@ -125,7 +131,7 @@ export default function IncomeExpenditureReport() {
   const periodLabel = `${months[Number(selectedMonth)]} ${selectedYear}`;
   const docActions = () => incomeExpenditureActions({
     periodLabel,
-    income: searchedPayments.map((p: any) => ({
+    income: searchedPayments.map((p) => ({
       date: p.payment_date,
       receipt: p.receipt_number,
       party: p.students?.full_name || "—",
@@ -134,7 +140,7 @@ export default function IncomeExpenditureReport() {
       zig: Number(p.amount_zig || 0),
       ref: p.reference_number,
     })),
-    expenses: searchedExpenses.map((e: any) => ({
+    expenses: searchedExpenses.map((e) => ({
       date: e.expense_date,
       category: e.category || "General",
       description: e.description || "",
@@ -142,11 +148,11 @@ export default function IncomeExpenditureReport() {
       usd: Number(e.amount_usd || 0),
       zig: Number(e.amount_zig || 0),
     })),
-    supplierPayments: searchedSupplierPayments.map((sp: any) => ({
+    supplierPayments: searchedSupplierPayments.map((sp) => ({
       date: sp.payment_date,
       supplier: sp.supplier_invoices?.supplier_name || "—",
       method: sp.payment_method,
-      ref: sp.reference_number,
+      ref: sp.reference,
       usd: Number(sp.amount_usd || 0),
       zig: Number(sp.amount_zig || 0),
     })),
@@ -361,7 +367,7 @@ export default function IncomeExpenditureReport() {
                           <TableCell>{sp.supplier_invoices?.supplier_name || "—"}</TableCell>
                           <TableCell>{sp.payment_method}</TableCell>
                           <TableCell className="text-right font-mono text-destructive">{formatMoney(sp.amount_usd)}</TableCell>
-                          <TableCell className="text-xs">{sp.reference_number || "—"}</TableCell>
+                          <TableCell className="text-xs">{sp.reference || "—"}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

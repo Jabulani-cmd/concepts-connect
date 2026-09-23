@@ -25,7 +25,7 @@ serve(async (req) => {
       });
     }
 
-    const systemPrompt = `You are an expert lesson plan creator for secondary school teachers in South Africa. Create detailed, structured lesson plans that follow best teaching practices. Always respond with a valid JSON object (no markdown, no code fences) with exactly these keys:
+    const systemPrompt = `You are an expert lesson plan creator for secondary school teachers in Zimbabwe. Create detailed, structured lesson plans that follow best teaching practices. Always respond with a valid JSON object (no markdown, no code fences) with exactly these keys:
 - title (string)
 - objectives (string, 3-5 bullet points separated by newlines)
 - materials_needed (string, comma-separated list)
@@ -42,7 +42,7 @@ serve(async (req) => {
 - Topic: ${topic}
 - Duration: ${duration_minutes || 40} minutes
 
-Make it engaging, age-appropriate, and aligned with the South African curriculum where applicable.`;
+Make it engaging, age-appropriate, and aligned with the ZIMSEC curriculum where applicable.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -119,9 +119,9 @@ Make it engaging, age-appropriate, and aligned with the South African curriculum
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("generate-lesson-plan error:", error);
-    return new Response(JSON.stringify({ error: error.message || "Failed to generate lesson plan" }), {
+    return new Response(JSON.stringify({ error: (error instanceof Error && error.message) || "Failed to generate lesson plan" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

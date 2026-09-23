@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,6 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import { Plus, Trash2, Sparkles, Wand2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -94,15 +92,15 @@ export default function TimetableSetupDialog({ open, aiMode, onOpenChange, onSub
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div><Label>Timetable Name</Label>
-              <Input value={v.name} onChange={(e) => upd({ name: e.target.value })} placeholder="Grade 7A - Term 2 2025" /></div>
+              <Input value={v.name} onChange={(e) => upd({ name: e.target.value })} placeholder="Form 1A - Term 2 2026" /></div>
             <div><Label>Type</Label>
               <Select value={v.type} onValueChange={(t) => upd({ type: t as "class" | "exam" })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent><SelectItem value="class">Class Timetable</SelectItem><SelectItem value="exam">Exam Timetable</SelectItem></SelectContent>
               </Select>
             </div>
-            <div><Label>Grade / Class</Label>
-              <Input value={v.classLabel} onChange={(e) => upd({ classLabel: e.target.value })} placeholder="Grade 7A" /></div>
+            <div><Label>Form / Class</Label>
+              <Input value={v.classLabel} onChange={(e) => upd({ classLabel: e.target.value })} placeholder="Form 1A" /></div>
             <div><Label>Academic Year</Label>
               <Input value={v.academicYear} onChange={(e) => upd({ academicYear: e.target.value })} /></div>
             <div><Label>Term</Label>
@@ -170,7 +168,7 @@ export default function TimetableSetupDialog({ open, aiMode, onOpenChange, onSub
                     <div><Label className="text-xs">Teacher</Label><Input value={s.teacher ?? ""} onChange={(e) => updSubject(i, { teacher: e.target.value })} /></div>
                     <div><Label className="text-xs">Room</Label><Input value={s.room ?? ""} onChange={(e) => updSubject(i, { room: e.target.value })} /></div>
                     <div><Label className="text-xs">Time</Label>
-                      <Select value={s.preferredTime ?? "any"} onValueChange={(x) => updSubject(i, { preferredTime: x as any })}>
+                      <Select value={s.preferredTime ?? "any"} onValueChange={(x) => updSubject(i, { preferredTime: x as SetupValue["subjects"][number]["preferredTime"] })}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="any">Any</SelectItem>

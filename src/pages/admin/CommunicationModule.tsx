@@ -1,5 +1,4 @@
-// @ts-nocheck
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,9 +9,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   MessageSquare, Plus, Send, FileText, Users, Bell, Trash2,
@@ -20,22 +19,15 @@ import {
   Copy, Variable
 } from "lucide-react";
 import { format } from "date-fns";
+import { errorMessage } from "@/lib/errors";
+import { FORM_LEVELS } from "@/lib/forms";
 
-type Template = {
-  id: string; name: string; template_text: string;
-  variables: string[] | null; category: string; created_at: string;
-};
-type CommLog = {
-  id: string; recipient_type: string; recipient_ids: string[] | null;
-  recipient_count: number; message: string; subject: string | null;
-  channel: string; status: string; scheduled_at: string | null;
-  sent_at: string | null; sent_by: string | null; template_id: string | null;
-  reference: string | null; error_message: string | null; created_at: string;
-};
-type Notification = {
-  id: string; user_id: string; title: string; message: string | null;
-  type: string; is_read: boolean; link: string | null; created_at: string;
-};
+type Template = Tables<"sms_templates">;
+type CommLog = Tables<"communication_logs">;
+type Notification = Tables<"notifications">;
+type StudentRecipient = Pick<Tables<"students">, "id" | "full_name" | "admission_number" | "form" | "user_id" | "guardian_phone" | "guardian_email">;
+type StaffRecipient = Pick<Tables<"staff">, "id" | "full_name" | "email" | "phone" | "user_id">;
+type ParentLink = Pick<Tables<"parent_students">, "parent_id" | "student_id">;
 
 const templateCategories = ["fee_reminder", "attendance", "exam_results", "meeting", "emergency", "general"];
 const recipientTypes = [
@@ -50,14 +42,13 @@ const channelOptions = [
   { value: "email", label: "Email", icon: Mail },
   { value: "notification", label: "In-App Notification", icon: Bell },
 ];
-const formLevels = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 
 const defaultTemplates = [
-  { name: "Fee Reminder", category: "fee_reminder", template_text: "Dear Parent/Guardian of {{student_name}}, this is a reminder that fees of ${{balance}} for {{term}} are due by {{due_date}}. Please make payment at your earliest convenience. MavingTech High School.", variables: ["student_name", "balance", "term", "due_date"] },
-  { name: "Attendance Alert", category: "attendance", template_text: "Dear Parent/Guardian, {{student_name}} was marked {{status}} on {{date}}. Please contact the school if you have any concerns. MavingTech High School.", variables: ["student_name", "status", "date"] },
-  { name: "Exam Results Released", category: "exam_results", template_text: "Dear Parent/Guardian, {{exam_name}} results for {{student_name}} are now available on the student portal. Please log in to view. MavingTech High School.", variables: ["exam_name", "student_name"] },
-  { name: "Meeting Notice", category: "meeting", template_text: "Dear {{recipient_name}}, you are invited to {{meeting_title}} on {{date}} at {{time}}, {{venue}}. Your attendance is important. MavingTech High School.", variables: ["recipient_name", "meeting_title", "date", "time", "venue"] },
-  { name: "Emergency Closure", category: "emergency", template_text: "URGENT: MavingTech High School will be closed on {{date}} due to {{reason}}. Students should remain at home. Normal operations resume on {{resume_date}}.", variables: ["date", "reason", "resume_date"] },
+  { name: "Fee Reminder", category: "fee_reminder", body: "Dear Parent/Guardian of {{student_name}}, this is a reminder that fees of ${{balance}} for {{term}} are due by {{due_date}}. Please make payment at your earliest convenience. MavingTech High School.", variables: ["student_name", "balance", "term", "due_date"] },
+  { name: "Attendance Alert", category: "attendance", body: "Dear Parent/Guardian, {{student_name}} was marked {{status}} on {{date}}. Please contact the school if you have any concerns. MavingTech High School.", variables: ["student_name", "status", "date"] },
+  { name: "Exam Results Released", category: "exam_results", body: "Dear Parent/Guardian, {{exam_name}} results for {{student_name}} are now available on the student portal. Please log in to view. MavingTech High School.", variables: ["exam_name", "student_name"] },
+  { name: "Meeting Notice", category: "meeting", body: "Dear {{recipient_name}}, you are invited to {{meeting_title}} on {{date}} at {{time}}, {{venue}}. Your attendance is important. MavingTech High School.", variables: ["recipient_name", "meeting_title", "date", "time", "venue"] },
+  { name: "Emergency Closure", category: "emergency", body: "URGENT: MavingTech High School will be closed on {{date}} due to {{reason}}. Students should remain at home. Normal operations resume on {{resume_date}}.", variables: ["date", "reason", "resume_date"] },
 ];
 
 export default function CommunicationModule() {
@@ -69,8 +60,9 @@ export default function CommunicationModule() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [logs, setLogs] = useState<CommLog[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [students, setStudents] = useState<any[]>([]);
-  const [staff, setStaff] = useState<any[]>([]);
+  const [students, setStudents] = useState<StudentRecipient[]>([]);
+  const [staff, setStaff] = useState<StaffRecipient[]>([]);
+  const [parentLinks, setParentLinks] = useState<ParentLink[]>([]);
 
   // Compose form
   const [recipientType, setRecipientType] = useState("all_parents");
@@ -85,7 +77,7 @@ export default function CommunicationModule() {
   // Template form
   const [templateDialog, setTemplateDialog] = useState(false);
   const [templateForm, setTemplateForm] = useState({
-    name: "", template_text: "", category: "general", variables: ""
+    name: "", body: "", category: "general", variables: ""
   });
 
   // Notification center
@@ -99,29 +91,30 @@ export default function CommunicationModule() {
   const [notifTargetType, setNotifTargetType] = useState("all_students");
   const [notifTargetForm, setNotifTargetForm] = useState("all");
 
-  useEffect(() => { fetchAll(); }, []);
-
-  const fetchAll = () => {
+  const fetchAll = useCallback(() => {
     fetchTemplates();
     fetchLogs();
     fetchNotifications();
     fetchStudents();
     fetchStaff();
-  };
+    fetchParentLinks();
+  }, []);
+
+  useEffect(() => { fetchAll(); }, [fetchAll]);
 
   const fetchTemplates = async () => {
     const { data } = await supabase.from("sms_templates").select("*").order("category");
-    if (data) setTemplates(data as Template[]);
+    if (data) setTemplates(data);
   };
 
   const fetchLogs = async () => {
     const { data } = await supabase.from("communication_logs").select("*").order("created_at", { ascending: false }).limit(100);
-    if (data) setLogs(data as CommLog[]);
+    if (data) setLogs(data);
   };
 
   const fetchNotifications = async () => {
     const { data } = await supabase.from("notifications").select("*").order("created_at", { ascending: false }).limit(200);
-    if (data) setNotifications(data as Notification[]);
+    if (data) setNotifications(data);
   };
 
   const fetchStudents = async () => {
@@ -134,18 +127,31 @@ export default function CommunicationModule() {
     if (data) setStaff(data);
   };
 
+  const fetchParentLinks = async () => {
+    const { data } = await supabase.from("parent_students").select("parent_id, student_id");
+    if (data) setParentLinks(data);
+  };
+
+  // Portal accounts of parents linked to the given students
+  const parentUserIds = (forStudents: StudentRecipient[]): string[] => {
+    const studentIds = new Set(forStudents.map(s => s.id));
+    return [...new Set(parentLinks.filter(l => studentIds.has(l.student_id)).map(l => l.parent_id))];
+  };
+
+  const studentsInForm = (form: string) => students.filter(s => form === "all" || s.form === form);
+
   // Template CRUD
   const saveTemplate = async () => {
-    if (!templateForm.name || !templateForm.template_text) return;
+    if (!templateForm.name || !templateForm.body) return;
     const vars = templateForm.variables.split(",").map(v => v.trim()).filter(Boolean);
     const { error } = await supabase.from("sms_templates").insert({
-      name: templateForm.name, template_text: templateForm.template_text,
+      name: templateForm.name, body: templateForm.body,
       category: templateForm.category, variables: vars
     });
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
     toast({ title: "Template saved!" });
     setTemplateDialog(false);
-    setTemplateForm({ name: "", template_text: "", category: "general", variables: "" });
+    setTemplateForm({ name: "", body: "", category: "general", variables: "" });
     fetchTemplates();
   };
 
@@ -166,7 +172,7 @@ export default function CommunicationModule() {
     setSelectedTemplate(templateId);
     const t = templates.find(t => t.id === templateId);
     if (t) {
-      setMessageText(t.template_text);
+      setMessageText(t.body);
       setSubject(t.name);
     }
   };
@@ -191,14 +197,13 @@ export default function CommunicationModule() {
   const getTargetUserIds = (): string[] => {
     switch (recipientType) {
       case "all_students":
-        return students.filter(s => s.user_id && (formFilter === "all" || s.form === formFilter)).map(s => s.user_id);
+        return studentsInForm(formFilter).filter(s => s.user_id).map(s => s.user_id!);
       case "all_staff":
-        return staff.filter(s => s.user_id).map(s => s.user_id);
+        return staff.filter(s => s.user_id).map(s => s.user_id!);
       case "all_parents":
-        // Parents don't have direct user_ids in students table; this would need parent_students
-        return [];
+        return parentUserIds(students);
       case "class_parents":
-        return [];
+        return parentUserIds(studentsInForm(formFilter));
       default:
         return [];
     }
@@ -235,12 +240,12 @@ export default function CommunicationModule() {
         await supabase.from("communication_logs").insert({
           recipient_type: recipientType,
           recipient_count: targetIds.length,
-          message: messageText,
+          body: messageText,
           subject: subject || null,
           channel: "notification",
           status: "sent",
           sent_at: new Date().toISOString(),
-          sent_by: user?.id,
+          user_id: user?.id,
           template_id: selectedTemplate || null
         });
         toast({ title: `Notification sent to ${targetIds.length} recipients!` });
@@ -249,11 +254,11 @@ export default function CommunicationModule() {
         await supabase.from("communication_logs").insert({
           recipient_type: recipientType,
           recipient_count: recipientCount,
-          message: messageText,
+          body: messageText,
           subject: subject || null,
           channel,
           status: "pending",
-          sent_by: user?.id,
+          user_id: user?.id,
           template_id: selectedTemplate || null,
           error_message: "SMS/Email provider not configured yet. Message logged for sending when provider is set up."
         });
@@ -269,8 +274,8 @@ export default function CommunicationModule() {
       setPreviewOpen(false);
       fetchLogs();
       fetchNotifications();
-    } catch (err: any) {
-      toast({ title: "Send failed", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Send failed", description: errorMessage(err), variant: "destructive" });
     }
     setSending(false);
   };
@@ -280,9 +285,11 @@ export default function CommunicationModule() {
     if (!notifTitle.trim()) return;
     let targetIds: string[] = [];
     if (notifTargetType === "all_students") {
-      targetIds = students.filter(s => s.user_id && (notifTargetForm === "all" || s.form === notifTargetForm)).map(s => s.user_id);
+      targetIds = studentsInForm(notifTargetForm).filter(s => s.user_id).map(s => s.user_id!);
     } else if (notifTargetType === "all_staff") {
-      targetIds = staff.filter(s => s.user_id).map(s => s.user_id);
+      targetIds = staff.filter(s => s.user_id).map(s => s.user_id!);
+    } else if (notifTargetType === "all_parents") {
+      targetIds = parentUserIds(studentsInForm(notifTargetForm));
     }
     if (targetIds.length === 0) {
       toast({ title: "No recipients found", variant: "destructive" }); return;
@@ -386,7 +393,7 @@ export default function CommunicationModule() {
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="all">All Forms</SelectItem>
-                            {formLevels.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+                            {FORM_LEVELS.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
                           </SelectContent>
                         </Select>
                       </div>
@@ -535,7 +542,7 @@ export default function CommunicationModule() {
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
                         </div>
-                        <p className="text-xs text-muted-foreground line-clamp-3 mb-2">{t.template_text}</p>
+                        <p className="text-xs text-muted-foreground line-clamp-3 mb-2">{t.body}</p>
                         {t.variables && t.variables.length > 0 && (
                           <div className="flex flex-wrap gap-1">
                             {t.variables.map(v => (
@@ -586,12 +593,12 @@ export default function CommunicationModule() {
                         <TableCell>
                           <div>
                             <span className="font-medium">{log.recipient_count}</span>
-                            <span className="block text-xs text-muted-foreground">{log.recipient_type.replace("_", " ")}</span>
+                            <span className="block text-xs text-muted-foreground">{(log.recipient_type ?? "").replace(/_/g, " ")}</span>
                           </div>
                         </TableCell>
                         <TableCell className="max-w-[200px]">
                           {log.subject && <span className="block text-xs font-medium">{log.subject}</span>}
-                          <span className="text-xs text-muted-foreground line-clamp-2">{log.message}</span>
+                          <span className="text-xs text-muted-foreground line-clamp-2">{log.body}</span>
                         </TableCell>
                         <TableCell>
                           {statusBadge(log.status)}
@@ -743,7 +750,7 @@ export default function CommunicationModule() {
             </div>
             <div>
               <Label>Message Template *</Label>
-              <Textarea value={templateForm.template_text} onChange={e => setTemplateForm(p => ({ ...p, template_text: e.target.value }))} rows={4} placeholder="Dear {{recipient_name}}, your balance is ${{balance}}..." />
+              <Textarea value={templateForm.body} onChange={e => setTemplateForm(p => ({ ...p, body: e.target.value }))} rows={4} placeholder="Dear {{recipient_name}}, your balance is ${{balance}}..." />
             </div>
             <div>
               <Label>Variables (comma-separated)</Label>
@@ -765,18 +772,19 @@ export default function CommunicationModule() {
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all_students">All Students</SelectItem>
+                  <SelectItem value="all_parents">Parents</SelectItem>
                   <SelectItem value="all_staff">All Staff</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            {notifTargetType === "all_students" && (
+            {notifTargetType !== "all_staff" && (
               <div>
                 <Label>Form</Label>
                 <Select value={notifTargetForm} onValueChange={setNotifTargetForm}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Forms</SelectItem>
-                    {formLevels.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+                    {FORM_LEVELS.map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -12,13 +11,19 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { formatMoney } from "@/lib/currency";
 import { format } from "date-fns";
 import CurrencyConverter from "@/components/finance/CurrencyConverter";
+import type { Tables } from "@/integrations/supabase/types";
+import { planFeatures } from "@/lib/plans";
+
+type SubscriptionPayment = Tables<"payments"> & {
+  subscriptions?: (Partial<Tables<"subscriptions">> & { subscription_plans?: { name: string } | null }) | null;
+};
 
 export default function ParentBilling() {
   const nav = useNavigate();
   const { user } = useAuth();
   const sub = useSubscription();
-  const [plans, setPlans] = useState<any[]>([]);
-  const [payments, setPayments] = useState<any[]>([]);
+  const [plans, setPlans] = useState<Tables<"subscription_plans">[]>([]);
+  const [payments, setPayments] = useState<SubscriptionPayment[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -31,7 +36,7 @@ export default function ParentBilling() {
               .eq("parent_id", user.id)
               .order("created_at", { ascending: false })
               .limit(10)
-          : Promise.resolve({ data: [] }),
+          : Promise.resolve({ data: [] as SubscriptionPayment[] }),
       ]);
       setPlans(p || []);
       setPayments(pay || []);
@@ -123,7 +128,7 @@ export default function ParentBilling() {
                     </div>
                     {p.description && <p className="text-sm mt-3">{p.description}</p>}
                     <ul className="mt-4 space-y-1.5">
-                      {(p.features || []).slice(0, 6).map((f: string) => (
+                      {planFeatures(p).slice(0, 6).map((f) => (
                         <li key={f} className="flex gap-2 text-sm">
                           <Check className="w-4 h-4 text-teal-600 mt-0.5 shrink-0" />
                           <span>{f}</span>

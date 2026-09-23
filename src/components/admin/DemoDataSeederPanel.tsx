@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Database, Sparkles, Trash2, CheckCircle2, Loader2, Download, Users, GraduationCap, BookOpen, Building2, CalendarClock, UserCog } from "lucide-react";
@@ -7,24 +6,50 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAllocation } from "@/contexts/AllocationContext";
 import { useDemoPeople } from "@/contexts/DemoPeopleContext";
-import { generateDemoSeed, DEMO_PERIODS } from "@/lib/demoSeeder";
+import { generateDemoSeed, DEMO_PERIODS, DEMO_EMAIL_DOMAIN, DEMO_PASSWORDS, type DemoSeed } from "@/lib/demoSeeder";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { errorMessage } from "@/lib/errors";
+import type { TablesInsert } from "@/integrations/supabase/types";
 
 const STEPS = [
-  "Generating venues and classrooms",
-  "Creating ZIMSEC subjects and curriculum",
-  "Provisioning 40 teacher accounts",
-  "Enrolling 500 learners across Form 1–6",
-  "Assigning 1 000 parents and guardians",
-  "Building class allocations",
-  "Solving weekly timetable",
-  "Provisioning login accounts (admin + teachers)",
+  "Generating classes, subjects and venues",
+  "Assigning 30 teachers and solving the weekly timetable",
+  "Enrolling 500 students across Forms 1–6",
+  "Saving the school to the database",
+  "Creating login accounts",
+  "Linking parents to their children",
   "Publishing to all portals",
 ];
+
+type Seed = DemoSeed;
+type AccountPayload = {
+  email: string;
+  password: string;
+  full_name: string;
+  role: "admin" | "teacher" | "student" | "parent";
+  admission_number?: string;
+  children?: { admission_number: string; relationship: string }[];
+};
+
+const ACCOUNTS_PER_CALL = 40;
+const PARALLEL_CALLS = 3;
+
+const chunk = <T,>(items: T[], size: number): T[][] =>
+  Array.from({ length: Math.ceil(items.length / size) }, (_, i) => items.slice(i * size, i * size + size));
+
+const DEPARTMENT: Record<string, string> = {
+  Mathematics: "Mathematics", "Pure Mathematics": "Mathematics",
+  "English Language": "Languages", Shona: "Languages",
+  "Combined Science": "Sciences", Physics: "Sciences", Chemistry: "Sciences", Biology: "Sciences",
+  History: "Humanities", Geography: "Humanities", "Heritage Studies": "Humanities",
+  "Computer Science": "Technical", Agriculture: "Technical",
+  "Physical Education": "Sports",
+  "Principles of Accounting": "Commercials", Accounting: "Commercials", Commerce: "Commercials",
+  "Business Studies": "Commercials", Economics: "Commercials",
+};
 
 export default function DemoDataSeederPanel() {
   const alloc = useAllocation();
@@ -33,289 +58,221 @@ export default function DemoDataSeederPanel() {
 
   const [running, setRunning] = useState(false);
   const [stepIdx, setStepIdx] = useState(0);
+  const [accountProgress, setAccountProgress] = useState<{ done: number; total: number; failed: number } | null>(null);
   const [summary, setSummary] = useState<null | {
-    students: number; parents: number; teachers: number;
+    students: number; parents: number; teachers: number; logins: number; failedLogins: number;
     subjects: number; classes: number; rooms: number; periods: number;
   }>(null);
   const [showSummary, setShowSummary] = useState(false);
 
   const seeded = people.loadedAt != null;
 
-  async function provisionAuthAccounts(seed: ReturnType<typeof generateDemoSeed>) {
-    const adminAcct = { email: "admin@schooldemo.com", password: "Demo@2025", full_name: "Demo Administrator", role: "admin" as const };
-    const teacherAccts = seed.teachers.map(t => ({
-      email: t.email, password: "Teacher@2025", full_name: t.name, role: "teacher" as const,
-    }));
-    const studentAccts = seed.students.map(s => ({
-      email: s.email, password: s.password, full_name: s.fullName, role: "student" as const,
-    }));
-    const parentAccts = seed.parents.map(p => ({
-      email: p.email, password: p.password, full_name: p.fullName, role: "parent" as const,
-    }));
+  /** Subjects, classes, staff, students, class subjects and both timetable views. */
+  async function persistSchool(seed: Seed) {
+    const year = String(new Date().getFullYear());
 
-    // Phase 1 (blocking): admin + teachers so the demo can log in immediately.
-    const priority = [adminAcct, ...teacherAccts];
-    const { error: e1 } = await supabase.functions.invoke("seed-demo-accounts", { body: { accounts: priority } });
-    if (e1) throw e1;
+    // Subjects — reuse by name.
+    const subjectNames = seed.subjects.map((s) => s.name);
+    const { data: existingSubs } = await supabase.from("subjects").select("id, name").in("name", subjectNames);
+    const subByName = new Map((existingSubs ?? []).map((s) => [s.name, s.id]));
+    const missingSubs = seed.subjects.filter((s) => !subByName.has(s.name)).map((s) => ({ name: s.name, is_examinable: s.name !== "Study Hall" }));
+    if (missingSubs.length) {
+      const { data: ins, error } = await supabase.from("subjects").insert(missingSubs).select("id, name");
+      if (error) throw error;
+      (ins ?? []).forEach((r) => subByName.set(r.name, r.id));
+    }
+    const subIdMap = new Map(seed.subjects.map((s) => [s.id, subByName.get(s.name)!]));
 
-    // Phase 2 (background): students + parents in chunks of 50, then link accounts to records.
-    const rest = [...studentAccts, ...parentAccts];
-    (async () => {
-      for (let i = 0; i < rest.length; i += 50) {
-        const chunk = rest.slice(i, i + 50);
-        try { await supabase.functions.invoke("seed-demo-accounts", { body: { accounts: chunk } }); }
-        catch (err) { console.error("seed-demo-accounts chunk failed", err); }
+    // Classes — before students, so the roster trigger links each student to their class.
+    const classNames = seed.classes.map((c) => c.name);
+    const { data: existingCls } = await supabase.from("classes").select("id, name").in("name", classNames);
+    const clsByName = new Map((existingCls ?? []).map((c) => [c.name, c.id]));
+    const classRow = (c: Seed["classes"][number]) => ({
+      name: c.name, level: `Form ${c.formLevel}`, stream: c.name.slice(-1), capacity: 40, academic_year: year,
+    });
+    for (const c of seed.classes.filter((x) => clsByName.has(x.name))) {
+      await supabase.from("classes").update(classRow(c)).eq("id", clsByName.get(c.name)!);
+    }
+    const missingCls = seed.classes.filter((c) => !clsByName.has(c.name)).map(classRow);
+    if (missingCls.length) {
+      const { data: ins, error } = await supabase.from("classes").insert(missingCls).select("id, name");
+      if (error) throw error;
+      (ins ?? []).forEach((r) => clsByName.set(r.name, r.id));
+    }
+    const classIdMap = new Map(seed.classes.map((c) => [c.id, clsByName.get(c.name)!]));
+
+    // Staff — one record per teacher; logins are attached later by email.
+    const teacherEmails = seed.teachers.map((t) => t.email);
+    const { data: existingStaff } = await supabase.from("staff").select("id, email").in("email", teacherEmails);
+    const staffByEmail = new Map((existingStaff ?? []).map((s) => [s.email?.toLowerCase(), s.id]));
+    const staffIdMap = new Map<string, string>();
+    for (const [i, t] of seed.teachers.entries()) {
+      const subjectsTaught = t.qualifiedSubjects.map((sid) => seed.subjects.find((s) => s.id === sid)?.name).filter((n): n is string => !!n);
+      const row = {
+        full_name: t.name, email: t.email, role: "teacher", category: "teaching", status: "active",
+        department: DEPARTMENT[subjectsTaught[0] ?? ""] ?? "Teaching",
+        subjects_taught: subjectsTaught,
+        phone: `+26377${2000000 + i}`,
+      };
+      const existing = staffByEmail.get(t.email.toLowerCase());
+      if (existing) {
+        await supabase.from("staff").update(row).eq("id", existing);
+        staffIdMap.set(t.id, existing);
+      } else {
+        const { data: ins, error } = await supabase.from("staff").insert(row).select("id").single();
+        if (error) throw error;
+        staffIdMap.set(t.id, ins.id);
       }
-      try { await linkPeopleAccounts(seed); }
-      catch (err) { console.error("linking demo accounts failed", err); }
-      toast({ title: "All demo logins ready", description: `Learners & parents provisioned and linked (${rest.length} accounts).` });
-    })();
-  }
-
-  // Link learner logins to their student records and connect parents to their children,
-  // so student/parent portals resolve the right person at sign-in.
-  async function linkPeopleAccounts(seed: ReturnType<typeof generateDemoSeed>) {
-    const emails = [...seed.students.map(s => s.email), ...seed.parents.map(p => p.email)];
-    const uidByEmail = new Map<string, string>();
-    for (let i = 0; i < emails.length; i += 200) {
-      const { data } = await supabase.from("profiles").select("id, email").in("email", emails.slice(i, i + 200));
-      (data ?? []).forEach(p => { if (p.email) uidByEmail.set(p.email.toLowerCase(), p.id); });
+    }
+    for (const c of seed.classes) {
+      const teacher = staffIdMap.get(c.classTeacherId ?? "");
+      if (teacher) await supabase.from("classes").update({ class_teacher_id: teacher }).eq("id", classIdMap.get(c.id)!);
     }
 
-    const admNos = seed.students.map(s => s.admissionNumber);
-    const studentIdByAdm = new Map<string, string>();
-    for (let i = 0; i < admNos.length; i += 200) {
-      const { data } = await supabase.from("students").select("id, admission_number").in("admission_number", admNos.slice(i, i + 200));
-      (data ?? []).forEach(r => studentIdByAdm.set(r.admission_number, r.id));
-    }
-
-    // 1) students.user_id
-    for (const s of seed.students) {
-      const uid = uidByEmail.get(s.email.toLowerCase());
-      const sid = studentIdByAdm.get(s.admissionNumber);
-      if (uid && sid) await supabase.from("students").update({ user_id: uid }).eq("id", sid);
-    }
-
-    // 2) parent ↔ student links
-    const links = seed.parents.map(p => {
-      const stu = seed.students.find(s => s.id === p.studentId);
-      const parentUid = uidByEmail.get(p.email.toLowerCase());
-      const sid = stu ? studentIdByAdm.get(stu.admissionNumber) : null;
-      return parentUid && sid ? { parent_id: parentUid, student_id: sid } : null;
-    }).filter(Boolean) as Array<{ parent_id: string; student_id: string }>;
-    for (let i = 0; i < links.length; i += 100) {
-      const chunk = links.slice(i, i + 100);
-      await supabase.from("parent_students").upsert(chunk, { onConflict: "parent_id,student_id", ignoreDuplicates: true });
-      await supabase.from("parent_student_links").upsert(chunk, { onConflict: "parent_id,student_id", ignoreDuplicates: true });
-    }
-  }
-
-  async function persistStudentsToDb(seed: ReturnType<typeof generateDemoSeed>) {
-    // Insert seeded students into the DB so they appear in the Admin → Students section
-    // (which reads from the `students` table). Logged-in admin satisfies RLS.
-    const rows = seed.students.map(s => {
+    // Students — upserted by admission number so re-seeding keeps their logins.
+    // The first parent listed for a family (the mother, or the guardian) is the student's contact.
+    const guardianOf = new Map([...seed.parents].reverse().flatMap((p) => p.childIds.map((id) => [id, p] as const)));
+    const studentRows = seed.students.map((s) => {
       const [first, ...rest] = s.fullName.split(" ");
-      const last = rest.join(" ");
-      const parent = seed.parents.find(p => p.studentId === s.id);
+      const parent = guardianOf.get(s.id);
       return {
         admission_number: s.admissionNumber,
         full_name: s.fullName,
         first_name: first,
-        last_name: last,
+        last_name: rest.join(" "),
         email: s.email,
         date_of_birth: s.dob,
         gender: s.gender,
         form: `Form ${s.form}`,
         stream: s.stream,
-        class: s.className,
-        boarding_status: s.boardingStatus,
+        class: `Form ${s.form}${s.stream}`,
+        boarding_status: s.boarding ? "boarding" : "day",
+        province: s.province,
+        address: s.address,
         status: "active",
+        enrollment_date: `${year}-01-10`,
         guardian_name: parent?.fullName ?? null,
         guardian_phone: parent?.phone ?? null,
         guardian_email: parent?.email ?? null,
+        emergency_contact: parent?.phone ?? null,
       };
     });
-    // Chunk to keep request size small.
-    for (let i = 0; i < rows.length; i += 60) {
-      const chunk = rows.slice(i, i + 60);
-      const { error } = await supabase
-        .from("students")
-        .upsert(chunk, { onConflict: "admission_number" });
+    for (const rows of chunk(studentRows, 100)) {
+      const { error } = await supabase.from("students").upsert(rows, { onConflict: "admission_number" });
       if (error) throw error;
     }
-  }
 
-  async function persistTimetableToDb(seed: ReturnType<typeof generateDemoSeed>) {
-    // 1) Subjects — upsert by name
-    const subjectNames = seed.subjects.map(s => s.name);
-    const { data: existingSubs } = await supabase.from("subjects").select("id, name").in("name", subjectNames);
-    const subByName = new Map((existingSubs ?? []).map(s => [s.name, s.id]));
-    const missingSubs = seed.subjects.filter(s => !subByName.has(s.name)).map(s => ({ name: s.name, is_examinable: true }));
-    if (missingSubs.length) {
-      const { data: ins } = await supabase.from("subjects").insert(missingSubs).select("id, name");
-      (ins ?? []).forEach(r => subByName.set(r.name, r.id));
-    }
-    const subIdMap = new Map(seed.subjects.map(s => [s.id, subByName.get(s.name)!]));
-
-    // 2) Classes — upsert by name
-    const classNames = seed.classes.map(c => c.name);
-    const { data: existingCls } = await supabase.from("classes").select("id, name").in("name", classNames);
-    const clsByName = new Map((existingCls ?? []).map(c => [c.name, c.id]));
-    const missingCls = seed.classes.filter(c => !clsByName.has(c.name)).map(c => ({
-      name: c.name, level: `Form ${c.name.match(/\d+/)?.[0] ?? ""}`, stream: c.stream, capacity: c.studentCount ?? 40,
-      academic_year: String(new Date().getFullYear()),
-    }));
-    if (missingCls.length) {
-      const { data: ins } = await supabase.from("classes").insert(missingCls).select("id, name");
-      (ins ?? []).forEach(r => clsByName.set(r.name, r.id));
-    }
-    const classIdMap = new Map(seed.classes.map(c => [c.id, clsByName.get(c.name)!]));
-
-    // 3) Staff — link to auth user via profiles.email, then upsert staff per teacher
-    const teacherEmails = seed.teachers.map(t => t.email);
-    const { data: profs } = await supabase.from("profiles").select("id, email").in("email", teacherEmails);
-    const uidByEmail = new Map((profs ?? []).map(p => [p.email?.toLowerCase(), p.id]));
-
-    const { data: existingStaff } = await supabase.from("staff").select("id, email, user_id").in("email", teacherEmails);
-    const staffByEmail = new Map((existingStaff ?? []).map(s => [s.email?.toLowerCase(), s]));
-
-    // Department mapping (first qualified subject → dept name)
-    const DEPT: Record<string, string> = {
-      Mathematics: "Mathematics", English: "Languages", Shona: "Languages", Ndebele: "Languages",
-      Physics: "Sciences", Chemistry: "Sciences", Biology: "Sciences",
-      History: "Humanities", Geography: "Humanities", "Religious Studies": "Humanities",
-      "Computer Science": "Technical", "Technical Graphics": "Technical", Agriculture: "Technical",
-      "Physical Education": "Sports", Art: "Arts", Music: "Arts",
-      Accounts: "Commercials", Commerce: "Commercials", Business: "Commercials",
-    };
-    const deptFor = (t: any) => {
-      const subName = seed.subjects.find(s => s.id === t.qualifiedSubjects?.[0])?.name ?? "";
-      return DEPT[subName] ?? "Teaching";
-    };
-
-    const staffIdMap = new Map<string, string>();
-    for (const t of seed.teachers) {
-      const key = t.email.toLowerCase();
-      const uid = uidByEmail.get(key) ?? null;
-      const existing = staffByEmail.get(key);
-      const subjectsTaught = t.qualifiedSubjects.map(sid => seed.subjects.find(s => s.id === sid)?.name).filter(Boolean);
-      const dept = deptFor(t);
-      if (existing) {
-        staffIdMap.set(t.id, existing.id);
-        await supabase.from("staff").update({
-          user_id: uid ?? existing.user_id ?? null,
-          role: "teacher", department: dept,
-          category: "teaching", status: "active",
-          subjects_taught: subjectsTaught,
-        }).eq("id", existing.id);
-      } else {
-        const { data: ins, error } = await supabase.from("staff").insert({
-          full_name: t.name, email: t.email, user_id: uid,
-          role: "teacher", department: dept,
-          category: "teaching", status: "active",
-          subjects_taught: subjectsTaught,
-        }).select("id").single();
-        if (!error && ins) staffIdMap.set(t.id, ins.id);
-        else if (error) console.error("staff insert failed", t.email, error);
-      }
-    }
-
-    // 4) Patch class_teacher_id on classes
-    for (const c of seed.classes) {
-      const dbCls = classIdMap.get(c.id);
-      const dbStaff = staffIdMap.get(c.classTeacherId ?? "");
-      if (dbCls && dbStaff) {
-        await supabase.from("classes").update({ class_teacher_id: dbStaff }).eq("id", dbCls);
-      }
-    }
-
-    // 5) class_subjects — upsert (class_id, subject_id, teacher_id)
-    const csRows = seed.allocations.map(a => ({
+    // Class subjects (who teaches what, per class).
+    const csRows = seed.allocations.map((a) => ({
       class_id: classIdMap.get(a.classId)!,
       subject_id: subIdMap.get(a.subjectId)!,
       teacher_id: staffIdMap.get(a.teacherId) ?? null,
-    })).filter(r => r.class_id && r.subject_id);
-    for (let i = 0; i < csRows.length; i += 100) {
-      const chunk = csRows.slice(i, i + 100);
-      await supabase.from("class_subjects").upsert(chunk, { onConflict: "class_id,subject_id" });
+    })).filter((r) => r.class_id && r.subject_id);
+    for (const rows of chunk(csRows, 100)) {
+      const { error } = await supabase.from("class_subjects").upsert(rows, { onConflict: "class_id,subject_id" });
+      if (error) throw error;
     }
 
-    // 6) timetable_entries — wipe demo term then insert (FullWeekTimetable widget)
+    // timetable_entries — the weekly grid used by the student, teacher and parent portals.
     await supabase.from("timetable_entries").delete().eq("term", "DEMO");
-    const ttRows = seed.slots.filter(s => s.subjectId).map(s => {
-      const room = seed.rooms.find(r => r.id === s.roomId);
-      return {
-        class_id: classIdMap.get(s.classId)!,
-        subject_id: subIdMap.get(s.subjectId!)!,
-        teacher_id: staffIdMap.get(s.teacherId!) ?? null,
-        day_of_week: s.day,
-        start_time: s.startTime,
-        end_time: s.endTime,
-        room: room?.name ?? null,
-        term: "DEMO",
-      };
-    }).filter(r => r.class_id && r.subject_id);
-    for (let i = 0; i < ttRows.length; i += 100) {
-      const chunk = ttRows.slice(i, i + 100);
-      await supabase.from("timetable_entries").insert(chunk);
+    const ttRows = seed.slots.filter((s) => s.subjectId).map((s) => ({
+      class_id: classIdMap.get(s.classId)!,
+      subject_id: subIdMap.get(s.subjectId!)!,
+      teacher_id: staffIdMap.get(s.teacherId!) ?? null,
+      day_of_week: s.day,
+      start_time: s.startTime,
+      end_time: s.endTime,
+      room: seed.rooms.find((r) => r.id === s.roomId)?.name ?? null,
+      term: "DEMO",
+    })).filter((r) => r.class_id && r.subject_id);
+    for (const rows of chunk(ttRows, 200)) {
+      const { error } = await supabase.from("timetable_entries").insert(rows);
+      if (error) throw error;
     }
 
-    // 7) tt_definitions + tt_slots — PublishedTimetableWidget across all portals
+    // tt_definitions + tt_slots — the published timetable widget.
     await supabase.from("tt_definitions").delete().like("name", "DEMO %");
-    // period 1..8 → visible row index (4=Break, 7=Lunch)
     const periodToRow: Record<number, number> = { 1: 1, 2: 2, 3: 3, 4: 5, 5: 6, 6: 8, 7: 9, 8: 10 };
     const breakRows = [
       { period_index: 4, start_time: "09:45", end_time: "10:00", break_label: "Break" },
       { period_index: 7, start_time: "11:30", end_time: "12:00", break_label: "Lunch" },
     ];
     for (const c of seed.classes) {
-      const dbClsId = classIdMap.get(c.id);
-      if (!dbClsId) continue;
       const { data: def, error: defErr } = await supabase.from("tt_definitions").insert({
         name: `DEMO ${c.name}`, type: "class", class_label: c.name,
-        term: "DEMO", academic_year: String(new Date().getFullYear()),
+        term: "DEMO", academic_year: year,
         school_days: [1, 2, 3, 4, 5], period_minutes: 45, periods_per_day: 8,
         day_start_time: "07:30", status: "active",
       }).select("id").single();
-      if (defErr || !def) { console.error("tt_definitions insert failed", c.name, defErr); continue; }
+      if (defErr) throw defErr;
 
-      const classSlots = seed.slots.filter(s => s.classId === c.id && s.subjectId);
-      const slotRows: any[] = [];
+      const slotRows: TablesInsert<"tt_slots">[] = [];
       for (let day = 1; day <= 5; day++) {
         for (const b of breakRows) {
-          slotRows.push({
-            definition_id: def.id, day_of_week: day, period_index: b.period_index,
-            start_time: b.start_time, end_time: b.end_time,
-            is_break: true, break_label: b.break_label,
-          });
+          slotRows.push({ definition_id: def.id, day_of_week: day, ...b, is_break: true });
         }
-        for (const s of classSlots.filter(x => x.day === day - 1)) {
-          const subj = seed.subjects.find(x => x.id === s.subjectId);
-          const teach = seed.teachers.find(x => x.id === s.teacherId);
-          const room = seed.rooms.find(x => x.id === s.roomId);
+        for (const s of seed.slots.filter((x) => x.classId === c.id && x.subjectId && x.day === day - 1)) {
+          const subj = seed.subjects.find((x) => x.id === s.subjectId);
           slotRows.push({
             definition_id: def.id, day_of_week: day,
             period_index: periodToRow[s.period] ?? s.period,
             start_time: s.startTime, end_time: s.endTime, is_break: false,
             subject_name: subj?.name ?? null, subject_color: subj?.color ?? null,
-            teacher_name: teach?.name ?? null, room: room?.name ?? null,
+            teacher_name: seed.teachers.find((x) => x.id === s.teacherId)?.name ?? null,
+            room: seed.rooms.find((x) => x.id === s.roomId)?.name ?? null,
           });
         }
       }
-      for (let i = 0; i < slotRows.length; i += 100) {
-        await supabase.from("tt_slots").insert(slotRows.slice(i, i + 100));
-      }
+      const { error } = await supabase.from("tt_slots").insert(slotRows);
+      if (error) throw error;
     }
+  }
+
+  /** Every login, created in parallel batches. Parents go last so their children's logins already exist. */
+  async function provisionAccounts(seed: Seed): Promise<{ total: number; failed: number }> {
+    const admission = new Map(seed.students.map((s) => [s.id, s.admissionNumber]));
+    const staffAndStudents: AccountPayload[] = [
+      { email: `admin@${DEMO_EMAIL_DOMAIN}`, password: DEMO_PASSWORDS.admin, full_name: "Demo Administrator", role: "admin" },
+      ...seed.teachers.map((t) => ({ email: t.email, password: DEMO_PASSWORDS.teacher, full_name: t.name, role: "teacher" as const })),
+      ...seed.students.map((s) => ({ email: s.email, password: s.password, full_name: s.fullName, role: "student" as const, admission_number: s.admissionNumber })),
+    ];
+    const parents: AccountPayload[] = seed.parents.map((p) => ({
+      email: p.email, password: p.password, full_name: p.fullName, role: "parent",
+      children: p.childIds.map((id) => ({ admission_number: admission.get(id)!, relationship: p.relationship })),
+    }));
+    const total = staffAndStudents.length + parents.length;
+    let done = 0;
+    let failed = 0;
+    setAccountProgress({ done, total, failed });
+
+    const run = async (accounts: AccountPayload[]) => {
+      const batches = chunk(accounts, ACCOUNTS_PER_CALL);
+      let next = 0;
+      const worker = async () => {
+        while (next < batches.length) {
+          const batch = batches[next++];
+          const { data, error } = await supabase.functions.invoke("seed-demo-accounts", { body: { accounts: batch } });
+          if (error) failed += batch.length;
+          else failed += Number(data?.errors ?? 0);
+          done += batch.length;
+          setAccountProgress({ done, total, failed });
+        }
+      };
+      await Promise.all(Array.from({ length: PARALLEL_CALLS }, worker));
+    };
+
+    await run(staffAndStudents);
+    setStepIdx(5);
+    await run(parents);
+    return { total, failed };
   }
 
   async function handleLoad() {
     setRunning(true);
+    setAccountProgress(null);
     setStepIdx(0);
-    for (let i = 0; i < 7; i++) {
-      await new Promise(r => setTimeout(r, 300));
-      setStepIdx(i + 1);
-    }
     const seed = generateDemoSeed();
+    setStepIdx(1);
     alloc.replaceAllData({
       teachers: seed.teachers,
       subjects: seed.subjects,
@@ -324,74 +281,90 @@ export default function DemoDataSeederPanel() {
       allocations: seed.allocations,
       slots: seed.slots,
     });
+    setStepIdx(2);
     people.setSeed({ students: seed.students, parents: seed.parents });
 
-    setStepIdx(7);
     try {
-      await persistStudentsToDb(seed);
-    } catch (e: any) {
-      toast({ title: "Saving students failed", description: e?.message || "Could not save students to the database", variant: "destructive" });
-    }
-    try {
-      await provisionAuthAccounts(seed);
-    } catch (e: any) {
-      toast({ title: "Account provisioning failed", description: e?.message || "Could not create login accounts", variant: "destructive" });
-    }
-    // Auth accounts must exist before we can link staff.user_id via profiles email.
-    try {
-      await persistTimetableToDb(seed);
-    } catch (e: any) {
-      console.error(e);
-      toast({ title: "Saving timetable failed", description: e?.message || "Could not save classes/timetable to the database", variant: "destructive" });
-    }
-    setStepIdx(8);
-    await new Promise(r => setTimeout(r, 300));
+      setStepIdx(3);
+      await persistSchool(seed);
+      setStepIdx(4);
+      const { total, failed } = await provisionAccounts(seed);
+      setStepIdx(6);
 
-    const summ = {
-      students: seed.students.length,
-      parents: seed.parents.length,
-      teachers: seed.teachers.length,
-      subjects: seed.subjects.length,
-      classes: seed.classes.length,
-      rooms: seed.rooms.length,
-      periods: seed.slots.filter(s => s.subjectId).length,
-    };
-    setSummary(summ);
-    setShowSummary(true);
-    setRunning(false);
-    toast({ title: "Demo data loaded", description: `Admin + ${summ.teachers} teachers can log in now. Students & parents finishing in background.` });
+      const summ = {
+        students: seed.students.length,
+        parents: seed.parents.length,
+        teachers: seed.teachers.length,
+        logins: total - failed,
+        failedLogins: failed,
+        subjects: seed.subjects.length,
+        classes: seed.classes.length,
+        rooms: seed.rooms.length,
+        periods: seed.slots.filter((s) => s.subjectId).length,
+      };
+      setSummary(summ);
+      setShowSummary(true);
+      toast(failed
+        ? { title: "Demo data loaded with some login errors", description: `${failed} of ${total} logins could not be created. Run the seeder again to retry them.`, variant: "destructive" }
+        : { title: "Demo data loaded", description: `${summ.students} students, ${summ.parents} parents and ${summ.teachers} teachers can now sign in.` });
+    } catch (e) {
+      toast({ title: "Loading demo data failed", description: errorMessage(e, "Could not save the demo school"), variant: "destructive" });
+    } finally {
+      setRunning(false);
+    }
   }
 
   async function handleClear() {
     if (!confirm("Remove all seeded demo data and reset to a clean state? Real data is untouched.")) return;
+    const seed = generateDemoSeed();
     alloc.resetToSeed();
     people.clear();
-    try { window.localStorage.removeItem("mt_demo_allocation_v1"); } catch {}
+    try { window.localStorage.removeItem("mt_demo_allocation_v2"); } catch { /* storage unavailable */ }
     setSummary(null);
-    // Remove demo data from DB
     try {
-      await supabase.from("students").delete().like("admission_number", "STU%");
+      const ids: string[] = [];
+      for (const nums of chunk(seed.students.map((s) => s.admissionNumber), 100)) {
+        const { data } = await supabase.from("students").select("id").in("admission_number", nums);
+        ids.push(...(data ?? []).map((r) => r.id));
+      }
+      // Links without a foreign key to students are removed explicitly.
+      for (const part of chunk(ids, 100)) {
+        await supabase.from("parent_students").delete().in("student_id", part);
+        await supabase.from("parent_student_links").delete().in("student_id", part);
+        await supabase.from("access_grants").delete().in("student_id", part).eq("reason", "Demo account");
+        await supabase.from("student_classes").delete().in("student_id", part);
+        await supabase.from("students").delete().in("id", part);
+      }
       await supabase.from("timetable_entries").delete().eq("term", "DEMO");
       await supabase.from("tt_definitions").delete().like("name", "DEMO %");
-      await supabase.from("class_subjects").delete().in("class_id",
-        (await supabase.from("classes").select("id").like("name", "Form %")).data?.map(r => r.id) ?? []);
-      await supabase.from("classes").delete().like("name", "Form %");
-      await supabase.from("staff").delete().like("email", "%@schooldemo.com");
+
+      // Demo classes go only if no real student is still enrolled in them.
+      const { data: classes } = await supabase.from("classes").select("id").in("name", seed.classes.map((c) => c.name));
+      const classIds = (classes ?? []).map((c) => c.id);
+      const { data: stillUsed } = await supabase.from("student_classes").select("class_id").in("class_id", classIds);
+      const busy = new Set((stillUsed ?? []).map((r) => r.class_id));
+      const emptyClasses = classIds.filter((id) => !busy.has(id));
+      if (emptyClasses.length) {
+        await supabase.from("class_subjects").delete().in("class_id", emptyClasses);
+        await supabase.from("classes").delete().in("id", emptyClasses);
+      }
+      await supabase.from("staff").delete().like("email", `%@${DEMO_EMAIL_DOMAIN}`);
+      toast({ title: "Demo data cleared", description: "Demo students, classes, staff and timetables were removed. Demo logins stay and are reused on the next load." });
     } catch (e) {
-      console.error("Failed clearing demo data from DB", e);
+      toast({ title: "Some demo data could not be removed", description: errorMessage(e, "Unknown error"), variant: "destructive" });
     }
-    toast({ title: "Demo data cleared", description: "Application reset to a clean state." });
   }
 
   function downloadCredentialsCsv() {
     if (!people.students.length) return;
+    const q = (v: string) => `"${v.replace(/"/g, '""')}"`;
     const lines = ["role,full_name,reference,email,password"];
-    lines.push(`admin,"Administrator","Full access",admin@schooldemo.com,Demo@2025`);
-    alloc.teachers.forEach(t => lines.push(`teacher,"${t.name}","${t.employeeNumber}",${t.email},Teacher@2025`));
-    people.students.forEach(s => lines.push(`student,"${s.fullName}","${s.admissionNumber} • Form ${s.form}${s.stream}",${s.email},${s.password}`));
-    people.parents.forEach(p => {
-      const child = people.students.find(s => s.id === p.studentId);
-      lines.push(`parent (${p.relationship}),"${p.fullName}","Child: ${child?.fullName ?? ""}",${p.email},${p.password}`);
+    lines.push(["admin", q("Demo Administrator"), q("Full access"), `admin@${DEMO_EMAIL_DOMAIN}`, DEMO_PASSWORDS.admin].join(","));
+    alloc.teachers.forEach((t) => lines.push(["teacher", q(t.name), q(t.employeeNumber), t.email, DEMO_PASSWORDS.teacher].join(",")));
+    people.students.forEach((s) => lines.push(["student", q(s.fullName), q(`${s.admissionNumber} • Form ${s.form}${s.stream}`), s.email, s.password].join(",")));
+    people.parents.forEach((p) => {
+      const children = (p.childIds ?? []).map((id) => people.students.find((s) => s.id === id)?.fullName).filter(Boolean).join(" & ");
+      lines.push([`parent (${p.relationship})`, q(p.fullName), q(`Children: ${children}`), p.email, p.password].join(","));
     });
     const blob = new Blob([lines.join("\n")], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
@@ -421,8 +394,8 @@ export default function DemoDataSeederPanel() {
               {seeded && <Badge className="bg-green-600 hover:bg-green-700"><CheckCircle2 className="h-3 w-3 mr-1" />Loaded</Badge>}
             </CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
-              One-click populate the entire system with realistic Zimbabwean ZIMSEC-aligned school data — 500 learners in
-              Form 1–6, their parents, teachers, subjects, classes, venues and a complete weekly timetable.
+              One-click populate the entire system with realistic Zimbabwean school data (ZIMSEC O-Level and A-Level) — students, parents,
+              teachers, subjects, classes, venues and a complete weekly timetable.
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
@@ -447,6 +420,13 @@ export default function DemoDataSeederPanel() {
           {running && (
             <div className="space-y-3 mb-4">
               <Progress value={((stepIdx + 1) / STEPS.length) * 100} />
+              {accountProgress && stepIdx >= 4 && stepIdx < 6 && (
+                <p className="text-xs text-muted-foreground">
+                  Logins: {accountProgress.done} / {accountProgress.total}
+                  {accountProgress.failed > 0 && <span className="text-destructive"> · {accountProgress.failed} failed</span>}
+                  {" "}— this takes a few minutes; keep this page open.
+                </p>
+              )}
               <div className="space-y-1.5">
                 {STEPS.map((s, i) => (
                   <motion.div key={s} initial={{ opacity: 0 }} animate={{ opacity: i <= stepIdx ? 1 : 0.4 }}
@@ -494,13 +474,14 @@ export default function DemoDataSeederPanel() {
           </DialogHeader>
           {summary && (
             <div className="space-y-2 text-sm">
-              <Row label="Students enrolled"   value={summary.students}  hint="Form 1–6, 35 per O-level stream" />
-              <Row label="Parents & guardians" value={summary.parents}   hint="2 per student with portal logins" />
+              <Row label="Students enrolled"   value={summary.students}  hint="Forms 1–4: 3 classes of 35 · Forms 5–6: Sciences and Commercials, 20 each" />
+              <Row label="Parents & guardians" value={summary.parents}   hint="Mother and father logins per family (or one guardian); siblings share them" />
               <Row label="Teachers"            value={summary.teachers}  hint="All subjects covered" />
               <Row label="Subjects"            value={summary.subjects}  hint="Linked to relevant forms" />
-              <Row label="Classes"             value={summary.classes}   hint="Form 1A through Upper 6B" />
+              <Row label="Classes"             value={summary.classes}   hint="Form 1A–4C, plus Form 5A/5B and Form 6A/6B" />
               <Row label="Venues"              value={summary.rooms}     hint="Classrooms, labs, hall, sports field" />
-              <Row label="Timetable periods"   value={summary.periods}   hint="Every slot filled with subject, teacher, venue, time" />
+              <Row label="Login accounts"      value={summary.logins}    hint={summary.failedLogins ? `${summary.failedLogins} failed — run the seeder again to retry` : "Admin, teachers, students and parents — all linked"} />
+              <Row label="Timetable periods"   value={summary.periods}   hint="Lessons plus supervised study periods, with teacher, venue and time" />
             </div>
           )}
           <div className="flex gap-2 pt-2">

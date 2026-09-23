@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,12 +6,20 @@ import { Badge } from "@/components/ui/badge";
 import { Sparkles, Search, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import PrintableSection from "@/components/shared/PrintableSection";
+import { errorMessage } from "@/lib/errors";
+import type { Tables } from "@/integrations/supabase/types";
+import { gradeFor } from "@/lib/grading";
 
 interface Props {
   userId: string;
-  classes: any[];   // classes this teacher teaches: [{id, name}]
-  subjects: any[];  // subjects this teacher teaches: [{id, name}]
+  classes: { id: string; name: string }[];   // classes this teacher teaches
+  subjects: { id: string; name: string }[];  // subjects this teacher teaches
 }
+
+type AssessmentResultRow = Pick<
+  Tables<"assessment_results">,
+  "id" | "mark" | "percentage" | "grade" | "is_published" | "created_at" | "graded_by" | "assessment_id" | "student_id"
+>;
 
 interface MarkRow {
   id: string;
@@ -28,16 +35,6 @@ interface MarkRow {
   scoreLabel: string;
   percent: number;
   created_at: string;
-}
-
-function capsGrade(pct: number): string {
-  if (pct >= 80) return "7";
-  if (pct >= 70) return "6";
-  if (pct >= 60) return "5";
-  if (pct >= 50) return "4";
-  if (pct >= 40) return "3";
-  if (pct >= 30) return "2";
-  return "1";
 }
 
 export default function TeacherMarksReport({ userId, classes, subjects }: Props) {
@@ -88,7 +85,7 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
         .in("class_id", scopeClassIds);
       if (scErr) throw new Error(`Could not load class rosters: ${scErr.message}`);
 
-      const studentIds = Array.from(new Set((scRows || []).map((r: any) => r.student_id)));
+      const studentIds = Array.from(new Set((scRows || []).map((r) => r.student_id)));
       if (studentIds.length === 0) { setRows([]); return; }
 
       // 3. Student details — fetched separately, not via embedded join
@@ -97,12 +94,12 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
         .select("id, full_name, admission_number, form, class")
         .in("id", studentIds);
       if (stErr) throw new Error(`Could not load student details: ${stErr.message}`);
-      const studentMap = new Map((studentRows || []).map((s: any) => [s.id, s]));
+      const studentMap = new Map((studentRows || []).map((s) => [s.id, s]));
 
       // 4. Manual marks
       let mq = supabase
         .from("marks")
-        .select("id, mark, term, assessment_type, description, created_at, student_id, subject_id")
+        .select("id, mark, term, assessment_type, comment, created_at, student_id, subject_id")
         .in("student_id", studentIds);
       if (subjectId !== "all") mq = mq.eq("subject_id", subjectId);
       const { data: manual, error: mErr } = await mq.order("created_at", { ascending: false });
@@ -111,24 +108,22 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
       // 5. Assessments for these classes/subjects
       let aq = supabase
         .from("assessments")
-        .select("id, title, assessment_type, max_marks, total_marks, term, class_id, subject_id")
+        .select("id, title, assessment_type, max_marks, total_marks, class_id, subject_id")
         .in("class_id", scopeClassIds);
       if (subjectId !== "all") aq = aq.eq("subject_id", subjectId);
       const { data: assessments, error: assessErr } = await aq;
       if (assessErr) throw new Error(`Could not load assessments: ${assessErr.message}`);
-      const assessMap = new Map((assessments || []).map((a: any) => [a.id, a]));
-      const assessIds = (assessments || []).map((a: any) => a.id);
+      const assessMap = new Map((assessments || []).map((a) => [a.id, a]));
+      const assessIds = (assessments || []).map((a) => a.id);
 
       // 6. AI/teacher-graded assessment results — separately, not embedded.
-      //    IMPORTANT: this table's real columns are marks_obtained / percentage /
-      //    grade / is_published (matching what the student quiz submission writes),
-      //    NOT "mark" — using the wrong column name here is what silently produced
-      //    0 records even after a student successfully submitted and was marked.
-      let arRows: any[] = [];
+      //    Scores live in `mark`; `percentage`, `grade` and `is_published` are set
+      //    when the teacher (or the auto-marker) grades the submission.
+      let arRows: AssessmentResultRow[] = [];
       if (assessIds.length > 0) {
         const { data: ar, error: arErr } = await supabase
           .from("assessment_results")
-          .select("id, marks_obtained, percentage, grade, is_published, created_at, graded_by, assessment_id, student_id")
+          .select("id, mark, percentage, grade, is_published, created_at, graded_by, assessment_id, student_id")
           .eq("is_published", true)
           .in("assessment_id", assessIds)
           .in("student_id", studentIds);
@@ -136,9 +131,9 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
         arRows = ar || [];
       }
 
-      const subjectMap = new Map(subjects.map((s: any) => [s.id, s.name]));
+      const subjectMap = new Map(subjects.map((s) => [s.id, s.name]));
 
-      const manualRows: MarkRow[] = (manual || []).map((m: any) => {
+      const manualRows: MarkRow[] = (manual || []).map((m) => {
         const st = studentMap.get(m.student_id);
         return {
           id: `m-${m.id}`,
@@ -148,7 +143,7 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
           grade: st?.form || st?.class || "—",
           subject: subjectMap.get(m.subject_id) || "—",
           subjectId: m.subject_id,
-          description: m.description || "—",
+          description: m.comment || "—",
           type: m.assessment_type || "—",
           term: m.term || "—",
           scoreLabel: `${m.mark}%`,
@@ -157,13 +152,13 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
         };
       });
 
-      const aiRows: MarkRow[] = arRows.map((r: any) => {
+      const aiRows: MarkRow[] = arRows.map((r) => {
         const a = assessMap.get(r.assessment_id);
         const st = studentMap.get(r.student_id);
         const max = Number(a?.max_marks) || Number(a?.total_marks) || 0;
         const pct = r.percentage != null
           ? Math.round(Number(r.percentage))
-          : (max > 0 ? Math.round((Number(r.marks_obtained) / max) * 100) : Number(r.marks_obtained) || 0);
+          : (max > 0 ? Math.round((Number(r.mark) / max) * 100) : Number(r.mark) || 0);
         return {
           id: `r-${r.id}`,
           source: r.graded_by ? "teacher" : "ai",
@@ -174,8 +169,8 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
           subjectId: a?.subject_id || null,
           description: a?.title || "Assessment",
           type: a?.assessment_type || "assessment",
-          term: a?.term || "—",
-          scoreLabel: max > 0 ? `${r.marks_obtained}/${max}` : `${r.marks_obtained}`,
+          term: "—",
+          scoreLabel: max > 0 ? `${r.mark}/${max}` : `${r.mark}`,
           percent: pct,
           created_at: r.created_at,
         };
@@ -191,9 +186,9 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
       });
 
       setRows(combined);
-    } catch (e: any) {
+    } catch (e) {
       console.error("[MarksReport] load failed", e);
-      setError(e.message || "Failed to load marks.");
+      setError(errorMessage(e, "Failed to load marks."));
       setRows([]);
     } finally {
       setLoading(false);
@@ -254,7 +249,7 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
       <Card>
         <CardContent className="p-4 grid gap-3 md:grid-cols-4">
           <div>
-            <label className="text-xs font-medium text-muted-foreground">Class / Grade</label>
+            <label className="text-xs font-medium text-muted-foreground">Form / Class</label>
             <Select value={classId} onValueChange={setClassId}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -320,14 +315,14 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
               <div className="rounded-lg border p-3">
                 <p className="text-xs text-muted-foreground">Overall Average</p>
                 <p className="text-2xl font-bold text-primary">{overall}%</p>
-                <p className="text-xs">CAPS Code {capsGrade(overall)}</p>
+                <p className="text-xs">Grade {gradeFor(overall)}</p>
               </div>
               <div className="rounded-lg border p-3">
                 <p className="text-xs text-muted-foreground">Records</p>
                 <p className="text-2xl font-bold">{filtered.length}</p>
               </div>
               <div className="rounded-lg border p-3">
-                <p className="text-xs text-muted-foreground">Learners</p>
+                <p className="text-xs text-muted-foreground">Students</p>
                 <p className="text-2xl font-bold">{byStudent.length}</p>
               </div>
             </div>
@@ -340,7 +335,7 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
                     <th className="px-3 py-2 text-left">Subject</th>
                     <th className="px-3 py-2 text-center">Records</th>
                     <th className="px-3 py-2 text-center">Average</th>
-                    <th className="px-3 py-2 text-center">CAPS</th>
+                    <th className="px-3 py-2 text-center">Grade</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -349,7 +344,7 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
                       <td className="px-3 py-2">{s.subject}</td>
                       <td className="px-3 py-2 text-center">{s.n}</td>
                       <td className="px-3 py-2 text-center font-bold">{s.avg}%</td>
-                      <td className="px-3 py-2 text-center">{capsGrade(s.avg)}</td>
+                      <td className="px-3 py-2 text-center">{gradeFor(s.avg)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -357,16 +352,16 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
             </div>
 
             <div>
-              <h4 className="font-semibold text-sm mb-2">Learner Rankings</h4>
+              <h4 className="font-semibold text-sm mb-2">Student Rankings</h4>
               <table className="w-full text-sm border">
                 <thead className="bg-muted">
                   <tr>
                     <th className="px-3 py-2 text-left">#</th>
-                    <th className="px-3 py-2 text-left">Learner</th>
+                    <th className="px-3 py-2 text-left">Student</th>
                     <th className="px-3 py-2 text-left">Admission</th>
                     <th className="px-3 py-2 text-center">Records</th>
                     <th className="px-3 py-2 text-center">Average</th>
-                    <th className="px-3 py-2 text-center">CAPS</th>
+                    <th className="px-3 py-2 text-center">Grade</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -377,7 +372,7 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
                       <td className="px-3 py-2">{s.admission}</td>
                       <td className="px-3 py-2 text-center">{s.n}</td>
                       <td className="px-3 py-2 text-center font-bold">{s.avg}%</td>
-                      <td className="px-3 py-2 text-center">{capsGrade(s.avg)}</td>
+                      <td className="px-3 py-2 text-center">{gradeFor(s.avg)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -390,7 +385,7 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
                 <thead className="bg-muted">
                   <tr>
                     <th className="px-3 py-2 text-left">Date</th>
-                    <th className="px-3 py-2 text-left">Learner</th>
+                    <th className="px-3 py-2 text-left">Student</th>
                     <th className="px-3 py-2 text-left">Grade</th>
                     <th className="px-3 py-2 text-left">Subject</th>
                     <th className="px-3 py-2 text-left">Assessment</th>
@@ -399,13 +394,13 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
                     <th className="px-3 py-2 text-center">Source</th>
                     <th className="px-3 py-2 text-center">Score</th>
                     <th className="px-3 py-2 text-center">%</th>
-                    <th className="px-3 py-2 text-center">CAPS</th>
+                    <th className="px-3 py-2 text-center">Grade</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.map(r => (
                     <tr key={r.id} className="border-t">
-                      <td className="px-3 py-2">{new Date(r.created_at).toLocaleDateString("en-ZA")}</td>
+                      <td className="px-3 py-2">{new Date(r.created_at).toLocaleDateString("en-GB")}</td>
                       <td className="px-3 py-2">{r.student}</td>
                       <td className="px-3 py-2">{r.grade}</td>
                       <td className="px-3 py-2">{r.subject}</td>
@@ -423,7 +418,7 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
                       </td>
                       <td className="px-3 py-2 text-center font-semibold">{r.scoreLabel}</td>
                       <td className="px-3 py-2 text-center">{r.percent}%</td>
-                      <td className="px-3 py-2 text-center">{capsGrade(r.percent)}</td>
+                      <td className="px-3 py-2 text-center">{gradeFor(r.percent)}</td>
                     </tr>
                   ))}
                 </tbody>

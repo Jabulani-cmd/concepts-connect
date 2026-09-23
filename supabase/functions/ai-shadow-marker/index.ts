@@ -62,9 +62,9 @@ serve(async (req) => {
         return json({ error: "question and answer are required" }, 400);
       }
 
-      const systemPrompt = `You are an experienced South African secondary school teacher acting as an AI shadow marker.
+      const systemPrompt = `You are an experienced Zimbabwean secondary school teacher acting as an AI shadow marker.
 You assess essay-style answers against a rubric and return STRUCTURED JSON ONLY by calling the provided tool.
-Be fair, encouraging, and specific. Reference South African curriculum standards (CAPS / IEB) where relevant.`;
+Be fair, encouraging, and specific. Reference ZIMSEC and Cambridge (CIE) standards where relevant.`;
 
       const userPrompt = `Mark the following student response.
 

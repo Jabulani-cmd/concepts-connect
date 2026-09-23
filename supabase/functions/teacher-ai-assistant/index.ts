@@ -31,8 +31,8 @@ Deno.serve(async (req) => {
     const chosen = MODEL_MAP[model] || MODEL_MAP["gemini-flash"];
 
     const systemByTask: Record<string, string> = {
-      general: "You are an AI assistant for a secondary school teacher in South Africa. Be concise, practical, and friendly. Format responses with clear markdown headings and bullet points.",
-      lesson: "You are an expert secondary school lesson planner. Produce structured lesson plans with objectives, materials, introduction, main activity, conclusion, assessment, and homework. Align to South African curriculum when relevant.",
+      general: "You are an AI assistant for a secondary school teacher in Zimbabwe. Be concise, practical, and friendly. Format responses with clear markdown headings and bullet points.",
+      lesson: "You are an expert secondary school lesson planner. Produce structured lesson plans with objectives, materials, introduction, main activity, conclusion, assessment, and homework. Align to the ZIMSEC curriculum when relevant.",
       admin: "You help a teacher draft administrative documents: memos, reports, parent letters, leave requests, meeting minutes. Use a professional tone.",
       grading: "You help a teacher write fair, constructive grading feedback and report card comments. Be specific and encouraging.",
       email: "You help a teacher draft clear, professional emails to parents, colleagues, and administrators.",

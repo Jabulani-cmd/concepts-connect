@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect, useRef, useCallback } from "react";
 import {
   MessageSquare, Send, Plus, Users, User, Search, ArrowLeft,
@@ -25,6 +24,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
+import { errorMessage } from "@/lib/errors";
 
 interface Conversation {
   id: string;
@@ -36,7 +36,7 @@ interface Conversation {
   last_message?: string;
   last_message_at?: string;
   unread_count?: number;
-  participants?: { user_id: string; profiles?: { full_name: string; avatar_url: string | null } }[];
+  participants?: { conversation_id: string | null; user_id: string }[];
 }
 
 interface Message {
@@ -101,7 +101,6 @@ export default function MessagingPanel() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const profileCache = useRef<Record<string, string>>({});
-  const roleCache = useRef<Record<string, string>>({});
   const channelTopicRef = useRef(`user-messages-${Math.random().toString(36).slice(2)}`);
 
   const clearUnreadForConversation = useCallback((convId: string) => {
@@ -143,9 +142,9 @@ export default function MessagingPanel() {
     if (!user) return;
     const { data } = await supabase
       .from("user_blocks")
-      .select("blocked_id")
-      .eq("blocker_id", user.id);
-    if (data) setBlockedIds(data.map(b => b.blocked_id));
+      .select("blocked_user_id")
+      .eq("blocked_by", user.id);
+    if (data) setBlockedIds(data.map(b => b.blocked_user_id));
   }, [user]);
 
   // Fetch conversations
@@ -225,7 +224,7 @@ export default function MessagingPanel() {
         last_message: lastMsg?.content || "",
         last_message_at: lastMsg?.created_at || conv.created_at,
         unread_count: unread,
-        participants: convParticipants as any,
+        participants: convParticipants,
       });
     }
 
@@ -277,7 +276,7 @@ export default function MessagingPanel() {
     if (!user) return;
     fetchConversations();
     fetchBlocked();
-  }, [user?.id]);
+  }, [fetchBlocked, fetchConversations, user]);
 
   // Real-time subscription (stable, no dependency on callbacks)
   useEffect(() => {
@@ -305,7 +304,7 @@ export default function MessagingPanel() {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [user?.id]);
+  }, [fetchConversations, markConversationRead, user]);
 
   // Scroll to bottom
   useEffect(() => {
@@ -387,13 +386,7 @@ export default function MessagingPanel() {
     if (panelTab === "contacts") fetchContacts();
   }, [panelTab, fetchContacts]);
 
-  // Re-run user search when role filter changes
-  useEffect(() => {
-    if (userSearch.length >= 2) searchUsers(userSearch);
-  }, [searchRoleFilter]);
-
-  const searchUsers = async (query: string) => {
-    setUserSearch(query);
+  const searchUsers = useCallback(async (query: string) => {
     if (query.length < 2) { setUserResults([]); return; }
 
     const { data: profiles } = await supabase
@@ -419,7 +412,10 @@ export default function MessagingPanel() {
     let results: UserProfile[] = profiles
       .filter(p => !blockedIds.includes(p.id))
       .map(p => ({
-        ...p,
+        id: p.id,
+        full_name: p.full_name ?? "",
+        email: p.email,
+        avatar_url: null,
         role: roleMap[p.id] || "user",
       }));
 
@@ -428,7 +424,11 @@ export default function MessagingPanel() {
     }
 
     setUserResults(results);
-  };
+  }, [blockedIds, searchRoleFilter, user?.id]);
+
+  useEffect(() => {
+    searchUsers(userSearch);
+  }, [searchUsers, userSearch]);
 
   const addUserToSelection = (u: UserProfile) => {
     if (!selectedUsers.find(s => s.id === u.id)) {
@@ -523,8 +523,8 @@ export default function MessagingPanel() {
       toast({ title: newConvType === "broadcast" ? "Broadcast sent" : "Conversation created" });
       resetNewConv();
       fetchConversations();
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Error", description: errorMessage(err), variant: "destructive" });
     }
     setCreating(false);
   };
@@ -561,16 +561,16 @@ export default function MessagingPanel() {
   // Block a user
   const blockUser = async (targetId: string, targetName: string) => {
     if (!user) return;
+    if (blockedIds.includes(targetId)) {
+      toast({ title: "Already blocked", description: `${targetName} is already blocked.` });
+      return;
+    }
     const { error } = await supabase.from("user_blocks").insert({
-      blocker_id: user.id,
-      blocked_id: targetId,
+      blocked_by: user.id,
+      blocked_user_id: targetId,
     });
     if (error) {
-      if (error.code === "23505") {
-        toast({ title: "Already blocked", description: `${targetName} is already blocked.` });
-      } else {
-        toast({ title: "Error blocking user", description: error.message, variant: "destructive" });
-      }
+      toast({ title: "Error blocking user", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "User blocked", description: `${targetName} has been blocked. You will no longer see their messages.` });
       setBlockedIds(prev => [...prev, targetId]);
@@ -582,8 +582,8 @@ export default function MessagingPanel() {
   const unblockUser = async (targetId: string, targetName: string) => {
     if (!user) return;
     const { error } = await supabase.from("user_blocks").delete()
-      .eq("blocker_id", user.id)
-      .eq("blocked_id", targetId);
+      .eq("blocked_by", user.id)
+      .eq("blocked_user_id", targetId);
     if (!error) {
       toast({ title: "User unblocked", description: `${targetName} has been unblocked.` });
       setBlockedIds(prev => prev.filter(id => id !== targetId));
@@ -605,9 +605,8 @@ export default function MessagingPanel() {
     setSubmittingReport(true);
     const { error } = await supabase.from("user_reports").insert({
       reporter_id: user.id,
-      reported_id: reportTargetId,
-      reason: reportReason,
-      details: reportDetails || null,
+      reported_user_id: reportTargetId,
+      reason: reportDetails ? `${reportReason}: ${reportDetails}` : reportReason,
     });
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -987,7 +986,7 @@ export default function MessagingPanel() {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Type</Label>
-              <Select value={newConvType} onValueChange={v => setNewConvType(v as any)}>
+              <Select value={newConvType} onValueChange={v => setNewConvType(v as typeof newConvType)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="direct">Direct Message</SelectItem>
@@ -1003,7 +1002,7 @@ export default function MessagingPanel() {
             {newConvType !== "direct" && (
               <div className="space-y-2">
                 <Label>{newConvType === "broadcast" ? "Subject" : "Group Name"}</Label>
-                <Input value={newConvName} onChange={e => setNewConvName(e.target.value)} placeholder={newConvType === "broadcast" ? "e.g. Fee Reminder" : "e.g. Grade 11 Science"} />
+                <Input value={newConvName} onChange={e => setNewConvName(e.target.value)} placeholder={newConvType === "broadcast" ? "e.g. Fee Reminder" : "e.g. Form 4 Science"} />
               </div>
             )}
 
@@ -1031,7 +1030,7 @@ export default function MessagingPanel() {
                     placeholder="Search users by name..."
                     className="pl-8"
                     value={userSearch}
-                    onChange={e => searchUsers(e.target.value)}
+                    onChange={e => setUserSearch(e.target.value)}
                   />
                 </div>
                 <Select value={searchRoleFilter} onValueChange={setSearchRoleFilter}>

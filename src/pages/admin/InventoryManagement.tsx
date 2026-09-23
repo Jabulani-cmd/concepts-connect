@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,32 +11,29 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
+import type { QueryData } from "@supabase/supabase-js";
 import {
   Package, Plus, Search, AlertTriangle, BookOpen, ArrowDownUp,
   BarChart3, Edit, Trash2, QrCode, Camera, X, ScanLine, Undo2
 } from "lucide-react";
+import { errorMessage } from "@/lib/errors";
+import type { Html5Qrcode } from "html5-qrcode";
 
-type Category = { id: string; name: string; description: string | null };
-type Item = {
-  id: string; category_id: string | null; item_code: string; name: string;
-  description: string | null; quantity: number; unit: string; reorder_level: number | null;
-  location: string | null; supplier: string | null; supplier_contact: string | null;
-  purchase_price_usd: number | null; purchase_price_zig: number | null; barcode: string | null;
-  created_at: string; inventory_categories?: Category | null;
-};
-type TextbookIssue = {
-  id: string; student_id: string; inventory_item_id: string; issue_date: string;
-  due_date: string; return_date: string | null; condition_on_issue: string | null;
-  condition_on_return: string | null; fine_amount_usd: number | null;
-  fine_amount_zig: number | null; status: string; created_at: string;
-  students?: { full_name: string; admission_number: string } | null;
-  inventory_items?: { name: string; item_code: string } | null;
-};
-type Transaction = {
-  id: string; item_id: string; transaction_type: string; quantity: number;
-  reference: string | null; notes: string | null; created_at: string;
-  inventory_items?: { name: string; item_code: string } | null;
-};
+const itemsQuery = () => supabase.from("inventory_items").select("*, inventory_categories(*)").order("name");
+const issuesQuery = () =>
+  supabase.from("textbook_issues")
+    .select("*, students(full_name, admission_number), inventory_items(name, item_code)")
+    .order("created_at", { ascending: false });
+const transactionsQuery = () =>
+  supabase.from("inventory_transactions")
+    .select("*, inventory_items(name, item_code)")
+    .order("created_at", { ascending: false });
+
+type Category = Tables<"inventory_categories">;
+type Item = QueryData<ReturnType<typeof itemsQuery>>[number];
+type TextbookIssue = QueryData<ReturnType<typeof issuesQuery>>[number];
+type Transaction = QueryData<ReturnType<typeof transactionsQuery>>[number];
 
 const unitOptions = ["piece", "set", "box", "kg", "liter"];
 const conditionOptions = ["new", "good", "fair", "poor", "damaged"];
@@ -88,20 +84,20 @@ export default function InventoryManagement() {
   const barcodeCanvasRef = useRef<HTMLCanvasElement>(null);
 
   // Scanner
-  const scannerRef = useRef<any>(null);
+  const scannerRef = useRef<Html5Qrcode | null>(null);
   const scannerContainerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    fetchAll();
-  }, []);
-
-  const fetchAll = () => {
+  const fetchAll = useCallback(() => {
     fetchCategories();
     fetchItems();
     fetchIssues();
     fetchTransactions();
     fetchStudents();
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll]);
 
   const fetchCategories = async () => {
     const { data } = await supabase.from("inventory_categories").select("*").order("name");
@@ -109,22 +105,18 @@ export default function InventoryManagement() {
   };
 
   const fetchItems = async () => {
-    const { data } = await supabase.from("inventory_items").select("*, inventory_categories(*)").order("name");
-    if (data) setItems(data as any);
+    const { data } = await itemsQuery();
+    if (data) setItems(data);
   };
 
   const fetchIssues = async () => {
-    const { data } = await supabase.from("textbook_issues")
-      .select("*, students(full_name, admission_number), inventory_items(name, item_code)")
-      .order("created_at", { ascending: false });
-    if (data) setIssues(data as any);
+    const { data } = await issuesQuery();
+    if (data) setIssues(data);
   };
 
   const fetchTransactions = async () => {
-    const { data } = await supabase.from("inventory_transactions")
-      .select("*, inventory_items(name, item_code)")
-      .order("created_at", { ascending: false });
-    if (data) setTransactions(data as any);
+    const { data } = await transactionsQuery();
+    if (data) setTransactions(data);
   };
 
   const fetchStudents = async () => {
@@ -210,10 +202,8 @@ export default function InventoryManagement() {
     setTimeout(async () => {
       if (barcodeCanvasRef.current) {
         try {
-          // @ts-ignore - dynamic import for barcode generation
-          const bwipjs = await import(/* @vite-ignore */ "bwip-js") as any;
-          const render = bwipjs.default?.toCanvas || bwipjs.toCanvas;
-          render(barcodeCanvasRef.current, {
+          const { toCanvas } = await import("bwip-js/browser");
+          toCanvas(barcodeCanvasRef.current, {
             bcid: "code128", text: item.item_code,
             scale: 3, height: 10, includetext: true,
             textxalign: "center"
@@ -250,8 +240,8 @@ export default function InventoryManagement() {
           },
           () => {}
         );
-      } catch (e: any) {
-        toast({ title: "Scanner error", description: e.message || "Camera not available", variant: "destructive" });
+      } catch (e) {
+        toast({ title: "Scanner error", description: errorMessage(e, "Camera not available"), variant: "destructive" });
         setShowScannerDialog(false);
       }
     }, 300);
@@ -259,7 +249,7 @@ export default function InventoryManagement() {
 
   const stopScanner = async () => {
     if (scannerRef.current) {
-      try { await scannerRef.current.stop(); } catch {}
+      try { await scannerRef.current.stop(); } catch { /* scanner already stopped */ }
       scannerRef.current = null;
     }
     setShowScannerDialog(false);
@@ -268,11 +258,14 @@ export default function InventoryManagement() {
   // Textbook issue
   const saveIssue = async () => {
     if (!issueForm.student_id || !issueForm.inventory_item_id || !issueForm.due_date) return;
+    const book = items.find(i => i.id === issueForm.inventory_item_id);
     const { error } = await supabase.from("textbook_issues").insert({
       student_id: issueForm.student_id,
       inventory_item_id: issueForm.inventory_item_id,
+      book_title: book?.name ?? "Textbook",
+      issued_date: new Date().toISOString().split("T")[0],
       due_date: issueForm.due_date,
-      condition_on_issue: issueForm.condition_on_issue,
+      condition: issueForm.condition_on_issue,
       status: "issued"
     });
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
@@ -282,9 +275,8 @@ export default function InventoryManagement() {
       quantity: 1, reference: `textbook_issue`
     });
     // Decrease stock
-    const item = items.find(i => i.id === issueForm.inventory_item_id);
-    if (item) {
-      await supabase.from("inventory_items").update({ quantity: Math.max(0, item.quantity - 1) }).eq("id", item.id);
+    if (book) {
+      await supabase.from("inventory_items").update({ quantity: Math.max(0, book.quantity - 1) }).eq("id", book.id);
     }
     toast({ title: "Textbook issued!" });
     setShowIssueDialog(false);
@@ -296,7 +288,7 @@ export default function InventoryManagement() {
   const processReturn = async () => {
     if (!returnIssue) return;
     const { error } = await supabase.from("textbook_issues").update({
-      return_date: new Date().toISOString().split("T")[0],
+      returned_date: new Date().toISOString().split("T")[0],
       condition_on_return: returnCondition,
       fine_amount_usd: returnFineUsd,
       fine_amount_zig: returnFineZig,
@@ -514,7 +506,7 @@ export default function InventoryManagement() {
                             </div>
                           </TableCell>
                           <TableCell>{issue.inventory_items?.name}</TableCell>
-                          <TableCell>{new Date(issue.issue_date).toLocaleDateString()}</TableCell>
+                          <TableCell>{issue.issued_date ? new Date(issue.issued_date).toLocaleDateString() : "—"}</TableCell>
                           <TableCell>{new Date(issue.due_date).toLocaleDateString()}</TableCell>
                           <TableCell>
                             {issue.status === "returned" ? (

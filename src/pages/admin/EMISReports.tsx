@@ -1,12 +1,10 @@
-// @ts-nocheck
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { FileText, Download, Users, GraduationCap, Building, Printer, FileSpreadsheet } from "lucide-react";
@@ -15,8 +13,8 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { SCHOOL_LOGO_URL, SCHOOL_NAME, urlToDataUrl } from "@/lib/finance/pdf";
+import { DEFAULT_FORM, FORM_LEVELS } from "@/lib/forms";
 
-const FORM_LEVELS = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 const CHART_COLORS = ["hsl(var(--primary))", "hsl(var(--accent))", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
 
 interface EnrollmentRow {
@@ -41,25 +39,25 @@ export default function EMISReports() {
   // Enrollment data
   const [enrollmentData, setEnrollmentData] = useState<EnrollmentRow[]>([]);
   const [totalStudents, setTotalStudents] = useState(0);
-  const [genderChart, setGenderChart] = useState<any[]>([]);
+  const [genderChart, setGenderChart] = useState<{ name: string; value: number }[]>([]);
 
   // Staff data
   const [staffData, setStaffData] = useState<StaffRow[]>([]);
   const [staffSummary, setStaffSummary] = useState({ total: 0, teaching: 0, nonTeaching: 0, leadership: 0 });
 
   // Infrastructure data
-  const [infraData, setInfraData] = useState<any>({ classrooms: 0, labs: 0, ictEquip: 0, totalCapacity: 0 });
-  const [inventorySummary, setInventorySummary] = useState<any[]>([]);
+  const [infraData, setInfraData] = useState({ classrooms: 0, totalCapacity: 0, totalItems: 0, totalQuantity: 0 });
+  const [inventorySummary, setInventorySummary] = useState<{ name: string; quantity: number }[]>([]);
 
-  useEffect(() => {
-    fetchAllData();
-  }, [academicYear]);
-
-  const fetchAllData = async () => {
+  const fetchAllData = useCallback(async () => {
     setLoading(true);
     await Promise.all([fetchEnrollment(), fetchStaff(), fetchInfrastructure()]);
     setLoading(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchAllData();
+  }, [academicYear, fetchAllData]);
 
   const fetchEnrollment = async () => {
     const { data: students } = await supabase
@@ -74,7 +72,7 @@ export default function EMISReports() {
     FORM_LEVELS.forEach(f => { byForm[f] = { male: 0, female: 0 }; });
 
     students.forEach(s => {
-      const f = s.form || "Grade 8";
+      const f = s.form || DEFAULT_FORM;
       if (!byForm[f]) byForm[f] = { male: 0, female: 0 };
       if (s.gender?.toLowerCase() === "male") byForm[f].male++;
       else if (s.gender?.toLowerCase() === "female") byForm[f].female++;
@@ -208,7 +206,7 @@ export default function EMISReports() {
         headStyles: { fillColor: [128, 0, 0] },
       });
 
-      const finalY = (doc as any).lastAutoTable?.finalY || 100;
+      const finalY = (doc as jsPDF & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY || 100;
       doc.setFontSize(10);
       doc.text(`Teacher-Student Ratio: 1:${staffSummary.teaching > 0 ? Math.round(totalStudents / staffSummary.teaching) : "N/A"}`, 14, finalY + 10);
     } else if (reportType === "Infrastructure") {

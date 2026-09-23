@@ -1,71 +1,38 @@
-// @ts-nocheck
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { GraduationCap, Save, CheckCircle2, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables, TablesInsert } from "@/integrations/supabase/types";
 import { useToast } from "@/hooks/use-toast";
+import { gradeFor, gradeBadgeClass } from "@/lib/grading";
 
 interface Props {
   userId: string;
-  classes: any[];
-  subjects: any[];
-}
-
-function zimGrade(mark: number): string {
-  if (mark >= 90) return "A*";
-  if (mark >= 80) return "A";
-  if (mark >= 70) return "B";
-  if (mark >= 60) return "C";
-  if (mark >= 50) return "D";
-  if (mark >= 40) return "E";
-  return "U";
-}
-
-function getGradeColor(grade: string): string {
-  switch (grade) {
-    case "A*": return "bg-emerald-100 text-emerald-800";
-    case "A": return "bg-green-100 text-green-800";
-    case "B": return "bg-blue-100 text-blue-800";
-    case "C": return "bg-sky-100 text-sky-800";
-    case "D": return "bg-amber-100 text-amber-800";
-    case "E": return "bg-orange-100 text-orange-800";
-    case "U": return "bg-red-100 text-red-800";
-    default: return "bg-muted text-muted-foreground";
-  }
+  classes: Pick<Tables<"classes">, "id" | "name" | "level">[];
+  subjects: Pick<Tables<"subjects">, "id" | "name">[];
 }
 
 export default function ExamResultsUpload({ userId, classes, subjects }: Props) {
   const { toast } = useToast();
 
-  const [exams, setExams] = useState<any[]>([]);
+  const [exams, setExams] = useState<Tables<"exams">[]>([]);
   const [selectedExamId, setSelectedExamId] = useState("");
   const [selectedClassId, setSelectedClassId] = useState("");
   const [selectedSubjectId, setSelectedSubjectId] = useState("");
-  const [students, setStudents] = useState<any[]>([]);
+  const [students, setStudents] = useState<Pick<Tables<"students">, "id" | "full_name" | "admission_number">[]>([]);
   const [markEntries, setMarkEntries] = useState<Record<string, { mark: string; comment: string }>>({});
-  const [existingResults, setExistingResults] = useState<Record<string, any>>({});
+  const [existingResults, setExistingResults] = useState<Record<string, Tables<"exam_results">>>({});
   const [saving, setSaving] = useState(false);
   const [loadingStudents, setLoadingStudents] = useState(false);
 
   useEffect(() => {
     fetchExams();
   }, []);
-
-  useEffect(() => {
-    if (selectedClassId) fetchStudentsForClass();
-  }, [selectedClassId]);
-
-  useEffect(() => {
-    if (selectedExamId && selectedSubjectId && students.length > 0) {
-      fetchExistingResults();
-    }
-  }, [selectedExamId, selectedSubjectId, students]);
 
   const fetchExams = async () => {
     const { data } = await supabase
@@ -76,7 +43,7 @@ export default function ExamResultsUpload({ userId, classes, subjects }: Props) 
     setExams(data || []);
   };
 
-  const fetchStudentsForClass = async () => {
+  const fetchStudentsForClass = useCallback(async () => {
     setLoadingStudents(true);
     // Get students assigned to this class
     const { data: sc } = await supabase
@@ -96,11 +63,11 @@ export default function ExamResultsUpload({ userId, classes, subjects }: Props) 
     } else {
       // Fallback: get students by form level
       const cls = classes.find((c) => c.id === selectedClassId);
-      if (cls?.form_level) {
+      if (cls?.level) {
         const { data: studs } = await supabase
           .from("students")
           .select("id, full_name, admission_number")
-          .eq("form", cls.form_level)
+          .eq("form", cls.level)
           .eq("status", "active")
           .order("full_name");
         setStudents(studs || []);
@@ -109,9 +76,9 @@ export default function ExamResultsUpload({ userId, classes, subjects }: Props) 
       }
     }
     setLoadingStudents(false);
-  };
+  }, [classes, selectedClassId]);
 
-  const fetchExistingResults = async () => {
+  const fetchExistingResults = useCallback(async () => {
     const studentIds = students.map((s) => s.id);
     const { data } = await supabase
       .from("exam_results")
@@ -120,14 +87,14 @@ export default function ExamResultsUpload({ userId, classes, subjects }: Props) 
       .eq("subject_id", selectedSubjectId)
       .in("student_id", studentIds);
 
-    const existing: Record<string, any> = {};
+    const existing: Record<string, Tables<"exam_results">> = {};
     const entries: Record<string, { mark: string; comment: string }> = {};
     
     (data || []).forEach((r) => {
       existing[r.student_id] = r;
       entries[r.student_id] = {
         mark: r.mark?.toString() || "",
-        comment: r.teacher_comment || "",
+        comment: r.comment || "",
       };
     });
 
@@ -140,7 +107,17 @@ export default function ExamResultsUpload({ userId, classes, subjects }: Props) 
 
     setExistingResults(existing);
     setMarkEntries(entries);
-  };
+  }, [selectedExamId, selectedSubjectId, students]);
+
+  useEffect(() => {
+    if (selectedClassId) fetchStudentsForClass();
+  }, [fetchStudentsForClass, selectedClassId]);
+
+  useEffect(() => {
+    if (selectedExamId && selectedSubjectId && students.length > 0) {
+      fetchExistingResults();
+    }
+  }, [fetchExistingResults, selectedExamId, selectedSubjectId, students]);
 
   const handleMarkChange = (studentId: string, field: "mark" | "comment", value: string) => {
     setMarkEntries((prev) => ({
@@ -156,7 +133,7 @@ export default function ExamResultsUpload({ userId, classes, subjects }: Props) 
     }
 
     setSaving(true);
-    const upserts: any[] = [];
+    const upserts: TablesInsert<"exam_results">[] = [];
     const errors: string[] = [];
 
     for (const student of students) {
@@ -169,13 +146,14 @@ export default function ExamResultsUpload({ userId, classes, subjects }: Props) 
         continue;
       }
 
-      const row: any = {
+      const row: TablesInsert<"exam_results"> = {
         exam_id: selectedExamId,
         subject_id: selectedSubjectId,
         student_id: student.id,
         mark,
-        grade: zimGrade(mark),
-        teacher_comment: entry.comment || null,
+        grade: gradeFor(mark),
+        comment: entry.comment || null,
+        uploaded_by: userId,
       };
 
       // If existing, include id for upsert
@@ -329,7 +307,7 @@ export default function ExamResultsUpload({ userId, classes, subjects }: Props) 
                   {students.map((s, idx) => {
                     const entry = markEntries[s.id] || { mark: "", comment: "" };
                     const mark = parseInt(entry.mark);
-                    const grade = !isNaN(mark) ? zimGrade(mark) : "";
+                    const grade = !isNaN(mark) ? gradeFor(mark) : "";
                     const isExisting = !!existingResults[s.id];
 
                     return (
@@ -350,7 +328,7 @@ export default function ExamResultsUpload({ userId, classes, subjects }: Props) 
                         </td>
                         <td className="px-3 py-2 text-center">
                           {grade && (
-                            <Badge className={`text-xs ${getGradeColor(grade)}`} variant="outline">
+                            <Badge className={`text-xs ${gradeBadgeClass(grade)}`} variant="outline">
                               {grade}
                             </Badge>
                           )}

@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useMemo, useCallback, useEffect, ReactNode } from "react";
 
-const LS_KEY = "mt_demo_allocation_v1";
+const LS_KEY = "mt_demo_allocation_v2";
 function loadLS<T>(field: string, fallback: T): T {
   try {
     const raw = typeof window !== "undefined" ? window.localStorage.getItem(LS_KEY) : null;
@@ -23,7 +23,7 @@ export interface Teacher {
   maxPeriodsPerWeek: number;
   preferredTime: PreferredTime;
   qualifiedSubjects: string[];
-  qualifiedGrades: number[];
+  qualifiedForms: number[];
   photoUrl?: string;
 }
 
@@ -45,7 +45,7 @@ export interface Room {
 export interface SchoolClass {
   id: string;
   name: string;
-  gradeLevel: number;
+  formLevel: number;
   stream?: string;
   studentCount: number;
   classTeacherId?: string;
@@ -145,17 +145,17 @@ const seedRooms: Room[] = [
 ];
 
 const seedTeachers: Teacher[] = [
-  { id: "t-1", name: "Mr. T. Zulu", email: "zulu@mavingtech.com", employeeNumber: "MHS-S00001", employmentType: "Full-time", maxPeriodsPerWeek: 28, preferredTime: "Both", qualifiedSubjects: ["sub-1", "sub-9"], qualifiedGrades: [8, 9, 10] },
-  { id: "t-2", name: "Mrs. N. Khumalo", email: "khumalo@mavingtech.com", employeeNumber: "MHS-S00002", employmentType: "Full-time", maxPeriodsPerWeek: 28, preferredTime: "Morning", qualifiedSubjects: ["sub-2", "sub-7"], qualifiedGrades: [8, 9, 10, 11] },
-  { id: "t-3", name: "Mr. S. Mthembu", email: "mthembu@mavingtech.com", employeeNumber: "MHS-S00003", employmentType: "Full-time", maxPeriodsPerWeek: 28, preferredTime: "Both", qualifiedSubjects: ["sub-3", "sub-5"], qualifiedGrades: [8, 9, 10] },
-  { id: "t-4", name: "Ms. Z. Ndlovu", email: "ndlovu@mavingtech.com", employeeNumber: "MHS-S00004", employmentType: "Part-time", maxPeriodsPerWeek: 16, preferredTime: "Afternoon", qualifiedSubjects: ["sub-6", "sub-10"], qualifiedGrades: [9, 10] },
-  { id: "t-5", name: "Mr. B. Dlamini", email: "dlamini@mavingtech.com", employeeNumber: "MHS-S00005", employmentType: "Full-time", maxPeriodsPerWeek: 28, preferredTime: "Both", qualifiedSubjects: ["sub-4", "sub-7"], qualifiedGrades: [8, 9, 10, 11] },
-  { id: "t-6", name: "Mrs. L. Mkhize", email: "mkhize@mavingtech.com", employeeNumber: "MHS-S00006", employmentType: "Full-time", maxPeriodsPerWeek: 28, preferredTime: "Morning", qualifiedSubjects: ["sub-8"], qualifiedGrades: [8, 9, 10, 11] },
+  { id: "t-1", name: "Mr. T. Moyo", email: "moyo@mavingtech.com", employeeNumber: "MHS-S00001", employmentType: "Full-time", maxPeriodsPerWeek: 28, preferredTime: "Both", qualifiedSubjects: ["sub-1", "sub-9"], qualifiedForms: [1, 2, 3] },
+  { id: "t-2", name: "Mrs. N. Sibanda", email: "sibanda@mavingtech.com", employeeNumber: "MHS-S00002", employmentType: "Full-time", maxPeriodsPerWeek: 28, preferredTime: "Morning", qualifiedSubjects: ["sub-2", "sub-7"], qualifiedForms: [1, 2, 3, 4] },
+  { id: "t-3", name: "Mr. S. Chikore", email: "chikore@mavingtech.com", employeeNumber: "MHS-S00003", employmentType: "Full-time", maxPeriodsPerWeek: 28, preferredTime: "Both", qualifiedSubjects: ["sub-3", "sub-5"], qualifiedForms: [1, 2, 3] },
+  { id: "t-4", name: "Ms. R. Ndlovu", email: "ndlovu@mavingtech.com", employeeNumber: "MHS-S00004", employmentType: "Part-time", maxPeriodsPerWeek: 16, preferredTime: "Afternoon", qualifiedSubjects: ["sub-6", "sub-10"], qualifiedForms: [2, 3] },
+  { id: "t-5", name: "Mr. B. Mutasa", email: "mutasa@mavingtech.com", employeeNumber: "MHS-S00005", employmentType: "Full-time", maxPeriodsPerWeek: 28, preferredTime: "Both", qualifiedSubjects: ["sub-4", "sub-7"], qualifiedForms: [1, 2, 3, 4] },
+  { id: "t-6", name: "Mrs. T. Dube", email: "dube@mavingtech.com", employeeNumber: "MHS-S00006", employmentType: "Full-time", maxPeriodsPerWeek: 28, preferredTime: "Morning", qualifiedSubjects: ["sub-8"], qualifiedForms: [1, 2, 3, 4] },
 ];
 
 const seedClasses: SchoolClass[] = [
   {
-    id: "c-1", name: "Grade 8A", gradeLevel: 8, stream: "Sciences", studentCount: 32, classTeacherId: "t-1",
+    id: "c-1", name: "Form 1A", formLevel: 1, stream: "Sciences", studentCount: 32, classTeacherId: "t-1",
     subjects: [
       { subjectId: "sub-1", periodsPerWeek: 5, roomType: "Regular" },
       { subjectId: "sub-2", periodsPerWeek: 5, roomType: "Regular" },
@@ -166,7 +166,7 @@ const seedClasses: SchoolClass[] = [
     ],
   },
   {
-    id: "c-2", name: "Grade 9B", gradeLevel: 9, stream: "Commerce", studentCount: 30, classTeacherId: "t-2",
+    id: "c-2", name: "Form 2B", formLevel: 2, stream: "Commerce", studentCount: 30, classTeacherId: "t-2",
     subjects: [
       { subjectId: "sub-1", periodsPerWeek: 5, roomType: "Regular" },
       { subjectId: "sub-2", periodsPerWeek: 5, roomType: "Regular" },
@@ -177,7 +177,7 @@ const seedClasses: SchoolClass[] = [
     ],
   },
   {
-    id: "c-3", name: "Grade 10C", gradeLevel: 10, stream: "Arts", studentCount: 28, classTeacherId: "t-5",
+    id: "c-3", name: "Form 3C", formLevel: 3, stream: "Arts", studentCount: 28, classTeacherId: "t-5",
     subjects: [
       { subjectId: "sub-1", periodsPerWeek: 4, roomType: "Regular" },
       { subjectId: "sub-2", periodsPerWeek: 5, roomType: "Regular" },
@@ -193,7 +193,7 @@ function seedAllocations(): Allocation[] {
   for (const c of seedClasses) {
     for (const s of c.subjects) {
       const teacher = seedTeachers.find(
-        (t) => t.qualifiedSubjects.includes(s.subjectId) && t.qualifiedGrades.includes(c.gradeLevel),
+        (t) => t.qualifiedSubjects.includes(s.subjectId) && t.qualifiedForms.includes(c.formLevel),
       );
       if (teacher) {
         out.push({
@@ -220,7 +220,6 @@ function aiGenerateTimetable(
   classes: SchoolClass[],
   subjects: Subject[],
   rooms: Room[],
-  teachers: Teacher[],
 ): { slots: TimetableSlot[]; warnings: string[] } {
   const slots: TimetableSlot[] = [];
   const teacherBusy = new Set<string>();
@@ -376,7 +375,7 @@ function validate(
 }
 
 const initialAllocations = seedAllocations();
-const initialBuild = aiGenerateTimetable(initialAllocations, seedClasses, seedSubjects, seedRooms, seedTeachers);
+const initialBuild = aiGenerateTimetable(initialAllocations, seedClasses, seedSubjects, seedRooms);
 
 interface Ctx {
   teachers: Teacher[];
@@ -425,7 +424,9 @@ export function AllocationProvider({ children }: { children: ReactNode }) {
       window.localStorage.setItem(LS_KEY, JSON.stringify({
         teachers, subjects, rooms, classes, allocations, slots, notifications, publishedAt,
       }));
-    } catch {}
+    } catch {
+      // Storage unavailable (private browsing); state still works for this session.
+    }
   }, [teachers, subjects, rooms, classes, allocations, slots, notifications, publishedAt]);
 
   const pushNotification = useCallback((n: Omit<TimetableNotification, "id" | "at">) => {
@@ -506,11 +507,11 @@ export function AllocationProvider({ children }: { children: ReactNode }) {
       }));
     },
     rebuildTimetable: () => {
-      const built = aiGenerateTimetable(allocations, classes, subjects, rooms, teachers);
+      const built = aiGenerateTimetable(allocations, classes, subjects, rooms);
       setSlots(built.slots);
     },
     runAIAgent: () => {
-      const built = aiGenerateTimetable(allocations, classes, subjects, rooms, teachers);
+      const built = aiGenerateTimetable(allocations, classes, subjects, rooms);
       setSlots(built.slots);
       const placed = built.slots.filter((s) => s.subjectId).length;
       pushNotification({

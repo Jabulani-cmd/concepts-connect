@@ -1,5 +1,4 @@
-// @ts-nocheck
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,15 +24,17 @@ import {
   Plus,
   CalendarDays,
   FileText,
-  Printer,
   ClipboardList,
   CreditCard,
   Search,
+  type LucideIcon,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import schoolLogo from "@/assets/mavingtech-logo.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
+import type { QueryData } from "@supabase/supabase-js";
 import StudentExamTimetableTab from "@/components/student/StudentExamTimetableTab";
 import StudentTimetableTab from "@/components/student/StudentTimetableTab";
 import StudentTermReportsTab from "@/components/student/StudentTermReportsTab";
@@ -42,10 +43,9 @@ import StudentAnnouncementsSection from "@/components/student/StudentAnnouncemen
 import AccessStatusPanel from "@/components/subscription/AccessStatusPanel";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { buildReceiptHtml, buildStatementHtml, SCHOOL_LOGO_URL } from "@/lib/finance/pdf";
-import { openPrintWindow } from "@/lib/finance/print";
 import DocActionButtons from "@/components/finance/DocActionButtons";
-import DateRangeFilter, { dateMatches, emptyDateFilter, type FinanceDateFilter } from "@/components/finance/DateRangeFilter";
+import DateRangeFilter from "@/components/finance/DateRangeFilter";
+import { dateMatches, emptyDateFilter, type FinanceDateFilter } from "@/lib/finance/dateFilter";
 import { invoiceActions, receiptActions, statementActions } from "@/lib/finance/documentActions";
 import StudentMarksTab from "@/components/student/StudentMarksTab";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -54,6 +54,9 @@ import SubscriptionGate from "@/components/subscription/SubscriptionGate";
 import PrintableSection from "@/components/shared/PrintableSection";
 import PayInvoiceDialog from "@/components/finance/PayInvoiceDialog";
 import { formatMoney } from "@/lib/currency";
+import { errorMessage } from "@/lib/errors";
+import { gradeFor, gradeBadgeClass } from "@/lib/grading";
+import type { ExamRankings } from "@/types/school";
 
 const Locked = ({ feature, children }: { feature: string; children: React.ReactNode }) => (
   <div className="relative min-h-[60vh]">
@@ -74,6 +77,20 @@ type TabId =
   | "exam-timetable"
   | "reports";
 
+const examResultsQuery = (examId: string, studentId: string) =>
+  supabase
+    .from("exam_results")
+    .select("id, mark, grade, teacher_comment:comment, subject_id, subjects(name, code)")
+    .eq("exam_id", examId)
+    .eq("student_id", studentId)
+    .order("mark", { ascending: false });
+
+type ExamResult = QueryData<ReturnType<typeof examResultsQuery>>[number];
+type ChildPayment = Tables<"payments"> & { invoices?: { invoice_number: string | null } | null };
+
+// "billing" is a link to its own page rather than an in-page tab.
+type NavItemId = TabId | "billing";
+
 interface ChildInfo {
   id: string;
   full_name: string;
@@ -83,96 +100,27 @@ interface ChildInfo {
   status: string;
 }
 
-function getCAPSGrade(mark: number): string {
-  if (mark >= 90) return "A*";
-  if (mark >= 80) return "A";
-  if (mark >= 70) return "B";
-  if (mark >= 60) return "C";
-  if (mark >= 50) return "D";
-  if (mark >= 40) return "E";
-  return "U";
-}
-
-function getGradeColor(grade: string): string {
-  switch (grade) {
-    case "A*":
-      return "bg-emerald-100 text-emerald-800 border-emerald-300";
-    case "A":
-      return "bg-green-100 text-green-800 border-green-300";
-    case "B":
-      return "bg-blue-100 text-blue-800 border-blue-300";
-    case "C":
-      return "bg-sky-100 text-sky-800 border-sky-300";
-    case "D":
-      return "bg-amber-100 text-amber-800 border-amber-300";
-    case "E":
-      return "bg-orange-100 text-orange-800 border-orange-300";
-    case "U":
-      return "bg-red-100 text-red-800 border-red-300";
-    default:
-      return "bg-muted text-muted-foreground";
-  }
-}
-
 export default function ParentDashboard() {
   const { signOut, user } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabId>("overview");
   const [children, setChildren] = useState<ChildInfo[]>([]);
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
-  const [profile, setProfile] = useState<any>(null);
-  const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [profile, setProfile] = useState<Tables<"profiles"> | null>(null);
+  const [announcements, setAnnouncements] = useState<Tables<"announcements">[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Child-specific data
-  const [attendanceData, setAttendanceData] = useState<any[]>([]);
-  const [invoices, setInvoices] = useState<any[]>([]);
-  const [childPayments, setChildPayments] = useState<any[]>([]);
-  const [examResults, setExamResults] = useState<any[]>([]);
-  const [exams, setExams] = useState<any[]>([]);
+  const [attendanceData, setAttendanceData] = useState<Tables<"attendance">[]>([]);
+  const [invoices, setInvoices] = useState<Tables<"invoices">[]>([]);
+  const [childPayments, setChildPayments] = useState<ChildPayment[]>([]);
+  const [examResults, setExamResults] = useState<ExamResult[]>([]);
+  const [exams, setExams] = useState<Tables<"exams">[]>([]);
   const [selectedExamId, setSelectedExamId] = useState<string | null>(null);
-  const [rankings, setRankings] = useState<any>(null);
+  const [rankings, setRankings] = useState<ExamRankings | null>(null);
   const [childClassId, setChildClassId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!user) return;
-    fetchInitialData();
-  }, [user]);
-
-  useEffect(() => {
-    if (selectedChildId) fetchChildData(selectedChildId);
-  }, [selectedChildId]);
-
-  // Realtime payment updates
-  useEffect(() => {
-    if (!selectedChildId) return;
-    const channel = supabase
-      .channel(`parent-payments-${selectedChildId}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "payments", filter: `student_id=eq.${selectedChildId}` },
-        () => {
-          fetchChildData(selectedChildId);
-        },
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "invoices", filter: `student_id=eq.${selectedChildId}` },
-        () => {
-          fetchChildData(selectedChildId);
-        },
-      )
-      .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [selectedChildId]);
-
-  useEffect(() => {
-    if (selectedExamId && selectedChildId) fetchExamResults();
-  }, [selectedExamId]);
-
-  const fetchInitialData = async () => {
+  const fetchInitialData = useCallback(async () => {
     setLoading(true);
     const uid = user!.id;
 
@@ -204,15 +152,16 @@ export default function ParentDashboard() {
       }
     }
     setLoading(false);
-  };
+  }, [user]);
 
-  const fetchChildData = async (studentId: string) => {
+  const fetchChildData = useCallback(async (studentId: string) => {
+    const childForm = children.find((c) => c.id === studentId)?.form;
     const [{ data: att }, { data: inv }, { data: pay }, { data: exm }, { data: sc }] = await Promise.all([
       supabase
         .from("attendance")
         .select("*")
         .eq("student_id", studentId)
-        .order("attendance_date", { ascending: false }),
+        .order("date", { ascending: false }),
       supabase.from("invoices").select("*").eq("student_id", studentId).order("created_at", { ascending: false }),
       supabase
         .from("payments")
@@ -223,6 +172,7 @@ export default function ParentDashboard() {
         .from("exams")
         .select("*")
         .eq("is_published", true)
+        .or(childForm ? `form_level.is.null,form_level.eq."${childForm}"` : "form_level.is.null")
         .order("academic_year", { ascending: false })
         .order("term", { ascending: false }),
       supabase.from("student_classes").select("class_id").eq("student_id", studentId).limit(1).single(),
@@ -241,24 +191,56 @@ export default function ParentDashboard() {
       setExamResults([]);
       setRankings(null);
     }
-  };
+  }, [children]);
 
-  const fetchExamResults = async () => {
+  const fetchExamResults = useCallback(async () => {
     if (!selectedExamId || !selectedChildId) return;
 
     const [{ data: results }, { data: rankData }] = await Promise.all([
-      supabase
-        .from("exam_results")
-        .select("id, mark, grade, teacher_comment, subject_id, subjects(name, code)")
-        .eq("exam_id", selectedExamId)
-        .eq("student_id", selectedChildId)
-        .order("mark", { ascending: false }),
+      examResultsQuery(selectedExamId, selectedChildId),
       supabase.rpc("get_exam_rankings", { p_exam_id: selectedExamId, p_student_id: selectedChildId }),
     ]);
 
     setExamResults(results || []);
-    setRankings(rankData || {});
-  };
+    setRankings((rankData as ExamRankings | null) ?? {});
+  }, [selectedChildId, selectedExamId]);
+
+  useEffect(() => {
+    if (!user) return;
+    fetchInitialData();
+  }, [fetchInitialData, user]);
+
+  useEffect(() => {
+    if (selectedChildId) fetchChildData(selectedChildId);
+  }, [fetchChildData, selectedChildId]);
+
+  useEffect(() => {
+    if (!selectedChildId) return;
+    const channel = supabase
+      .channel(`parent-payments-${selectedChildId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "payments", filter: `student_id=eq.${selectedChildId}` },
+        () => {
+          fetchChildData(selectedChildId);
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "invoices", filter: `student_id=eq.${selectedChildId}` },
+        () => {
+          fetchChildData(selectedChildId);
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchChildData, selectedChildId]);
+
+  useEffect(() => {
+    if (selectedExamId && selectedChildId) fetchExamResults();
+  }, [fetchExamResults, selectedChildId, selectedExamId]);
 
   const selectedChild = children.find((c) => c.id === selectedChildId);
   const displayName = profile?.full_name || user?.user_metadata?.full_name || "Parent";
@@ -277,7 +259,7 @@ export default function ParentDashboard() {
   const feeBalance = totalInvoiced - totalPaidAll; // positive = owing, negative = credit
 
   const avgMark =
-    examResults.length > 0 ? Math.round(examResults.reduce((s, r: any) => s + r.mark, 0) / examResults.length) : 0;
+    examResults.length > 0 ? Math.round(examResults.reduce((s, r) => s + (r.mark ?? 0), 0) / examResults.length) : 0;
 
   const handleLogout = async () => {
     await signOut();
@@ -292,7 +274,7 @@ export default function ParentDashboard() {
     );
   }
 
-  const tabs: { id: TabId; label: string; icon: any }[] = [
+  const tabs: { id: NavItemId; label: string; icon: LucideIcon }[] = [
     { id: "overview", label: "Overview", icon: Users },
     { id: "grades", label: "Grades", icon: GraduationCap },
     { id: "marks", label: "Marks", icon: ClipboardList },
@@ -345,8 +327,9 @@ export default function ParentDashboard() {
                 </Link>
               );
             }
+            const tabId = item.id;
             return (
-              <button key={item.id} onClick={() => setActiveTab(item.id)} className={cls}>
+              <button key={item.id} onClick={() => setActiveTab(tabId)} className={cls}>
                 <Icon className="h-4 w-4" />
                 {item.label}
               </button>
@@ -407,8 +390,9 @@ export default function ParentDashboard() {
               if (t.id === "billing") {
                 return <Link key={t.id} to="/portal/parent/billing" className={cls}>{t.label}</Link>;
               }
+              const tabId = t.id;
               return (
-                <button key={t.id} onClick={() => setActiveTab(t.id)} className={cls}>
+                <button key={t.id} onClick={() => setActiveTab(tabId)} className={cls}>
                   {t.label}
                 </button>
               );
@@ -475,8 +459,8 @@ function LinkChildDialog({ onLinked }: { onLinked: () => void }) {
       setOpen(false);
       setAdmissionNumber("");
       onLinked();
-    } catch (err: any) {
-      toast({ title: "Link failed", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Link failed", description: errorMessage(err), variant: "destructive" });
     }
     setLinking(false);
   };
@@ -585,20 +569,20 @@ interface TabContentProps {
   setActiveTab: (tab: TabId) => void;
   child: ChildInfo | null;
   childClassId: string | null;
-  attendanceData: any[];
+  attendanceData: Tables<"attendance">[];
   attendancePercent: number;
-  invoices: any[];
-  childPayments: any[];
+  invoices: Tables<"invoices">[];
+  childPayments: ChildPayment[];
   feeBalance: number;
   totalInvoiced: number;
   totalPaidAll: number;
-  exams: any[];
-  examResults: any[];
+  exams: Tables<"exams">[];
+  examResults: ExamResult[];
   selectedExamId: string | null;
   setSelectedExamId: (id: string) => void;
-  rankings: any;
+  rankings: ExamRankings | null;
   avgMark: number;
-  announcements: any[];
+  announcements: Tables<"announcements">[];
   refreshChildData: (studentId: string) => void;
 }
 
@@ -645,7 +629,7 @@ function TabContentInner(props: TabContentProps) {
   const isMobile = useIsMobile();
   const [feeDateFilter, setFeeDateFilter] = useState<FinanceDateFilter>(emptyDateFilter());
   const [feeSearch, setFeeSearch] = useState("");
-  const [payInvoice, setPayInvoice] = useState<any | null>(null);
+  const [payInvoice, setPayInvoice] = useState<Tables<"invoices"> | null>(null);
 
   if (!child) return null;
 
@@ -710,7 +694,7 @@ function TabContentInner(props: TabContentProps) {
           <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab("fees")}>
             <CardContent className="p-4 flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-100">
-                <span className="text-lg font-bold text-red-600">R</span>
+                <span className="text-lg font-bold text-red-600">$</span>
               </div>
               <div>
                 <p className={`text-lg font-bold ${feeBalance > 0 ? "text-red-700" : "text-emerald-700"}`}>
@@ -766,7 +750,7 @@ function TabContentInner(props: TabContentProps) {
     const selectedExam = exams.find((e) => e.id === selectedExamId);
     const subjectRankings = rankings?.subject_rankings || {};
     const overallRank = rankings?.overall_rank ? { rank: rankings.overall_rank, total: rankings.total_students } : null;
-    const avgGrade = getCAPSGrade(avgMark);
+    const avgGrade = gradeFor(avgMark);
 
     return (
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
@@ -810,7 +794,7 @@ function TabContentInner(props: TabContentProps) {
                     <CardContent className="p-3 text-center">
                       <TrendingUp className="mx-auto mb-1 h-5 w-5 text-secondary" />
                       <p className="text-lg font-bold text-secondary">{avgMark}%</p>
-                      <Badge className={`mt-1 text-[10px] ${getGradeColor(avgGrade)}`} variant="outline">
+                      <Badge className={`mt-1 text-[10px] ${gradeBadgeClass(avgGrade)}`} variant="outline">
                         {avgGrade}
                       </Badge>
                     </CardContent>
@@ -828,9 +812,9 @@ function TabContentInner(props: TabContentProps) {
                     <CardContent className="p-3 text-center">
                       <Award className="mx-auto mb-1 h-5 w-5 text-emerald-600" />
                       <p className="text-xs font-bold text-emerald-700 truncate">
-                        {(examResults[0] as any)?.subjects?.name || "—"}
+                        {examResults[0]?.subjects?.name || "—"}
                       </p>
-                      <p className="text-lg font-bold text-emerald-700">{(examResults[0] as any)?.mark || 0}%</p>
+                      <p className="text-lg font-bold text-emerald-700">{examResults[0]?.mark || 0}%</p>
                       <p className="text-[10px] text-muted-foreground">Best</p>
                     </CardContent>
                   </Card>
@@ -852,9 +836,9 @@ function TabContentInner(props: TabContentProps) {
                           </tr>
                         </thead>
                         <tbody>
-                          {examResults.map((r: any) => {
-                            const grade = r.grade || getCAPSGrade(r.mark);
-                            const sr = subjectRankings[r.subject_id] || {};
+                          {examResults.map((r) => {
+                            const grade = r.grade || gradeFor(r.mark);
+                            const sr = r.subject_id ? subjectRankings[r.subject_id] : undefined;
                             return (
                               <tr key={r.id} className="border-b last:border-0 hover:bg-muted/30">
                                 <td className="px-3 py-3">
@@ -867,12 +851,12 @@ function TabContentInner(props: TabContentProps) {
                                 </td>
                                 <td className="px-3 py-3 text-center font-bold">{r.mark}%</td>
                                 <td className="px-3 py-3 text-center">
-                                  <Badge className={`text-xs ${getGradeColor(grade)}`} variant="outline">
+                                  <Badge className={`text-xs ${gradeBadgeClass(grade)}`} variant="outline">
                                     {grade}
                                   </Badge>
                                 </td>
                                 <td className="px-3 py-3 text-center hidden sm:table-cell">
-                                  {sr.rank ? (
+                                  {sr?.rank ? (
                                     <span className="text-xs">
                                       <span className="font-semibold">{sr.rank}</span>/{sr.total}
                                     </span>
@@ -889,7 +873,7 @@ function TabContentInner(props: TabContentProps) {
                             <td className="px-3 py-2.5">Average</td>
                             <td className="px-3 py-2.5 text-center font-bold">{avgMark}%</td>
                             <td className="px-3 py-2.5 text-center">
-                              <Badge className={`text-xs ${getGradeColor(avgGrade)}`} variant="outline">
+                              <Badge className={`text-xs ${gradeBadgeClass(avgGrade)}`} variant="outline">
                                 {avgGrade}
                               </Badge>
                             </td>
@@ -922,7 +906,7 @@ function TabContentInner(props: TabContentProps) {
     return (
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
         <PrintableSection title={`Marks — ${child.full_name}`} subtitle={`Admission ${child.admission_number || ""}`} fileName={`marks-${child.admission_number || child.full_name}`} bare>
-          <StudentMarksTab studentId={child.id} studentClassId={null} userId="" />
+          <StudentMarksTab studentId={child.id} />
         </PrintableSection>
       </motion.div>
     );
@@ -988,10 +972,10 @@ function TabContentInner(props: TabContentProps) {
                     </tr>
                   </thead>
                   <tbody>
-                    {recentRecords.map((a: any) => (
+                    {recentRecords.map((a) => (
                       <tr key={a.id} className="border-b last:border-0">
                         <td className="px-3 py-2 text-foreground">
-                          {format(new Date(a.attendance_date), "dd MMM yyyy")}
+                          {format(new Date(a.date), "dd MMM yyyy")}
                         </td>
                         <td className="px-3 py-2 text-center">
                           <Badge
@@ -1025,12 +1009,12 @@ function TabContentInner(props: TabContentProps) {
 
   if (activeTab === "fees") {
     const q = feeSearch.trim().toLowerCase();
-    const ms = (t?: any) => !q || (t ?? "").toString().toLowerCase().includes(q);
-    const fInv = invoices.filter((i: any) =>
+    const ms = (t?: string | null) => !q || (t ?? "").toString().toLowerCase().includes(q);
+    const fInv = invoices.filter((i) =>
       dateMatches(feeDateFilter, i.created_at || i.due_date) &&
       (ms(i.invoice_number) || ms(i.term) || ms(i.academic_year) || ms(i.status)),
     );
-    const fPay = childPayments.filter((p: any) =>
+    const fPay = childPayments.filter((p) =>
       dateMatches(feeDateFilter, p.payment_date) &&
       (ms(p.receipt_number) || ms(p.invoices?.invoice_number) || ms(p.payment_method) || ms(p.reference_number)),
     );
@@ -1042,7 +1026,7 @@ function TabContentInner(props: TabContentProps) {
         {/* Balance summary */}
         <Card className={feeBalance > 0 ? "border-red-200 bg-red-50/50" : "border-emerald-200 bg-emerald-50/50"}>
           <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-4">
-            <span className={`flex h-10 w-10 items-center justify-center rounded-full text-xl font-bold ${feeBalance > 0 ? "bg-red-100 text-red-600" : "bg-emerald-100 text-emerald-600"}`}>R</span>
+            <span className={`flex h-10 w-10 items-center justify-center rounded-full text-xl font-bold ${feeBalance > 0 ? "bg-red-100 text-red-600" : "bg-emerald-100 text-emerald-600"}`}>$</span>
             <div className="flex-1 min-w-0">
               <p className="text-2xl font-bold">
                 {feeBalance > 0
@@ -1060,7 +1044,7 @@ function TabContentInner(props: TabContentProps) {
             </div>
             {feeBalance > 0 && (() => {
               const owing = invoices
-                .map((inv: any) => {
+                .map((inv) => {
                   const paid = Number(inv.paid_usd || inv.amount_paid || 0);
                   return { inv, bal: Number(inv.total_usd || 0) - paid };
                 })
@@ -1124,7 +1108,7 @@ function TabContentInner(props: TabContentProps) {
               <p className="px-4 py-6 text-center text-sm text-muted-foreground">No invoices found.</p>
             ) : isMobile ? (
               <div className="space-y-2">
-                {fInv.map((inv: any) => {
+                {fInv.map((inv) => {
                   const paid = Number(inv.paid_usd || inv.amount_paid || 0);
                   const bal = Number(inv.total_usd || 0) - paid;
 
@@ -1212,7 +1196,7 @@ function TabContentInner(props: TabContentProps) {
                     </tr>
                   </thead>
                   <tbody>
-                    {fInv.map((inv: any) => {
+                    {fInv.map((inv) => {
                       const paid = Number(inv.paid_usd || inv.amount_paid || 0);
                       const bal = Number(inv.total_usd || 0) - paid;
                       return (
@@ -1283,7 +1267,7 @@ function TabContentInner(props: TabContentProps) {
           childName={child.full_name}
           admissionNumber={child.admission_number}
           form={child.form}
-          refreshKey={`${childPayments.length}-${invoices.map((inv: any) => `${inv.id}:${inv.paid_usd}:${inv.status}`).join("|")}`}
+          refreshKey={`${childPayments.length}-${invoices.map((inv) => `${inv.id}:${inv.paid_usd}:${inv.status}`).join("|")}`}
           dateFilter={feeDateFilter}
           searchTerm={feeSearch}
         />
@@ -1370,9 +1354,19 @@ function ParentPaymentHistory({
   dateFilter?: FinanceDateFilter;
   searchTerm?: string;
 }) {
-  const [payments, setPayments] = useState<any[]>([]);
+  const [payments, setPayments] = useState<ChildPayment[]>([]);
   const [loading, setLoading] = useState(true);
   const isMobile = useIsMobile();
+
+  const fetchPayments = useCallback(async () => {
+    const { data } = await supabase
+      .from("payments")
+      .select("*, invoices(invoice_number)")
+      .eq("student_id", childId)
+      .order("payment_date", { ascending: false });
+    setPayments(data || []);
+    setLoading(false);
+  }, [childId]);
 
   useEffect(() => {
     let active = true;
@@ -1391,28 +1385,18 @@ function ParentPaymentHistory({
       active = false;
       supabase.removeChannel(channel);
     };
-  }, [childId, refreshKey]);
-
-  async function fetchPayments() {
-    const { data } = await supabase
-      .from("payments")
-      .select("*, invoices(invoice_number)")
-      .eq("student_id", childId)
-      .order("payment_date", { ascending: false });
-    setPayments(data || []);
-    setLoading(false);
-  }
+  }, [childId, fetchPayments, refreshKey]);
 
   const docStudent = { fullName: childName, admissionNumber, form };
   const filter = dateFilter || emptyDateFilter();
   const q = (searchTerm || "").trim().toLowerCase();
-  const ms = (t?: any) => !q || (t ?? "").toString().toLowerCase().includes(q);
-  const visiblePayments = payments.filter((p: any) =>
+  const ms = (t?: string | null) => !q || (t ?? "").toString().toLowerCase().includes(q);
+  const visiblePayments = payments.filter((p) =>
     dateMatches(filter, p.payment_date) &&
     (ms(p.receipt_number) || ms(p.invoices?.invoice_number) || ms(p.payment_method) || ms(p.reference_number)),
   );
-  const actionsFor = (p: any) => receiptActions(p, docStudent);
-  const emailFor = (p: any) => ({
+  const actionsFor = (p: ChildPayment) => receiptActions(p, docStudent);
+  const emailFor = (p: ChildPayment) => ({
     documentLabel: "Receipt",
     filename: `receipt-${p.receipt_number}`,
     subject: `Official Receipt ${p.receipt_number} — ${childName}`,
@@ -1429,7 +1413,7 @@ function ParentPaymentHistory({
       <CardContent className={isMobile ? "px-3 pb-3" : "p-0"}>
         {isMobile ? (
           <div className="space-y-2">
-            {visiblePayments.map((p: any) => (
+            {visiblePayments.map((p) => (
               <Card key={p.id} className="border">
                 <CardContent className="p-3 space-y-1">
                   <div className="flex items-center justify-between">
@@ -1462,7 +1446,7 @@ function ParentPaymentHistory({
                 </tr>
               </thead>
               <tbody>
-                {visiblePayments.map((p: any) => (
+                {visiblePayments.map((p) => (
                   <tr key={p.id} className="border-b last:border-0">
                     <td className="px-3 py-2 font-mono text-xs">{p.receipt_number}</td>
                     <td className="px-3 py-2">{format(new Date(p.payment_date), "dd MMM yyyy")}</td>

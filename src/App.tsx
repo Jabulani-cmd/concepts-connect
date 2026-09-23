@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,58 +7,64 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AllocationProvider } from "@/contexts/AllocationContext";
 import { DemoPeopleProvider } from "@/contexts/DemoPeopleContext";
-import TeacherAllocations from "./pages/portal/TeacherAllocations";
-import TeacherMyTimetable from "./pages/portal/TeacherMyTimetable";
-import StudentMyTimetable from "./pages/portal/StudentMyTimetable";
-import ParentChildTimetable from "./pages/portal/ParentChildTimetable";
-import ParentSubscribe from "./pages/portal/ParentSubscribe";
-import ParentPaymentHistory from "./pages/portal/ParentPaymentHistory";
-import ParentBilling from "./pages/portal/ParentBilling";
-import AdminPayments from "./pages/portal/AdminPayments";
-import PortalAccessGate from "@/components/subscription/PortalAccessGate";
 import ScrollToTop from "@/components/ScrollToTop";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AuthenticatedLayout from "@/components/layout/AuthenticatedLayout";
 import SiteTranslator from "@/components/i18n/SiteTranslator";
 import Index from "./pages/Index";
-import About from "./pages/About";
-import Academics from "./pages/Academics";
-import Admissions from "./pages/Admissions";
-import SchoolLife from "./pages/SchoolLife";
-import News from "./pages/News";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import StudentDashboard from "./pages/portal/StudentDashboard";
-import ParentTeacherDashboard from "./pages/portal/ParentTeacherDashboard";
-import ParentDashboard from "./pages/portal/ParentDashboard";
-import TeacherDashboard from "./pages/portal/TeacherDashboard";
-import AIShadowMarker from "./pages/portal/AIShadowMarker";
-import AdminDashboard from "./pages/portal/AdminDashboard";
-import FinanceDashboard from "./pages/portal/FinanceDashboard";
-import PrincipalDashboard from "./pages/portal/PrincipalDashboard";
-import DeputyPrincipalDashboard from "./pages/portal/DeputyPrincipalDashboard";
-import HODDashboard from "./pages/portal/HODDashboard";
-import AdminSupervisorDashboard from "./pages/portal/AdminSupervisorDashboard";
-import RegistrationDashboard from "./pages/portal/RegistrationDashboard";
-import TimetableManagement from "./pages/portal/TimetableManagement";
-import Downloads from "./pages/Downloads";
-import Staff from "./pages/Staff";
-import Facilities from "./pages/Facilities";
-import Fees from "./pages/Fees";
-import Vacancies from "./pages/Vacancies";
-import SchoolProjects from "./pages/SchoolProjects";
-import Alumni from "./pages/Alumni";
-import PayOnline from "./pages/PayOnline";
-import Contact from "./pages/Contact";
-import Boarding from "./pages/Boarding";
-import SportsCulture from "./pages/SportsCulture";
-import Awards from "./pages/Awards";
-import NotFound from "./pages/NotFound";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
-import ForceChangePassword from "./pages/ForceChangePassword";
+
+// Route pages are code-split so visitors only download the screens they open.
+const TeacherAllocations = lazy(() => import("./pages/portal/TeacherAllocations"));
+const TeacherMyTimetable = lazy(() => import("./pages/portal/TeacherMyTimetable"));
+const StudentMyTimetable = lazy(() => import("./pages/portal/StudentMyTimetable"));
+const ParentChildTimetable = lazy(() => import("./pages/portal/ParentChildTimetable"));
+const ParentSubscribe = lazy(() => import("./pages/portal/ParentSubscribe"));
+const ParentPaymentHistory = lazy(() => import("./pages/portal/ParentPaymentHistory"));
+const ParentBilling = lazy(() => import("./pages/portal/ParentBilling"));
+const AdminPayments = lazy(() => import("./pages/portal/AdminPayments"));
+const About = lazy(() => import("./pages/About"));
+const Academics = lazy(() => import("./pages/Academics"));
+const Admissions = lazy(() => import("./pages/Admissions"));
+const SchoolLife = lazy(() => import("./pages/SchoolLife"));
+const News = lazy(() => import("./pages/News"));
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
+const StudentDashboard = lazy(() => import("./pages/portal/StudentDashboard"));
+const ParentDashboard = lazy(() => import("./pages/portal/ParentDashboard"));
+const TeacherDashboard = lazy(() => import("./pages/portal/TeacherDashboard"));
+const AIShadowMarker = lazy(() => import("./pages/portal/AIShadowMarker"));
+const AdminDashboard = lazy(() => import("./pages/portal/AdminDashboard"));
+const FinanceDashboard = lazy(() => import("./pages/portal/FinanceDashboard"));
+const PrincipalDashboard = lazy(() => import("./pages/portal/PrincipalDashboard"));
+const DeputyPrincipalDashboard = lazy(() => import("./pages/portal/DeputyPrincipalDashboard"));
+const HODDashboard = lazy(() => import("./pages/portal/HODDashboard"));
+const AdminSupervisorDashboard = lazy(() => import("./pages/portal/AdminSupervisorDashboard"));
+const RegistrationDashboard = lazy(() => import("./pages/portal/RegistrationDashboard"));
+const TimetableManagement = lazy(() => import("./pages/portal/TimetableManagement"));
+const Downloads = lazy(() => import("./pages/Downloads"));
+const Staff = lazy(() => import("./pages/Staff"));
+const Facilities = lazy(() => import("./pages/Facilities"));
+const Fees = lazy(() => import("./pages/Fees"));
+const Vacancies = lazy(() => import("./pages/Vacancies"));
+const SchoolProjects = lazy(() => import("./pages/SchoolProjects"));
+const Alumni = lazy(() => import("./pages/Alumni"));
+const PayOnline = lazy(() => import("./pages/PayOnline"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Boarding = lazy(() => import("./pages/Boarding"));
+const SportsCulture = lazy(() => import("./pages/SportsCulture"));
+const Awards = lazy(() => import("./pages/Awards"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const ForceChangePassword = lazy(() => import("./pages/ForceChangePassword"));
 
 const queryClient = new QueryClient();
+
+const PageLoader = () => (
+  <div className="flex min-h-screen items-center justify-center" role="status" aria-label="Loading">
+    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+  </div>
+);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -70,6 +77,7 @@ const App = () => (
           <DemoPeopleProvider>
           <ScrollToTop />
           <SiteTranslator />
+          <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/about" element={<About />} />
@@ -92,7 +100,6 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/change-password" element={<ForceChangePassword />} />
-            <Route path="/login" element={<Login />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/portal/student" element={
@@ -202,6 +209,7 @@ const App = () => (
             } />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </Suspense>
           </DemoPeopleProvider>
           </AllocationProvider>
         </AuthProvider>

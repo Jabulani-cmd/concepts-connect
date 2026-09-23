@@ -1,6 +1,5 @@
-// @ts-nocheck
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useState, useEffect, useCallback } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -9,24 +8,15 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
+import type { BadgeProps } from "@/components/ui/badge";
 import { Search, Download, Eye, RefreshCw, Shield, Filter } from "lucide-react";
 import * as XLSX from "xlsx";
 
-interface AuditLog {
-  id: string;
-  user_id: string | null;
-  action: string;
-  table_name: string | null;
-  record_id: string | null;
-  old_data: any;
-  new_data: any;
-  ip_address: string | null;
-  user_agent: string | null;
-  created_at: string;
-}
+type AuditLog = Tables<"audit_logs">;
 
 const ACTION_TYPES = ["all", "INSERT", "UPDATE", "DELETE", "LOGIN", "LOGOUT", "EXPORT", "VIEW"];
-const ACTION_COLORS: Record<string, string> = {
+const ACTION_COLORS: Record<string, BadgeProps["variant"]> = {
   INSERT: "default",
   UPDATE: "secondary",
   DELETE: "destructive",
@@ -49,11 +39,6 @@ export default function AuditLogs() {
   const [tables, setTables] = useState<string[]>([]);
   const [profiles, setProfiles] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    fetchLogs();
-    fetchProfiles();
-  }, []);
-
   const fetchProfiles = async () => {
     const { data } = await supabase.from("profiles").select("id, full_name");
     if (data) {
@@ -63,7 +48,7 @@ export default function AuditLogs() {
     }
   };
 
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     setLoading(true);
     let query = supabase
       .from("audit_logs")
@@ -86,7 +71,12 @@ export default function AuditLogs() {
       setTables(uniqueTables);
     }
     setLoading(false);
-  };
+  }, [actionFilter, dateFrom, dateTo, tableFilter, toast]);
+
+  useEffect(() => {
+    fetchLogs();
+    fetchProfiles();
+  }, [fetchLogs]);
 
   const filteredLogs = logs.filter(l => {
     if (!search) return true;
@@ -116,18 +106,6 @@ export default function AuditLogs() {
     XLSX.utils.book_append_sheet(wb, ws, "Audit Logs");
     XLSX.writeFile(wb, `audit_logs_${new Date().toISOString().slice(0, 10)}.xlsx`);
     toast({ title: "Audit log exported" });
-  };
-
-  const logAuditAction = async (action: string, tableName?: string, recordId?: string, oldData?: any, newData?: any) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    await supabase.from("audit_logs").insert({
-      user_id: user?.id || null,
-      action,
-      table_name: tableName || null,
-      record_id: recordId || null,
-      old_data: oldData || null,
-      new_data: newData || null,
-    } as any);
   };
 
   return (
@@ -239,7 +217,7 @@ export default function AuditLogs() {
                       <TableCell className="text-xs whitespace-nowrap">{new Date(l.created_at).toLocaleString()}</TableCell>
                       <TableCell className="text-sm">{l.user_id ? (profiles[l.user_id] || l.user_id.slice(0, 8) + "…") : "System"}</TableCell>
                       <TableCell>
-                        <Badge variant={(ACTION_COLORS[l.action] as any) || "outline"}>{l.action}</Badge>
+                        <Badge variant={ACTION_COLORS[l.action] || "outline"}>{l.action}</Badge>
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">{l.table_name || "—"}</TableCell>
                       <TableCell className="text-xs text-muted-foreground font-mono">{l.record_id ? l.record_id.slice(0, 8) + "…" : "—"}</TableCell>
@@ -267,7 +245,7 @@ export default function AuditLogs() {
             <div className="space-y-4 text-sm">
               <div className="grid grid-cols-2 gap-4">
                 <div><span className="font-medium text-muted-foreground">Timestamp:</span><p>{new Date(selectedLog.created_at).toLocaleString()}</p></div>
-                <div><span className="font-medium text-muted-foreground">Action:</span><p><Badge variant={(ACTION_COLORS[selectedLog.action] as any) || "outline"}>{selectedLog.action}</Badge></p></div>
+                <div><span className="font-medium text-muted-foreground">Action:</span><p><Badge variant={ACTION_COLORS[selectedLog.action] || "outline"}>{selectedLog.action}</Badge></p></div>
                 <div><span className="font-medium text-muted-foreground">User:</span><p>{selectedLog.user_id ? (profiles[selectedLog.user_id] || selectedLog.user_id) : "System"}</p></div>
                 <div><span className="font-medium text-muted-foreground">Table:</span><p>{selectedLog.table_name || "—"}</p></div>
                 <div><span className="font-medium text-muted-foreground">Record ID:</span><p className="font-mono text-xs">{selectedLog.record_id || "—"}</p></div>

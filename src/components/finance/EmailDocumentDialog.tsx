@@ -1,4 +1,3 @@
-// @ts-nocheck
 // Demo-mode email dialog. In production this would hand off to a real
 // edge function (Resend/SendGrid). For now it shows a realistic compose UI,
 // simulates a successful send via toast, and offers a `mailto:` fallback

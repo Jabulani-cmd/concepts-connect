@@ -1,4 +1,3 @@
-// @ts-nocheck
 // Centralised view / print / download / email helpers for finance documents.
 // Every document goes through the buildXxxHtml helpers which already render
 // the school logo, address and contact details at the top.
@@ -14,6 +13,17 @@ import {
   type ExpensesListInput,
 } from "./pdf";
 import { openPrintWindow, openViewWindow, downloadHtmlDocument } from "./print";
+import type { Tables } from "@/integrations/supabase/types";
+
+type InvoiceLine = { description: string; amount_usd: number; amount_zig: number };
+export type DocInvoice = Pick<
+  Tables<"invoices">,
+  "id" | "invoice_number" | "academic_year" | "term" | "due_date" | "total_usd" | "total_zig" | "paid_usd" | "paid_zig" | "status"
+> & { _items?: InvoiceLine[] };
+export type DocPayment = Pick<
+  Tables<"payments">,
+  "receipt_number" | "payment_date" | "amount_usd" | "amount_zig" | "payment_method" | "reference_number"
+> & { invoices?: { invoice_number: string | null } | null };
 
 export type DocStudent = {
   fullName: string;
@@ -43,15 +53,15 @@ async function fetchInvoiceItems(invoiceId: string) {
     .from("invoice_items")
     .select("description, amount_usd, amount_zig")
     .eq("invoice_id", invoiceId);
-  return (data || []).map((it: any) => ({
+  return (data || []).map((it) => ({
     description: it.description,
     amount_usd: Number(it.amount_usd || 0),
     amount_zig: Number(it.amount_zig || 0),
   }));
 }
 
-export async function getInvoiceHtml(invoice: any, student: DocStudent) {
-  let items = invoice._items as any[] | undefined;
+export async function getInvoiceHtml(invoice: DocInvoice, student: DocStudent) {
+  let items = invoice._items;
   if (!items) items = await fetchInvoiceItems(invoice.id);
   if (items.length === 0) {
     items = [{
@@ -76,18 +86,18 @@ export async function getInvoiceHtml(invoice: any, student: DocStudent) {
   });
 }
 
-export async function invoiceActions(invoice: any, student: DocStudent): Promise<DocActions> {
+export async function invoiceActions(invoice: DocInvoice, student: DocStudent): Promise<DocActions> {
   const html = await getInvoiceHtml(invoice, student);
   return makeActions(html, `invoice-${invoice.invoice_number}`);
 }
 
-export function receiptActions(payment: any, student: DocStudent): DocActions {
+export function receiptActions(payment: DocPayment, student: DocStudent): DocActions {
   const html = buildReceiptHtml({
     logoUrl: SCHOOL_LOGO_URL,
     receiptNumber: payment.receipt_number,
     paymentDate: payment.payment_date,
     student,
-    invoiceNumber: payment.invoices?.invoice_number || payment.invoice_number,
+    invoiceNumber: payment.invoices?.invoice_number,
     amounts: { usd: Number(payment.amount_usd || 0), zig: Number(payment.amount_zig || 0) },
     paymentMethod: payment.payment_method,
     referenceNumber: payment.reference_number,
@@ -97,13 +107,13 @@ export function receiptActions(payment: any, student: DocStudent): DocActions {
 
 export function statementActions(
   student: DocStudent,
-  invoices: any[],
-  payments: any[],
+  invoices: DocInvoice[],
+  payments: DocPayment[],
 ): DocActions {
   const html = buildStatementHtml({
     logoUrl: SCHOOL_LOGO_URL,
     student,
-    invoices: invoices.map((i: any) => ({
+    invoices: invoices.map((i) => ({
       invoice_number: i.invoice_number,
       term: i.term,
       academic_year: i.academic_year,
@@ -113,7 +123,7 @@ export function statementActions(
       paid_zig: i.paid_zig,
       status: i.status,
     })),
-    payments: payments.map((p: any) => ({
+    payments: payments.map((p) => ({
       receipt_number: p.receipt_number,
       payment_date: p.payment_date,
       amount_usd: p.amount_usd,

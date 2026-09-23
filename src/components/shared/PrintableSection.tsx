@@ -1,4 +1,3 @@
-// @ts-nocheck
 // Wraps any block of portal UI with a header bar that exposes
 // View / Print / Download actions. The captured DOM is wrapped in a fully
 // branded HTML document (school logo + name + motto in the header) before

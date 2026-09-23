@@ -1,11 +1,7 @@
-// @ts-nocheck
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import {
-  ArrowLeft, DollarSign, Users, Clock, AlertTriangle, Sparkles, Search, CheckCircle2,
-  XCircle, Pause, Gift, Plus, Bell, FileSpreadsheet, TrendingUp, Loader2,
-} from "lucide-react";
+import { ArrowLeft, DollarSign, Users, Clock, AlertTriangle, Sparkles, Search, CheckCircle2, XCircle, Pause, Gift, Plus, Bell, FileSpreadsheet, TrendingUp, Loader2, type LucideIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatMoney } from "@/lib/currency";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
+import type { Tables } from "@/integrations/supabase/types";
 
 const PIE_COLORS = ["#0d9488", "#2563eb", "#7c3aed", "#f59e0b", "#ef4444", "#0ea5e9"];
 
@@ -28,9 +25,9 @@ export default function AdminPayments() {
   const nav = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
-  const [subs, setSubs] = useState<any[]>([]);
-  const [payments, setPayments] = useState<any[]>([]);
-  const [grants, setGrants] = useState<any[]>([]);
+  const [subs, setSubs] = useState<(Tables<"subscriptions"> & { subscription_plans?: { name: string } | null })[]>([]);
+  const [payments, setPayments] = useState<Tables<"payments">[]>([]);
+  const [grants, setGrants] = useState<Tables<"access_grants">[]>([]);
   const [statusFilter, setStatusFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [aiOpen, setAiOpen] = useState(false);
@@ -67,7 +64,8 @@ export default function AdminPayments() {
     [payments],
   );
   const totalRevenueMonth = useMemo(() => {
-    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    const today = new Date();
+    const start = new Date(today.getFullYear(), today.getMonth(), 1);
     return payments
       .filter((p) => p.payment_status === "paid" && new Date(p.created_at) >= start)
       .reduce((s, p) => s + Number(p.amount), 0);
@@ -77,8 +75,9 @@ export default function AdminPayments() {
   const pendingVerifications = payments.filter((p) => p.payment_status === "awaiting_verification").length;
 
   const monthlyChart = useMemo(() => {
+    const today = new Date();
     const months = Array.from({ length: 6 }).map((_, i) => {
-      const d = new Date(now.getFullYear(), now.getMonth() - 5 + i, 1);
+      const d = new Date(today.getFullYear(), today.getMonth() - 5 + i, 1);
       return { key: `${d.getFullYear()}-${d.getMonth()}`, label: d.toLocaleString("en", { month: "short" }), total: 0 };
     });
     payments.forEach((p) => {
@@ -428,7 +427,7 @@ export default function AdminPayments() {
   );
 }
 
-function Metric({ icon: Icon, label, value, tint }: any) {
+function Metric({ icon: Icon, label, value, tint }: { icon: LucideIcon; label: string; value: React.ReactNode; tint: string }) {
   return (
     <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
       <Card>

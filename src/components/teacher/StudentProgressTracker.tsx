@@ -1,43 +1,33 @@
-// @ts-nocheck
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect, useCallback } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, Minus, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import type { ClassOption, SubjectOption } from "@/types/school";
+import type { Tables } from "@/integrations/supabase/types";
+import { gradeFor } from "@/lib/grading";
+
+/** A mark or exam result, normalised for trend display. */
+type ProgressMark = { student_id: string | null; mark: number; term: string; created_at: string; subjects?: { name: string } | null };
 
 interface Props {
-  userId: string;
-  classes: any[];
-  subjects: any[];
+  classes: ClassOption[];
+  subjects: SubjectOption[];
 }
 
-function zimGrade(mark: number): string {
-  if (mark >= 90) return "A*";
-  if (mark >= 80) return "A";
-  if (mark >= 70) return "B";
-  if (mark >= 60) return "C";
-  if (mark >= 50) return "D";
-  if (mark >= 40) return "E";
-  return "U";
-}
-
-export default function StudentProgressTracker({ userId, classes, subjects }: Props) {
+export default function StudentProgressTracker({ classes, subjects }: Props) {
   const [selectedClass, setSelectedClass] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("all");
-  const [marks, setMarks] = useState<any[]>([]);
-  const [students, setStudents] = useState<any[]>([]);
+  const [marks, setMarks] = useState<ProgressMark[]>([]);
+  const [students, setStudents] = useState<Pick<Tables<"students">, "id" | "full_name" | "admission_number">[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (classes.length > 0 && !selectedClass) setSelectedClass(classes[0].id);
-  }, [classes]);
+  }, [classes, selectedClass]);
 
-  useEffect(() => {
-    if (selectedClass) loadData();
-  }, [selectedClass, selectedSubject]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     const { data: sc } = await supabase.from("student_classes").select("student_id").eq("class_id", selectedClass);
     const studentIds = sc?.map(s => s.student_id) || [];
@@ -72,7 +62,11 @@ export default function StudentProgressTracker({ userId, classes, subjects }: Pr
       setMarks([]);
     }
     setLoading(false);
-  };
+  }, [selectedClass, selectedSubject]);
+
+  useEffect(() => {
+    if (selectedClass) loadData();
+  }, [loadData, selectedClass, selectedSubject]);
 
   // Build per-student summary
   const studentSummaries = students.map(s => {
@@ -171,7 +165,7 @@ export default function StudentProgressTracker({ userId, classes, subjects }: Pr
                     {/* Overall */}
                     <div className="text-right">
                       <p className="text-lg font-bold text-primary">{s.avg !== null ? `${s.avg}%` : "—"}</p>
-                      {s.avg !== null && <Badge className="text-[10px]">{zimGrade(s.avg)}</Badge>}
+                      {s.avg !== null && <Badge className="text-[10px]">{gradeFor(s.avg)}</Badge>}
                     </div>
                     {/* Trend */}
                     {s.trend > 2 ? <TrendingUp className="h-5 w-5 text-green-500" /> :
@@ -182,7 +176,7 @@ export default function StudentProgressTracker({ userId, classes, subjects }: Pr
                 {/* Mini bar */}
                 {s.recent.length > 0 && (
                   <div className="flex gap-1 mt-2">
-                    {s.recent.map((m: any, mi: number) => (
+                    {s.recent.map((m, mi) => (
                       <div key={mi} className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
                         <div className="h-full rounded-full bg-primary" style={{ width: `${m.mark}%` }} />
                       </div>

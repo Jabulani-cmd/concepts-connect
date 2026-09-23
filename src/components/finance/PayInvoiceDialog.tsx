@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -10,10 +9,12 @@ import {
   CreditCard, Building2, Lock, Loader2, Check, X, AlertCircle, ShieldCheck,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { paymentMethodLabel, type PaymentMethod } from "@/lib/finance/paymentMethods";
 import { useToast } from "@/hooks/use-toast";
 import { formatMoney } from "@/lib/currency";
 import { generateAndStoreReceipt } from "@/lib/finance/receiptStorage";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
+import type { Tables } from "@/integrations/supabase/types";
 
 type Outcome = "auto" | "approve" | "insufficient" | "declined";
 type Step = "amount" | "method" | "card" | "gateway" | "qr" | "success" | "failed";
@@ -21,25 +22,19 @@ type Step = "amount" | "method" | "card" | "gateway" | "qr" | "success" | "faile
 interface Props {
   open: boolean;
   onOpenChange: (o: boolean) => void;
-  invoice: any;
+  invoice: Pick<Tables<"invoices">, "id" | "invoice_number">;
   student: { id: string; full_name: string; admission_number?: string };
   outstanding: number;
   onPaid?: () => void;
 }
 
-const METHOD_LABEL: Record<string, string> = {
-  card: "Card (Visa / Mastercard)",
-  eft: "Instant EFT",
-  ecocash: "EcoCash",
-  onemoney: "OneMoney",
-};
 
 export default function PayInvoiceDialog({ open, onOpenChange, invoice, student, outstanding, onPaid }: Props) {
   const { toast } = useToast();
   const { rate, usdToZig } = useExchangeRate();
   const [step, setStep] = useState<Step>("amount");
   const [amount, setAmount] = useState<string>("");
-  const [method, setMethod] = useState<string>("card");
+  const [method, setMethod] = useState<PaymentMethod>("card");
   const [forceOutcome, setForceOutcome] = useState<Outcome>("approve");
   const [cardNumber, setCardNumber] = useState("");
   const [cardName, setCardName] = useState("");
@@ -69,7 +64,7 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
     setStep("method");
   }
 
-  function pickMethod(m: string) {
+  function pickMethod(m: PaymentMethod) {
     setMethod(m); setError(null);
     if (m === "card") setStep("card");
     else if (m === "eft") setStep("gateway");
@@ -122,7 +117,7 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
         payment_status: "paid",
         reference_number: txId,
         payment_date: payDate,
-        notes: `Paynow Zimbabwe (${METHOD_LABEL[method]}) — parent portal`,
+        notes: `Paynow Zimbabwe (${paymentMethodLabel(method)}) — parent portal`,
       }).select("id").single();
       if (payErr) throw payErr;
 
@@ -151,7 +146,7 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
       setStep("success");
       toast({ title: "Payment successful", description: `Receipt ${receiptNumber}` });
       onPaid?.();
-    } catch (e: any) {
+    } catch (e) {
       // Real backend/schema error — do NOT show as a gateway decline.
       console.error("[PayInvoiceDialog] Failed to record payment:", e);
       setFailReason("Something went wrong processing your payment. Please try again later.");
@@ -233,12 +228,12 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
               <DemoBadge />
             </div>
             <div className="grid grid-cols-2 gap-2">
-              {[
+              {([
                 { id: "card", label: "Card", icon: CreditCard, note: "Visa / Mastercard" },
-                { id: "eft", label: "Instant EFT", icon: Building2, note: "CBZ, Stanbic, Steward…" },
+                { id: "eft", label: "Internet Banking", icon: Building2, note: "ZIPIT — CBZ, Stanbic, Steward, ZB…" },
                 { id: "ecocash", label: "EcoCash", icon: CreditCard, note: "Mobile money" },
                 { id: "onemoney", label: "OneMoney", icon: CreditCard, note: "Mobile money" },
-              ].map((m) => (
+              ] satisfies { id: PaymentMethod; label: string; icon: typeof CreditCard; note: string }[]).map((m) => (
                 <button key={m.id} onClick={() => pickMethod(m.id)}
                   className="p-4 rounded-lg border-2 border-border hover:border-teal-500 hover:bg-teal-50/40 text-left transition">
                   <m.icon className="w-6 h-6 mb-1 text-teal-600" />
@@ -298,7 +293,7 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
         {step === "gateway" && (
           <div className="text-center space-y-3">
             <Building2 className="w-12 h-12 mx-auto text-teal-600" />
-            <h3 className="font-semibold">Paynow Zimbabwe — Instant EFT</h3>
+            <h3 className="font-semibold">Paynow Zimbabwe — Internet Banking (ZIPIT)</h3>
             <p className="text-sm text-muted-foreground">
               Authorise a {formatMoney(payAmount)} payment with your bank.
             </p>
@@ -338,7 +333,7 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
             <div className="bg-muted/40 rounded-lg p-3 text-sm text-left space-y-1">
               <div className="flex justify-between"><span className="text-muted-foreground">Receipt</span><strong>{receipt}</strong></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Amount</span><strong>{formatMoney(payAmount)}</strong></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Method</span><strong>{METHOD_LABEL[method]}</strong></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Method</span><strong>{paymentMethodLabel(method)}</strong></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Invoice</span><strong>{invoice.invoice_number}</strong></div>
             </div>
             <Button className="w-full" onClick={() => onOpenChange(false)}>Close</Button>

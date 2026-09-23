@@ -81,7 +81,7 @@
     "signInSuccess": "Signed in successfully",
     "province": "Province",
     "city": "City / Town",
-    "idNumber": "SA ID Number (13 digits)"
+    "idNumber": "National ID Number (e.g. 63-123456-A-00)"
   },
   "login": {
     "title": "Portal Login",
@@ -128,14 +128,14 @@
     "chooseMethod": "Choose a payment method",
     "card": "Card Payment",
     "cardNote": "Visa / Mastercard — Paynow Zimbabwe",
-    "instantEft": "Instant EFT",
-    "instantEftNote": "FNB, Standard Bank, ABSA, Nedbank, Capitec",
+    "instantEft": "Internet Banking (ZIPIT)",
+    "instantEftNote": "CBZ, Stanbic, FBC, ZB Bank, Steward Bank",
     "bankTransfer": "Bank Transfer",
-    "bankTransferNote": "Manual EFT — upload proof of payment",
-    "snapscan": "SnapScan",
-    "snapscanNote": "Scan the QR code with the SnapScan app",
-    "zapper": "Zapper",
-    "zapperNote": "Scan the QR code with the Zapper app",
+    "bankTransferNote": "RTGS transfer — upload proof of payment",
+    "snapscan": "EcoCash",
+    "snapscanNote": "Pay with EcoCash",
+    "zapper": "OneMoney",
+    "zapperNote": "Pay with OneMoney",
     "demoBadge": "Demo Mode — no real money is processed",
     "processing": "Processing…",
     "contactingBank": "Contacting your bank…",
@@ -156,7 +156,7 @@
     "declined": "Payment Declined",
     "declinedInsufficient": "Payment Declined — Insufficient Funds",
     "declinedCard": "Transaction Failed — Card Declined",
-    "declinedEft": "Your bank did not authorise the EFT payment.",
+    "declinedEft": "Your bank did not authorise the ZIPIT payment.",
     "retry": "Try Again",
     "changeMethod": "Change Method",
     "downloadReceipt": "Download Receipt",
@@ -173,7 +173,7 @@
     "schoolName": "MavingTech High School",
     "schoolShort": "MavingTech",
     "schoolSuffix": "High School",
-    "tagline": "Excellence in South African Education"
+    "tagline": "Excellence in Zimbabwean Education"
   },
   "home": {
     "hero": {
@@ -184,7 +184,7 @@
     "learning": {
       "title": "Learning Begins With Us",
       "p1": "At MavingTech High School, we offer a supportive and inspiring environment for young African minds to learn, grow and thrive. Our passion for education goes beyond outstanding academic results — we build confident, creative thinkers prepared for a global future.",
-      "p2": "From Grade 8 through NSC (Grade 12) / Matric, our students walk out with the character, discipline and skills to make their mark in the world.",
+      "p2": "From Form 1 through O-Level and A-Level, our students walk out with the character, discipline and skills to make their mark in the world.",
       "cta": "Know More About Us"
     },
     "stats": {
@@ -196,9 +196,9 @@
     "director": {
       "eyebrow": "Message from the Principal",
       "title": "From the Principal's Desk",
-      "quote": "At MavingTech High School, we believe every learner carries a unique gift. Our calling is to nurture that gift through discipline, faith, hard work and a love for knowledge — so that each of our students rises to become a leader of integrity and purpose.",
-      "body": "Welcome to our school community. Together with our dedicated teachers, supportive parents and ambitious students, we are building a school where academic excellence walks hand in hand with strong character. We are proud of who our learners are becoming, and we invite you to be part of this journey.",
-      "signature": "Mr. S.M. Zulu",
+      "quote": "At MavingTech High School, we believe every student carries a unique gift. Our calling is to nurture that gift through discipline, faith, hard work and a love for knowledge — so that each of our students rises to become a leader of integrity and purpose.",
+      "body": "Welcome to our school community. Together with our dedicated teachers, supportive parents and ambitious students, we are building a school where academic excellence walks hand in hand with strong character. We are proud of who our students are becoming, and we invite you to be part of this journey.",
+      "signature": "Mr. S.M. Moyo",
       "signatureRole": "— Principal, MavingTech High School"
     },
     "curriculum": {
@@ -236,12 +236,12 @@
     "subtitle": "Nearly a century of nurturing young African minds into confident leaders, innovators and changemakers.",
     "heritage": "Heritage",
     "historyTitle": "Our History",
-    "history1": "MavingTech High School, a prestigious government boys' school in Cape Town, South Africa, was founded in January 1927 as the Cape Town Technical School, making it the first technical school in what was then Southern Rhodesia.",
-    "history2": "The school achieved high school status in 1931 and, in a significant move, relocated to its current site on Matopos Road opposite the South Africa International Trade Fair grounds in 1953. In honour of its long-serving founder, who led the institution for two decades, the school was renamed MavingTech Technical High School on 19 August 1961, and was finally shortened to MavingTech High School in 1974.",
+    "history1": "MavingTech High School, a government school in Harare, Zimbabwe, was founded in January 1927 as a technical school, making it one of the first technical schools in what was then Southern Rhodesia.",
+    "history2": "The school achieved high school status in 1931 and, in a significant move, relocated to its current site in 1953. In honour of its long-serving founder, who led the institution for two decades, the school was renamed MavingTech Technical High School on 19 August 1961, and was finally shortened to MavingTech High School in 1974.",
     "history3": "Today, with an enrolment of over 800 students, it continues a legacy of academic and sporting excellence encapsulated in its motto, Empowering Your Business Through Technology.",
     "stats": {
       "students": "Students Enrolled",
-      "passRate": "NSC (Grade 10–11) Pass Rate",
+      "passRate": "ZIMSEC O-Level Pass Rate",
       "alumni": "Alumni Worldwide"
     },
     "values": {
@@ -259,22 +259,22 @@
   "academics": {
     "eyebrow": "Learning & Excellence",
     "title": "Academics",
-    "subtitle": "A broad, balanced curriculum spanning CAPS and IEB streams — designed to prepare every learner for a global future.",
+    "subtitle": "A broad, balanced curriculum spanning ZIMSEC and Cambridge streams — designed to prepare every student for a global future.",
     "programmesEyebrow": "Programmes of Study",
     "programmesTitle": "Our Curriculum",
-    "intro": "MavingTech offers both the CAPS and IEB (CIE) examination streams, giving students the flexibility to pursue local or international qualifications at Ordinary and Advanced Level.",
+    "intro": "MavingTech offers both the ZIMSEC and Cambridge (CIE) examination streams, giving students the flexibility to pursue local or international qualifications at Ordinary and Advanced Level.",
     "tabs": { "curriculum": "Curriculum", "results": "Results & Achievements" },
     "subjects": {
       "math": { "name": "Mathematics", "desc": "Pure & Applied Mathematics, Statistics" },
       "sciences": { "name": "Sciences", "desc": "Physics, Chemistry, Biology, Combined Science" },
-      "languages": { "name": "Languages", "desc": "English, isiZulu, Afrikaans, French" },
+      "languages": { "name": "Languages", "desc": "English, Shona, Ndebele, French" },
       "humanities": { "name": "Humanities", "desc": "History, Geography, Divinity, Literature" },
       "technical": { "name": "Technical", "desc": "Computer Science, Accounting, Commerce" },
       "arts": { "name": "Arts", "desc": "Art, Music, Drama, Fashion & Fabrics" }
     },
     "results": {
       "title": "Academic Achievements",
-      "body": "Our students consistently perform among the top in the province and nationally, with several students earning distinctions every session.",
+      "body": "Our students consistently perform among the top in the province and nationally, with several students earning distinctions in every ZIMSEC and Cambridge session.",
       "year": "Year", "level": "Level", "passRate": "Pass Rate", "distinctions": "Distinctions"
     }
   },
@@ -301,8 +301,8 @@
       "firstName": "Student First Name",
       "lastName": "Student Last Name",
       "dob": "Date of Birth",
-      "grade": "Applying for Grade",
-      "gradePlaceholder": "Select grade",
+      "grade": "Applying for Form",
+      "gradePlaceholder": "Select form",
       "prevSchool": "Previous School",
       "parentName": "Parent/Guardian Name",
       "parentPhone": "Parent Phone",
@@ -329,7 +329,7 @@
     "detailsEyebrow": "How to Reach Us",
     "detailsTitle": "Our Details",
     "cards": {
-      "address": "Address", "addressText": "MavingTech High School, Cape Town, South Africa",
+      "address": "Address", "addressText": "MavingTech High School, Harare, Zimbabwe",
       "phone": "Phone",
       "email": "Email",
       "hours": "Office Hours", "hoursText": "Mon – Fri: 07:30 – 15:30"
@@ -423,7 +423,7 @@
   },
   "boarding": {
     "title": "Boarding",
-    "subtitle": "A home away from home — our boarding facilities provide a safe, nurturing environment where learners thrive academically and socially.",
+    "subtitle": "A home away from home — our boarding facilities provide a safe, nurturing environment where students thrive academically and socially.",
     "features": {
       "accommodation": { "title": "Comfortable Accommodation", "desc": "Modern dormitories with supervised living spaces for boys and girls." },
       "safety": { "title": "Safety & Security", "desc": "24-hour security with trained house parents and matrons on duty." },
@@ -477,7 +477,7 @@
   "footer": {
     "affiliations": "Affiliated With",
     "moe": "Ministry of Primary & Secondary Education",
-    "description": "We are an early learning academy focused on social-emotional development and early literacy and numeracy. Our students walk out with the character and confidence to make their mark.",
+    "description": "A Zimbabwean secondary school offering ZIMSEC and Cambridge pathways from Form 1 to Upper Sixth. Our students walk out with the character and confidence to make their mark.",
     "quickLinks": "Quick Links",
     "programs": "Programs",
     "contact": "Contact",

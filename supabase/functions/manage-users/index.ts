@@ -7,6 +7,8 @@ const corsHeaders = {
 };
 
 Deno.serve(async (req) => {
+  // Set when the very first admin account is being bootstrapped without a signed-in user.
+  let bootstrapSeed = false;
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -48,12 +50,12 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      (req as any)._bootstrapSeed = true;
+      bootstrapSeed = true;
     }
 
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      if (!(req as any)._bootstrapSeed) {
+      if (!bootstrapSeed) {
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
           status: 401,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -63,7 +65,7 @@ Deno.serve(async (req) => {
     const token = authHeader ? authHeader.replace("Bearer ", "") : "";
 
     let userId = "";
-    if (!(req as any)._bootstrapSeed) {
+    if (!bootstrapSeed) {
       // Use getClaims for faster validation
       const supabaseAuth = createClient(
         Deno.env.get("SUPABASE_URL")!,
@@ -89,7 +91,7 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-    } else if (!(req as any)._bootstrapSeed) {
+    } else if (!bootstrapSeed) {
       // Admin-level actions require admin/principal/admin_supervisor role
       const { data: isAdmin } = await supabaseAdmin.rpc("has_role", {
         _user_id: userId,
@@ -280,7 +282,7 @@ Deno.serve(async (req) => {
         else if (["bursar", "finance_clerk", "secretary"].includes(staff_role || "")) staffCategory = "administrative";
         else if (["groundsman", "matron"].includes(staff_role || "")) staffCategory = "general";
 
-        const staffInsert: Record<string, any> = {
+        const staffInsert: Record<string, unknown> = {
           full_name,
           email,
           phone: phone || null,
@@ -334,31 +336,29 @@ Deno.serve(async (req) => {
             }
           }
 
-          // Also create timetable-relevant personal_timetable entries for the teacher
-          // based on existing timetable_entries for their assigned classes
-          const academicYear = new Date().getFullYear().toString();
+          // Seed the teacher's personal timetable from the timetable of the classes they teach.
+          // personal_timetables keeps one row per user with the entries as a JSON list
+          // (the same shape the Personal Timetable screen reads and writes).
           const { data: timetableEntries } = await supabaseAdmin
             .from("timetable_entries")
             .select("day_of_week, start_time, end_time, room, subject_id, subjects(name)")
-            .in("class_id", teachingClassIds)
-            .eq("academic_year", academicYear);
-          
-          if (timetableEntries && timetableEntries.length > 0) {
-            const subjectIds = subjectRecords?.map(s => s.id) || [];
-            const relevantEntries = timetableEntries.filter((te: any) => subjectIds.includes(te.subject_id));
-            
-            if (relevantEntries.length > 0) {
-              const personalEntries = relevantEntries.map((te: any) => ({
-                user_id: userId,
-                day_of_week: te.day_of_week,
-                time_slot: te.start_time,
-                end_time: te.end_time,
-                activity: te.subjects?.name || "Class",
-                activity_type: "class",
-                location: te.room,
-              }));
-              await supabaseAdmin.from("personal_timetables").insert(personalEntries);
-            }
+            .in("class_id", teachingClassIds);
+
+          const subjectIds = new Set((subjectRecords || []).map((s) => s.id));
+          const entries = (timetableEntries || [])
+            .filter((te) => te.subject_id && subjectIds.has(te.subject_id))
+            .map((te) => ({
+              id: crypto.randomUUID(),
+              day_of_week: te.day_of_week,
+              time_slot: te.start_time,
+              end_time: te.end_time,
+              activity: (te.subjects as { name?: string } | null)?.name || "Class",
+              activity_type: "class",
+              description: null,
+              location: te.room,
+            }));
+          if (entries.length > 0) {
+            await supabaseAdmin.from("personal_timetables").insert({ user_id: userId, data: { entries } });
           }
         }
 
@@ -412,7 +412,7 @@ Deno.serve(async (req) => {
           status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      const updatePayload: any = { password: newPassword };
+      const updatePayload: { password: string; app_metadata?: Record<string, unknown>; user_metadata?: Record<string, unknown> } = { password: newPassword };
       if (force_change) {
         updatePayload.app_metadata = { must_change_password: true };
         updatePayload.user_metadata = { must_change_password: true }; // legacy compat
@@ -536,7 +536,7 @@ Deno.serve(async (req) => {
         const { data: existingStaff } = await supabaseAdmin.from("staff").select("id").eq("user_id", user_id).maybeSingle();
         
         if (existingStaff) {
-          const updates: Record<string, any> = {};
+          const updates: Record<string, unknown> = {};
           if (staff_role) {
             updates.role = staff_role;
             let staffCategory = "teaching";

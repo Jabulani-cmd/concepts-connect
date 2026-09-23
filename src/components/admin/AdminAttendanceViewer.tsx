@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,15 +9,27 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Search, CheckCircle2, XCircle, Clock, AlertCircle, Users, Calendar, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import type { Tables } from "@/integrations/supabase/types";
+import type { QueryData } from "@supabase/supabase-js";
+
+const attendanceQuery = (classId: string, from: string, to: string) =>
+  supabase
+    .from("attendance")
+    .select("*, students:student_id(id, full_name, admission_number)")
+    .eq("class_id", classId)
+    .gte("date", from)
+    .lte("date", to)
+    .order("date", { ascending: false });
+type AttendanceRecord = QueryData<ReturnType<typeof attendanceQuery>>[number];
 
 export default function AdminAttendanceViewer() {
   const { toast } = useToast();
-  const [classes, setClasses] = useState<any[]>([]);
+  const [classes, setClasses] = useState<Pick<Tables<"classes">, "id" | "name">[]>([]);
   const [selectedClass, setSelectedClass] = useState("");
   const [dateFrom, setDateFrom] = useState(new Date().toISOString().split("T")[0]);
   const [dateTo, setDateTo] = useState(new Date().toISOString().split("T")[0]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [records, setRecords] = useState<any[]>([]);
+  const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState({ total: 0, present: 0, absent: 0, late: 0, excused: 0 });
 
@@ -34,13 +45,7 @@ export default function AdminAttendanceViewer() {
       return;
     }
     setLoading(true);
-    const { data, error } = await supabase
-      .from("attendance")
-      .select("*, students:student_id(id, full_name, admission_number)")
-      .eq("class_id", selectedClass)
-      .gte("attendance_date", dateFrom)
-      .lte("attendance_date", dateTo)
-      .order("attendance_date", { ascending: false });
+    const { data, error } = await attendanceQuery(selectedClass, dateFrom, dateTo);
 
     if (error) {
       toast({ title: "Error fetching attendance", description: error.message, variant: "destructive" });
@@ -90,7 +95,7 @@ export default function AdminAttendanceViewer() {
     const className = classes.find(c => c.id === selectedClass)?.name || "class";
     const header = "Student Name,Admission No,Date,Status,Notes\n";
     const rows = filtered.map(r =>
-      `"${r.students?.full_name || ""}","${r.students?.admission_number || ""}","${r.attendance_date}","${r.status}","${r.notes || ""}"`
+      `"${r.students?.full_name || ""}","${r.students?.admission_number || ""}","${r.date}","${r.status}","${r.notes || ""}"`
     ).join("\n");
     const blob = new Blob([header + rows], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
@@ -217,7 +222,7 @@ export default function AdminAttendanceViewer() {
                       <TableRow key={r.id}>
                         <TableCell className="font-medium">{r.students?.full_name || "—"}</TableCell>
                         <TableCell>{r.students?.admission_number || "—"}</TableCell>
-                        <TableCell>{new Date(r.attendance_date).toLocaleDateString()}</TableCell>
+                        <TableCell>{new Date(r.date).toLocaleDateString()}</TableCell>
                         <TableCell>
                           <Badge variant={statusBadgeVariant(r.status)} className="gap-1">
                             {statusIcon(r.status)} {r.status}

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +13,9 @@ import {
 
 const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 
-const defaultTimeSlots = [
+type TimeSlot = { start: string; end: string; isBreak?: boolean; isSports?: boolean; label?: string };
+
+const defaultTimeSlots: TimeSlot[] = [
   { start: "07:30", end: "08:10" },
   { start: "08:10", end: "08:50" },
   { start: "08:50", end: "09:30" },
@@ -79,7 +80,7 @@ export default function FullWeekTimetable({
   }, [entries]);
 
   // Build time slots dynamically from actual entries, fallback to defaults
-  const timeSlots = useMemo(() => {
+  const timeSlots = useMemo((): TimeSlot[] => {
     const allTimes = [
       ...entries.map((e) => ({ start: normalizeTime(e.start_time), end: normalizeTime(e.end_time) })),
       ...sportsSchedule.map((e) => ({ start: normalizeTime(e.start_time), end: normalizeTime(e.end_time), isSports: true })),
@@ -87,7 +88,7 @@ export default function FullWeekTimetable({
 
     if (allTimes.length === 0) return defaultTimeSlots;
 
-    const uniq = new Map<string, { start: string; end: string; isSports?: boolean }>();
+    const uniq = new Map<string, TimeSlot>();
     for (const s of allTimes) {
       if (!uniq.has(s.start)) uniq.set(s.start, s);
     }

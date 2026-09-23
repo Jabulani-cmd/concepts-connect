@@ -1,13 +1,13 @@
-// @ts-nocheck
 import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash2, Upload, Edit2, Info } from "lucide-react";
+import { Upload, Edit2, Info } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import ImageCropper from "@/components/ImageCropper";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { errorMessage } from "@/lib/errors";
 
 const categoryOptions = [
   { value: "leadership", label: "Leadership" },
@@ -101,8 +101,8 @@ export default function StaffManagement() {
         toast({ title: "Photo updated!" });
         fetchStaff();
       }
-    } catch (err: any) {
-      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Upload failed", description: errorMessage(err), variant: "destructive" });
     }
     setUploading(false);
   };

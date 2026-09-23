@@ -5,10 +5,22 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  BookOpen, Shield, GraduationCap, Users, Briefcase, DollarSign,
-  Printer, ChevronRight, Search, Home, UserCheck, Bell, Image,
-  Download, Calendar, Building, Package, MessageSquare, BedDouble,
-  ClipboardList, Camera, Upload, FileText, Lock, Monitor
+  BookOpen,
+  Shield,
+  GraduationCap,
+  Users,
+  Briefcase,
+  DollarSign,
+  Printer,
+  Search,
+  Home,
+  UserCheck,
+  Package,
+  MessageSquare,
+  BedDouble,
+  ClipboardList,
+  Lock,
+  Monitor,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
@@ -183,7 +195,7 @@ export default function UserManual() {
             <Step n={3} text="Fill in: Staff Number, Full Name, Role (teacher, admin, bursar, etc.), Department." />
             <Step n={4} text="Upload a photo using 'Upload Photo' or 'Take Photo' for webcam capture." />
             <Step n={5} text="If the staff member is a teacher, select the subjects they teach." />
-            <Step n={6} text="Enter National ID, UIF Number, SARS PAYE Number as applicable." />
+            <Step n={6} text="Enter National ID, NSSA Number and ZIMRA PAYE / TIN Number as applicable." />
             <Step n={7} text="Click 'Save' — the staff member will now appear in the system and on the public Staff page." />
           </ManualSection>
           <Warning>Staff members should ONLY be added through the Staff Directory tab, not the Staff (Website) tab. The Staff Directory issues proper user credentials and HR records.</Warning>
@@ -437,7 +449,7 @@ export default function UserManual() {
             <Step n={1} text="Open an assessment and click 'View Submissions'." />
             <Step n={2} text="Download or preview each student's submission." />
             <Step n={3} text="Enter marks obtained and optional feedback." />
-            <Step n={4} text="Grades are auto-calculated based on CAPS boundaries." />
+            <Step n={4} text="Grades are auto-calculated from the ZIMSEC grade boundaries (A–E, U)." />
             <Step n={5} text="Toggle 'Publish Results' when grading is complete." />
           </ManualSection>
           <ManualSection title="Recording Attendance">
@@ -504,7 +516,7 @@ export default function UserManual() {
           <ManualSection title="Viewing Exam Results">
             <Step n={1} text="Navigate to the 'Results' tab." />
             <Step n={2} text="Select the exam period to view your marks." />
-            <Step n={3} text="Results show mark, grade (CAPS scale), and class ranking." />
+            <Step n={3} text="Results show mark, ZIMSEC grade, and class ranking." />
             <Step n={4} text="Click 'Download Report Card' for a PDF version." />
           </ManualSection>
           <ManualSection title="Checking Fee Balance">
@@ -562,7 +574,7 @@ export default function UserManual() {
           <ManualSection title="Report Cards">
             <Step n={1} text="Navigate to your child's Results section." />
             <Step n={2} text="Select the exam period." />
-            <Step n={3} text="Click 'Download Report Card' for the official CAPS-format PDF." />
+            <Step n={3} text="Click 'Download Report Card' for the official report card PDF." />
           </ManualSection>
           <Tip>Check your notifications regularly for attendance alerts and important school communications.</Tip>
         </div>

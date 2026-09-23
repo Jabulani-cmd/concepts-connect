@@ -1,6 +1,5 @@
-// @ts-nocheck
 import { useState, useRef, useCallback } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,12 +9,25 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
-  Upload, Trash2, Download, Eye, EyeOff, Search, Grid3X3, List,
-  FileText, Video, Link2, Presentation, X, Tag
+  Upload,
+  Trash2,
+  Download,
+  Eye,
+  EyeOff,
+  Search,
+  Grid3X3,
+  List,
+  FileText,
+  Video,
+  Link2,
+  Presentation,
+  Tag,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import type { ClassOption, SubjectOption } from "@/types/school";
+import type { Tables } from "@/integrations/supabase/types";
 
 const materialTypes = ["document", "video", "link", "presentation"];
 const typeIcons: Record<string, React.ReactNode> = {
@@ -27,9 +39,9 @@ const typeIcons: Record<string, React.ReactNode> = {
 
 interface Props {
   userId: string;
-  classes: any[];
-  subjects: any[];
-  materials: any[];
+  classes: ClassOption[];
+  subjects: SubjectOption[];
+  materials: (Tables<"study_materials"> & { classes?: { name: string } | null; subjects?: { name: string } | null })[];
   onRefresh: () => void;
 }
 
@@ -165,11 +177,15 @@ export default function EnhancedMaterialsTab({ userId, classes, subjects, materi
           <SelectTrigger className="w-32"><SelectValue placeholder="Class" /></SelectTrigger>
           <SelectContent><SelectItem value="all">All Classes</SelectItem>{classes.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
         </Select>
+        <Select value={filterSubject} onValueChange={setFilterSubject}>
+          <SelectTrigger className="w-32"><SelectValue placeholder="Subject" /></SelectTrigger>
+          <SelectContent><SelectItem value="all">All Subjects</SelectItem>{subjects.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent>
+        </Select>
         <Select value={filterType} onValueChange={setFilterType}>
           <SelectTrigger className="w-32"><SelectValue placeholder="Type" /></SelectTrigger>
           <SelectContent><SelectItem value="all">All Types</SelectItem>{materialTypes.map(t => <SelectItem key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</SelectItem>)}</SelectContent>
         </Select>
-        <Select value={sortBy} onValueChange={v => setSortBy(v as any)}>
+        <Select value={sortBy} onValueChange={v => setSortBy(v as typeof sortBy)}>
           <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="date">Newest</SelectItem>

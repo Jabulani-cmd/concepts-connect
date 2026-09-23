@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
 /** Calls the secure AI edge function. API keys never touch the browser. */
-export async function callTeacherAi<T = any>(kind: string, payload: Record<string, any>): Promise<T> {
+export async function callTeacherAi<T>(kind: string, payload: Record<string, unknown>): Promise<T> {
   const { data, error } = await supabase.functions.invoke("teacher-ai-suite", {
     body: { kind, payload },
   });

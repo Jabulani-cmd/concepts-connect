@@ -1,12 +1,12 @@
-// @ts-nocheck
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { emptyToNull } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -40,6 +40,7 @@ import {
 import { staffFormSchema, type StaffFormData } from "@/lib/validators";
 import ImageCropper from "@/components/ImageCropper";
 import WebcamCapture from "@/components/WebcamCapture";
+import { errorMessage } from "@/lib/errors";
 
 const roleOptions = ["principal", "deputy_principal", "hod", "admin", "bursar", "teacher", "senior_teacher", "housemaster", "counsellor", "librarian", "it_administrator", "groundskeeper", "matron", "secretary", "sports_director", "lab_technician", "school_administrator", "admin_clerk", "finance_clerk"];
 const departmentOptions = [
@@ -228,25 +229,25 @@ export default function StaffManagementFull() {
   const [uploading, setUploading] = useState(false);
   const [showWebcam, setShowWebcam] = useState(false);
 
-  useEffect(() => {
-    fetchStaff();
-    fetchClassAssignments();
-  }, []);
-
-  const fetchStaff = async () => {
+  const fetchStaff = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase.from("staff").select("*").order("full_name");
     if (data) setStaff(data as unknown as StaffMember[]);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
     setLoading(false);
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchStaff();
+    fetchClassAssignments();
+  }, [fetchStaff]);
 
   const fetchClassAssignments = async () => {
     // Fetch class teacher assignments
     const { data: classes } = await supabase.from("classes").select("id, name, class_teacher_id");
     if (classes) {
       const ctMap: Record<string, string[]> = {};
-      classes.forEach((c: any) => {
+      classes.forEach((c) => {
         if (c.class_teacher_id) {
           if (!ctMap[c.class_teacher_id]) ctMap[c.class_teacher_id] = [];
           ctMap[c.class_teacher_id].push(c.name);
@@ -259,7 +260,7 @@ export default function StaffManagementFull() {
     const { data: cs } = await supabase.from("class_subjects").select("teacher_id, classes(name), subjects(name)");
     if (cs) {
       const tcMap: Record<string, { className: string; subjectName: string }[]> = {};
-      cs.forEach((row: any) => {
+      cs.forEach((row) => {
         if (row.teacher_id) {
           if (!tcMap[row.teacher_id]) tcMap[row.teacher_id] = [];
           tcMap[row.teacher_id].push({
@@ -341,7 +342,7 @@ export default function StaffManagementFull() {
 
     const parsed = { ...result.data, photo_url: photoUrl };
     // Convert empty strings to null for date and optional fields to avoid "invalid input syntax for type date"
-    const payload = Object.fromEntries(Object.entries(parsed).map(([k, v]) => [k, v === "" ? null : v]));
+    const payload = emptyToNull(parsed);
 
     if (editingId) {
       const { error } = await supabase.from("staff").update(payload).eq("id", editingId);
@@ -413,10 +414,10 @@ export default function StaffManagementFull() {
           setSaving(false);
           return;
         }
-      } catch (provErr: any) {
+      } catch (provErr) {
         toast({
           title: "Error creating staff member",
-          description: provErr?.message,
+          description: errorMessage(provErr),
           variant: "destructive",
         });
         setSaving(false);
@@ -447,8 +448,8 @@ export default function StaffManagementFull() {
         const result = await res.json();
         if (!res.ok) throw new Error(result.error);
         toast({ title: "Staff member permanently deleted" });
-      } catch (err: any) {
-        toast({ title: "Error", description: err.message, variant: "destructive" });
+      } catch (err) {
+        toast({ title: "Error", description: errorMessage(err), variant: "destructive" });
         return;
       }
     } else {
@@ -486,8 +487,8 @@ export default function StaffManagementFull() {
       const { data } = supabase.storage.from("school-media").getPublicUrl(path);
       setPhotoUrl(data.publicUrl);
       toast({ title: "Photo uploaded!" });
-    } catch (err: any) {
-      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } catch (err) {
+      toast({ title: "Upload failed", description: errorMessage(err), variant: "destructive" });
     }
     setUploading(false);
   };
@@ -540,7 +541,7 @@ export default function StaffManagementFull() {
     URL.revokeObjectURL(url);
   };
 
-  const updateField = (key: string, value: any) => {
+  const updateField = <K extends keyof StaffFormData>(key: K, value: StaffFormData[K]) => {
     setFormData((prev) => {
       const next = { ...prev, [key]: value };
       // Auto-generate portal email from full name for new staff when
@@ -551,7 +552,7 @@ export default function StaffManagementFull() {
         (!prev.email || prev.email.endsWith(`@${STAFF_EMAIL_DOMAIN}`))
       ) {
         next.email = buildStaffEmail(
-          value || "",
+          next.full_name || "",
           staff.map((s) => s.email || "").filter(Boolean),
         );
       }
@@ -804,7 +805,7 @@ export default function StaffManagementFull() {
                   <Input
                     value={formData.national_id || ""}
                     onChange={(e) => updateField("national_id", e.target.value)}
-                    placeholder="13-digit SA ID (e.g. 8001015009087)"
+                    placeholder="e.g. 63-123456-A-00"
                     maxLength={13}
                     inputMode="numeric"
                   />
@@ -932,14 +933,14 @@ export default function StaffManagementFull() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label>UIF Number</Label>
+                  <Label>NSSA Number</Label>
                   <Input
                     value={formData.nssa_number || ""}
                     onChange={(e) => updateField("nssa_number", e.target.value)}
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label>SARS PAYE Number</Label>
+                  <Label>ZIMRA PAYE / TIN Number</Label>
                   <Input
                     value={formData.paye_number || ""}
                     onChange={(e) => updateField("paye_number", e.target.value)}
@@ -951,7 +952,7 @@ export default function StaffManagementFull() {
                     value={formData.bank_details || ""}
                     onChange={(e) => updateField("bank_details", e.target.value)}
                     rows={2}
-                    placeholder="e.g. Standard Bank, Acc 0123456789, Branch code 051001"
+                    placeholder="e.g. CBZ Bank, Acc 01123456780012, Branch: Harare Main"
                   />
                 </div>
               </div>
@@ -1063,8 +1064,8 @@ export default function StaffManagementFull() {
                     {[
                       ["Employment Date", selectedStaff.employment_date],
                       ["Qualifications", selectedStaff.qualifications],
-                      ["UIF Number", selectedStaff.nssa_number],
-                      ["SARS PAYE Number", selectedStaff.paye_number],
+                      ["NSSA Number", selectedStaff.nssa_number],
+                      ["ZIMRA PAYE / TIN Number", selectedStaff.paye_number],
                       ["Bank Details", selectedStaff.bank_details],
                     ].map(([label, value]) => (
                       <div key={label as string}>

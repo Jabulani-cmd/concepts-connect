@@ -1,6 +1,8 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { formatMoney } from "@/lib/currency";
+import { safeHtml } from "@/lib/utils";
+import { paymentMethodLabel } from "./paymentMethods";
 
 // School branding constants (Zimbabwean context)
 export const SCHOOL_NAME = "MavingTech Business Solutions";
@@ -101,7 +103,7 @@ export function buildInvoicePdf(input: InvoicePdfInput): jsPDF {
   doc.text(`Student: ${input.student.fullName}`, pageWidth / 2, detailY, { align: "left" });
   doc.text(`Admission #: ${input.student.admissionNumber}`, pageWidth / 2, detailY + 5);
   if (input.student.form) {
-    doc.text(`Grade: ${input.student.form}`, pageWidth / 2, detailY + 10);
+    doc.text(`Form: ${input.student.form}`, pageWidth / 2, detailY + 10);
   }
 
   doc.line(14, detailY + 15, pageWidth - 14, detailY + 15);
@@ -123,7 +125,7 @@ export function buildInvoicePdf(input: InvoicePdfInput): jsPDF {
     },
   });
 
-  const endY = (doc as any).lastAutoTable?.finalY || detailY + 70;
+  const endY = (doc as jsPDF & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY || detailY + 70;
 
   const total = Number(input.totals.total_usd || 0);
   const paid = Number(input.totals.paid_usd || 0);
@@ -159,7 +161,6 @@ export function buildInvoicePdf(input: InvoicePdfInput): jsPDF {
 // ═══ INVOICE HTML (for view/print) ═══
 
 export function buildInvoiceHtml(input: InvoicePdfInput): string {
-  const safe = (s: any) => String(s ?? "").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const name = input.schoolName || SCHOOL_NAME;
   const motto = input.motto || SCHOOL_MOTTO;
   const logoUrl = input.logoDataUrl || SCHOOL_LOGO_URL;
@@ -170,7 +171,7 @@ export function buildInvoiceHtml(input: InvoicePdfInput): string {
 
   const itemRows = input.items.map(it => `
     <tr>
-      <td>${safe(it.description)}</td>
+      <td>${safeHtml(it.description)}</td>
       <td class="right mono">${formatMoney(it.amount_usd || 0)}</td>
     </tr>`).join("");
 
@@ -179,7 +180,7 @@ export function buildInvoiceHtml(input: InvoicePdfInput): string {
 <head>
   <meta charset="utf-8" />
   <base href="${typeof window !== "undefined" ? window.location.origin : ""}/" />
-  <title>Invoice ${safe(input.invoiceNumber)}</title>
+  <title>Invoice ${safeHtml(input.invoiceNumber)}</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 24px; font-size: 12px; max-width: 700px; margin: 0 auto; }
     .header { display:flex; justify-content:space-between; align-items:center; }
@@ -208,16 +209,16 @@ export function buildInvoiceHtml(input: InvoicePdfInput): string {
 <body>
   <div class="header">
     <div class="brand">
-      <img src="${safe(logoUrl)}" alt="School Logo" />
+      <img src="${safeHtml(logoUrl)}" alt="School Logo" />
       <div class="brand-text">
-        <h1>${safe(name)}</h1>
-        <div class="motto">"${safe(motto)}"</div>
-        <div class="address">${safe(SCHOOL_ADDRESS)} | Tel: ${safe(SCHOOL_PHONE)}</div>
+        <h1>${safeHtml(name)}</h1>
+        <div class="motto">"${safeHtml(motto)}"</div>
+        <div class="address">${safeHtml(SCHOOL_ADDRESS)} | Tel: ${safeHtml(SCHOOL_PHONE)}</div>
       </div>
     </div>
     <div class="invoice-title">
       <strong>INVOICE</strong>
-      <div class="num">${safe(input.invoiceNumber)}</div>
+      <div class="num">${safeHtml(input.invoiceNumber)}</div>
     </div>
   </div>
 
@@ -225,14 +226,14 @@ export function buildInvoiceHtml(input: InvoicePdfInput): string {
 
   <div class="row">
     <div>
-      <div><strong>Student:</strong> ${safe(input.student.fullName)}</div>
-      <div><strong>Admission #:</strong> <span class="mono">${safe(input.student.admissionNumber)}</span></div>
-      ${input.student.form ? `<div><strong>Grade:</strong> ${safe(input.student.form)}</div>` : ""}
+      <div><strong>Student:</strong> ${safeHtml(input.student.fullName)}</div>
+      <div><strong>Admission #:</strong> <span class="mono">${safeHtml(input.student.admissionNumber)}</span></div>
+      ${input.student.form ? `<div><strong>Form:</strong> ${safeHtml(input.student.form)}</div>` : ""}
     </div>
     <div class="right">
-      <div><strong>Term:</strong> ${safe(input.term)} | <strong>Year:</strong> ${safe(input.academicYear)}</div>
-      <div><strong>Due Date:</strong> ${input.dueDate ? new Date(input.dueDate).toLocaleDateString("en-ZA") : "—"}</div>
-      <div><strong>Date:</strong> ${new Date().toLocaleDateString("en-ZA")}</div>
+      <div><strong>Term:</strong> ${safeHtml(input.term)} | <strong>Year:</strong> ${safeHtml(input.academicYear)}</div>
+      <div><strong>Due Date:</strong> ${input.dueDate ? new Date(input.dueDate).toLocaleDateString("en-GB") : "—"}</div>
+      <div><strong>Date:</strong> ${new Date().toLocaleDateString("en-GB")}</div>
     </div>
   </div>
 
@@ -250,7 +251,7 @@ export function buildInvoiceHtml(input: InvoicePdfInput): string {
 
   <div class="footer">
     <p>Generated: ${new Date().toLocaleString()} | This is a computer-generated document.</p>
-    <p>${safe(name)} | ${safe(SCHOOL_ADDRESS)}</p>
+    <p>${safeHtml(name)} | ${safeHtml(SCHOOL_ADDRESS)}</p>
   </div>
 </body>
 </html>`;
@@ -266,13 +267,12 @@ export type ReceiptPrintInput = {
   paymentDate: string;
   student: { fullName: string; admissionNumber: string; form?: string | null };
   invoiceNumber?: string | null;
-  amounts: { usd: number; zig: number };
+  amounts: { usd: number; zig?: number };
   paymentMethod: string;
   referenceNumber?: string | null;
 };
 
 export function buildReceiptHtml(input: ReceiptPrintInput) {
-  const safe = (s: any) => String(s ?? "").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const name = input.schoolName || SCHOOL_NAME;
   const motto = input.motto || SCHOOL_MOTTO;
   const logoUrl = input.logoUrl || SCHOOL_LOGO_URL;
@@ -282,7 +282,7 @@ export function buildReceiptHtml(input: ReceiptPrintInput) {
 <head>
   <meta charset="utf-8" />
   <base href="${typeof window !== "undefined" ? window.location.origin : ""}/" />
-  <title>Receipt ${safe(input.receiptNumber)}</title>
+  <title>Receipt ${safeHtml(input.receiptNumber)}</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 24px; font-size: 12px; max-width: 700px; margin: 0 auto; }
     .header { display:flex; justify-content:space-between; align-items:center; }
@@ -308,16 +308,16 @@ export function buildReceiptHtml(input: ReceiptPrintInput) {
 <body>
   <div class="header">
     <div class="brand">
-      <img src="${safe(logoUrl)}" alt="School Logo" />
+      <img src="${safeHtml(logoUrl)}" alt="School Logo" />
       <div class="brand-text">
-        <h1>${safe(name)}</h1>
-        <div class="motto">"${safe(motto)}"</div>
-        <div class="address">${safe(SCHOOL_ADDRESS)} | Tel: ${safe(SCHOOL_PHONE)}</div>
+        <h1>${safeHtml(name)}</h1>
+        <div class="motto">"${safeHtml(motto)}"</div>
+        <div class="address">${safeHtml(SCHOOL_ADDRESS)} | Tel: ${safeHtml(SCHOOL_PHONE)}</div>
       </div>
     </div>
     <div class="receipt-title">
       <strong>OFFICIAL RECEIPT</strong>
-      <div class="num">${safe(input.receiptNumber)}</div>
+      <div class="num">${safeHtml(input.receiptNumber)}</div>
     </div>
   </div>
 
@@ -325,20 +325,20 @@ export function buildReceiptHtml(input: ReceiptPrintInput) {
 
   <div class="row">
     <div>
-      <div><strong>Student:</strong> ${safe(input.student.fullName)}</div>
-      <div><strong>Admission #:</strong> <span class="mono">${safe(input.student.admissionNumber)}</span></div>
-      ${input.student.form ? `<div><strong>Grade:</strong> ${safe(input.student.form)}</div>` : ""}
+      <div><strong>Student:</strong> ${safeHtml(input.student.fullName)}</div>
+      <div><strong>Admission #:</strong> <span class="mono">${safeHtml(input.student.admissionNumber)}</span></div>
+      ${input.student.form ? `<div><strong>Form:</strong> ${safeHtml(input.student.form)}</div>` : ""}
     </div>
     <div class="right">
-      <div><strong>Date:</strong> ${safe(input.paymentDate)}</div>
-      ${input.invoiceNumber ? `<div><strong>Invoice:</strong> <span class="mono">${safe(input.invoiceNumber)}</span></div>` : ""}
+      <div><strong>Date:</strong> ${safeHtml(input.paymentDate)}</div>
+      ${input.invoiceNumber ? `<div><strong>Invoice:</strong> <span class="mono">${safeHtml(input.invoiceNumber)}</span></div>` : ""}
     </div>
   </div>
 
   <div class="box">
     <div class="row">
-      <div><strong>Payment Method:</strong> ${safe(input.paymentMethod)}</div>
-      <div><strong>Reference:</strong> <span class="mono">${safe(input.referenceNumber || "—")}</span></div>
+      <div><strong>Payment Method:</strong> ${safeHtml(paymentMethodLabel(input.paymentMethod))}</div>
+      <div><strong>Reference:</strong> <span class="mono">${safeHtml(input.referenceNumber || "—")}</span></div>
     </div>
     <hr />
     <div class="row">
@@ -351,7 +351,7 @@ export function buildReceiptHtml(input: ReceiptPrintInput) {
   <p class="muted" style="margin-top: 16px;">Thank you for your payment. Please keep this receipt for your records.</p>
 
   <div class="footer">
-    <p>This is a computer-generated receipt. | ${safe(name)} | ${safe(SCHOOL_ADDRESS)}</p>
+    <p>This is a computer-generated receipt. | ${safeHtml(name)} | ${safeHtml(SCHOOL_ADDRESS)}</p>
   </div>
 </body>
 </html>`;
@@ -362,12 +362,11 @@ export function buildReceiptHtml(input: ReceiptPrintInput) {
 export type StatementPrintInput = {
   logoUrl?: string;
   student: { fullName: string; admissionNumber: string; form?: string | null };
-  invoices: { invoice_number: string; term: string; academic_year: string; total_usd: number; total_zig: number; paid_usd: number; paid_zig: number; status: string }[];
-  payments: { receipt_number: string; payment_date: string; amount_usd: number; amount_zig: number; payment_method: string }[];
+  invoices: { invoice_number: string | null; term: string | null; academic_year: string | null; total_usd: number; total_zig: number; paid_usd: number; paid_zig: number; status: string | null }[];
+  payments: { receipt_number: string | null; payment_date: string; amount_usd: number; amount_zig: number; payment_method: string }[];
 };
 
 export function buildStatementHtml(input: StatementPrintInput) {
-  const safe = (s: any) => String(s ?? "").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const logoUrl = input.logoUrl || SCHOOL_LOGO_URL;
 
   const invoiceRows = input.invoices.map(inv => {
@@ -376,21 +375,21 @@ export function buildStatementHtml(input: StatementPrintInput) {
     const balance = total - paid;
     return `
     <tr>
-      <td class="mono">${safe(inv.invoice_number)}</td>
-      <td>${safe(inv.term)} ${safe(inv.academic_year)}</td>
+      <td class="mono">${safeHtml(inv.invoice_number)}</td>
+      <td>${safeHtml(inv.term)} ${safeHtml(inv.academic_year)}</td>
       <td class="right">${formatMoney(total)}</td>
       <td class="right">${formatMoney(paid)}</td>
       <td class="right">${balance < 0 ? `+${formatMoney(Math.abs(balance))} credit` : formatMoney(balance)}</td>
-      <td>${safe(inv.status)}</td>
+      <td>${safeHtml(inv.status)}</td>
     </tr>`;
   }).join("");
 
   const paymentRows = input.payments.map(p => `
     <tr>
-      <td class="mono">${safe(p.receipt_number)}</td>
-      <td>${safe(p.payment_date)}</td>
+      <td class="mono">${safeHtml(p.receipt_number)}</td>
+      <td>${safeHtml(p.payment_date)}</td>
       <td class="right">${formatMoney(p.amount_usd || 0)}</td>
-      <td>${safe(p.payment_method)}</td>
+      <td>${safeHtml(paymentMethodLabel(p.payment_method))}</td>
     </tr>`).join("");
 
   const totalOwed = input.invoices.reduce((s, i) => s + (Number(i.total_usd) - Number(i.paid_usd)), 0);
@@ -401,7 +400,7 @@ export function buildStatementHtml(input: StatementPrintInput) {
 <head>
   <meta charset="utf-8" />
   <base href="${typeof window !== "undefined" ? window.location.origin : ""}/" />
-  <title>Statement - ${safe(input.student.fullName)}</title>
+  <title>Statement - ${safeHtml(input.student.fullName)}</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 24px; font-size: 11px; max-width: 800px; margin: 0 auto; }
     .header { display:flex; gap:14px; align-items:center; margin-bottom: 6px; }
@@ -422,22 +421,22 @@ export function buildStatementHtml(input: StatementPrintInput) {
 </head>
 <body>
   <div class="header">
-    <img src="${safe(logoUrl)}" alt="Logo" />
+    <img src="${safeHtml(logoUrl)}" alt="Logo" />
     <div>
-      <h1>${safe(SCHOOL_NAME)}</h1>
-      <div class="motto">"${safe(SCHOOL_MOTTO)}"</div>
-      <div class="address">${safe(SCHOOL_ADDRESS)} | Tel: ${safe(SCHOOL_PHONE)}</div>
+      <h1>${safeHtml(SCHOOL_NAME)}</h1>
+      <div class="motto">"${safeHtml(SCHOOL_MOTTO)}"</div>
+      <div class="address">${safeHtml(SCHOOL_ADDRESS)} | Tel: ${safeHtml(SCHOOL_PHONE)}</div>
     </div>
   </div>
   <div class="divider"></div>
 
   <h2 style="font-size:14px; margin: 8px 0;">STUDENT ACCOUNT STATEMENT</h2>
-  <p><strong>Student:</strong> ${safe(input.student.fullName)} &nbsp; | &nbsp; <strong>Admission #:</strong> <span class="mono">${safe(input.student.admissionNumber)}</span>${input.student.form ? ` &nbsp; | &nbsp; <strong>Grade:</strong> ${safe(input.student.form)}` : ""}</p>
-  <p><strong>Date:</strong> ${new Date().toLocaleDateString("en-ZA")}</p>
+  <p><strong>Student:</strong> ${safeHtml(input.student.fullName)} &nbsp; | &nbsp; <strong>Admission #:</strong> <span class="mono">${safeHtml(input.student.admissionNumber)}</span>${input.student.form ? ` &nbsp; | &nbsp; <strong>Form:</strong> ${safeHtml(input.student.form)}` : ""}</p>
+  <p><strong>Date:</strong> ${new Date().toLocaleDateString("en-GB")}</p>
 
   <h3 style="margin-top:14px;">Invoices</h3>
   <table>
-    <thead><tr><th>Invoice #</th><th>Period</th><th class="right">Total (R)</th><th class="right">Paid (R)</th><th class="right">Balance (R)</th><th>Status</th></tr></thead>
+    <thead><tr><th>Invoice #</th><th>Period</th><th class="right">Total (US$)</th><th class="right">Paid (US$)</th><th class="right">Balance (US$)</th><th>Status</th></tr></thead>
     <tbody>${invoiceRows || "<tr><td colspan='6'>No invoices</td></tr>"}</tbody>
   </table>
 
@@ -451,7 +450,7 @@ export function buildStatementHtml(input: StatementPrintInput) {
 
 
   <div class="footer">
-    <p>This is a computer-generated statement. | ${safe(SCHOOL_NAME)} | ${safe(SCHOOL_ADDRESS)}</p>
+    <p>This is a computer-generated statement. | ${safeHtml(SCHOOL_NAME)} | ${safeHtml(SCHOOL_ADDRESS)}</p>
   </div>
 </body>
 </html>`;
@@ -475,42 +474,40 @@ export type IncomeExpenditureInput = {
 };
 
 export function buildIncomeExpenditureHtml(input: IncomeExpenditureInput): string {
-  const safe = (s: any) => String(s ?? "").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  const fmt = (n: number) => Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const logoUrl = input.logoUrl || SCHOOL_LOGO_URL;
   const t = input.totals;
 
   const incomeRows = input.income.map(r => `
     <tr>
-      <td>${safe(r.date)}</td>
-      <td class="mono">${safe(r.receipt)}</td>
-      <td>${safe(r.party)}</td>
-      <td>${safe(r.method)}</td>
+      <td>${safeHtml(r.date)}</td>
+      <td class="mono">${safeHtml(r.receipt)}</td>
+      <td>${safeHtml(r.party)}</td>
+      <td>${safeHtml(r.method)}</td>
       <td class="right mono green">${formatMoney(r.usd)}</td>
-      <td class="mono">${safe(r.ref || "—")}</td>
+      <td class="mono">${safeHtml(r.ref || "—")}</td>
     </tr>`).join("");
 
   const expenseRows = input.expenses.map(r => `
     <tr>
-      <td>${safe(r.date)}</td>
-      <td>${safe(r.category)}</td>
-      <td>${safe(r.description)}</td>
-      <td>${safe(r.method || "—")}</td>
+      <td>${safeHtml(r.date)}</td>
+      <td>${safeHtml(r.category)}</td>
+      <td>${safeHtml(r.description)}</td>
+      <td>${safeHtml(r.method || "—")}</td>
       <td class="right mono red">${formatMoney(r.usd)}</td>
     </tr>`).join("");
 
   const supplierRows = input.supplierPayments.map(r => `
     <tr>
-      <td>${safe(r.date)}</td>
-      <td>${safe(r.supplier)}</td>
-      <td>${safe(r.method || "—")}</td>
-      <td class="mono">${safe(r.ref || "—")}</td>
+      <td>${safeHtml(r.date)}</td>
+      <td>${safeHtml(r.supplier)}</td>
+      <td>${safeHtml(r.method || "—")}</td>
+      <td class="mono">${safeHtml(r.ref || "—")}</td>
       <td class="right mono red">${formatMoney(r.usd)}</td>
     </tr>`).join("");
 
   const categoryRows = (input.breakdownByCategory || []).map(c => `
     <tr>
-      <td>${safe(c.category)}</td>
+      <td>${safeHtml(c.category)}</td>
       <td class="right mono">${formatMoney(c.usd)}</td>
     </tr>`).join("");
 
@@ -519,7 +516,7 @@ export function buildIncomeExpenditureHtml(input: IncomeExpenditureInput): strin
 <html><head>
   <meta charset="utf-8" />
   <base href="${typeof window !== "undefined" ? window.location.origin : ""}/" />
-  <title>Income & Expenditure — ${safe(input.periodLabel)}</title>
+  <title>Income & Expenditure — ${safeHtml(input.periodLabel)}</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 24px; font-size: 11px; max-width: 900px; margin: 0 auto; color: #1a1a1a; }
     .header { display:flex; gap:18px; align-items:center; }
@@ -554,18 +551,18 @@ export function buildIncomeExpenditureHtml(input: IncomeExpenditureInput): strin
   </style>
 </head><body>
   <div class="header">
-    <img src="${safe(logoUrl)}" alt="School Logo" />
+    <img src="${safeHtml(logoUrl)}" alt="School Logo" />
     <div>
-      <h1>${safe(SCHOOL_NAME)}</h1>
-      <div class="motto">"${safe(SCHOOL_MOTTO)}"</div>
-      <div class="address">${safe(SCHOOL_ADDRESS)} &nbsp;|&nbsp; Tel: ${safe(SCHOOL_PHONE)} &nbsp;|&nbsp; Email: ${safe(SCHOOL_EMAIL)}</div>
+      <h1>${safeHtml(SCHOOL_NAME)}</h1>
+      <div class="motto">"${safeHtml(SCHOOL_MOTTO)}"</div>
+      <div class="address">${safeHtml(SCHOOL_ADDRESS)} &nbsp;|&nbsp; Tel: ${safeHtml(SCHOOL_PHONE)} &nbsp;|&nbsp; Email: ${safeHtml(SCHOOL_EMAIL)}</div>
     </div>
   </div>
   <div class="divider"></div>
 
   <div class="title-row">
     <h2>INCOME &amp; EXPENDITURE REPORT</h2>
-    <div class="period">Period: ${safe(input.periodLabel)}</div>
+    <div class="period">Period: ${safeHtml(input.periodLabel)}</div>
   </div>
 
   <div class="summary">
@@ -599,7 +596,7 @@ export function buildIncomeExpenditureHtml(input: IncomeExpenditureInput): strin
 
   <div class="footer">
     <p>Generated: ${new Date().toLocaleString()} &nbsp;|&nbsp; This is a computer-generated financial report.</p>
-    <p><strong>${safe(SCHOOL_NAME)}</strong> &nbsp;|&nbsp; ${safe(SCHOOL_ADDRESS)} &nbsp;|&nbsp; Tel ${safe(SCHOOL_PHONE)} &nbsp;|&nbsp; ${safe(SCHOOL_EMAIL)}</p>
+    <p><strong>${safeHtml(SCHOOL_NAME)}</strong> &nbsp;|&nbsp; ${safeHtml(SCHOOL_ADDRESS)} &nbsp;|&nbsp; Tel ${safeHtml(SCHOOL_PHONE)} &nbsp;|&nbsp; ${safeHtml(SCHOOL_EMAIL)}</p>
   </div>
 </body></html>`;
 }
@@ -623,7 +620,6 @@ export type ExpensesListInput = {
 };
 
 export function buildExpensesListHtml(input: ExpensesListInput): string {
-  const safe = (s: any) => String(s ?? "").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const logoUrl = input.logoUrl || SCHOOL_LOGO_URL;
 
   const total = input.expenses.reduce((s, e) => s + Number(e.amount_usd || 0), 0);
@@ -631,11 +627,11 @@ export function buildExpensesListHtml(input: ExpensesListInput): string {
   const rows = input.expenses.map((e, i) => `
     <tr>
       <td>${i + 1}</td>
-      <td>${safe(e.expense_date)}</td>
-      <td>${safe(e.category)}</td>
-      <td>${safe(e.description)}</td>
-      <td>${safe(e.payment_method || "—")}</td>
-      <td class="mono">${safe(e.reference_number || "—")}</td>
+      <td>${safeHtml(e.expense_date)}</td>
+      <td>${safeHtml(e.category)}</td>
+      <td>${safeHtml(e.description)}</td>
+      <td>${safeHtml(e.payment_method || "—")}</td>
+      <td class="mono">${safeHtml(e.reference_number || "—")}</td>
       <td class="right mono red">${formatMoney(Number(e.amount_usd))}</td>
     </tr>`).join("");
 
@@ -644,7 +640,7 @@ export function buildExpensesListHtml(input: ExpensesListInput): string {
 <html><head>
   <meta charset="utf-8" />
   <base href="${typeof window !== "undefined" ? window.location.origin : ""}/" />
-  <title>Expenses Report — ${safe(input.periodLabel)}</title>
+  <title>Expenses Report — ${safeHtml(input.periodLabel)}</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 24px; font-size: 11px; max-width: 900px; margin: 0 auto; color: #1a1a1a; }
     .header { display:flex; gap:18px; align-items:center; }
@@ -668,18 +664,18 @@ export function buildExpensesListHtml(input: ExpensesListInput): string {
   </style>
 </head><body>
   <div class="header">
-    <img src="${safe(logoUrl)}" alt="School Logo" />
+    <img src="${safeHtml(logoUrl)}" alt="School Logo" />
     <div>
-      <h1>${safe(SCHOOL_NAME)}</h1>
-      <div class="motto">"${safe(SCHOOL_MOTTO)}"</div>
-      <div class="address">${safe(SCHOOL_ADDRESS)} &nbsp;|&nbsp; Tel: ${safe(SCHOOL_PHONE)} &nbsp;|&nbsp; Email: ${safe(SCHOOL_EMAIL)}</div>
+      <h1>${safeHtml(SCHOOL_NAME)}</h1>
+      <div class="motto">"${safeHtml(SCHOOL_MOTTO)}"</div>
+      <div class="address">${safeHtml(SCHOOL_ADDRESS)} &nbsp;|&nbsp; Tel: ${safeHtml(SCHOOL_PHONE)} &nbsp;|&nbsp; Email: ${safeHtml(SCHOOL_EMAIL)}</div>
     </div>
   </div>
   <div class="divider"></div>
 
   <div class="title-row">
     <h2>EXPENSES REPORT</h2>
-    <div class="period">Period: ${safe(input.periodLabel)}</div>
+    <div class="period">Period: ${safeHtml(input.periodLabel)}</div>
   </div>
 
   <table>
@@ -691,7 +687,7 @@ export function buildExpensesListHtml(input: ExpensesListInput): string {
 
   <div class="footer">
     <p>Generated: ${new Date().toLocaleString()} &nbsp;|&nbsp; This is a computer-generated expenses report.</p>
-    <p><strong>${safe(SCHOOL_NAME)}</strong> &nbsp;|&nbsp; ${safe(SCHOOL_ADDRESS)} &nbsp;|&nbsp; Tel ${safe(SCHOOL_PHONE)} &nbsp;|&nbsp; ${safe(SCHOOL_EMAIL)}</p>
+    <p><strong>${safeHtml(SCHOOL_NAME)}</strong> &nbsp;|&nbsp; ${safeHtml(SCHOOL_ADDRESS)} &nbsp;|&nbsp; Tel ${safeHtml(SCHOOL_PHONE)} &nbsp;|&nbsp; ${safeHtml(SCHOOL_EMAIL)}</p>
   </div>
 </body></html>`;
 }

@@ -1,15 +1,14 @@
-// @ts-nocheck
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { FileText, Loader2, Download, Trophy, TrendingUp, AlertCircle } from "lucide-react";
+import { FileText, Loader2, Trophy, TrendingUp, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import ReportCardDownloadButton from "./ReportCardPDF";
+import { gradeBadgeClass } from "@/lib/grading";
 
 interface TermReport {
   id: string;
@@ -31,6 +30,10 @@ interface TermReport {
 
 const termOptions = ["Term 1", "Term 2", "Term 3"];
 
+/** term_reports.exam_data holds the exam_results rows used to build the report. */
+type ReportExamRow = { mark?: number | null; grade?: string | null; subjects?: { name?: string } | null };
+const examDataRows = (value: unknown): ReportExamRow[] => (Array.isArray(value) ? (value as ReportExamRow[]) : []);
+
 export default function StudentTermReportsTab() {
   const { user } = useAuth();
   const [reports, setReports] = useState<TermReport[]>([]);
@@ -39,11 +42,7 @@ export default function StudentTermReportsTab() {
   const [selectedTerm, setSelectedTerm] = useState("all");
   const [studentInfo, setStudentInfo] = useState<{ id: string; full_name: string; admission_number: string; form: string; stream: string | null } | null>(null);
 
-  useEffect(() => {
-    fetchStudentInfo();
-  }, [user]);
-
-  async function fetchStudentInfo() {
+  const fetchStudentInfo = useCallback(async () => {
     if (!user?.id) return;
     
     const { data: student } = await supabase
@@ -58,7 +57,11 @@ export default function StudentTermReportsTab() {
     } else {
       setLoading(false);
     }
-  }
+  }, [user.id]);
+
+  useEffect(() => {
+    fetchStudentInfo();
+  }, [fetchStudentInfo, user]);
 
   async function fetchReports(studentId: string) {
     const { data } = await supabase
@@ -82,8 +85,6 @@ export default function StudentTermReportsTab() {
     if (selectedTerm && selectedTerm !== "all" && r.term !== selectedTerm) return false;
     return true;
   });
-
-  const selectedReport = filteredReports[0];
 
   if (loading) {
     return <div className="flex items-center justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-accent" /></div>;
@@ -167,12 +168,7 @@ export default function StudentTermReportsTab() {
                         </div>
                         <div>
                           <p className="text-muted-foreground text-xs">Grade</p>
-                          <Badge className={
-                            ["A*", "A"].includes(report.overall_grade) ? "bg-green-100 text-green-800" :
-                            report.overall_grade === "B" ? "bg-blue-100 text-blue-800" :
-                            report.overall_grade === "C" ? "bg-cyan-100 text-cyan-800" :
-                            "bg-amber-100 text-amber-800"
-                          }>
+                          <Badge className={gradeBadgeClass(report.overall_grade)}>
                             {report.overall_grade}
                           </Badge>
                         </div>
@@ -219,7 +215,7 @@ export default function StudentTermReportsTab() {
                       examName={`${report.term} ${report.academic_year}`}
                       term={report.term}
                       academicYear={report.academic_year}
-                      results={(Array.isArray(report.exam_data) ? report.exam_data : []).map((r: any) => ({
+                      results={examDataRows(report.exam_data).map((r) => ({
                         subject_name: r.subjects?.name || "Unknown",
                         subject_code: null,
                         mark: r.mark || 0,

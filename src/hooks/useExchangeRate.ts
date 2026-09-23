@@ -1,4 +1,3 @@
-// @ts-nocheck
 // USD is the base currency; ZiG amounts are derived from the bursar-managed
 // USD → ZiG rate stored in the exchange_rates table.
 import { useCallback, useEffect, useState } from "react";
@@ -63,8 +62,8 @@ export function useExchangeRate() {
     setRate(r);
   };
 
-  const usdToZig = (v: number) => Number(v || 0) * rate;
-  const zigToUsd = (v: number) => Number(v || 0) / (rate || 1);
+  const usdToZig = useCallback((v: number) => Number(v || 0) * rate, [rate]);
+  const zigToUsd = useCallback((v: number) => Number(v || 0) / (rate || 1), [rate]);
 
   return { rate, loading, updateRate, usdToZig, zigToUsd, refetch: fetchRate };
 }

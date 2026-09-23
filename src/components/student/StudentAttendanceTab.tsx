@@ -1,17 +1,17 @@
-// @ts-nocheck
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect, useCallback } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CalendarCheck, CalendarX, Clock, CheckCircle } from "lucide-react";
+import { CalendarCheck, CalendarX, Clock, CheckCircle, type LucideIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { format, startOfMonth, endOfMonth, subMonths } from "date-fns";
+import { format } from "date-fns";
+import type { Tables } from "@/integrations/supabase/types";
 
 interface Props {
   studentId: string | null;
 }
 
-const statusConfig: Record<string, { color: string; bg: string; icon: any }> = {
+const statusConfig: Record<string, { color: string; bg: string; icon: LucideIcon }> = {
   present: { color: "text-green-700", bg: "bg-green-100", icon: CheckCircle },
   absent: { color: "text-red-700", bg: "bg-red-100", icon: CalendarX },
   late: { color: "text-yellow-700", bg: "bg-yellow-100", icon: Clock },
@@ -19,9 +19,20 @@ const statusConfig: Record<string, { color: string; bg: string; icon: any }> = {
 };
 
 export default function StudentAttendanceTab({ studentId }: Props) {
-  const [attendance, setAttendance] = useState<any[]>([]);
+  const [attendance, setAttendance] = useState<Tables<"attendance">[]>([]);
   const [loading, setLoading] = useState(true);
   const [monthFilter, setMonthFilter] = useState("all");
+
+  const fetchAttendance = useCallback(async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from("attendance")
+      .select("*, classes(name)")
+      .eq("student_id", studentId!)
+      .order("date", { ascending: false });
+    setAttendance(data || []);
+    setLoading(false);
+  }, [studentId]);
 
   useEffect(() => {
     if (studentId) {
@@ -29,18 +40,7 @@ export default function StudentAttendanceTab({ studentId }: Props) {
     } else {
       setLoading(false);
     }
-  }, [studentId]);
-
-  const fetchAttendance = async () => {
-    setLoading(true);
-    const { data } = await supabase
-      .from("attendance")
-      .select("*, classes(name)")
-      .eq("student_id", studentId!)
-      .order("attendance_date", { ascending: false });
-    setAttendance(data || []);
-    setLoading(false);
-  };
+  }, [fetchAttendance, studentId]);
 
   const totalDays = attendance.length;
   const presentDays = attendance.filter((a) => a.status === "present" || a.status === "late").length;
@@ -49,11 +49,11 @@ export default function StudentAttendanceTab({ studentId }: Props) {
   const percent = totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 0;
 
   // Generate month options from attendance data
-  const months = [...new Set(attendance.map((a) => format(new Date(a.attendance_date), "yyyy-MM")))];
+  const months = [...new Set(attendance.map((a) => format(new Date(a.date), "yyyy-MM")))];
 
   const filtered = monthFilter === "all"
     ? attendance
-    : attendance.filter((a) => format(new Date(a.attendance_date), "yyyy-MM") === monthFilter);
+    : attendance.filter((a) => format(new Date(a.date), "yyyy-MM") === monthFilter);
 
   if (loading) {
     return <div className="space-y-3">{[1, 2, 3].map((i) => <div key={i} className="h-16 animate-pulse rounded-lg bg-muted" />)}</div>;
@@ -124,7 +124,7 @@ export default function StudentAttendanceTab({ studentId }: Props) {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium">
-                    {format(new Date(a.attendance_date), "EEEE, MMM d")}
+                    {format(new Date(a.date), "EEEE, MMM d")}
                   </p>
                   {a.notes && <p className="text-[11px] text-muted-foreground truncate">{a.notes}</p>}
                 </div>

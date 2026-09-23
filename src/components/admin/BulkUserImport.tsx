@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,18 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { Upload, FileSpreadsheet, Download, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-
-interface CsvRow {
-  full_name: string;
-  email: string;
-  password: string;
-  portal_role: string;
-  staff_role?: string;
-  department?: string;
-  phone?: string;
-  grade?: string;
-  class_name?: string;
-}
+import { errorMessage } from "@/lib/errors";
 
 interface ImportResult {
   row: number;
@@ -32,7 +20,6 @@ interface ImportResult {
 }
 
 const REQUIRED_COLUMNS = ["full_name", "email", "password", "portal_role"];
-const OPTIONAL_COLUMNS = ["staff_role", "department", "phone", "grade", "class_name"];
 
 function parseCsv(text: string): { headers: string[]; rows: Record<string, string>[] } {
   const lines = text.split(/\r?\n/).filter((l) => l.trim());
@@ -51,7 +38,7 @@ function parseCsv(text: string): { headers: string[]; rows: Record<string, strin
   return { headers, rows };
 }
 
-function validateRow(row: Record<string, string>, index: number): { valid: boolean; errors: string[] } {
+function validateRow(row: Record<string, string>): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
   if (!row.full_name?.trim()) errors.push("Missing full_name");
   if (!row.email?.trim()) errors.push("Missing email");
@@ -72,7 +59,6 @@ export default function BulkUserImport({ onImportComplete }: { onImportComplete?
   const fileRef = useRef<HTMLInputElement>(null);
   const [importType, setImportType] = useState<string>("student");
   const [parsedRows, setParsedRows] = useState<Record<string, string>[]>([]);
-  const [headers, setHeaders] = useState<string[]>([]);
   const [validationErrors, setValidationErrors] = useState<Record<number, string[]>>({});
   const [importing, setImporting] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -104,17 +90,15 @@ export default function BulkUserImport({ onImportComplete }: { onImportComplete?
           variant: "destructive",
         });
         setParsedRows([]);
-        setHeaders([]);
         return;
       }
 
-      setHeaders(h);
       setParsedRows(rows);
 
       // Validate all rows
       const errors: Record<number, string[]> = {};
       rows.forEach((row, i) => {
-        const { valid, errors: rowErrors } = validateRow(row, i);
+        const { valid, errors: rowErrors } = validateRow(row);
         if (!valid) errors[i] = rowErrors;
       });
       setValidationErrors(errors);
@@ -167,8 +151,8 @@ export default function BulkUserImport({ onImportComplete }: { onImportComplete?
         } else {
           importResults.push({ row: rowIndex + 2, email: row.email, full_name: row.full_name, status: "success", message: "Created" });
         }
-      } catch (err: any) {
-        importResults.push({ row: rowIndex + 2, email: row.email, full_name: row.full_name, status: "error", message: err.message });
+      } catch (err) {
+        importResults.push({ row: rowIndex + 2, email: row.email, full_name: row.full_name, status: "error", message: errorMessage(err) });
       }
       setProgress(Math.round(((i + 1) / validRows.length) * 100));
     }
@@ -190,8 +174,8 @@ export default function BulkUserImport({ onImportComplete }: { onImportComplete?
     let csv = "";
     if (importType === "student") {
       csv = "full_name,email,password,portal_role,grade,class_name,phone\n";
-      csv += "Sipho Zulu,szulu@mavingtech.com,Student2026!,student,Grade 8,A,+27 82 123 4567\n";
-      csv += "Nokuthula Khumalo,nkhumalo@mavingtech.com,Student2026!,student,Grade 9,B,\n";
+      csv += "Tatenda Moyo,tmoyo@mavingtech.com,Student2026!,student,Form 1,A,+263771234567\n";
+      csv += "Nokuthula Ncube,nncube@mavingtech.com,Student2026!,student,Form 2,B,\n";
     } else {
       csv = "full_name,email,password,portal_role,staff_role,department,phone\n";
       csv += "Mr. T. Banda,tbanda@mavingtech.com,Teacher2026!,teacher,teacher,Sciences,+263 77 234 5678\n";

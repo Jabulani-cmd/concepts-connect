@@ -1,39 +1,38 @@
 import { describe, it, expect } from "vitest";
+import { gradeFor, gradeBadgeClass, gradeLabel, GRADE_BANDS, PASS_MARK } from "@/lib/grading";
 
-// CAPS 7-point rating code (South African NSC/CAPS scale)
-function getCAPSCode(percentage: number): number {
-  if (percentage >= 80) return 7; // Outstanding achievement
-  if (percentage >= 70) return 6; // Meritorious achievement
-  if (percentage >= 60) return 5; // Substantial achievement
-  if (percentage >= 50) return 4; // Adequate achievement
-  if (percentage >= 40) return 3; // Moderate achievement
-  if (percentage >= 30) return 2; // Elementary achievement
-  return 1;                       // Not achieved
-}
+describe("ZIMSEC grading", () => {
+  it.each([
+    [100, "A"], [75, "A"],
+    [74, "B"], [65, "B"],
+    [64, "C"], [50, "C"],
+    [49, "D"], [45, "D"],
+    [44, "E"], [40, "E"],
+    [39, "U"], [0, "U"],
+  ])("%i%% is grade %s", (percent, grade) => {
+    expect(gradeFor(percent)).toBe(grade);
+  });
 
-describe("CAPS Rating Codes", () => {
-  it("returns 7 for 80–100%", () => {
-    expect(getCAPSCode(95)).toBe(7);
-    expect(getCAPSCode(80)).toBe(7);
+  it("treats missing marks as ungraded", () => {
+    expect(gradeFor(null)).toBe("U");
+    expect(gradeFor(undefined)).toBe("U");
   });
-  it("returns 6 for 70–79%", () => {
-    expect(getCAPSCode(75)).toBe(6);
-    expect(getCAPSCode(70)).toBe(6);
+
+  it("passes at grade C", () => {
+    expect(gradeFor(PASS_MARK)).toBe("C");
+    expect(gradeFor(PASS_MARK - 1)).not.toBe("C");
   });
-  it("returns 5 for 60–69%", () => {
-    expect(getCAPSCode(65)).toBe(5);
+
+  it("orders bands from highest to lowest", () => {
+    const mins = GRADE_BANDS.map((b) => b.min);
+    expect([...mins].sort((a, b) => b - a)).toEqual(mins);
   });
-  it("returns 4 for 50–59%", () => {
-    expect(getCAPSCode(50)).toBe(4);
-  });
-  it("returns 3 for 40–49%", () => {
-    expect(getCAPSCode(45)).toBe(3);
-  });
-  it("returns 2 for 30–39%", () => {
-    expect(getCAPSCode(35)).toBe(2);
-  });
-  it("returns 1 for below 30%", () => {
-    expect(getCAPSCode(29)).toBe(1);
-    expect(getCAPSCode(0)).toBe(1);
+
+  it("labels and styles every grade", () => {
+    for (const { grade } of GRADE_BANDS) {
+      expect(gradeLabel(grade)).not.toBe("");
+      expect(gradeBadgeClass(grade)).toMatch(/^bg-/);
+    }
+    expect(gradeBadgeClass("X")).toBe("bg-muted text-muted-foreground");
   });
 });
