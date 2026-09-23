@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Calendar, Clock, MapPin, Loader2, AlertCircle } from "lucide-react";
-import { format, isAfter, isBefore, isToday } from "date-fns";
+import { format, isAfter, isToday } from "date-fns";
 
 interface ExamTimetableEntry {
   id: string;

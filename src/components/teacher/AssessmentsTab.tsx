@@ -7,11 +7,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Plus, Upload, ClipboardList, Eye, Trash2, ChevronRight, ChevronLeft,
-  FileText, CheckCircle2, Clock, AlertCircle, Users, Link as LinkIcon, ExternalLink
+  Plus,
+  Upload,
+  Eye,
+  Trash2,
+  ChevronRight,
+  ChevronLeft,
+  FileText,
+  Link as LinkIcon,
+  ExternalLink,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";

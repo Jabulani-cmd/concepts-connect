@@ -5,10 +5,22 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  BookOpen, Shield, GraduationCap, Users, Briefcase, DollarSign,
-  Printer, ChevronRight, Search, Home, UserCheck, Bell, Image,
-  Download, Calendar, Building, Package, MessageSquare, BedDouble,
-  ClipboardList, Camera, Upload, FileText, Lock, Monitor
+  BookOpen,
+  Shield,
+  GraduationCap,
+  Users,
+  Briefcase,
+  DollarSign,
+  Printer,
+  Search,
+  Home,
+  UserCheck,
+  Package,
+  MessageSquare,
+  BedDouble,
+  ClipboardList,
+  Lock,
+  Monitor,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 

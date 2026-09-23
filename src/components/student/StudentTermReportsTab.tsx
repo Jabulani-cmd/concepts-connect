@@ -1,12 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { FileText, Loader2, Download, Trophy, TrendingUp, AlertCircle } from "lucide-react";
+import { FileText, Loader2, Trophy, TrendingUp, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import ReportCardDownloadButton from "./ReportCardPDF";
 import { gradeBadgeClass } from "@/lib/grading";

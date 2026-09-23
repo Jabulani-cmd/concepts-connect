@@ -277,7 +277,7 @@ export default function MessagingPanel() {
     if (!user) return;
     fetchConversations();
     fetchBlocked();
-  }, [user?.id]);
+  }, [fetchBlocked, fetchConversations, user]);
 
   // Real-time subscription (stable, no dependency on callbacks)
   useEffect(() => {
@@ -305,7 +305,7 @@ export default function MessagingPanel() {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [user?.id]);
+  }, [fetchConversations, markConversationRead, user]);
 
   // Scroll to bottom
   useEffect(() => {
@@ -387,13 +387,7 @@ export default function MessagingPanel() {
     if (panelTab === "contacts") fetchContacts();
   }, [panelTab, fetchContacts]);
 
-  // Re-run user search when role filter changes
-  useEffect(() => {
-    if (userSearch.length >= 2) searchUsers(userSearch);
-  }, [searchRoleFilter]);
-
-  const searchUsers = async (query: string) => {
-    setUserSearch(query);
+  const searchUsers = useCallback(async (query: string) => {
     if (query.length < 2) { setUserResults([]); return; }
 
     const { data: profiles } = await supabase
@@ -431,7 +425,11 @@ export default function MessagingPanel() {
     }
 
     setUserResults(results);
-  };
+  }, [blockedIds, searchRoleFilter, user?.id]);
+
+  useEffect(() => {
+    searchUsers(userSearch);
+  }, [searchUsers, userSearch]);
 
   const addUserToSelection = (u: UserProfile) => {
     if (!selectedUsers.find(s => s.id === u.id)) {
@@ -1033,7 +1031,7 @@ export default function MessagingPanel() {
                     placeholder="Search users by name..."
                     className="pl-8"
                     value={userSearch}
-                    onChange={e => searchUsers(e.target.value)}
+                    onChange={e => setUserSearch(e.target.value)}
                   />
                 </div>
                 <Select value={searchRoleFilter} onValueChange={setSearchRoleFilter}>

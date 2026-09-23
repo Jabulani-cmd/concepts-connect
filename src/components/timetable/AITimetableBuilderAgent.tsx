@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAllocation, DAYS } from "@/contexts/AllocationContext";
 import { useToast } from "@/hooks/use-toast";
 
@@ -44,14 +43,15 @@ export default function AITimetableBuilderAgent() {
   const [approved, setApproved] = useState(false);
   const scroller = useRef<HTMLDivElement>(null);
 
+  const classes = ctx.classes;
   const formGroups = useMemo(() => {
-    const map = new Map<number, typeof ctx.classes>();
-    ctx.classes.forEach(c => {
+    const map = new Map<number, typeof classes>();
+    classes.forEach(c => {
       const arr = map.get(c.gradeLevel) ?? [];
       arr.push(c); map.set(c.gradeLevel, arr);
     });
     return Array.from(map.entries()).sort((a, b) => a[0] - b[0]);
-  }, [ctx.classes]);
+  }, [classes]);
 
   function push(role: Msg["role"], text: string) {
     setMessages(prev => [...prev, { id: `${Date.now()}-${Math.random()}`, role, text }]);

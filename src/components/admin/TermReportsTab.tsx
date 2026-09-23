@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { FileText, Loader2, RefreshCw, CheckCircle, Send, Eye } from "lucide-react";
+import { FileText, Loader2, RefreshCw, CheckCircle, Send } from "lucide-react";
 import { format } from "date-fns";
 import { errorMessage } from "@/lib/errors";
 import { gradeFor, gradeBadgeClass } from "@/lib/grading";

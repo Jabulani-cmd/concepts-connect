@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle, Circle, AlertTriangle, Rocket, Shield, Database, Users, Globe, FileText } from "lucide-react";
+import { CheckCircle, Circle, Rocket, Shield, Database, Users, Globe } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface ChecklistItem {

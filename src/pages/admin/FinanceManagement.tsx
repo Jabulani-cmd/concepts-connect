@@ -1,6 +1,6 @@
 import ExchangeRateCard from "@/components/finance/ExchangeRateCard";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
-import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,27 +24,24 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { Json, Tables } from "@/integrations/supabase/types";
 import { OFFICE_PAYMENT_METHODS, paymentMethodLabel, type PaymentMethod } from "@/lib/finance/paymentMethods";
 import { useAuth } from "@/contexts/AuthContext";
-import schoolLogo from "@/assets/mavingtech-logo.png";
 import {
   buildInvoicePdf,
   buildInvoiceHtml,
   urlToDataUrl,
-  buildStatementHtml,
   buildReceiptHtml,
   SCHOOL_LOGO_URL,
 } from "@/lib/finance/pdf";
 import ReceiptSearchTab from "@/components/finance/ReceiptSearchTab";
-import { printReceipt, openPrintWindow, downloadHtmlDocument } from "@/lib/finance/print";
+import { openPrintWindow, downloadHtmlDocument } from "@/lib/finance/print";
 import { formatMoney } from "@/lib/currency";
 import DocActionButtons from "@/components/finance/DocActionButtons";
-import DateRangeFilter, { dateMatches, emptyDateFilter, type FinanceDateFilter } from "@/components/finance/DateRangeFilter";
+import DateRangeFilter from "@/components/finance/DateRangeFilter";
+import { dateMatches, emptyDateFilter, type FinanceDateFilter } from "@/lib/finance/dateFilter";
 import { invoiceActions, receiptActions, statementActions, expensesListActions } from "@/lib/finance/documentActions";
 import {
   DollarSign,
@@ -59,10 +56,8 @@ import {
   TrendingDown,
   Search,
   Download,
-  Upload,
   Receipt,
   Ban,
-  Send,
   BarChart3,
   Loader2,
   Printer,
@@ -384,61 +379,13 @@ export default function FinanceManagement() {
   // ─── Loading ───
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    setLoading(true);
-    Promise.all([
-      fetchFeeStructures(),
-      fetchInvoices(),
-      fetchPayments(),
-      fetchExpenses(),
-      fetchPettyCash(),
-      fetchSupplierInvoices(),
-      fetchSupplierPayments(),
-      fetchRestrictionSettings(),
-    ]).finally(() => setLoading(false));
-  }, [rate]);
-
-  useEffect(() => {
-    // Realtime subscription for ALL finance tables — keeps every finance user in sync
-    const channel = supabase
-      .channel("finance-all-realtime")
-      .on("postgres_changes", { event: "*", schema: "public", table: "payments" }, () => {
-        fetchPayments();
-        fetchInvoices();
-      })
-      .on("postgres_changes", { event: "*", schema: "public", table: "invoices" }, () => {
-        fetchInvoices();
-      })
-      .on("postgres_changes", { event: "*", schema: "public", table: "expenses" }, () => {
-        fetchExpenses();
-      })
-      .on("postgres_changes", { event: "*", schema: "public", table: "fee_structures" }, () => {
-        fetchFeeStructures();
-      })
-      .on("postgres_changes", { event: "*", schema: "public", table: "invoice_items" }, () => {
-        fetchInvoices();
-      })
-      .on("postgres_changes", { event: "*", schema: "public", table: "online_payments" }, () => {
-        fetchPayments();
-        fetchInvoices();
-      })
-      .on("postgres_changes", { event: "*", schema: "public", table: "bank_transactions" }, () => {
-        // Refresh relevant data when bank transactions change
-        fetchPayments();
-      })
-      .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
   // ═══ FETCH FUNCTIONS ═══
-  async function fetchFeeStructures() {
+  const fetchFeeStructures = useCallback(async () => {
     const { data } = await supabase.from("fee_structures").select("*").order("created_at", { ascending: false });
     if (data) setFeeStructures(data.map((fee) => ({ ...fee, amount_zig: convertUsdToZig(fee.amount_usd) })));
-  }
+  }, [convertUsdToZig]);
 
-  async function fetchInvoices() {
+  const fetchInvoices = useCallback(async () => {
     const { data } = await supabase
       .from("invoices")
       .select("*, students(full_name, admission_number, form)")
@@ -450,38 +397,38 @@ export default function FinanceManagement() {
       const owing = normalized.filter((inv) => inv.status !== "paid");
       setDebtors(owing);
     }
-  }
+  }, [normalizeInvoiceRecord]);
 
-  async function fetchPayments() {
+  const fetchPayments = useCallback(async () => {
     const { data } = await supabase
       .from("payments")
       .select("*, students(full_name, admission_number, form), invoices(invoice_number)")
       .order("created_at", { ascending: false });
     if (data) setPayments(data.map(normalizeAmountRecord));
-  }
+  }, [normalizeAmountRecord]);
 
-  async function fetchExpenses() {
+  const fetchExpenses = useCallback(async () => {
     const { data } = await supabase.from("expenses").select("*").order("expense_date", { ascending: false });
     if (data) setExpenses(data.map(normalizeAmountRecord));
-  }
+  }, [normalizeAmountRecord]);
 
-  async function fetchPettyCash() {
+  const fetchPettyCash = useCallback(async () => {
     const { data } = await supabase.from("petty_cash").select("*").order("transaction_date", { ascending: false });
     if (data) setPettyCash(data.map(normalizeAmountRecord));
-  }
+  }, [normalizeAmountRecord]);
 
-  async function fetchSupplierInvoices() {
+  const fetchSupplierInvoices = useCallback(async () => {
     const { data } = await supabase.from("supplier_invoices").select("*").order("created_at", { ascending: false });
     if (data) setSupplierInvoices(data.map(normalizeSupplierInvoiceRecord));
-  }
+  }, [normalizeSupplierInvoiceRecord]);
 
-  async function fetchSupplierPayments() {
+  const fetchSupplierPayments = useCallback(async () => {
     const { data } = await supabase
       .from("supplier_payments")
       .select("*, supplier_invoices(supplier_name, invoice_number)")
       .order("payment_date", { ascending: false });
     if (data) setSupplierPayments(data.map(normalizeAmountRecord));
-  }
+  }, [normalizeAmountRecord]);
 
   async function savePettyCash() {
     setPcLoading(true);
@@ -651,7 +598,7 @@ export default function FinanceManagement() {
     fetchSupplierPayments();
   }
 
-  async function fetchRestrictionSettings() {
+  const fetchRestrictionSettings = useCallback(async () => {
     const { data } = await supabase
       .from("site_settings")
       .select("*")
@@ -662,7 +609,55 @@ export default function FinanceManagement() {
         if (s.setting_key === "restrict_exam_results") setRestrictExamResults(s.setting_value === "true");
       });
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([
+      fetchFeeStructures(),
+      fetchInvoices(),
+      fetchPayments(),
+      fetchExpenses(),
+      fetchPettyCash(),
+      fetchSupplierInvoices(),
+      fetchSupplierPayments(),
+      fetchRestrictionSettings(),
+    ]).finally(() => setLoading(false));
+  }, [fetchExpenses, fetchFeeStructures, fetchInvoices, fetchPayments, fetchPettyCash, fetchRestrictionSettings, fetchSupplierInvoices, fetchSupplierPayments, rate]);
+
+  useEffect(() => {
+    // Realtime subscription for ALL finance tables — keeps every finance user in sync
+    const channel = supabase
+      .channel("finance-all-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "payments" }, () => {
+        fetchPayments();
+        fetchInvoices();
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "invoices" }, () => {
+        fetchInvoices();
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "expenses" }, () => {
+        fetchExpenses();
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "fee_structures" }, () => {
+        fetchFeeStructures();
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "invoice_items" }, () => {
+        fetchInvoices();
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "online_payments" }, () => {
+        fetchPayments();
+        fetchInvoices();
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "bank_transactions" }, () => {
+        // Refresh relevant data when bank transactions change
+        fetchPayments();
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchExpenses, fetchFeeStructures, fetchInvoices, fetchPayments]);
 
   function openAddFee() {
     setEditingFee(null);

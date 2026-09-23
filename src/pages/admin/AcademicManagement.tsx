@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
@@ -17,9 +16,24 @@ import type { QueryData } from "@supabase/supabase-js";
 import { saveClassAttendance } from "@/lib/attendance";
 import { useAuth } from "@/contexts/AuthContext";
 import {
-  BookOpen, Plus, Pencil, Trash2, Users, Clock, Calendar,
-  CheckCircle, XCircle, AlertCircle, Search, Loader2,
-  GraduationCap, FileText, BarChart3, Printer, CalendarDays, ClipboardList, UserCheck, Trophy
+  BookOpen,
+  Plus,
+  Pencil,
+  Trash2,
+  Users,
+  Clock,
+  Calendar,
+  CheckCircle,
+  XCircle,
+  Search,
+  Loader2,
+  GraduationCap,
+  FileText,
+  BarChart3,
+  CalendarDays,
+  ClipboardList,
+  UserCheck,
+  Trophy,
 } from "lucide-react";
 import ExamTimetableTab from "@/components/admin/ExamTimetableTab";
 import TermReportsTab from "@/components/admin/TermReportsTab";

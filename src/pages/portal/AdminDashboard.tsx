@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import AcademicManagement from "@/pages/admin/AcademicManagement";
 import AdminAttendanceViewer from "@/components/admin/AdminAttendanceViewer";
@@ -35,7 +35,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Bell, Image, Users, Calendar, LogOut, Plus, Trash2, Upload, Layers, GraduationCap, UserPlus, Download, FileText, HandshakeIcon, Settings, UserCheck, Building, FolderKanban, BookOpen, Briefcase, DollarSign, Shield, BedDouble, Package, MessageSquare, ClipboardList, ShieldCheck, Database, Rocket, Megaphone, Trophy, ShieldAlert, CheckCircle2, CalendarOff } from "lucide-react";
+import { Bell, Image, Calendar, LogOut, Plus, Trash2, Upload, Layers, GraduationCap, Download, FileText, HandshakeIcon, Settings, UserCheck, Building, FolderKanban, BookOpen, Briefcase, DollarSign, Shield, BedDouble, Package, MessageSquare, ClipboardList, ShieldCheck, Database, Rocket, Megaphone, Trophy, ShieldAlert, CheckCircle2, CalendarOff } from "lucide-react";
 import schoolLogo from "@/assets/mavingtech-logo.png";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -332,14 +332,12 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
 
     if (classRows) {
       setTtClasses(classRows);
-      if (!ttSelectedClassId && classRows.length > 0) {
-        setTtSelectedClassId(classRows[0].id);
-      }
+      if (classRows.length > 0) setTtSelectedClassId((current) => current || classRows[0].id);
     }
     if (subjectRows) {
       setTtSubjects(subjectRows);
     }
-  }, [ttSelectedClassId]);
+  }, []);
 
   const fetchClassTimetable = useCallback(async (classId: string) => {
     setTtLoading(true);

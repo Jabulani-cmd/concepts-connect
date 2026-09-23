@@ -64,7 +64,8 @@ export default function AdminPayments() {
     [payments],
   );
   const totalRevenueMonth = useMemo(() => {
-    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    const today = new Date();
+    const start = new Date(today.getFullYear(), today.getMonth(), 1);
     return payments
       .filter((p) => p.payment_status === "paid" && new Date(p.created_at) >= start)
       .reduce((s, p) => s + Number(p.amount), 0);
@@ -74,8 +75,9 @@ export default function AdminPayments() {
   const pendingVerifications = payments.filter((p) => p.payment_status === "awaiting_verification").length;
 
   const monthlyChart = useMemo(() => {
+    const today = new Date();
     const months = Array.from({ length: 6 }).map((_, i) => {
-      const d = new Date(now.getFullYear(), now.getMonth() - 5 + i, 1);
+      const d = new Date(today.getFullYear(), today.getMonth() - 5 + i, 1);
       return { key: `${d.getFullYear()}-${d.getMonth()}`, label: d.toLocaleString("en", { month: "short" }), total: 0 };
     });
     payments.forEach((p) => {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -116,9 +116,7 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
   const [selectedTTClass, setSelectedTTClass] = useState("");
   const [timetableData, setTimetableData] = useState<TimetableRow[]>([]);
 
-  useEffect(() => { if (user) fetchAll(); }, [user]);
-
-  const fetchAll = async () => {
+  const fetchAll = useCallback(async () => {
     setLoading(true);
     const [profRes, subRes, allClassRes, staffRes] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", user!.id).single(),
@@ -184,7 +182,7 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
     setStats({ classCount, pendingGrading: 0, materialsCount: mats?.length || 0, upcomingHw });
 
     setLoading(false);
-  };
+  }, [user]);
 
   useEffect(() => {
     if (!selectedTTClass) return;
@@ -236,7 +234,7 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
       }
       setAttRecords(defaults);
     })();
-  }, [attClass, attDate]);
+  }, [attClass, attDate, classes]);
 
   const submitMark = async () => {
     const { student_id, subject_id, mark, term, assessment_type, description, comment } = markForm;
@@ -305,14 +303,16 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
     await refreshAiResults();
   };
 
-  const refreshAiResults = async () => {
+  const refreshAiResults = useCallback(async () => {
     // Load AI-marked (graded_by IS NULL) results for assessments owned by this teacher
     const { data: myAssess } = await supabase.from("assessments").select("id").eq("teacher_id", user!.id);
     const ids = (myAssess || []).map(a => a.id);
     if (ids.length === 0) { setAiResults([]); return; }
     const { data } = await aiResultsQuery(ids);
     if (data) setAiResults(data);
-  };
+  }, [user]);
+
+  useEffect(() => { if (user) fetchAll(); }, [fetchAll, user]);
 
   // Realtime: refresh AI results when new rows land
   useEffect(() => {
@@ -323,7 +323,7 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
       .on("postgres_changes", { event: "*", schema: "public", table: "assessment_results" }, () => refreshAiResults())
       .subscribe();
     return () => { supabase.removeChannel(ch); };
-  }, [user]);
+  }, [refreshAiResults, user]);
 
   const handleLogout = async () => { await signOut(); navigate("/login"); };
   const displayName = profile?.full_name || user?.user_metadata?.full_name || "Teacher";

@@ -14,7 +14,6 @@ import ParentSubscribe from "./pages/portal/ParentSubscribe";
 import ParentPaymentHistory from "./pages/portal/ParentPaymentHistory";
 import ParentBilling from "./pages/portal/ParentBilling";
 import AdminPayments from "./pages/portal/AdminPayments";
-import PortalAccessGate from "@/components/subscription/PortalAccessGate";
 import ScrollToTop from "@/components/ScrollToTop";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AuthenticatedLayout from "@/components/layout/AuthenticatedLayout";

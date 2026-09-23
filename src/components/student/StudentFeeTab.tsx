@@ -9,7 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { useIsMobile } from "@/hooks/use-mobile";
 import DocActionButtons from "@/components/finance/DocActionButtons";
-import DateRangeFilter, { dateMatches, emptyDateFilter, type FinanceDateFilter } from "@/components/finance/DateRangeFilter";
+import DateRangeFilter from "@/components/finance/DateRangeFilter";
+import { dateMatches, emptyDateFilter, type FinanceDateFilter } from "@/lib/finance/dateFilter";
 import {
   invoiceActions,
   receiptActions,

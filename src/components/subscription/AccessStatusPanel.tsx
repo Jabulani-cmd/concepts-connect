@@ -97,7 +97,7 @@ export default function AccessStatusPanel({ className = "" }: { className?: stri
     return () => {
       cancelled = true;
     };
-  }, [user?.id, role]);
+  }, [user, role]);
 
   const isParent = role === "parent";
   const isStudent = role === "student";

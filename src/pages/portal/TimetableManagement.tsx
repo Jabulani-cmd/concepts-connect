@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
-import { Plus, Sparkles, Calendar, FileSpreadsheet, Download, Printer, AlertTriangle, Trash2, Pencil, Copy, Eye, BarChart3 } from "lucide-react";
+import { Plus, Sparkles, Calendar, Download, Printer, AlertTriangle, Trash2, Pencil, Copy, Eye, BarChart3 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import TimetableSetupDialog, { SetupValue } from "@/components/timetable/TimetableSetupDialog";
@@ -15,7 +15,7 @@ import TimetableViewModes from "@/components/timetable/TimetableViewModes";
 import TimetableAnalytics from "@/components/timetable/TimetableAnalytics";
 import SubstitutionFinder from "@/components/timetable/SubstitutionFinder";
 import ExamTimetableBuilder from "@/components/timetable/ExamTimetableBuilder";
-import { buildPeriodSchedule, colorForSubject, dayName, generateBlankSlots, SlotRow, printableTimetableHtml, type BreakSpec } from "@/lib/timetableUtils";
+import { buildPeriodSchedule, colorForSubject, dayName, SlotRow, printableTimetableHtml, type BreakSpec } from "@/lib/timetableUtils";
 import type { Json, Tables, TablesInsert } from "@/integrations/supabase/types";
 import { errorMessage } from "@/lib/errors";
 

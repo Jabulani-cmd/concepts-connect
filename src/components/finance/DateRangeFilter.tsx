@@ -1,43 +1,15 @@
-// Reusable Year / Month / Day filter for finance tables. Provides a single
-// `matches(dateInput)` helper that the parent can use to filter any list.
+// Reusable Year / Month / Day filter for finance tables; pair with `dateMatches` from @/lib/finance/dateFilter.
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { CalendarRange, X } from "lucide-react";
+import { emptyDateFilter, type FinanceDateFilter } from "@/lib/finance/dateFilter";
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December",
 ];
-
-export type FinanceDateFilter = {
-  year: string; // 'all' or '2026'
-  month: string; // 'all' or '0'..'11'
-  day: string; // '' or 'YYYY-MM-DD'
-};
-
-export function emptyDateFilter(): FinanceDateFilter {
-  return { year: "all", month: "all", day: "" };
-}
-
-export function dateMatches(filter: FinanceDateFilter, dateInput?: string | Date | null): boolean {
-  if (!dateInput) return filter.year === "all" && filter.month === "all" && !filter.day;
-  const d = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
-  if (Number.isNaN(d.getTime())) return false;
-  if (filter.day) {
-    const exact = new Date(filter.day);
-    if (
-      exact.getFullYear() !== d.getFullYear() ||
-      exact.getMonth() !== d.getMonth() ||
-      exact.getDate() !== d.getDate()
-    )
-      return false;
-  }
-  if (filter.year !== "all" && String(d.getFullYear()) !== filter.year) return false;
-  if (filter.month !== "all" && String(d.getMonth()) !== filter.month) return false;
-  return true;
-}
 
 interface Props {
   value: FinanceDateFilter;

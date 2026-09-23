@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { ClipboardList, Clock, CheckCircle2, Upload, Eye, Sparkles, Timer, Loader2 } from "lucide-react";
+import { ClipboardList, Clock, Upload, Eye, Sparkles, Timer, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import type { QueryData } from "@supabase/supabase-js";

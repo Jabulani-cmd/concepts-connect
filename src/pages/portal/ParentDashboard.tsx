@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,10 +24,11 @@ import {
   Plus,
   CalendarDays,
   FileText,
-  Printer,
   ClipboardList,
   CreditCard,
-  Search, type LucideIcon } from "lucide-react";
+  Search,
+  type LucideIcon,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import schoolLogo from "@/assets/mavingtech-logo.png";
 import { useAuth } from "@/contexts/AuthContext";
@@ -42,10 +43,9 @@ import StudentAnnouncementsSection from "@/components/student/StudentAnnouncemen
 import AccessStatusPanel from "@/components/subscription/AccessStatusPanel";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { buildReceiptHtml, buildStatementHtml, SCHOOL_LOGO_URL } from "@/lib/finance/pdf";
-import { openPrintWindow } from "@/lib/finance/print";
 import DocActionButtons from "@/components/finance/DocActionButtons";
-import DateRangeFilter, { dateMatches, emptyDateFilter, type FinanceDateFilter } from "@/components/finance/DateRangeFilter";
+import DateRangeFilter from "@/components/finance/DateRangeFilter";
+import { dateMatches, emptyDateFilter, type FinanceDateFilter } from "@/lib/finance/dateFilter";
 import { invoiceActions, receiptActions, statementActions } from "@/lib/finance/documentActions";
 import StudentMarksTab from "@/components/student/StudentMarksTab";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -120,45 +120,7 @@ export default function ParentDashboard() {
   const [rankings, setRankings] = useState<ExamRankings | null>(null);
   const [childClassId, setChildClassId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!user) return;
-    fetchInitialData();
-  }, [user]);
-
-  useEffect(() => {
-    if (selectedChildId) fetchChildData(selectedChildId);
-  }, [selectedChildId]);
-
-  // Realtime payment updates
-  useEffect(() => {
-    if (!selectedChildId) return;
-    const channel = supabase
-      .channel(`parent-payments-${selectedChildId}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "payments", filter: `student_id=eq.${selectedChildId}` },
-        () => {
-          fetchChildData(selectedChildId);
-        },
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "invoices", filter: `student_id=eq.${selectedChildId}` },
-        () => {
-          fetchChildData(selectedChildId);
-        },
-      )
-      .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [selectedChildId]);
-
-  useEffect(() => {
-    if (selectedExamId && selectedChildId) fetchExamResults();
-  }, [selectedExamId]);
-
-  const fetchInitialData = async () => {
+  const fetchInitialData = useCallback(async () => {
     setLoading(true);
     const uid = user!.id;
 
@@ -190,9 +152,9 @@ export default function ParentDashboard() {
       }
     }
     setLoading(false);
-  };
+  }, [user]);
 
-  const fetchChildData = async (studentId: string) => {
+  const fetchChildData = useCallback(async (studentId: string) => {
     const childForm = children.find((c) => c.id === studentId)?.form;
     const [{ data: att }, { data: inv }, { data: pay }, { data: exm }, { data: sc }] = await Promise.all([
       supabase
@@ -229,9 +191,9 @@ export default function ParentDashboard() {
       setExamResults([]);
       setRankings(null);
     }
-  };
+  }, [children]);
 
-  const fetchExamResults = async () => {
+  const fetchExamResults = useCallback(async () => {
     if (!selectedExamId || !selectedChildId) return;
 
     const [{ data: results }, { data: rankData }] = await Promise.all([
@@ -241,7 +203,44 @@ export default function ParentDashboard() {
 
     setExamResults(results || []);
     setRankings((rankData as ExamRankings | null) ?? {});
-  };
+  }, [selectedChildId, selectedExamId]);
+
+  useEffect(() => {
+    if (!user) return;
+    fetchInitialData();
+  }, [fetchInitialData, user]);
+
+  useEffect(() => {
+    if (selectedChildId) fetchChildData(selectedChildId);
+  }, [fetchChildData, selectedChildId]);
+
+  useEffect(() => {
+    if (!selectedChildId) return;
+    const channel = supabase
+      .channel(`parent-payments-${selectedChildId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "payments", filter: `student_id=eq.${selectedChildId}` },
+        () => {
+          fetchChildData(selectedChildId);
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "invoices", filter: `student_id=eq.${selectedChildId}` },
+        () => {
+          fetchChildData(selectedChildId);
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchChildData, selectedChildId]);
+
+  useEffect(() => {
+    if (selectedExamId && selectedChildId) fetchExamResults();
+  }, [fetchExamResults, selectedChildId, selectedExamId]);
 
   const selectedChild = children.find((c) => c.id === selectedChildId);
   const displayName = profile?.full_name || user?.user_metadata?.full_name || "Parent";
@@ -1359,6 +1358,16 @@ function ParentPaymentHistory({
   const [loading, setLoading] = useState(true);
   const isMobile = useIsMobile();
 
+  const fetchPayments = useCallback(async () => {
+    const { data } = await supabase
+      .from("payments")
+      .select("*, invoices(invoice_number)")
+      .eq("student_id", childId)
+      .order("payment_date", { ascending: false });
+    setPayments(data || []);
+    setLoading(false);
+  }, [childId]);
+
   useEffect(() => {
     let active = true;
     fetchPayments();
@@ -1376,17 +1385,7 @@ function ParentPaymentHistory({
       active = false;
       supabase.removeChannel(channel);
     };
-  }, [childId, refreshKey]);
-
-  async function fetchPayments() {
-    const { data } = await supabase
-      .from("payments")
-      .select("*, invoices(invoice_number)")
-      .eq("student_id", childId)
-      .order("payment_date", { ascending: false });
-    setPayments(data || []);
-    setLoading(false);
-  }
+  }, [childId, fetchPayments, refreshKey]);
 
   const docStudent = { fullName: childName, admissionNumber, form };
   const filter = dateFilter || emptyDateFilter();

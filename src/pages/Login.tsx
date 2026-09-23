@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
@@ -42,18 +42,7 @@ export default function Login() {
 
   const [justLoggedIn, setJustLoggedIn] = useState(false);
 
-  useEffect(() => {
-    if (!authLoading && user && role && justLoggedIn) {
-      if (user.user_metadata?.must_change_password || user.app_metadata?.must_change_password) {
-        navigate("/change-password");
-        return;
-      }
-      toast({ title: t("login.loginSuccess") });
-      redirectByRole(role);
-    }
-  }, [authLoading, user, role, justLoggedIn]);
-
-  const redirectByRole = (r: string) => {
+  const redirectByRole = useCallback((r: string) => {
     if (r === "student") navigate("/portal/student");
     else if (r === "teacher") navigate("/portal/teacher");
     else if (r === "parent") navigate("/portal/parent-teacher");
@@ -66,7 +55,18 @@ export default function Login() {
     else if (r === "hod") navigate("/portal/hod");
     else if (r === "admin_supervisor") navigate("/portal/admin-supervisor");
     else if (r === "registration") navigate("/portal/registration");
-  };
+  }, [navigate]);
+
+  useEffect(() => {
+    if (!authLoading && user && role && justLoggedIn) {
+      if (user.user_metadata?.must_change_password || user.app_metadata?.must_change_password) {
+        navigate("/change-password");
+        return;
+      }
+      toast({ title: t("login.loginSuccess") });
+      redirectByRole(role);
+    }
+  }, [authLoading, user, role, justLoggedIn, toast, t, redirectByRole, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
