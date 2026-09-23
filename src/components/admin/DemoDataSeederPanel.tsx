@@ -16,10 +16,10 @@ import { supabase } from "@/integrations/supabase/client";
 
 const STEPS = [
   "Generating venues and classrooms",
-  "Creating subjects and curriculum",
-  "Provisioning teacher accounts",
-  "Enrolling 150 learners across Grade 8–12",
-  "Assigning 300 parents and guardians",
+  "Creating ZIMSEC subjects and curriculum",
+  "Provisioning 40 teacher accounts",
+  "Enrolling 500 learners across Form 1–6",
+  "Assigning 1 000 parents and guardians",
   "Building class allocations",
   "Solving weekly timetable",
   "Provisioning login accounts (admin + teachers)",
