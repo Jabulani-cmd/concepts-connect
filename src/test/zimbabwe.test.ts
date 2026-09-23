@@ -45,6 +45,14 @@ describe("Demo seed", () => {
     }
   });
 
+  it("gives every person a distinct name and every class its own class teacher", () => {
+    const names = all.map((p) => ("fullName" in p ? p.fullName : p.name).replace(/^(Mr|Mrs|Ms)\. /, ""));
+    expect(new Set(names).size).toBe(names.length);
+    const classTeachers = seed.classes.map((c) => c.classTeacherId);
+    expect(classTeachers.every(Boolean)).toBe(true);
+    expect(new Set(classTeachers).size).toBe(seed.classes.length);
+  });
+
   it("uses unique demo-domain logins and Zimbabwean phone numbers", () => {
     const emails = all.map((p) => p.email);
     expect(new Set(emails).size).toBe(emails.length);
