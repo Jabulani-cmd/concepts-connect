@@ -4086,10 +4086,6 @@ export type Database = {
         Args: { _student_id: string }
         Returns: undefined
       }
-      get_exam_rankings: {
-        Args: { p_exam_id: string; p_student_id: string }
-        Returns: Json
-      }
       get_contact_directory: {
         Args: { _limit?: number; _search?: string }
         Returns: {
@@ -4099,6 +4095,10 @@ export type Database = {
           id: string
           role: string
         }[]
+      }
+      get_exam_rankings: {
+        Args: { p_exam_id: string; p_student_id: string }
+        Returns: Json
       }
       get_school_bank_details: {
         Args: never

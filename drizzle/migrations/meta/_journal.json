@@ -78,6 +78,13 @@
       "when": 1790238687882,
       "tag": "0010_function_permissions",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1790239043551,
+      "tag": "0011_apply_staff_private_and_permissions",
+      "breakpoints": true
     }
   ]
 }
