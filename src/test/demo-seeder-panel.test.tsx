@@ -13,15 +13,20 @@ type InvokeResult = { data: unknown; error: unknown };
 const ok = (): InvokeResult => ({ data: { ok: true, errors: 0 }, error: null });
 let respond: (body: { accounts: Row[] }) => InvokeResult = ok;
 
+// Rows inserted per table, so reading a table back returns what was saved.
+const saved = new Map<string, Row[]>();
+
 function fakeQuery(table: string) {
-  let result: { data: unknown; error: null } = { data: [], error: null };
+  let result: { data: unknown; error: null } = { data: saved.get(table) ?? [], error: null };
   const chain: Record<string, unknown> = {};
   const self = () => chain;
   for (const m of ["select", "eq", "in", "like", "ilike", "order", "limit"]) chain[m] = vi.fn(self);
   const write = (op: string) => (rows: Row | Row[]) => {
     const list = Array.isArray(rows) ? rows : [rows];
     writes.push({ table, op, rows: list });
-    result = { data: list.map((r, i) => ({ id: `${table}-${writes.length}-${i}`, ...r })), error: null };
+    const withIds = list.map((r, i) => ({ id: `${table}-${writes.length}-${i}`, ...r }));
+    if (op !== "update") saved.set(table, [...(saved.get(table) ?? []), ...withIds]);
+    result = { data: withIds, error: null };
     return chain;
   };
   chain.insert = vi.fn(write("insert"));
@@ -92,6 +97,7 @@ describe("Demo data seeder panel", () => {
   it("creates missing logins for saved demo data and says why any failed", async () => {
     writes.length = 0;
     invokes.length = 0;
+    saved.clear();
     // The service refuses the whole call, the way it does when demo mode is switched off.
     const refused = { error: "Demo mode is switched off for this school." };
     respond = () => ({
@@ -109,7 +115,7 @@ describe("Demo data seeder panel", () => {
       </AllocationProvider>,
     );
     fireEvent.click(screen.getByRole("button", { name: /create missing logins/i }));
-    await waitFor(() => expect(screen.getByText(/some logins could not be created/i)).toBeInTheDocument(), { timeout: 15000 });
+    await waitFor(() => expect(screen.getByText(/some items need attention/i)).toBeInTheDocument(), { timeout: 15000 });
     expect(screen.getAllByText(/demo mode is switched off/i).length).toBeGreaterThan(0);
 
     // Only logins: the saved school records are left alone.

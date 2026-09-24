@@ -39,6 +39,23 @@ const ACCOUNTS_PER_CALL = 20;
 const PARALLEL_CALLS = 4;
 
 type AccountResult = { email: string; status: string; error?: string };
+type SavedIds = { subIdMap: Map<string, string>; classIdMap: Map<string, string>; staffIdMap: Map<string, string> };
+type WriteResult = PromiseLike<{ error: { code?: string; message: string } | null }>;
+
+/**
+ * Saves rows that name a teacher. If the database says a teacher record is missing
+ * (foreign key error), the rows are saved without teachers and a warning is noted.
+ */
+async function writeWithoutMissingTeachers<T extends { teacher_id: string | null }>(
+  rows: T[], warnings: string[], what: string, write: (rows: T[]) => WriteResult,
+) {
+  const { error } = await write(rows);
+  if (!error) return;
+  if (error.code !== "23503") throw error;
+  const retry = await write(rows.map((r) => ({ ...r, teacher_id: null })));
+  if (retry.error) throw retry.error;
+  warnings.push(`Some ${what} were left blank: ${error.message}`);
+}
 
 /** The message an edge function sent back with a failed call (not just "non-2xx status"). */
 async function functionErrorMessage(error: unknown): Promise<string> {
@@ -85,8 +102,11 @@ export default function DemoDataSeederPanel() {
 
   const seeded = people.loadedAt != null;
 
-  /** Subjects, classes, staff, students, class subjects and both timetable views. */
-  async function persistSchool(seed: Seed) {
+  /**
+   * Subjects, classes, staff and students: everything the logins link to.
+   * Returns the database ids for the seed's subjects, classes and teachers.
+   */
+  async function persistPeople(seed: Seed): Promise<SavedIds> {
     const year = String(new Date().getFullYear());
 
     // Subjects — reuse by name.
@@ -142,6 +162,18 @@ export default function DemoDataSeederPanel() {
         staffIdMap.set(t.id, ins.id);
       }
     }
+    // Use only staff records that really exist now, whatever was in the database before.
+    const { data: savedStaff, error: staffErr } = await supabase.from("staff").select("id, email").in("email", teacherEmails);
+    if (staffErr) throw staffErr;
+    const savedByEmail = new Map((savedStaff ?? []).map((s) => [s.email?.toLowerCase(), s.id]));
+    staffIdMap.clear();
+    for (const t of seed.teachers) {
+      const id = savedByEmail.get(t.email.toLowerCase());
+      if (id) staffIdMap.set(t.id, id);
+    }
+    const unsaved = seed.teachers.filter((t) => !staffIdMap.has(t.id));
+    if (unsaved.length) throw new Error(`${unsaved.length} teacher records could not be saved (e.g. ${unsaved[0].email})`);
+
     for (const c of seed.classes) {
       const teacher = staffIdMap.get(c.classTeacherId ?? "");
       if (teacher) await supabase.from("classes").update({ class_teacher_id: teacher }).eq("id", classIdMap.get(c.id)!);
@@ -180,6 +212,17 @@ export default function DemoDataSeederPanel() {
       if (error) throw error;
     }
 
+    return { subIdMap, classIdMap, staffIdMap };
+  }
+
+  /**
+   * Who teaches what, and both timetable views. Runs after the logins, and a
+   * problem here is reported as a warning rather than stopping the load.
+   */
+  async function persistTimetable(seed: Seed, { subIdMap, classIdMap, staffIdMap }: SavedIds): Promise<string[]> {
+    const year = String(new Date().getFullYear());
+    const warnings: string[] = [];
+
     // Class subjects (who teaches what, per class).
     const csRows = seed.allocations.map((a) => ({
       class_id: classIdMap.get(a.classId)!,
@@ -187,8 +230,8 @@ export default function DemoDataSeederPanel() {
       teacher_id: staffIdMap.get(a.teacherId) ?? null,
     })).filter((r) => r.class_id && r.subject_id);
     for (const rows of chunk(csRows, 100)) {
-      const { error } = await supabase.from("class_subjects").upsert(rows, { onConflict: "class_id,subject_id" });
-      if (error) throw error;
+      await writeWithoutMissingTeachers(rows, warnings, "subject teachers", (r) =>
+        supabase.from("class_subjects").upsert(r, { onConflict: "class_id,subject_id" }));
     }
 
     // timetable_entries — the weekly grid used by the student, teacher and parent portals.
@@ -204,8 +247,7 @@ export default function DemoDataSeederPanel() {
       term: "DEMO",
     })).filter((r) => r.class_id && r.subject_id);
     for (const rows of chunk(ttRows, 200)) {
-      const { error } = await supabase.from("timetable_entries").insert(rows);
-      if (error) throw error;
+      await writeWithoutMissingTeachers(rows, warnings, "timetable teachers", (r) => supabase.from("timetable_entries").insert(r));
     }
 
     // tt_definitions + tt_slots — the published timetable widget.
@@ -244,6 +286,7 @@ export default function DemoDataSeederPanel() {
       const { error } = await supabase.from("tt_slots").insert(slotRows);
       if (error) throw error;
     }
+    return warnings;
   }
 
   /** Every login, created in parallel batches. Parents go last so their children's logins already exist. */
@@ -347,10 +390,18 @@ export default function DemoDataSeederPanel() {
 
     try {
       setStepIdx(3);
-      await persistSchool(seed);
+      const ids = await persistPeople(seed);
+      // Logins come before the timetable, so a timetable problem can never block them.
       setStepIdx(4);
       const { total, failed, errors } = await provisionAccounts(seed);
       setStepIdx(6);
+      let warnings: string[];
+      try {
+        warnings = await persistTimetable(seed, ids);
+      } catch (e) {
+        warnings = [`Timetable not saved: ${errorMessage(e, "unknown error")}`];
+      }
+      setLoginErrors((prev) => [...prev, ...warnings]);
 
       const summ = {
         students: seed.students.length,
@@ -525,7 +576,7 @@ export default function DemoDataSeederPanel() {
 
           {!running && loginErrors.length > 0 && (
             <div className="mt-3 rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm">
-              <p className="font-medium text-destructive">Some logins could not be created:</p>
+              <p className="font-medium text-destructive">Some items need attention:</p>
               <ul className="mt-1 list-disc pl-5 text-xs text-muted-foreground">
                 {loginErrors.map((e) => <li key={e}>{e}</li>)}
               </ul>
