@@ -6,13 +6,8 @@ import type {
   Teacher, Subject, Room, SchoolClass, Allocation, TimetableSlot, RoomType,
 } from "@/contexts/AllocationContext";
 
-export const DEMO_EMAIL_DOMAIN = "schooldemo.com";
-export const DEMO_PASSWORDS = {
-  admin: "Demo@2025",
-  teacher: "Teacher@2025",
-  student: "Student@2025",
-  parent: "Parent@2025",
-} as const;
+export { DEMO_EMAIL_DOMAIN, DEMO_PASSWORDS } from "@/lib/demoAccounts";
+import { DEMO_EMAIL_DOMAIN, DEMO_PASSWORDS } from "@/lib/demoAccounts";
 
 export interface DemoStudent {
   id: string;

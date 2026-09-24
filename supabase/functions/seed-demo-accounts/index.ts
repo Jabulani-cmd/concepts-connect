@@ -18,7 +18,7 @@ const corsHeaders = {
 };
 
 const DEMO_DOMAIN = "schooldemo.com";
-const DEMO_ADMIN = { email: `admin@${DEMO_DOMAIN}`, password: "Demo@2025", full_name: "Demo Administrator", role: "admin" as const };
+const DEMO_ADMIN = { email: `admin@${DEMO_DOMAIN}`, password: "MbsDemo#Admin26", full_name: "Demo Administrator", role: "admin" as const };
 const ROLES = ["admin", "teacher", "student", "parent"] as const;
 const MAX_ACCOUNTS_PER_CALL = 60;
 const USER_PAGES = 10; // up to 10,000 users when looking one up by email
