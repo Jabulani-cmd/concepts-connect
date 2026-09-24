@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import FinanceManagement from "@/pages/admin/FinanceManagement";
 import FinanceApprovalsPanel from "@/components/finance/FinanceApprovalsPanel";
 import AuditLogs from "@/pages/admin/AuditLogs";
+import AgentFindingsPanel from "@/components/agent/AgentFindingsPanel";
 
 export default function FinanceDashboard() {
   const { signOut, user, role } = useAuth();
@@ -115,6 +116,9 @@ export default function FinanceDashboard() {
             <p className="mt-1 text-xs sm:text-sm text-muted-foreground">{portalSubtitle}</p>
           </div>
 
+          <div className="mb-4 sm:mb-6">
+            <AgentFindingsPanel kinds={["fee_arrears"]} title="Agent: fee arrears" description="A weekly summary from the school agent of invoices unpaid more than 30 days after they were due." />
+          </div>
           {isBursar ? (
             <Tabs defaultValue="approvals">
               <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-hide mb-4 sm:mb-6">

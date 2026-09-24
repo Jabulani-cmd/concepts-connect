@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, Users, GraduationCap, BookOpen, Briefcase, ClipboardList, Bell, CheckCircle2, UserCheck, Layers, CalendarOff } from "lucide-react";
+import { LogOut, Users, GraduationCap, BookOpen, Briefcase, ClipboardList, Bell, CheckCircle2, UserCheck, Layers, CalendarOff, Bot } from "lucide-react";
 import schoolLogo from "@/assets/mavingtech-logo.png";
 import LanguageSelect from "@/components/LanguageSelect";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,6 +18,7 @@ import StaffManagementFull from "@/pages/admin/StaffManagementFull";
 import EMISReports from "@/pages/admin/EMISReports";
 import TeacherDashboard from "@/pages/portal/TeacherDashboard";
 import StaffAvailabilityOverview from "@/components/admin/StaffAvailabilityOverview";
+import AgentFindingsPanel from "@/components/agent/AgentFindingsPanel";
 
 export default function HODDashboard() {
   const { signOut } = useAuth();
@@ -84,6 +85,7 @@ export default function HODDashboard() {
           <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-hide">
           <TabsList className="flex-wrap h-auto gap-1 w-max sm:w-auto">
             <TabsTrigger value="teaching" className="text-xs sm:text-sm"><Layers className="mr-1 h-3.5 w-3.5 sm:h-4 sm:w-4" /> My Teaching</TabsTrigger>
+            <TabsTrigger value="agent" className="text-xs sm:text-sm"><Bot className="mr-1 h-3.5 w-3.5 sm:h-4 sm:w-4" /> Agent Alerts</TabsTrigger>
             <TabsTrigger value="academics" className="text-xs sm:text-sm"><GraduationCap className="mr-1 h-3.5 w-3.5 sm:h-4 sm:w-4" /> Academics</TabsTrigger>
             <TabsTrigger value="attendance" className="text-xs sm:text-sm"><CheckCircle2 className="mr-1 h-3.5 w-3.5 sm:h-4 sm:w-4" /> Attendance</TabsTrigger>
             <TabsTrigger value="reports" className="text-xs sm:text-sm"><ClipboardList className="mr-1 h-3.5 w-3.5 sm:h-4 sm:w-4" /> Reports</TabsTrigger>
@@ -95,6 +97,7 @@ export default function HODDashboard() {
           </div>
 
           <TabsContent value="teaching"><TeacherDashboard embedded /></TabsContent>
+          <TabsContent value="agent"><AgentFindingsPanel title="Department agent alerts" description="Everything the school agent has raised: learners needing support, registers not taken, marks overdue. Follow up with class teachers where items stay open." /></TabsContent>
           <TabsContent value="academics"><AcademicManagement /></TabsContent>
           <TabsContent value="attendance"><AdminAttendanceViewer /></TabsContent>
           <TabsContent value="reports"><EMISReports /></TabsContent>

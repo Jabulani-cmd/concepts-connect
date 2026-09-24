@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.teacher-ai-suite]
 verify_jwt = false
+
+[functions.school-agent]
+verify_jwt = false
