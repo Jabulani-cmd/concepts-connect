@@ -37,6 +37,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Bell, Image, Calendar, LogOut, Plus, Trash2, Upload, Layers, GraduationCap, Download, FileText, HandshakeIcon, Settings, UserCheck, Building, FolderKanban, BookOpen, Briefcase, DollarSign, Shield, BedDouble, Package, MessageSquare, ClipboardList, ShieldCheck, Database, Rocket, Megaphone, Trophy, ShieldAlert, CheckCircle2, CalendarOff } from "lucide-react";
 import schoolLogo from "@/assets/mavingtech-logo.png";
+import LanguageSelect from "@/components/LanguageSelect";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -451,6 +452,7 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
             <span className="hidden sm:inline text-sm text-muted-foreground">{displayRole}</span>
+            <LanguageSelect />
             <Button variant="ghost" size="sm" onClick={handleLogout} className="hidden sm:flex"><LogOut className="mr-1 h-4 w-4" /> Logout</Button>
             <Button variant="ghost" size="icon" onClick={handleLogout} className="sm:hidden h-8 w-8"><LogOut className="h-4 w-4" /></Button>
           </div>

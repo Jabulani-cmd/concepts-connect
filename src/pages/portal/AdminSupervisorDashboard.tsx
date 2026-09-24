@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import schoolLogo from "@/assets/mavingtech-logo.png";
+import LanguageSelect from "@/components/LanguageSelect";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -142,6 +143,7 @@ export default function AdminSupervisorDashboard() {
               <Badge variant="destructive" className="animate-pulse text-[10px] sm:text-xs">{pendingCount}</Badge>
             )}
             <NotificationBell />
+            <LanguageSelect />
             <Button variant="outline" size="sm" onClick={handleLogout} className="hidden sm:flex gap-2">
               <LogOut className="h-4 w-4" /> Sign Out
             </Button>

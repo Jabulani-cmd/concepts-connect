@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import schoolLogo from "@/assets/mavingtech-logo.png";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import LanguageToggle from "@/components/LanguageToggle";
+import LanguageSelect from "@/components/LanguageSelect";
 
 interface NavItem {
   label: string;
@@ -212,7 +212,7 @@ export default function Navbar() {
 
         {/* Right side: portal + language */}
         <div className="flex shrink-0 items-center gap-2">
-          <LanguageToggle className="shrink-0" />
+          <LanguageSelect />
           <Link to="/login" className="hidden sm:block">
             <Button size="sm" className="whitespace-nowrap bg-primary text-primary-foreground hover:bg-primary/90">
               {t("nav.portalLogin")}

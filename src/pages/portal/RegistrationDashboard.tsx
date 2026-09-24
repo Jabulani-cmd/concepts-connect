@@ -25,6 +25,7 @@ import {
   Loader2,
 } from "lucide-react";
 import schoolLogo from "@/assets/mavingtech-logo.png";
+import LanguageSelect from "@/components/LanguageSelect";
 import { errorMessage } from "@/lib/errors";
 import type { TablesInsert } from "@/integrations/supabase/types";
 import { DEFAULT_FORM, FORM_LEVELS } from "@/lib/forms";
@@ -237,9 +238,12 @@ export default function RegistrationDashboard() {
               <p className="text-[10px] sm:text-xs text-muted-foreground">MavingTech High School</p>
             </div>
           </div>
-          <Button variant="outline" size="sm" onClick={handleLogout} className="text-xs sm:text-sm">
-            <LogOut className="mr-1 h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Sign Out</span>
-          </Button>
+          <div className="flex items-center gap-2">
+            <LanguageSelect />
+            <Button variant="outline" size="sm" onClick={handleLogout} className="text-xs sm:text-sm">
+              <LogOut className="mr-1 h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Sign Out</span>
+            </Button>
+          </div>
         </div>
       </header>
 

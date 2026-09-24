@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import schoolLogo from "@/assets/mavingtech-logo.png";
+import LanguageSelect from "@/components/LanguageSelect";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -301,6 +302,7 @@ export default function ParentDashboard() {
           </div>
           <div className="flex items-center gap-2">
             <NotificationBell />
+            <LanguageSelect />
             <span className="text-xs text-muted-foreground sm:hidden max-w-[120px] truncate">{displayName}</span>
             <Button variant="ghost" size="sm" onClick={handleLogout}>
               <LogOut className="mr-1 h-4 w-4" /> Logout
