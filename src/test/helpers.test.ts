@@ -3,7 +3,7 @@ import { ilikeAny } from "@/lib/search";
 import { emptyToNull } from "@/lib/utils";
 import { errorMessage } from "@/lib/errors";
 import { paymentMethodLabel, OFFICE_PAYMENT_METHODS } from "@/lib/finance/paymentMethods";
-import { parseQuestions } from "@/lib/assessments";
+import { parseQuestions, parseQuizResult } from "@/lib/assessments";
 
 describe("ilikeAny", () => {
   it("matches the term against every column", () => {
@@ -64,5 +64,18 @@ describe("parseQuestions", () => {
   it("returns an empty list for non-arrays", () => {
     expect(parseQuestions(null)).toEqual([]);
     expect(parseQuestions({ id: "q1" })).toEqual([]);
+  });
+});
+
+describe("parseQuizResult", () => {
+  it("reads the marking returned by submit_quiz", () => {
+    expect(parseQuizResult({ mark: 3, total: 4, percentage: 75, grade: "A", passed: true }))
+      .toEqual({ mark: 3, total: 4, percentage: 75, grade: "A", passed: true });
+  });
+
+  it("ignores anything that is not a marking result", () => {
+    expect(parseQuizResult(null)).toBeNull();
+    expect(parseQuizResult([1])).toBeNull();
+    expect(parseQuizResult({ mark: 1 })).toBeNull();
   });
 });
