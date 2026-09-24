@@ -389,20 +389,49 @@ Deno.serve(async (req) => {
 
     // ==================== LIST USERS ====================
     if (action === "list-users") {
-      const { data: allRoles } = await supabaseAdmin.from("user_roles").select("user_id, role");
-      const { data: allProfiles } = await supabaseAdmin.from("profiles").select("id, user_id, full_name, email");
-      const { data: allStaff } = await supabaseAdmin.from("staff").select("user_id, role, department");
+      // Read every page: the school has more than 1,000 users once the demo data is loaded.
+      const PAGE = 1000;
+      const allRows = async <T,>(table: string, columns: string): Promise<T[]> => {
+        const rows: T[] = [];
+        for (let from = 0; ; from += PAGE) {
+          const { data, error } = await supabaseAdmin.from(table).select(columns).range(from, from + PAGE - 1);
+          if (error) throw error;
+          rows.push(...((data ?? []) as T[]));
+          if (!data || data.length < PAGE) return rows;
+        }
+      };
+      const allRoles = await allRows<{ user_id: string; role: string }>("user_roles", "user_id, role");
+      const allProfiles = await allRows<{ id: string; user_id: string | null; full_name: string | null; email: string | null }>("profiles", "id, user_id, full_name, email");
+      const allStaff = await allRows<{ user_id: string | null; role: string | null; department: string | null }>("staff", "user_id, role, department");
+
+      // Sign-in details and password flags live on the auth user.
+      const authInfo = new Map<string, { last_sign_in_at: string | null; created_at: string; must_change_password: boolean; password_reset_at: string | null }>();
+      for (let page = 1; page <= 20; page++) {
+        const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: PAGE });
+        if (error) throw error;
+        for (const u of data.users) {
+          const meta = (u.app_metadata ?? {}) as Record<string, unknown>;
+          authInfo.set(u.id, {
+            last_sign_in_at: u.last_sign_in_at ?? null,
+            created_at: u.created_at,
+            must_change_password: meta.must_change_password === true,
+            password_reset_at: typeof meta.password_reset_at === "string" ? meta.password_reset_at : null,
+          });
+        }
+        if (data.users.length < PAGE) break;
+      }
 
       const roleMap: Record<string, string> = {};
-      (allRoles || []).forEach((r) => { roleMap[r.user_id] = r.role; });
+      allRoles.forEach((r) => { roleMap[r.user_id] = r.role; });
 
       const staffMap: Record<string, { role: string; department: string | null }> = {};
-      (allStaff || []).forEach((s) => {
+      allStaff.forEach((s) => {
         if (s.user_id) staffMap[s.user_id] = { role: s.role || "", department: s.department };
       });
 
-      const users = (allProfiles || []).map((p) => {
+      const users = allProfiles.map((p) => {
         const uid = p.user_id || p.id;
+        const info = authInfo.get(uid);
         return {
           id: uid,
           email: p.email || "",
@@ -410,7 +439,10 @@ Deno.serve(async (req) => {
           portal_role: roleMap[uid] || "unknown",
           staff_role: staffMap[uid]?.role || null,
           department: staffMap[uid]?.department || null,
-          created_at: "",
+          created_at: info?.created_at ?? "",
+          last_sign_in_at: info?.last_sign_in_at ?? null,
+          must_change_password: info?.must_change_password ?? false,
+          password_reset_at: info?.password_reset_at ?? null,
         };
       });
 
@@ -420,6 +452,7 @@ Deno.serve(async (req) => {
     }
 
     // ==================== RESET PASSWORD ====================
+    // Passwords are stored only as one-way hashes, so they can be replaced but never read back.
     if (action === "reset-password") {
       const { user_id, password: newPassword, force_change } = payload;
       if (!user_id || !newPassword) {
@@ -427,14 +460,31 @@ Deno.serve(async (req) => {
           status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      const updatePayload: { password: string; app_metadata?: Record<string, unknown>; user_metadata?: Record<string, unknown> } = { password: newPassword };
-      if (force_change) {
-        updatePayload.app_metadata = { must_change_password: true };
-        updatePayload.user_metadata = { must_change_password: true }; // legacy compat
+      if (String(newPassword).length < 8) {
+        return new Response(JSON.stringify({ error: "Password must be at least 8 characters" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
-      const { error } = await supabaseAdmin.auth.admin.updateUserById(user_id, updatePayload);
-      if (error) throw error;
-      return new Response(JSON.stringify({ message: "Password reset successfully" }), {
+      // Only an administrator may reset another administrator's password.
+      const { data: targetIsAdmin } = await supabaseAdmin.rpc("has_role", { _user_id: user_id, _role: "admin" });
+      const { data: callerIsAdmin } = await supabaseAdmin.rpc("has_role", { _user_id: userId, _role: "admin" });
+      if (targetIsAdmin && !callerIsAdmin) {
+        return new Response(JSON.stringify({ error: "Only an administrator can reset an administrator's password" }), {
+          status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const flags = { must_change_password: !!force_change, password_reset_at: new Date().toISOString() };
+      const { error } = await supabaseAdmin.auth.admin.updateUserById(user_id, {
+        password: newPassword,
+        app_metadata: flags,
+        user_metadata: { must_change_password: !!force_change }, // legacy compat
+      });
+      if (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      return new Response(JSON.stringify({ message: "Password reset successfully", ...flags }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
