@@ -1,10 +1,33 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
 };
+
+// Staff HR details (ID, NSSA/PAYE, bank, address, emergency contact) are stored in
+// staff_private, which only administrators and the staff member can read.
+const STAFF_PRIVATE_KEYS = ["national_id", "nssa_number", "paye_number", "bank_details", "address", "emergency_contact"];
+
+function takeStaffPrivate(row: Record<string, unknown>): Record<string, unknown> {
+  const hr: Record<string, unknown> = {};
+  for (const key of STAFF_PRIVATE_KEYS) {
+    if (key in row) {
+      hr[key] = row[key];
+      delete row[key];
+    }
+  }
+  return hr;
+}
+
+async function saveStaffPrivate(admin: SupabaseClient, staffId: string | undefined, hr: Record<string, unknown>) {
+  if (!staffId || !Object.keys(hr).length) return;
+  const { error } = await admin
+    .from("staff_private")
+    .upsert({ staff_id: staffId, ...hr, updated_at: new Date().toISOString() }, { onConflict: "staff_id" });
+  if (error) throw error;
+}
 
 Deno.serve(async (req) => {
   // Set when the very first admin account is being bootstrapped without a signed-in user.
@@ -292,7 +315,9 @@ Deno.serve(async (req) => {
         if (payload.employment_date) staffInsert.employment_date = payload.employment_date;
         if (payload.subjects_taught) staffInsert.subjects_taught = payload.subjects_taught;
 
+        const staffHr = takeStaffPrivate(staffInsert);
         const { data: staffRecord } = await supabaseAdmin.from("staff").insert(staffInsert).select("id, staff_number").single();
+        await saveStaffPrivate(supabaseAdmin, staffRecord?.id, staffHr);
 
         // Assign as class teacher if a class was selected
         if (assigned_class_id && staffRecord) {
@@ -550,7 +575,9 @@ Deno.serve(async (req) => {
           if (paye_number !== undefined) updates.paye_number = paye_number || null;
           if (bank_details !== undefined) updates.bank_details = bank_details || null;
           if (employment_date !== undefined) updates.employment_date = employment_date || null;
+          const updatesHr = takeStaffPrivate(updates);
           await supabaseAdmin.from("staff").update(updates).eq("user_id", user_id);
+          await saveStaffPrivate(supabaseAdmin, existingStaff.id, updatesHr);
 
           // Update class teacher assignment
           if (assigned_class_id !== undefined) {
@@ -565,7 +592,7 @@ Deno.serve(async (req) => {
           if (["principal", "deputy_principal"].includes(staff_role || "")) staffCategory = "leadership";
           else if (["bursar", "secretary"].includes(staff_role || "")) staffCategory = "administrative";
           else if (["groundsman", "matron"].includes(staff_role || "")) staffCategory = "general";
-          const { data: newStaff } = await supabaseAdmin.from("staff").insert({
+          const newStaffRow: Record<string, unknown> = {
             full_name: full_name || profile?.full_name || "",
             email: staffEmail || profile?.email || "",
             user_id,
@@ -584,7 +611,10 @@ Deno.serve(async (req) => {
             paye_number: paye_number || null,
             bank_details: bank_details || null,
             employment_date: employment_date || null,
-          }).select("id").single();
+          };
+          const newStaffHr = takeStaffPrivate(newStaffRow);
+          const { data: newStaff } = await supabaseAdmin.from("staff").insert(newStaffRow).select("id").single();
+          await saveStaffPrivate(supabaseAdmin, newStaff?.id, newStaffHr);
 
           if (assigned_class_id && newStaff) {
             await supabaseAdmin.from("classes").update({ class_teacher_id: newStaff.id }).eq("id", assigned_class_id);

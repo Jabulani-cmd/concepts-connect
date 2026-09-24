@@ -344,34 +344,16 @@ export default function MessagingPanel() {
     if (!user) return;
     setContactsLoading(true);
 
-    // First get all user_ids that have a role (i.e. not deleted)
-    const { data: activeRoles } = await supabase
-      .from("user_roles")
-      .select("user_id, role");
-
-    if (!activeRoles) { setContacts([]); setContactsLoading(false); return; }
-
-    const roleMap: Record<string, string> = {};
-    activeRoles.forEach(r => { roleMap[r.user_id] = r.role; });
-    const activeUserIds = activeRoles.map(r => r.user_id).filter(id => id !== user.id);
-
-    let query = supabase
-      .from("profiles")
-      .select("id, full_name, email, avatar_url")
-      .in("id", activeUserIds)
-      .order("full_name", { ascending: true })
-      .limit(100);
-
-    if (contactSearch.length >= 2) {
-      query = query.ilike("full_name", `%${contactSearch}%`);
-    }
-
-    const { data: profiles } = await query;
+    // The contact list comes from the server, which only returns people this user may see.
+    const { data: profiles } = await supabase.rpc("get_contact_directory", {
+      _search: contactSearch.length >= 2 ? contactSearch : null,
+      _limit: 100,
+    });
     if (!profiles) { setContacts([]); setContactsLoading(false); return; }
 
     let results: UserProfile[] = profiles
       .filter(p => !blockedIds.includes(p.id))
-      .map(p => ({ ...p, role: roleMap[p.id] || "user" }));
+      .map(p => ({ ...p, role: p.role || "user" }));
 
     if (contactRoleFilter !== "all") {
       results = results.filter(p => p.role === contactRoleFilter);
@@ -389,24 +371,8 @@ export default function MessagingPanel() {
   const searchUsers = useCallback(async (query: string) => {
     if (query.length < 2) { setUserResults([]); return; }
 
-    const { data: profiles } = await supabase
-      .from("profiles")
-      .select("id, full_name, email")
-      .ilike("full_name", `%${query}%`)
-      .neq("id", user?.id || "")
-      .limit(15);
-
+    const { data: profiles } = await supabase.rpc("get_contact_directory", { _search: query, _limit: 15 });
     if (!profiles) { setUserResults([]); return; }
-
-    // Fetch roles for these users
-    const userIds = profiles.map(p => p.id);
-    const { data: roles } = await supabase
-      .from("user_roles")
-      .select("user_id, role")
-      .in("user_id", userIds);
-
-    const roleMap: Record<string, string> = {};
-    roles?.forEach(r => { roleMap[r.user_id] = r.role; });
 
     // Filter out blocked users and apply role filter
     let results: UserProfile[] = profiles
@@ -416,7 +382,7 @@ export default function MessagingPanel() {
         full_name: p.full_name ?? "",
         email: p.email,
         avatar_url: null,
-        role: roleMap[p.id] || "user",
+        role: p.role || "user",
       }));
 
     if (searchRoleFilter !== "all") {
@@ -424,7 +390,7 @@ export default function MessagingPanel() {
     }
 
     setUserResults(results);
-  }, [blockedIds, searchRoleFilter, user?.id]);
+  }, [blockedIds, searchRoleFilter]);
 
   useEffect(() => {
     searchUsers(userSearch);

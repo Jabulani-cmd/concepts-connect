@@ -49,7 +49,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { errorMessage } from "@/lib/errors";
 import type { Tables } from "@/integrations/supabase/types";
 import { FORM_LEVELS } from "@/lib/forms";
-import { STAFF_COLUMNS, withStaffPrivate } from "@/lib/staff";
+import { STAFF_COLUMNS, withStaffPrivate, type StaffPrivate } from "@/lib/staff";
 
 const portalRoles = [
   { value: "admin", label: "System Administrator" },
@@ -533,7 +533,7 @@ export default function UserManagement() {
     setEditPhotoBlob(null);
     setEditPhotoPreview(null);
     let currentClassId = "";
-    let staffDetails: Partial<Tables<"staff">> = {};
+    let staffDetails: Partial<Tables<"staff"> & StaffPrivate> = {};
     let photoUrl = "";
     if (["teacher", "admin", "principal", "deputy_principal", "hod", "finance", "finance_clerk", "bursar", "admin_supervisor", "registration"].includes(user.portal_role)) {
       const { data: staffRow } = await supabase.from("staff").select(STAFF_COLUMNS).eq("user_id", user.id).maybeSingle();

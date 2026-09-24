@@ -41,7 +41,8 @@ import { staffFormSchema, type StaffFormData } from "@/lib/validators";
 import ImageCropper from "@/components/ImageCropper";
 import WebcamCapture from "@/components/WebcamCapture";
 import { errorMessage } from "@/lib/errors";
-import { STAFF_COLUMNS, withStaffPrivate } from "@/lib/staff";
+import { STAFF_COLUMNS, saveStaffPrivate, splitStaffPrivate, withStaffPrivate } from "@/lib/staff";
+import { useAuth } from "@/contexts/AuthContext";
 
 const roleOptions = ["principal", "deputy_principal", "hod", "admin", "bursar", "teacher", "senior_teacher", "housemaster", "counsellor", "librarian", "it_administrator", "groundskeeper", "matron", "secretary", "sports_director", "lab_technician", "school_administrator", "admin_clerk", "finance_clerk"];
 const departmentOptions = [
@@ -192,8 +193,13 @@ function getPortalRole(staffRole: string): string {
   }
 }
 
+const HR_ADMIN_ROLES = ["admin", "principal", "deputy_principal", "admin_supervisor", "supervisor"];
+
 export default function StaffManagementFull() {
   const { toast } = useToast();
+  const { role } = useAuth();
+  // Only administrators may see or change staff HR details (the database enforces this too).
+  const canManageHr = HR_ADMIN_ROLES.includes(role ?? "");
   const [staff, setStaff] = useState<StaffMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -346,11 +352,22 @@ export default function StaffManagementFull() {
     const payload = emptyToNull(parsed);
 
     if (editingId) {
-      const { error } = await supabase.from("staff").update(payload).eq("id", editingId);
+      // HR details (ID, NSSA/PAYE, bank, address, emergency contact) live in staff_private.
+      const { staff: staffFields, hr } = splitStaffPrivate(payload);
+      const { error } = await supabase.from("staff").update(staffFields).eq("id", editingId);
       if (error) {
         toast({ title: "Error", description: error.message, variant: "destructive" });
         setSaving(false);
         return;
+      }
+      if (canManageHr) {
+        try {
+          await saveStaffPrivate(editingId, hr);
+        } catch (e) {
+          toast({ title: "HR details not saved", description: errorMessage(e), variant: "destructive" });
+          setSaving(false);
+          return;
+        }
       }
       toast({ title: "Staff member updated!" });
     } else {
@@ -801,6 +818,7 @@ export default function StaffManagementFull() {
                     placeholder="e.g. Mr, Mrs, Dr"
                   />
                 </div>
+                {canManageHr && (
                 <div className="space-y-1">
                   <Label>National ID</Label>
                   <Input
@@ -812,6 +830,7 @@ export default function StaffManagementFull() {
                   />
                   {errors.national_id && <p className="text-xs text-destructive">{errors.national_id}</p>}
                 </div>
+                )}
                 <div className="space-y-1">
                   <Label>Phone</Label>
                   <Input
@@ -830,6 +849,7 @@ export default function StaffManagementFull() {
                     </p>
                   </div>
                 )}
+                {canManageHr && (
                 <div className="space-y-1">
                   <Label>Emergency Contact</Label>
                   <Input
@@ -839,6 +859,8 @@ export default function StaffManagementFull() {
                   />
                   {errors.emergency_contact && <p className="text-xs text-destructive">{errors.emergency_contact}</p>}
                 </div>
+                )}
+                {canManageHr && (
                 <div className="space-y-1 sm:col-span-2">
                   <Label>Address</Label>
                   <Textarea
@@ -848,6 +870,7 @@ export default function StaffManagementFull() {
                     placeholder="Street, suburb, city (e.g. 12 Main Rd, Avondale, Harare)"
                   />
                 </div>
+                )}
                 <div className="space-y-1 sm:col-span-2">
                   <Label>Bio</Label>
                   <Textarea value={formData.bio || ""} onChange={(e) => updateField("bio", e.target.value)} rows={2} />
@@ -933,6 +956,7 @@ export default function StaffManagementFull() {
                     placeholder="e.g. B.Ed, MSc Mathematics"
                   />
                 </div>
+                {canManageHr && (
                 <div className="space-y-1">
                   <Label>NSSA Number</Label>
                   <Input
@@ -940,6 +964,8 @@ export default function StaffManagementFull() {
                     onChange={(e) => updateField("nssa_number", e.target.value)}
                   />
                 </div>
+                )}
+                {canManageHr && (
                 <div className="space-y-1">
                   <Label>ZIMRA PAYE / TIN Number</Label>
                   <Input
@@ -947,6 +973,8 @@ export default function StaffManagementFull() {
                     onChange={(e) => updateField("paye_number", e.target.value)}
                   />
                 </div>
+                )}
+                {canManageHr && (
                 <div className="space-y-1 sm:col-span-2">
                   <Label>Bank Details</Label>
                   <Textarea
@@ -956,6 +984,7 @@ export default function StaffManagementFull() {
                     placeholder="e.g. CBZ Bank, Acc 01123456780012, Branch: Harare Main"
                   />
                 </div>
+                )}
               </div>
             </TabsContent>
             <TabsContent value="subjects" className="space-y-4">

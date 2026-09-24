@@ -64,6 +64,20 @@
       "when": 1790176434706,
       "tag": "0008_apply_private_files",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790238411070,
+      "tag": "0009_staff_private_table",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1790238687882,
+      "tag": "0010_function_permissions",
+      "breakpoints": true
     }
   ]
 }
