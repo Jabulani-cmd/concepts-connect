@@ -3,19 +3,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Bot, Database, Loader2, Play, ShieldCheck } from "lucide-react";
+import { Bot, Clock, Database, Loader2, Play, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { errorMessage } from "@/lib/errors";
-import { loadDemoActivity, runAgent, type AgentRun } from "@/lib/agent";
+import { AGENT_INTERVAL_MINUTES, getScheduleStatus, loadDemoActivity, runAgent, type AgentRun } from "@/lib/agent";
 import AgentFindingsPanel from "./AgentFindingsPanel";
 
-const AUTO_RUN_AFTER_HOURS = 20;
+const INTERVAL_MS = AGENT_INTERVAL_MINUTES * 60 * 1000;
 
 /**
  * Admin view of the school monitoring agent: run it, see its history and the rules it
- * uses, and review everything it has found. It runs by itself when an administrator
- * opens this page and the last run is more than 20 hours old.
+ * uses, and review everything it has found. The database runs the agent every 15
+ * minutes; if that schedule isn't active, this page keeps it running while it's open.
  */
 export default function AgentConsole() {
   const { toast } = useToast();
@@ -23,7 +23,8 @@ export default function AgentConsole() {
   const [running, setRunning] = useState(false);
   const [seeding, setSeeding] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
-  const autoTried = useRef(false);
+  const [scheduled, setScheduled] = useState<boolean | null>(null);
+  const runningRef = useRef(false);
 
   const loadRuns = useCallback(async () => {
     const { data } = await supabase.from("agent_runs").select("*").order("started_at", { ascending: false }).limit(10);
@@ -32,6 +33,8 @@ export default function AgentConsole() {
   }, []);
 
   const run = useCallback(async (trigger: "manual" | "auto") => {
+    if (runningRef.current) return;
+    runningRef.current = true;
     setRunning(true);
     try {
       const res = await runAgent(trigger);
@@ -45,18 +48,35 @@ export default function AgentConsole() {
     }
     await loadRuns();
     setRefreshKey((k) => k + 1);
+    runningRef.current = false;
     setRunning(false);
   }, [loadRuns, toast]);
 
   useEffect(() => {
-    loadRuns().then((list) => {
-      if (autoTried.current) return;
-      autoTried.current = true;
-      const last = list.find((r) => r.status === "completed");
-      const stale = !last || Date.now() - new Date(last.started_at).getTime() > AUTO_RUN_AFTER_HOURS * 3600 * 1000;
-      if (stale) run("auto");
-    });
+    getScheduleStatus().then((s) => setScheduled(s.scheduled));
+  }, []);
+
+  // Keep the agent running: if the last run is older than the interval (e.g. the database
+  // schedule isn't active), run it now and then every interval while this page is open.
+  useEffect(() => {
+    const tick = async () => {
+      const list = await loadRuns();
+      const lastStart = list[0] ? new Date(list[0].started_at).getTime() : 0;
+      if (Date.now() - lastStart > INTERVAL_MS + 60_000) run("auto");
+    };
+    tick();
+    const id = setInterval(tick, 60_000);
+    return () => clearInterval(id);
   }, [loadRuns, run]);
+
+  // Live run history.
+  useEffect(() => {
+    const channel = supabase
+      .channel(`agent-runs-${Math.random().toString(36).slice(2)}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "agent_runs" }, () => { loadRuns(); })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [loadRuns]);
 
   const seed = async () => {
     setSeeding(true);
@@ -71,6 +91,8 @@ export default function AgentConsole() {
   };
 
   const last = runs[0];
+  const lastDone = runs.find((r) => r.status === "completed");
+  const nextRun = lastDone ? new Date(new Date(lastDone.started_at).getTime() + INTERVAL_MS) : null;
 
   return (
     <div className="space-y-6">
@@ -83,6 +105,14 @@ export default function AgentConsole() {
               marks or homework have slipped; registers not taken; marks not entered; and overdue fees. Class teachers,
               HODs and office staff see their items in their own portals.
             </CardDescription>
+            <p className={`mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${scheduled === false ? "bg-amber-100 text-amber-900" : "bg-green-100 text-green-800"}`}>
+              <Clock className="h-3.5 w-3.5" />
+              {scheduled === false
+                ? `Automatic schedule not active yet: running every ${AGENT_INTERVAL_MINUTES} minutes while this page is open`
+                : `Runs automatically every ${AGENT_INTERVAL_MINUTES} minutes, day and night`}
+              {lastDone && ` · last run ${new Date(lastDone.started_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`}
+              {nextRun && nextRun.getTime() > Date.now() && ` · next about ${nextRun.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`}
+            </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button onClick={() => run("manual")} disabled={running}>
@@ -123,7 +153,7 @@ export default function AgentConsole() {
           <CardTitle className="font-heading text-lg">Recent runs</CardTitle>
           <CardDescription>
             {last ? `Last run ${new Date(last.started_at).toLocaleString("en-GB")} (${last.status}).` : "The agent has not run yet."}
-            {" "}It runs automatically when an administrator opens this page and the last run is over {AUTO_RUN_AFTER_HOURS} hours old.
+            {" "}The agent runs every {AGENT_INTERVAL_MINUTES} minutes; items close by themselves once they no longer apply.
           </CardDescription>
         </CardHeader>
         <CardContent className="overflow-x-auto">

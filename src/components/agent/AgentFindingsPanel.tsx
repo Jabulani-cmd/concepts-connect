@@ -62,6 +62,22 @@ export default function AgentFindingsPanel({ title = "School agent: items to rev
 
   useEffect(() => { load(); }, [load, refreshKey]);
 
+  // Live updates: reload shortly after the agent (or a colleague) changes an item.
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const channel = supabase
+      .channel(`agent-findings-${Math.random().toString(36).slice(2)}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "agent_findings" }, () => {
+        clearTimeout(timer);
+        timer = setTimeout(load, 1500);
+      })
+      .subscribe();
+    return () => {
+      clearTimeout(timer);
+      supabase.removeChannel(channel);
+    };
+  }, [load]);
+
   const shown = useMemo(() => rows
     .filter((r) => (view === "open" ? OPEN.includes(r.status) : !OPEN.includes(r.status)))
     .filter((r) => kindFilter === "all" || r.kind === kindFilter)
