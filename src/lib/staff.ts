@@ -39,3 +39,31 @@ export async function withStaffPrivate<T extends { id: string }>(rows: T[]): Pro
     };
   });
 }
+
+/** HR fields that live in staff_private rather than on the staff row. */
+export const STAFF_PRIVATE_KEYS = ["national_id", "nssa_number", "paye_number", "bank_details", "address", "emergency_contact"] as const;
+
+/** Splits a staff form payload into the staff row and its private HR fields. */
+export function splitStaffPrivate<T extends Record<string, unknown>>(payload: T): {
+  staff: Omit<T, (typeof STAFF_PRIVATE_KEYS)[number]>;
+  hr: Partial<StaffPrivate>;
+} {
+  const staff: Record<string, unknown> = { ...payload };
+  const hr: Partial<StaffPrivate> = {};
+  for (const key of STAFF_PRIVATE_KEYS) {
+    if (key in staff) {
+      hr[key] = (staff[key] as string | null) ?? null;
+      delete staff[key];
+    }
+  }
+  return { staff: staff as Omit<T, (typeof STAFF_PRIVATE_KEYS)[number]>, hr };
+}
+
+/** Saves HR fields for one staff member (administrators only; the database refuses anyone else). */
+export async function saveStaffPrivate(staffId: string, hr: Partial<StaffPrivate>): Promise<void> {
+  if (!Object.keys(hr).length) return;
+  const { error } = await supabase
+    .from("staff_private")
+    .upsert({ staff_id: staffId, ...hr, updated_at: new Date().toISOString() }, { onConflict: "staff_id" });
+  if (error) throw error;
+}

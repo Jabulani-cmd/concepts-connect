@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from "xlsx";
 import { errorMessage } from "@/lib/errors";
 import PrivateFilesMigrationCard from "@/components/admin/PrivateFilesMigrationCard";
+import { saveStaffPrivate, splitStaffPrivate } from "@/lib/staff";
 import { zimPhoneRegex, zimNationalIdRegex } from "@/lib/validators";
 
 type MigrationTarget = "students" | "staff" | "fee_structures" | "payments" | "classes" | "inventory_items";
@@ -170,7 +171,25 @@ export default function DataMigration() {
         });
 
         // Columns come from the uploaded sheet, so they are only known at runtime; the database validates each row.
-        const { error } = await supabase.from(target).insert(batch as never);
+        let error: { message: string } | null = null;
+        if (target === "staff") {
+          // HR details (ID, NSSA/PAYE, bank, address, emergency contact) are stored in staff_private.
+          const split = batch.map((row) => splitStaffPrivate(row));
+          const { data: inserted, error: insertError } = await supabase
+            .from("staff")
+            .insert(split.map((r) => r.staff) as never)
+            .select("id");
+          error = insertError;
+          if (!error) {
+            try {
+              for (const [n, row] of (inserted ?? []).entries()) await saveStaffPrivate(row.id, split[n].hr);
+            } catch (e) {
+              error = { message: errorMessage(e) };
+            }
+          }
+        } else {
+          ({ error } = await supabase.from(target).insert(batch as never));
+        }
         if (error) {
           toast({ title: `Import error at batch ${Math.floor(i / batchSize) + 1}`, description: error.message, variant: "destructive" });
           break;
