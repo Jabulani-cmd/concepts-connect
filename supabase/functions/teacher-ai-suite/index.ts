@@ -46,7 +46,7 @@ function buildPrompt(kind: string, p: Record<string, unknown>): { system: string
         user: `Student: ${p.student}\nAssignment: ${p.assignment}\nSubject: ${p.subject}\nScore: ${p.score} out of ${p.outOf}\nTeacher notes: ${p.notes || "none"}`,
       };
     case "parent_message": {
-      const lang = LANGUAGES[p.language] || "English";
+      const lang = LANGUAGES[String(p.language ?? "")] || "English";
       return {
         system: `${zimsec} Draft a short, respectful message from a teacher to a parent, written entirely in ${lang}. Keep it under 120 words. JSON shape: {"message":string}`,
         user: `Student: ${p.student}\nReason: ${p.reason}\nExtra context from teacher: ${p.notes || "none"}`,
