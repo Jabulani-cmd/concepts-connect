@@ -7,7 +7,7 @@ import WorksheetGenerator from "./WorksheetGenerator";
 import RubricGenerator from "./RubricGenerator";
 import FeedbackDrafter from "./FeedbackDrafter";
 import ParentMessageDrafter from "./ParentMessageDrafter";
-import AtRiskStudents from "./AtRiskStudents";
+import AgentFindingsPanel from "@/components/agent/AgentFindingsPanel";
 import TeacherInsights from "./TeacherInsights";
 
 interface Props {
@@ -30,7 +30,7 @@ export default function AIAssistantHub({ students = [] }: Props) {
       <CardContent className="space-y-3">
         <div className="flex items-start gap-1.5 rounded-md bg-muted/40 p-2 text-[11px] text-muted-foreground">
           <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-          <span><strong>DEMO MODE:</strong> AI output is real, but saved plans, worksheets, rubrics and risk flags stay in this browser only.</span>
+          <span><strong>DEMO MODE:</strong> AI output is real, but saved plans, worksheets and rubrics stay in this browser only.</span>
         </div>
 
         <Tabs defaultValue="lesson" className="w-full">
@@ -40,7 +40,7 @@ export default function AIAssistantHub({ students = [] }: Props) {
             <TabsTrigger value="rubric" className="text-xs"><Ruler className="mr-1 h-3.5 w-3.5" /> Rubrics</TabsTrigger>
             <TabsTrigger value="feedback" className="text-xs"><MessageSquareQuote className="mr-1 h-3.5 w-3.5" /> Feedback</TabsTrigger>
             <TabsTrigger value="parent" className="text-xs"><Users className="mr-1 h-3.5 w-3.5" /> Parent messages</TabsTrigger>
-            <TabsTrigger value="risk" className="text-xs"><AlertTriangle className="mr-1 h-3.5 w-3.5" /> At-risk</TabsTrigger>
+            <TabsTrigger value="risk" className="text-xs"><AlertTriangle className="mr-1 h-3.5 w-3.5" /> Agent alerts</TabsTrigger>
             <TabsTrigger value="insights" className="text-xs"><BarChart3 className="mr-1 h-3.5 w-3.5" /> Insights</TabsTrigger>
           </TabsList>
 
@@ -49,7 +49,7 @@ export default function AIAssistantHub({ students = [] }: Props) {
           <TabsContent value="rubric" className="mt-4"><RubricGenerator /></TabsContent>
           <TabsContent value="feedback" className="mt-4"><FeedbackDrafter students={students} /></TabsContent>
           <TabsContent value="parent" className="mt-4"><ParentMessageDrafter students={students} /></TabsContent>
-          <TabsContent value="risk" className="mt-4"><AtRiskStudents students={students} /></TabsContent>
+          <TabsContent value="risk" className="mt-4"><AgentFindingsPanel title="My agent alerts" description="Learners you teach who may need support, and registers or marks still to do. Raised by the school agent from real records; review each one." /></TabsContent>
           <TabsContent value="insights" className="mt-4"><TeacherInsights /></TabsContent>
         </Tabs>
       </CardContent>

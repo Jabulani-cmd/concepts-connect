@@ -450,6 +450,8 @@ export default function DemoDataSeederPanel() {
       }
       await supabase.from("timetable_entries").delete().eq("term", "DEMO");
       await supabase.from("tt_definitions").delete().like("name", "DEMO %");
+      // Homework created by "Load demo activity" (School Monitoring Agent).
+      await supabase.from("assessments").delete().eq("description", "demo-activity");
 
       // Demo classes go only if no real student is still enrolled in them.
       const { data: classes } = await supabase.from("classes").select("id").in("name", seed.classes.map((c) => c.name));
