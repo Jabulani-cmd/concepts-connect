@@ -25,15 +25,32 @@ export const STATUS_LABELS: Record<string, string> = {
 
 export const FINDING_SELECT = "*, students(full_name, admission_number), classes(name)";
 
+/** Minutes between automatic agent runs (the database schedule in migration 0019). */
+export const AGENT_INTERVAL_MINUTES = 15;
+
 /** Runs the school monitoring agent now (school leaders and HODs). */
 export async function runAgent(trigger: "manual" | "auto" = "manual") {
   const { data, error } = await supabase.functions.invoke("school-agent", { body: { trigger } });
   if (error) {
-    const ctx = (error as { context?: Response }).context;
-    const body = ctx ? await ctx.clone().json().catch(() => null) : null;
-    throw new Error(body?.error ?? error.message);
+    const ctx = (error as { context?: unknown }).context;
+    let message = error.message;
+    if (ctx instanceof Response) {
+      const body = await ctx.clone().json().catch(() => null);
+      if (body?.error) message = body.error;
+    } else if (error.name === "FunctionsFetchError" || /failed to send|fetch/i.test(message)) {
+      message = "The agent service could not be reached. It may not be deployed yet: publish the project in Lovable (this deploys the school-agent function), then try again.";
+    }
+    throw new Error(message);
   }
   return data as { ok: boolean; already_running?: boolean; summary?: Record<string, number | boolean> };
+}
+
+/** Whether the database runs the agent on its own, and how often. */
+export async function getScheduleStatus(): Promise<{ scheduled: boolean; schedule: string | null }> {
+  const { data, error } = await supabase.rpc("agent_schedule_status");
+  if (error || !data) return { scheduled: false, schedule: null };
+  const d = data as { scheduled?: boolean; schedule?: string | null };
+  return { scheduled: d.scheduled === true, schedule: d.schedule ?? null };
 }
 
 /** Records a staff review. Dismissing needs a reason. */

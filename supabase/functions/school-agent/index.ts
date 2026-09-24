@@ -7,8 +7,9 @@
 // ids. Staff review every finding; nothing is sent to families and no action is taken
 // automatically. Findings clear themselves when the register or marks are entered.
 //
-// Called by school leaders and HODs (signed in), or on a schedule with the
-// AGENT_CRON_SECRET secret in the "x-agent-secret" header.
+// Called every 15 minutes by a database job (with the key kept in agent_settings, or an
+// AGENT_CRON_SECRET secret, in the "x-agent-secret" header), and by school leaders and
+// HODs (signed in) with "Run now".
 import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { ruleExplanation, scoreLearner, RISK_RULES, type LearnerSignals, type RiskResult } from "./rules.ts";
 
@@ -24,6 +25,15 @@ const noEmDash = (s: string) => s.replace(/ \u2014 /g, ", ").replace(/\u2014/g, 
 const MODEL = "google/gemini-2.5-flash";
 const AI_BATCH = 25;
 const TIME_ZONE = "Africa/Harare";
+
+/** JSON with keys in a fixed order, to tell whether a learner's numbers have changed. */
+function stableJson(v: unknown): string {
+  if (Array.isArray(v)) return `[${v.map(stableJson).join(",")}]`;
+  if (v && typeof v === "object") {
+    return `{${Object.keys(v as Record<string, unknown>).sort().map((k) => `${JSON.stringify(k)}:${stableJson((v as Record<string, unknown>)[k])}`).join(",")}}`;
+  }
+  return JSON.stringify(v ?? null);
+}
 
 const json = (body: unknown, status = 200) =>
   new Response(noEmDash(JSON.stringify(body)), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -103,8 +113,15 @@ async function explainWithAi(items: { form: string | null; risk: RiskResult; sig
 }
 
 async function callerAllowed(admin: SupabaseClient, req: Request): Promise<{ ok: boolean; uid: string | null; trigger: string }> {
-  const secret = Deno.env.get("AGENT_CRON_SECRET");
-  if (secret && req.headers.get("x-agent-secret") === secret) return { ok: true, uid: null, trigger: "schedule" };
+  const given = req.headers.get("x-agent-secret");
+  if (given) {
+    const envSecret = Deno.env.get("AGENT_CRON_SECRET");
+    const { data: settings } = await admin.from("agent_settings").select("cron_secret").eq("id", 1).maybeSingle();
+    if ((envSecret && given === envSecret) || (settings?.cron_secret && given === settings.cron_secret)) {
+      return { ok: true, uid: null, trigger: "schedule" };
+    }
+    return { ok: false, uid: null, trigger: "schedule" };
+  }
   const token = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
   if (!token) return { ok: false, uid: null, trigger: "manual" };
   const { data } = await admin.auth.getUser(token);
@@ -166,31 +183,49 @@ Deno.serve(async (req) => {
     const dismissedScore = new Map((recentDismissed ?? []).map((d) => [d.dedupe_key, d.score ?? 0]));
     const toExplain = flagged.filter(({ row, risk }) => !(dismissedScore.has(`risk:${row.student_id}`) && risk.points <= (dismissedScore.get(`risk:${row.student_id}`) ?? 0)));
 
-    for (let i = 0; i < toExplain.length; i += AI_BATCH) {
-      const batch = toExplain.slice(i, i + AI_BATCH);
+    // Reuse the explanation when a learner's numbers haven't changed since the last run,
+    // so the AI is only asked about new or changed cases.
+    const { data: openRisk } = await admin.from("agent_findings").select("dedupe_key, signals, explanation, suggested_actions, explanation_source")
+      .eq("kind", "at_risk").in("status", ["open", "acknowledged"]);
+    const previous = new Map((openRisk ?? []).map((r) => [r.dedupe_key, r]));
+
+    const prepared = toExplain.map(({ row, risk }) => {
+      const signalsObj = {
+        attendance_before: row.attendance_before, attendance_recent: row.attendance_recent,
+        subjects_declining: risk.declining, assignments_due: row.assignments_due, assignments_missed: row.assignments_missed,
+        reasons: risk.reasons,
+      };
+      const prev = previous.get(`risk:${row.student_id}`);
+      const unchanged = !!prev?.explanation && stableJson(prev.signals) === stableJson(signalsObj);
+      return { row, risk, signalsObj, prev: unchanged ? prev : null };
+    });
+    const needAi = prepared.filter((p) => !p.prev);
+    const aiText = new Map<string, { explanation: string; actions: string[] }>();
+    for (let i = 0; i < needAi.length; i += AI_BATCH) {
+      const batch = needAi.slice(i, i + AI_BATCH);
       const ai = await explainWithAi(batch.map(({ row, risk }) => ({ form: row.form, risk, signals: row })));
-      batch.forEach(({ row, risk }, k) => {
+      batch.forEach(({ row }, k) => {
         const fromAi = ai?.get(k);
-        if (fromAi) aiUsed = true;
-        const fallback = ruleExplanation(risk);
-        findings.push({
-          kind: "at_risk",
-          severity: risk.severity === "high" ? "high" : "medium",
-          title: `Learner may need support (${row.class_name})`,
-          dedupe_key: `risk:${row.student_id}`,
-          student_id: row.student_id,
-          class_id: row.class_id,
-          assigned_to: classTeacher.get(row.class_id) ?? null,
-          score: risk.points,
-          signals: {
-            attendance_before: row.attendance_before, attendance_recent: row.attendance_recent,
-            subjects_declining: risk.declining, assignments_due: row.assignments_due, assignments_missed: row.assignments_missed,
-            reasons: risk.reasons,
-          },
-          explanation: fromAi?.explanation || fallback.explanation,
-          suggested_actions: fromAi?.actions?.length ? fromAi.actions : fallback.actions,
-          explanation_source: fromAi ? `ai:${MODEL}` : "rules",
-        });
+        if (fromAi) { aiUsed = true; aiText.set(row.student_id, fromAi); }
+      });
+    }
+
+    for (const { row, risk, signalsObj, prev } of prepared) {
+      const fromAi = aiText.get(row.student_id);
+      const fallback = ruleExplanation(risk);
+      findings.push({
+        kind: "at_risk",
+        severity: risk.severity === "high" ? "high" : "medium",
+        title: `Learner may need support (${row.class_name})`,
+        dedupe_key: `risk:${row.student_id}`,
+        student_id: row.student_id,
+        class_id: row.class_id,
+        assigned_to: classTeacher.get(row.class_id) ?? null,
+        score: risk.points,
+        signals: signalsObj,
+        explanation: prev?.explanation ?? fromAi?.explanation ?? fallback.explanation,
+        suggested_actions: prev ? (prev.suggested_actions as string[]) : fromAi?.actions?.length ? fromAi.actions : fallback.actions,
+        explanation_source: prev?.explanation_source ?? (fromAi ? `ai:${MODEL}` : "rules"),
       });
     }
     const flaggedKeys = new Set(flagged.map(({ row }) => `risk:${row.student_id}`));
@@ -272,7 +307,8 @@ Deno.serve(async (req) => {
     }
 
     // ---------- Save ----------
-    const { data: openRows } = await admin.from("agent_findings").select("id, dedupe_key, kind, assigned_to")
+    const { data: openRows } = await admin.from("agent_findings")
+      .select("id, dedupe_key, kind, assigned_to, severity, title, score, signals, explanation, suggested_actions")
       .in("status", ["open", "acknowledged"]);
     const openByKey = new Map((openRows ?? []).map((r) => [r.dedupe_key, r]));
     let created = 0; let updated = 0;
@@ -281,8 +317,13 @@ Deno.serve(async (req) => {
       const existing = openByKey.get(f.dedupe_key);
       const row = { ...f, run_id: run.id, updated_at: new Date().toISOString() };
       if (existing) {
-        await admin.from("agent_findings").update(row).eq("id", existing.id);
-        updated++;
+        // Only save when something changed, so open screens don't refresh for nothing.
+        const same = stableJson([existing.severity, existing.title, existing.score ?? null, existing.signals, existing.explanation, existing.suggested_actions, existing.assigned_to])
+          === stableJson([f.severity, f.title, f.score ?? null, f.signals, f.explanation, f.suggested_actions, f.assigned_to ?? null]);
+        if (!same) {
+          await admin.from("agent_findings").update(row).eq("id", existing.id);
+          updated++;
+        }
       } else {
         const { error } = await admin.from("agent_findings").insert(row);
         if (error) throw error;

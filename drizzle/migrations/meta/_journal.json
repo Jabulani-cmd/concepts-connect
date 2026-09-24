@@ -141,6 +141,13 @@
       "when": 1790259967537,
       "tag": "0019_0018_school_monitoring_agent",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1790263567537,
+      "tag": "0020_school_agent_schedule",
+      "breakpoints": true
     }
   ]
 }
