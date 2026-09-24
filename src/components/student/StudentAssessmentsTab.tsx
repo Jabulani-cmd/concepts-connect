@@ -9,7 +9,7 @@ import { ClipboardList, Clock, Upload, Eye, Sparkles, Timer, Loader2 } from "luc
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import type { QueryData } from "@supabase/supabase-js";
-import { parseQuestions } from "@/lib/assessments";
+import { parseQuestions, parseQuizResult } from "@/lib/assessments";
 
 const assessmentsQuery = (classId: string) =>
   supabase.from("assessments").select("*, subjects(name), classes(name)").eq("is_published", true).eq("class_id", classId).order("due_date", { ascending: true });
@@ -19,7 +19,7 @@ type Assessment = QueryData<ReturnType<typeof assessmentsQuery>>[number];
 type Result = QueryData<ReturnType<typeof resultsQuery>>[number];
 import { useToast } from "@/hooks/use-toast";
 import { format, differenceInCalendarDays, endOfDay, isBefore } from "date-fns";
-import { gradeFor, gradeTextClass, PASS_MARK } from "@/lib/grading";
+import { gradeTextClass } from "@/lib/grading";
 import { errorMessage } from "@/lib/errors";
 import { uploadPrivateFile } from "@/lib/privateFiles";
 
@@ -36,7 +36,7 @@ function isOverdueDate(dueDateStr: string): boolean {
   return isBefore(endOfDay(new Date(dueDateStr)), new Date());
 }
 
-export default function StudentAssessmentsTab({ studentId, studentClassId, userId }: Props) {
+export default function StudentAssessmentsTab({ studentId, studentClassId }: Props) {
   const { toast } = useToast();
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [submissions, setSubmissions] = useState<Tables<"assessment_submissions">[]>([]);
@@ -92,63 +92,28 @@ export default function StudentAssessmentsTab({ studentId, studentClassId, userI
     if (!selectedAssessment || !studentId) return;
     setSubmitting(true);
 
-    const qs = parseQuestions(selectedAssessment.questions);
-    let obtained = 0;
-    const totalMarks = selectedAssessment.max_marks || qs.reduce((s, q) => s + (q.marks || 1), 0);
-    qs.forEach((q) => {
-      if (answers[q.id] === q.correct_index) obtained += (q.marks || 1);
+    // Marked on the server: students never receive the answer key.
+    const { data, error } = await supabase.rpc("submit_quiz", {
+      _assessment_id: selectedAssessment.id,
+      _answers: answers,
     });
-    const percentage = totalMarks > 0 ? (obtained / totalMarks) * 100 : 0;
-    const grade = gradeFor(percentage);
-    const passed = percentage >= (selectedAssessment.pass_mark ?? PASS_MARK);
-
-    const { error: subErr } = await supabase.from("assessment_submissions").insert({
-      assessment_id: selectedAssessment.id,
-      student_id: studentId,
-      answers,
-      auto_marked: true,
-      status: "submitted",
-      submission_date: new Date().toISOString(),
-    }).select().single();
-
-    if (subErr) {
-      toast({ title: "Submit failed", description: subErr.message, variant: "destructive" });
-      setSubmitting(false);
-      return;
-    }
-
-    const feedback = qs.map((q, i) => {
-      const chosen = answers[q.id];
-      const correct = chosen === q.correct_index;
-      return `Q${i + 1}: ${correct ? "✓ Correct" : `✗ Your answer: ${q.options[chosen] ?? "—"} | Correct: ${q.options[q.correct_index]}`}${q.explanation ? ` — ${q.explanation}` : ""}`;
-    }).join("\n");
-
-    const { error: resultErr } = await supabase.from("assessment_results").insert({
-      assessment_id: selectedAssessment.id,
-      student_id: studentId,
-      mark: obtained,
-      percentage,
-      grade,
-      feedback: feedback,
-      is_published: true,
-      graded_by: userId,
-      graded_date: new Date().toISOString(),
-    });
-
-    if (resultErr) {
-      toast({ title: "Marking failed to save", description: resultErr.message, variant: "destructive" });
-      setSubmitting(false);
-      return;
-    }
-
     setSubmitting(false);
+
+    if (error) {
+      toast({ title: "Submit failed", description: error.message, variant: "destructive" });
+      return;
+    }
+
+    const result = parseQuizResult(data);
     setShowQuiz(false);
     toast({
       title: auto ? "Time's up — auto submitted!" : "Submitted & auto-marked",
-      description: `${obtained}/${totalMarks} (${percentage.toFixed(0)}%) — ${grade} · ${passed ? "Pass" : "Below pass mark"}`,
+      description: result
+        ? `${result.mark}/${result.total} (${result.percentage.toFixed(0)}%) — ${result.grade} · ${result.passed ? "Pass" : "Below pass mark"}`
+        : undefined,
     });
     fetchAll();
-  }, [answers, fetchAll, selectedAssessment, studentId, toast, userId]);
+  }, [answers, fetchAll, selectedAssessment, studentId, toast]);
 
   useEffect(() => {
     if (studentClassId && studentId) fetchAll();

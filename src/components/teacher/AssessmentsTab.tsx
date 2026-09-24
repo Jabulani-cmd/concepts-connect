@@ -177,19 +177,23 @@ export default function AssessmentsTab({ userId, classes, subjects, students }: 
     const pct = (marksObtained / maxMarks) * 100;
     const grade = gradeFor(pct);
 
-    if (currentResult) {
-      await supabase.from("assessment_results").update({
-        mark: marksObtained, percentage: pct, grade,
-        feedback: gradeForm.feedback || null,
-        graded_by: userId, graded_date: new Date().toISOString(),
-      }).eq("id", currentResult.id);
-    } else {
-      await supabase.from("assessment_results").insert({
-        assessment_id: selectedAssessment.id, student_id: currentStudent.id,
-        mark: marksObtained, percentage: pct, grade,
-        feedback: gradeForm.feedback || null,
-        graded_by: userId, graded_date: new Date().toISOString(),
-      });
+    const { error } = currentResult
+      ? await supabase.from("assessment_results").update({
+          mark: marksObtained, percentage: pct, grade,
+          feedback: gradeForm.feedback || null,
+          graded_by: userId, graded_date: new Date().toISOString(),
+        }).eq("id", currentResult.id)
+      : await supabase.from("assessment_results").insert({
+          assessment_id: selectedAssessment.id, student_id: currentStudent.id,
+          mark: marksObtained, percentage: pct, grade,
+          feedback: gradeForm.feedback || null,
+          graded_by: userId, graded_date: new Date().toISOString(),
+        });
+    if (error) {
+      // Teachers can only grade students in classes they teach.
+      toast({ title: "Grade not saved", description: error.message, variant: "destructive" });
+      setGradeLoading(false);
+      return;
     }
 
     // Refresh results

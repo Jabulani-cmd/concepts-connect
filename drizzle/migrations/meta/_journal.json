@@ -85,6 +85,13 @@
       "when": 1790239043551,
       "tag": "0011_apply_staff_private_and_permissions",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1790239550013,
+      "tag": "0012_quiz_marking_teacher_scope",
+      "breakpoints": true
     }
   ]
 }

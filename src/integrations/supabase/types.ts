@@ -192,6 +192,32 @@ export type Database = {
         }
         Relationships: []
       }
+      assessment_answer_keys: {
+        Row: {
+          answers: Json
+          assessment_id: string
+          updated_at: string
+        }
+        Insert: {
+          answers?: Json
+          assessment_id: string
+          updated_at?: string
+        }
+        Update: {
+          answers?: Json
+          assessment_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_answer_keys_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: true
+            referencedRelation: "assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assessment_results: {
         Row: {
           assessment_id: string | null
@@ -4072,6 +4098,10 @@ export type Database = {
         Args: { _path: string; _uid: string; _write: boolean }
         Returns: boolean
       }
+      can_teach_student: {
+        Args: { _student_id: string; _uid: string }
+        Returns: boolean
+      }
       can_view_profile: {
         Args: { _target: string; _viewer: string }
         Returns: boolean
@@ -4178,6 +4208,14 @@ export type Database = {
       recalculate_invoice_payment_totals: {
         Args: { _invoice_id: string }
         Returns: undefined
+      }
+      submit_quiz: {
+        Args: { _answers: Json; _assessment_id: string }
+        Returns: Json
+      }
+      teaches_class: {
+        Args: { _class_id: string; _uid: string }
+        Returns: boolean
       }
     }
     Enums: {
