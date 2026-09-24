@@ -77,7 +77,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const tm = setInterval(() => setSlide((s) => (s + 1) % heroImages.length), 5500);
+    const tm = setInterval(() => setSlide((s) => (s + 1) % heroImages.length), 3800);
     return () => clearInterval(tm);
   }, []);
 
@@ -97,7 +97,7 @@ export default function Home() {
             style={{ objectPosition: "center 30%" }}
           />
         </AnimatePresence>
-        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-foreground/55 via-foreground/25 to-transparent" />
 
         <div className="container relative z-10 flex h-full items-center">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="max-w-2xl text-white">
