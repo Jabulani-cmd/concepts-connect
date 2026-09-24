@@ -1,26 +1,12 @@
 import { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { portalHomeFor } from "@/lib/portalHome";
 
 interface ProtectedRouteProps {
   children: ReactNode;
   allowedRoles: string[];
 }
-
-const roleRedirects: Record<string, string> = {
-  student: "/portal/student",
-  teacher: "/portal/teacher",
-  parent: "/portal/parent-teacher",
-  admin: "/portal/admin",
-  finance: "/portal/finance",
-  finance_clerk: "/portal/finance",
-  bursar: "/portal/finance",
-  principal: "/portal/principal",
-  deputy_principal: "/portal/deputy-principal",
-  hod: "/portal/hod",
-  admin_supervisor: "/portal/admin-supervisor",
-  registration: "/portal/registration",
-};
 
 export default function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { user, role, loading } = useAuth();
@@ -51,7 +37,7 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
   }
 
   if (!allowedRoles.includes(role)) {
-    const redirect = roleRedirects[role] || "/login";
+    const redirect = portalHomeFor(role);
     return <Navigate to={redirect} replace />;
   }
 

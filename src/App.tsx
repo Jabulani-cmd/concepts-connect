@@ -129,22 +129,22 @@ const App = () => (
             } />
             <Route path="/portal/parent/subscribe" element={
               <ProtectedRoute allowedRoles={["parent", "admin"]}>
-                <AuthenticatedLayout><ParentSubscribe /></AuthenticatedLayout>
+                <AuthenticatedLayout topBar><ParentSubscribe /></AuthenticatedLayout>
               </ProtectedRoute>
             } />
             <Route path="/portal/parent/payments" element={
               <ProtectedRoute allowedRoles={["parent", "admin"]}>
-                <AuthenticatedLayout><ParentPaymentHistory /></AuthenticatedLayout>
+                <AuthenticatedLayout topBar><ParentPaymentHistory /></AuthenticatedLayout>
               </ProtectedRoute>
             } />
             <Route path="/portal/parent/billing" element={
               <ProtectedRoute allowedRoles={["parent", "admin"]}>
-                <AuthenticatedLayout><ParentBilling /></AuthenticatedLayout>
+                <AuthenticatedLayout topBar><ParentBilling /></AuthenticatedLayout>
               </ProtectedRoute>
             } />
             <Route path="/portal/admin/payments" element={
               <ProtectedRoute allowedRoles={["admin", "principal", "deputy_principal", "finance", "bursar"]}>
-                <AuthenticatedLayout><AdminPayments /></AuthenticatedLayout>
+                <AuthenticatedLayout topBar><AdminPayments /></AuthenticatedLayout>
               </ProtectedRoute>
             } />
             <Route path="/portal/admin" element={
@@ -184,27 +184,27 @@ const App = () => (
             } />
             <Route path="/portal/timetables" element={
               <ProtectedRoute allowedRoles={["admin", "principal", "deputy_principal", "hod", "teacher"]}>
-                <AuthenticatedLayout><TimetableManagement /></AuthenticatedLayout>
+                <AuthenticatedLayout topBar><TimetableManagement /></AuthenticatedLayout>
               </ProtectedRoute>
             } />
             <Route path="/portal/allocations" element={
               <ProtectedRoute allowedRoles={["admin", "principal", "deputy_principal"]}>
-                <AuthenticatedLayout><TeacherAllocations /></AuthenticatedLayout>
+                <AuthenticatedLayout topBar><TeacherAllocations /></AuthenticatedLayout>
               </ProtectedRoute>
             } />
             <Route path="/portal/teacher/timetable" element={
               <ProtectedRoute allowedRoles={["teacher", "hod", "admin"]}>
-                <AuthenticatedLayout><TeacherMyTimetable /></AuthenticatedLayout>
+                <AuthenticatedLayout topBar><TeacherMyTimetable /></AuthenticatedLayout>
               </ProtectedRoute>
             } />
             <Route path="/portal/student/timetable" element={
               <ProtectedRoute allowedRoles={["student"]}>
-                <AuthenticatedLayout><StudentMyTimetable /></AuthenticatedLayout>
+                <AuthenticatedLayout topBar><StudentMyTimetable /></AuthenticatedLayout>
               </ProtectedRoute>
             } />
             <Route path="/portal/parent/timetable" element={
               <ProtectedRoute allowedRoles={["parent"]}>
-                <AuthenticatedLayout><ParentChildTimetable /></AuthenticatedLayout>
+                <AuthenticatedLayout topBar><ParentChildTimetable /></AuthenticatedLayout>
               </ProtectedRoute>
             } />
             <Route path="*" element={<NotFound />} />

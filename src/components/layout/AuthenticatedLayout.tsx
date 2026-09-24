@@ -1,18 +1,22 @@
 import { ReactNode } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import MessagingPanel from "@/components/MessagingPanel";
-import LanguageToggle from "@/components/LanguageToggle";
+import PortalTopBar from "@/components/layout/PortalTopBar";
 
-export default function AuthenticatedLayout({ children }: { children: ReactNode }) {
+interface Props {
+  children: ReactNode;
+  /** Adds the portal navigation bar, for pages that have no header of their own. */
+  topBar?: boolean;
+}
+
+export default function AuthenticatedLayout({ children, topBar = false }: Props) {
   const { user } = useAuth();
 
   return (
     <>
+      {topBar && <PortalTopBar />}
       {children}
       {user && <MessagingPanel />}
-      <div className="fixed bottom-4 left-4 z-40">
-        <LanguageToggle />
-      </div>
     </>
   );
 }

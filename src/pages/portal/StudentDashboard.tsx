@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { User, LogOut, BookOpen, ClipboardCheck, Calendar, Lock } from "lucide-react";
 import schoolLogo from "@/assets/mavingtech-logo.png";
+import LanguageSelect from "@/components/LanguageSelect";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -197,6 +198,7 @@ export default function StudentDashboard() {
           </div>
           <div className="flex items-center gap-2">
             <NotificationBell />
+            <LanguageSelect />
             <span className="text-xs text-muted-foreground hidden sm:inline max-w-[120px] truncate">{displayName}</span>
             <Button variant="ghost" size="sm" onClick={handleLogout} className="hidden md:flex">
               <LogOut className="mr-1 h-4 w-4" /> Logout
