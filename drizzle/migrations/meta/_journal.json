@@ -120,6 +120,13 @@
       "when": 1790251594125,
       "tag": "0016_no_em_dashes",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1790255929218,
+      "tag": "0017_apply_no_em_dashes",
+      "breakpoints": true
     }
   ]
 }
