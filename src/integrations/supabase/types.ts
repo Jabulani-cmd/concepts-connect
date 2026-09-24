@@ -67,6 +67,146 @@ export type Database = {
           },
         ]
       }
+      agent_findings: {
+        Row: {
+          assessment_id: string | null
+          assigned_to: string | null
+          class_id: string | null
+          created_at: string
+          dedupe_key: string
+          explanation: string | null
+          explanation_source: string
+          id: string
+          kind: string
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          run_id: string | null
+          score: number | null
+          severity: string
+          signals: Json
+          status: string
+          student_id: string | null
+          suggested_actions: Json
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assessment_id?: string | null
+          assigned_to?: string | null
+          class_id?: string | null
+          created_at?: string
+          dedupe_key: string
+          explanation?: string | null
+          explanation_source?: string
+          id?: string
+          kind: string
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          run_id?: string | null
+          score?: number | null
+          severity?: string
+          signals?: Json
+          status?: string
+          student_id?: string | null
+          suggested_actions?: Json
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assessment_id?: string | null
+          assigned_to?: string | null
+          class_id?: string | null
+          created_at?: string
+          dedupe_key?: string
+          explanation?: string | null
+          explanation_source?: string
+          id?: string
+          kind?: string
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          run_id?: string | null
+          score?: number | null
+          severity?: string
+          signals?: Json
+          status?: string
+          student_id?: string | null
+          suggested_actions?: Json
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_findings_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "assessments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_findings_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_findings_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "agent_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_findings_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_runs: {
+        Row: {
+          agent: string
+          error: string | null
+          finished_at: string | null
+          id: string
+          model: string | null
+          started_at: string
+          status: string
+          summary: Json
+          trigger: string
+          triggered_by: string | null
+        }
+        Insert: {
+          agent?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          model?: string | null
+          started_at?: string
+          status?: string
+          summary?: Json
+          trigger?: string
+          triggered_by?: string | null
+        }
+        Update: {
+          agent?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          model?: string | null
+          started_at?: string
+          status?: string
+          summary?: Json
+          trigger?: string
+          triggered_by?: string | null
+        }
+        Relationships: []
+      }
       ai_timetable_logs: {
         Row: {
           conflicts_count: number | null
@@ -4090,12 +4230,35 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      agent_student_signals: {
+        Args: { _recent_days?: number; _term_days?: number }
+        Returns: {
+          assignments_due: number
+          assignments_missed: number
+          attendance_before: number
+          attendance_recent: number
+          class_id: string
+          class_name: string
+          form: string
+          student_id: string
+          subjects: Json
+        }[]
+      }
       build_invoice_for_student: {
         Args: { _student_id: string }
         Returns: string
       }
       can_access_private_file: {
         Args: { _path: string; _uid: string; _write: boolean }
+        Returns: boolean
+      }
+      can_see_agent_finding: {
+        Args: {
+          _assigned: string
+          _kind: string
+          _student: string
+          _uid: string
+        }
         Returns: boolean
       }
       can_teach_student: {
@@ -4210,6 +4373,11 @@ export type Database = {
         Args: { _invoice_id: string }
         Returns: undefined
       }
+      review_agent_finding: {
+        Args: { _id: string; _note?: string; _status: string }
+        Returns: undefined
+      }
+      seed_demo_activity: { Args: never; Returns: Json }
       submit_quiz: {
         Args: { _answers: Json; _assessment_id: string }
         Returns: Json
