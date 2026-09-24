@@ -241,10 +241,10 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
     const { student_id, subject_id, mark, term, assessment_type, description, comment } = markForm;
     if (!student_id || !subject_id || !mark) { toast({ title: "Fill all required fields", variant: "destructive" }); return; }
     setMarkLoading(true);
-    const { error } = await supabase.from("marks").insert({ student_id, subject_id, mark: parseInt(mark), term, assessment_type, comment: [description, comment].filter(Boolean).join(" — ") || null, teacher_id: user!.id });
+    const { error } = await supabase.from("marks").insert({ student_id, subject_id, mark: parseInt(mark), term, assessment_type, comment: [description, comment].filter(Boolean).join(": ") || null, teacher_id: user!.id });
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
     else {
-      toast({ title: `Mark submitted — Grade: ${gradeFor(parseInt(mark))}` });
+      toast({ title: `Mark submitted · Grade: ${gradeFor(parseInt(mark))}` });
       await supabase.from("notifications").insert({ user_id: user!.id, title: "Mark Recorded", message: `Grade ${gradeFor(parseInt(mark))} recorded for ${assessment_type}.`, type: "mark" });
       setMarkForm({ student_id: "", subject_id: "", mark: "", term: "Term 1", assessment_type: "test", description: "", comment: "" });
       const { data } = await marksQuery(user!.id);
@@ -274,7 +274,7 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
     const statuses = Object.fromEntries(attStudents.map(s => [s.id, attRecords[s.id] || "present"]));
     try {
       await saveClassAttendance(attClass, attDate, statuses, user!.id);
-      toast({ title: `Attendance saved — ${Object.values(statuses).filter(s => s === "present").length}/${attStudents.length} present` });
+      toast({ title: `Attendance saved: ${Object.values(statuses).filter(s => s === "present").length}/${attStudents.length} present` });
     } catch (e) {
       toast({ title: "Error", description: errorMessage(e), variant: "destructive" });
     }
@@ -482,7 +482,7 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
                 {(() => {
                   const manualRows = marks.map((m) => ({
                     id: `m-${m.id}`, source: "manual", studentName: null,
-                    subject: m.subjects?.name || "—", description: m.comment || "—",
+                    subject: m.subjects?.name || "-", description: m.comment || "-",
                     type: m.assessment_type, scoreLabel: `${m.mark}%`, percent: Number(m.mark) || 0,
                     created_at: m.created_at,
                   }));
@@ -493,7 +493,7 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
                     return {
                       id: `r-${r.id}`, source: r.graded_by ? "teacher-graded" : "ai",
                       studentName: r.students?.full_name || null,
-                      subject: r.assessments?.subjects?.name || "—",
+                      subject: r.assessments?.subjects?.name || "-",
                       description: r.assessments?.title || "Assessment",
                       type: r.assessments?.assessment_type || "assessment",
                       scoreLabel: max > 0 ? `${scored}/${max}` : `${scored}`,
@@ -520,7 +520,7 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
                             </tr></thead>
                             <tbody>{combined.map(r => (
                               <tr key={r.id} className="border-b">
-                                <td className="px-3 py-2">{r.studentName || "—"}</td>
+                                <td className="px-3 py-2">{r.studentName || "-"}</td>
                                 <td className="px-3 py-2">{r.subject}</td>
                                 <td className="px-3 py-2 text-center">{r.description}</td>
                                 <td className="px-3 py-2 text-center capitalize">{r.type}</td>
@@ -761,7 +761,7 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
                   </Card>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  ✨ All AI-generated text is clearly labelled and fully editable. AI assists — you decide what gets sent.
+                  ✨ All AI-generated text is clearly labelled and fully editable. AI assists. You decide what gets sent.
                 </p>
               </CardContent>
             </Card>

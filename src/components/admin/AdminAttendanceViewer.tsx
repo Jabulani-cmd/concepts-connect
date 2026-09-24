@@ -220,15 +220,15 @@ export default function AdminAttendanceViewer() {
                   ) : (
                     filtered.map(r => (
                       <TableRow key={r.id}>
-                        <TableCell className="font-medium">{r.students?.full_name || "—"}</TableCell>
-                        <TableCell>{r.students?.admission_number || "—"}</TableCell>
+                        <TableCell className="font-medium">{r.students?.full_name || "-"}</TableCell>
+                        <TableCell>{r.students?.admission_number || "-"}</TableCell>
                         <TableCell>{new Date(r.date).toLocaleDateString()}</TableCell>
                         <TableCell>
                           <Badge variant={statusBadgeVariant(r.status)} className="gap-1">
                             {statusIcon(r.status)} {r.status}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-muted-foreground">{r.notes || "—"}</TableCell>
+                        <TableCell className="text-muted-foreground">{r.notes || "-"}</TableCell>
                       </TableRow>
                     ))
                   )}

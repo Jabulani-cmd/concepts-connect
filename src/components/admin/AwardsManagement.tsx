@@ -122,7 +122,7 @@ export default function AwardsManagement() {
                   <CardContent className="flex items-center justify-between p-4">
                     <div>
                       <h3 className="font-semibold">{a.recipient}</h3>
-                      <p className="text-sm text-muted-foreground">{a.title} — {a.year}</p>
+                      <p className="text-sm text-muted-foreground">{a.title} · {a.year}</p>
                     </div>
                     <Button variant="ghost" size="icon" onClick={() => deleteAward(a.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                   </CardContent>

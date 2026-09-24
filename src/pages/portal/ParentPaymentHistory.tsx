@@ -72,7 +72,7 @@ export default function ParentPaymentHistory() {
                 <div className="font-semibold text-lg">{sub.plan}</div>
                 {sub.expiresAt && (
                   <div className="text-sm mt-1">
-                    Expires {sub.expiresAt.toLocaleDateString()} — <strong>{sub.daysRemaining}</strong> days remaining
+                    Expires {sub.expiresAt.toLocaleDateString()} · <strong>{sub.daysRemaining}</strong> days remaining
                   </div>
                 )}
               </div>
@@ -104,7 +104,7 @@ export default function ParentPaymentHistory() {
                   return (
                     <TableRow key={p.id}>
                       <TableCell className="whitespace-nowrap">{new Date(p.created_at).toLocaleDateString()}</TableCell>
-                      <TableCell>{p.subscriptions?.subscription_plans?.name || p.subscriptions?.plan_type || "—"}</TableCell>
+                      <TableCell>{p.subscriptions?.subscription_plans?.name || p.subscriptions?.plan_type || "-"}</TableCell>
                       <TableCell>{formatMoney(p.amount_usd ?? p.amount)}</TableCell>
                       <TableCell className="capitalize">{p.payment_method.replace("_", " ")}</TableCell>
                       <TableCell><Badge className={s.cls}><s.icon className="w-3 h-3 mr-1" />{s.label}</Badge></TableCell>
@@ -116,12 +116,12 @@ export default function ParentPaymentHistory() {
                               downloadSubscriptionReceipt({
                                 receiptNumber: p.receipt_number,
                                 parentName: parentName || user?.email || "Parent",
-                                studentName: p.subscriptions?.subscription_plans?.name ? "Linked student" : "—",
+                                studentName: p.subscriptions?.subscription_plans?.name ? "Linked student" : "-",
                                 amount: Number(p.amount),
                                 currency: p.currency,
                                 method: p.payment_method,
-                                transactionId: p.transaction_id || "—",
-                                plan: p.subscriptions?.subscription_plans?.name || p.subscriptions?.plan_type || "—",
+                                transactionId: p.transaction_id || "-",
+                                plan: p.subscriptions?.subscription_plans?.name || p.subscriptions?.plan_type || "-",
                                 accessStart: p.subscriptions?.access_start || p.created_at,
                                 accessEnd: p.subscriptions?.access_end || p.created_at,
                                 date: p.created_at,
@@ -131,7 +131,7 @@ export default function ParentPaymentHistory() {
                             <Receipt className="w-3 h-3 mr-1" /> Download
                           </Button>
                         ) : (
-                          <span className="text-xs text-muted-foreground">—</span>
+                          <span className="text-xs text-muted-foreground">-</span>
                         )}
                       </TableCell>
                     </TableRow>

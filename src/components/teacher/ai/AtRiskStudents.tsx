@@ -50,7 +50,7 @@ function buildSignals(s: StudentLike): Signals {
   };
 }
 
-/** Rules-based points first — the AI only explains the result. */
+/** Rules-based points first - the AI only explains the result. */
 function scoreSignals(sig: Signals) {
   let points = 0;
   const attendanceDrop = sig.attendance_term_average - sig.attendance_last_4_weeks;
@@ -217,7 +217,7 @@ export default function AtRiskStudents({ students = [] }: Props) {
       ))}
 
       {sorted.length === 0 && (
-        <p className="py-8 text-center text-sm text-muted-foreground">No flags yet — run the risk check to see students who may need support.</p>
+        <p className="py-8 text-center text-sm text-muted-foreground">No flags yet. Run the risk check to see students who may need support.</p>
       )}
     </div>
   );

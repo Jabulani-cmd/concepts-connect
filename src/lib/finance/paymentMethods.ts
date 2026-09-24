@@ -30,6 +30,6 @@ export const OFFICE_PAYMENT_METHODS: PaymentMethod[] = [
 ];
 
 export function paymentMethodLabel(method: string | null | undefined): string {
-  if (!method) return "—";
+  if (!method) return "-";
   return LABELS[method as PaymentMethod] ?? method;
 }

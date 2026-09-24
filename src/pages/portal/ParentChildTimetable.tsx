@@ -8,7 +8,7 @@ export default function ParentChildTimetable() {
     <PortalTimetableView
       mode="class"
       classId={childClass?.id}
-      title={`Your child's timetable — ${childClass?.name ?? ""}`}
+      title={`Your child's timetable: ${childClass?.name ?? ""}`}
       subtitle="Period, subject, teacher and room for every lesson."
     />
   );

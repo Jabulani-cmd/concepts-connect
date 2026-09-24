@@ -107,7 +107,7 @@ export default function ParentMessageDrafter({ students = [] }: Props) {
             <Label>Message (edit before sending)</Label>
             <Textarea value={message} onChange={(e) => setMessage(e.target.value)} className="min-h-[140px]" />
             <div className="flex gap-2">
-              <Button size="sm" onClick={() => toast({ title: "Message sent", description: "Demo mode — nothing leaves this browser." })}>
+              <Button size="sm" onClick={() => toast({ title: "Message sent", description: "Demo mode. Nothing leaves this browser." })}>
                 <Send className="mr-2 h-4 w-4" /> Send to parent
               </Button>
               <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(message); toast({ title: "Copied" }); }}>

@@ -228,7 +228,7 @@ export default function ExamResultsUpload({ userId, classes, subjects }: Props) 
                 <SelectContent>
                   {exams.map((e) => (
                     <SelectItem key={e.id} value={e.id}>
-                      {e.name} — {e.term} {e.academic_year}
+                      {e.name} · {e.term} {e.academic_year}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -323,7 +323,7 @@ export default function ExamResultsUpload({ userId, classes, subjects }: Props) 
                             value={entry.mark}
                             onChange={(e) => handleMarkChange(s.id, "mark", e.target.value)}
                             className="h-8 text-center w-20 mx-auto"
-                            placeholder="—"
+                            placeholder="-"
                           />
                         </td>
                         <td className="px-3 py-2 text-center">

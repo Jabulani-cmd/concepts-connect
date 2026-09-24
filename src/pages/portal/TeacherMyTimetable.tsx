@@ -9,7 +9,7 @@ export default function TeacherMyTimetable() {
     <PortalTimetableView
       mode="teacher"
       teacherId={me?.id}
-      title={`My Timetable — ${me?.name ?? ""}`}
+      title={`My Timetable: ${me?.name ?? ""}`}
       subtitle="Your classes this term. Real-time updates when admin reallocates."
     />
   );

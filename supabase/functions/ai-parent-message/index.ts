@@ -1,5 +1,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
+// AI text never shows em dashes: the model is told not to use them, and any that slip through are replaced.
+const NO_EM_DASH = " Never use em dash characters; use commas, colons or full stops instead.";
+const noEmDash = (s: string) => s.replace(/ \u2014 /g, ", ").replace(/\u2014/g, "-");
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -57,7 +61,7 @@ From: ${body.teacherName || "Class Teacher"}
 School: ${school}
 Additional context from teacher: ${body.context || "(none provided)"}
 
-Variation hint: ${body.variation ?? 1} — produce a fresh phrasing if this number is greater than 1.`;
+Variation hint: ${body.variation ?? 1}. Produce a fresh phrasing if this number is greater than 1.`;
 
     const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -65,7 +69,7 @@ Variation hint: ${body.variation ?? 1} — produce a fresh phrasing if this numb
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         messages: [
-          { role: "system", content: systemPrompt },
+          { role: "system", content: systemPrompt + NO_EM_DASH },
           { role: "user", content: userPrompt },
         ],
         tools: [{
@@ -106,5 +110,5 @@ Variation hint: ${body.variation ?? 1} — produce a fresh phrasing if this numb
 });
 
 function j(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  return new Response(noEmDash(JSON.stringify(body)), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 }

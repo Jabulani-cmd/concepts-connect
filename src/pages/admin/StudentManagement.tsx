@@ -525,9 +525,9 @@ export default function StudentManagement() {
                     {s.full_name}
                     {s.has_medical_alert && <AlertTriangle className="ml-1 inline h-4 w-4 text-destructive" />}
                   </TableCell>
-                  <TableCell className="text-sm">{s.email || "—"}</TableCell>
+                  <TableCell className="text-sm">{s.email || "-"}</TableCell>
                   <TableCell>{s.form}{s.stream ? ` / ${s.stream}` : ""}</TableCell>
-                  <TableCell>{s.guardian_phone || "—"}</TableCell>
+                  <TableCell>{s.guardian_phone || "-"}</TableCell>
                   <TableCell>
                     {s.user_id ? (
                       <Badge className="bg-green-100 text-green-800">Portal Active</Badge>
@@ -873,7 +873,7 @@ export default function StudentManagement() {
                     ].map(([label, value]) => (
                       <div key={label as string}>
                         <p className="text-xs text-muted-foreground">{label}</p>
-                        <p className="font-medium">{value || "—"}</p>
+                        <p className="font-medium">{value || "-"}</p>
                       </div>
                     ))}
                   </div>

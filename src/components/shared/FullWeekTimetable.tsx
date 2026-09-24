@@ -219,7 +219,7 @@ export default function FullWeekTimetable({
                           {entry ? (
                             <div className="space-y-0.5">
                               <span className="block font-semibold">
-                                {entry.subjects?.name || entry.activity_name || "—"}
+                                {entry.subjects?.name || entry.activity_name || "-"}
                               </span>
                               {entry.classes?.name && (
                                 <span className="block text-[10px] text-foreground/80">
@@ -241,7 +241,7 @@ export default function FullWeekTimetable({
                               )}
                             </div>
                           ) : (
-                            <span className="text-muted-foreground/40">—</span>
+                            <span className="text-muted-foreground/40">-</span>
                           )}
                         </TableCell>
                       );

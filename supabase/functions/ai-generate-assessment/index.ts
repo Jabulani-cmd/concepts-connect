@@ -1,5 +1,9 @@
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 
+// AI text never shows em dashes: the model is told not to use them, and any that slip through are replaced.
+const NO_EM_DASH = " Never use em dash characters; use commas, colons or full stops instead.";
+const noEmDash = (s: string) => s.replace(/ \u2014 /g, ", ").replace(/\u2014/g, "-");
+
 interface Body {
   subject?: string;
   grade?: string;
@@ -38,7 +42,7 @@ Each question must have exactly 4 options, one correct, and a brief explanation.
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
         messages: [
-          { role: 'system', content: sys },
+          { role: 'system', content: sys + NO_EM_DASH },
           { role: 'user', content: user },
         ],
         tools: [{
@@ -98,7 +102,7 @@ Each question must have exactly 4 options, one correct, and a brief explanation.
 });
 
 function json(v: unknown, status = 200) {
-  return new Response(JSON.stringify(v), {
+  return new Response(noEmDash(JSON.stringify(v)), {
     status,
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });

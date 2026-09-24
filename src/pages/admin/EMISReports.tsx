@@ -181,7 +181,7 @@ export default function EMISReports() {
     doc.setFont("helvetica", "normal");
     doc.text(SCHOOL_CONTACT_LINE, pageWidth / 2, 27, { align: "center" });
     doc.setFontSize(9);
-    doc.text(`EMIS ${reportType} Report — Academic Year ${academicYear}`, pageWidth / 2, 32, { align: "center" });
+    doc.text(`EMIS ${reportType} Report: Academic Year ${academicYear}`, pageWidth / 2, 32, { align: "center" });
     doc.text(`Generated: ${new Date().toLocaleDateString()}`, pageWidth / 2, 36, { align: "center" });
     doc.line(14, 39, pageWidth - 14, 39);
 

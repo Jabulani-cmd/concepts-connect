@@ -108,7 +108,7 @@ export default function RubricGenerator() {
 
           {rubric && (
             <div className="space-y-3 rounded-md border p-3">
-              <p className="font-medium">{rubric.title} — {rubric.total_marks} marks</p>
+              <p className="font-medium">{rubric.title} · {rubric.total_marks} marks</p>
               <div className="overflow-auto">
                 <Table>
                   <TableHeader>

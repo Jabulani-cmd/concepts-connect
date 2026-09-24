@@ -14,7 +14,7 @@ import { Sparkles, AlertTriangle, CheckCircle2, Bell, Pencil, Clock, MapPin, Use
 import { cn } from "@/lib/utils";
 
 /**
- * AI Smart Timetable — admin master view.
+ * AI Smart Timetable - admin master view.
  * - Run the AI agent to generate / re-generate the full week.
  * - Click any cell to edit subject / teacher / venue / time.
  * - Live conflict detector with suggested resolutions.
@@ -70,7 +70,7 @@ export default function AISmartTimetable() {
       toast({
         variant: "destructive",
         title: "All four fields required",
-        description: "Subject, Teacher, Venue, and Time must all be filled — no blank slots allowed.",
+        description: "Subject, Teacher, Venue, and Time must all be filled. No blank slots allowed.",
       });
       return;
     }
@@ -136,7 +136,7 @@ export default function AISmartTimetable() {
             {/* Read-only mirror so admin sees exactly what students see */}
             <div>
               <p className="text-xs text-muted-foreground mb-1">
-                Live preview — this is exactly what students of {classes.find((c) => c.id === selectedClassId)?.name} see in their portal:
+                Live preview. This is exactly what students of {classes.find((c) => c.id === selectedClassId)?.name} see in their portal:
               </p>
               <TimetableGrid classId={selectedClassId} highlightToday />
             </div>
@@ -151,7 +151,7 @@ export default function AISmartTimetable() {
                 <AlertTriangle className="h-4 w-4 text-destructive" /> Conflicts
               </CardTitle>
               <CardDescription className="text-xs">
-                {conflicts.length === 0 ? "No conflicts detected." : `${conflicts.length} issue(s) — ${classConflicts.length} in current class.`}
+                {conflicts.length === 0 ? "No conflicts detected." : `${conflicts.length} issue(s), ${classConflicts.length} in current class.`}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -196,7 +196,7 @@ export default function AISmartTimetable() {
               <CardTitle className="text-base flex items-center gap-2">
                 <Bell className="h-4 w-4 text-primary" /> Change notifications
               </CardTitle>
-              <CardDescription className="text-xs">Live feed — broadcast to affected teachers & students.</CardDescription>
+              <CardDescription className="text-xs">Live feed: broadcast to affected teachers & students.</CardDescription>
             </CardHeader>
             <CardContent>
               <ScrollArea className="h-[240px] pr-3">
@@ -230,7 +230,7 @@ export default function AISmartTimetable() {
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit slot — {DAYS[editing?.day ?? 0]} P{editing?.period}</DialogTitle>
+            <DialogTitle>Edit slot: {DAYS[editing?.day ?? 0]} P{editing?.period}</DialogTitle>
             <DialogDescription>All four fields are required. Saving notifies the teacher and the class instantly.</DialogDescription>
           </DialogHeader>
           <div className="space-y-3">

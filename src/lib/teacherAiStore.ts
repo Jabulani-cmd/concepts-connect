@@ -1,5 +1,5 @@
 // DEMO MODE store for the Teacher AI Assistant.
-// Records live in the browser (localStorage) — nothing is written to the school database.
+// Records live in the browser (localStorage) - nothing is written to the school database.
 import { useEffect, useState } from "react";
 
 export type StoreKey = "lesson_plans" | "generated_materials" | "rubrics" | "student_risk_flags";
@@ -20,7 +20,7 @@ function write<T>(key: StoreKey, rows: T[]) {
   try {
     localStorage.setItem(PREFIX + key, JSON.stringify(rows));
   } catch {
-    /* quota — demo only */
+    /* quota - demo only */
   }
   listeners.forEach((l) => l());
 }

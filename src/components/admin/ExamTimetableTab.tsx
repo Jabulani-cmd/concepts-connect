@@ -276,7 +276,7 @@ export default function ExamTimetableTab() {
                           <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
                           {entry.venue}
                         </div>
-                      ) : "—"}
+                      ) : "-"}
                     </TableCell>
                     <TableCell>
                       {entry.invigilators?.length ? (
@@ -285,10 +285,10 @@ export default function ExamTimetableTab() {
                             <Badge key={i} variant="secondary" className="text-xs">{inv}</Badge>
                           ))}
                         </div>
-                      ) : "—"}
+                      ) : "-"}
                     </TableCell>
                     <TableCell className="max-w-[150px] truncate text-xs text-muted-foreground">
-                      {entry.notes || "—"}
+                      {entry.notes || "-"}
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-1">

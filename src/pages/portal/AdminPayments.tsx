@@ -172,7 +172,7 @@ export default function AdminPayments() {
       if (error) throw error;
       setAiMessage(data?.message || data?.text || "Dear Parent, this is a friendly reminder to renew your portal subscription so your child can continue accessing learning materials and the timetable.");
     } catch {
-      setAiMessage("Dear Parent, this is a friendly reminder to renew your portal subscription so your child can continue accessing learning materials and the timetable. Plans start at US$ 10/month or US$ 25/term, with the current ZiG equivalent shown in the portal. — MavingTech Business Solutions");
+      setAiMessage("Dear Parent, this is a friendly reminder to renew your portal subscription so your child can continue accessing learning materials and the timetable. Plans start at US$ 10/month or US$ 25/term, with the current ZiG equivalent shown in the portal. | MavingTech Business Solutions");
     } finally {
       setAiLoading(false);
     }
@@ -337,9 +337,9 @@ export default function AdminPayments() {
                       <TableRow key={s.id}>
                         <TableCell>{s.subscription_plans?.name || s.plan_type}</TableCell>
                         <TableCell>{formatMoney(s.amount_usd)}</TableCell>
-                        <TableCell className="capitalize">{(s.payment_method || "—").replace("_", " ")}</TableCell>
+                        <TableCell className="capitalize">{(s.payment_method || "-").replace("_", " ")}</TableCell>
                         <TableCell><Badge className="capitalize">{s.status}</Badge></TableCell>
-                        <TableCell>{s.access_end ? new Date(s.access_end).toLocaleDateString() : "—"}</TableCell>
+                        <TableCell>{s.access_end ? new Date(s.access_end).toLocaleDateString() : "-"}</TableCell>
                         <TableCell className="flex gap-1">
                           <Button size="sm" variant="outline" onClick={() => extend(s.id, 30)}><Plus className="w-3 h-3 mr-1" />30d</Button>
                           {s.status === "active" && <Button size="sm" variant="outline" onClick={() => suspend(s.id)}><Pause className="w-3 h-3" /></Button>}

@@ -287,7 +287,7 @@ export default function AssessmentsTab({ userId, classes, subjects, students }: 
             <p className="text-xs text-muted-foreground">Submissions</p>
           </CardContent></Card>
           <Card><CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold">{results.length > 0 ? (results.reduce((s, r) => s + (r.percentage || 0), 0) / results.length).toFixed(0) + "%" : "—"}</p>
+            <p className="text-2xl font-bold">{results.length > 0 ? (results.reduce((s, r) => s + (r.percentage || 0), 0) / results.length).toFixed(0) + "%" : "-"}</p>
             <p className="text-xs text-muted-foreground">Avg Score</p>
           </CardContent></Card>
         </div>
@@ -351,7 +351,7 @@ export default function AssessmentsTab({ userId, classes, subjects, students }: 
                       <Input type="number" min="0" max={selectedAssessment.max_marks} value={gradeForm.marks} onChange={e => setGradeForm(p => ({ ...p, marks: e.target.value }))} />
                       {gradeForm.marks && (
                         <p className="text-xs text-muted-foreground">
-                          {((parseFloat(gradeForm.marks) / (selectedAssessment.max_marks || 100)) * 100).toFixed(0)}% — Grade: <span className="font-bold text-primary">{gradeFor((parseFloat(gradeForm.marks) / (selectedAssessment.max_marks || 100)) * 100)}</span>
+                          {((parseFloat(gradeForm.marks) / (selectedAssessment.max_marks || 100)) * 100).toFixed(0)}% · Grade: <span className="font-bold text-primary">{gradeFor((parseFloat(gradeForm.marks) / (selectedAssessment.max_marks || 100)) * 100)}</span>
                         </p>
                       )}
                     </div>

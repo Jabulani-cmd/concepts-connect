@@ -569,9 +569,9 @@ export default function AcademicManagement() {
                         <TableRow key={c.id}>
                           <TableCell className="font-medium">{c.name}</TableCell>
                           <TableCell>{c.level}</TableCell>
-                          <TableCell>{c.stream || "—"}</TableCell>
-                          <TableCell>{c.staff?.full_name || "—"}</TableCell>
-                          <TableCell>{c.room || "—"}</TableCell>
+                          <TableCell>{c.stream || "-"}</TableCell>
+                          <TableCell>{c.staff?.full_name || "-"}</TableCell>
+                          <TableCell>{c.room || "-"}</TableCell>
                           <TableCell>{c.capacity}</TableCell>
                           <TableCell>
                             <div className="flex gap-1">
@@ -599,7 +599,7 @@ export default function AcademicManagement() {
                           <TableRow key={cs.id}>
                             <TableCell>{cs.classes?.name}</TableCell>
                             <TableCell>{cs.subjects?.name}</TableCell>
-                            <TableCell>{cs.staff?.full_name || "—"}</TableCell>
+                            <TableCell>{cs.staff?.full_name || "-"}</TableCell>
                             <TableCell><Button variant="ghost" size="icon" onClick={() => removeAssignment(cs.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button></TableCell>
                           </TableRow>
                         ))}
@@ -630,8 +630,8 @@ export default function AcademicManagement() {
                       {subjects.map(s => (
                         <TableRow key={s.id}>
                           <TableCell className="font-medium">{s.name}</TableCell>
-                          <TableCell>{s.code || "—"}</TableCell>
-                          <TableCell>{s.department || "—"}</TableCell>
+                          <TableCell>{s.code || "-"}</TableCell>
+                          <TableCell>{s.department || "-"}</TableCell>
                           <TableCell>{s.is_examinable ? <Badge className="bg-green-100 text-green-800 border-green-300" variant="outline">Yes</Badge> : <Badge variant="outline">No</Badge>}</TableCell>
                           <TableCell>
                             <div className="flex gap-1">
@@ -696,11 +696,11 @@ export default function AcademicManagement() {
                                   onClick={() => { setTtEditCell({ day: di, slot }); setTtSubject(entry?.subject_id || ""); setTtTeacher(entry?.teacher_id || ""); setTtRoom(entry?.room || ""); }}>
                                   {entry ? (
                                     <div className="text-xs">
-                                      <p className="font-semibold text-accent">{entry.subjects?.name || "—"}</p>
+                                      <p className="font-semibold text-accent">{entry.subjects?.name || "-"}</p>
                                       <p className="text-muted-foreground">{entry.staff?.full_name?.split(" ").pop() || ""}</p>
                                       {entry.room && <p className="text-muted-foreground">Rm {entry.room}</p>}
                                     </div>
-                                  ) : <span className="text-xs text-muted-foreground">—</span>}
+                                  ) : <span className="text-xs text-muted-foreground">-</span>}
                                 </td>
                               );
                             })
@@ -750,7 +750,7 @@ export default function AcademicManagement() {
                                     <p className="text-muted-foreground">{entry.staff?.full_name?.split(" ").pop() || ""}</p>
                                     {entry.venue && <p className="text-muted-foreground">{entry.venue}</p>}
                                   </div>
-                                ) : <span className="text-xs text-muted-foreground">—</span>}
+                                ) : <span className="text-xs text-muted-foreground">-</span>}
                               </td>
                             );
                           })}
@@ -860,12 +860,12 @@ export default function AcademicManagement() {
                                 return subj ? <Badge key={sid} variant="secondary" className="text-[10px]">{subj.name}</Badge> : null;
                               })}
                               {(e.subject_ids || []).length > 3 && <Badge variant="secondary" className="text-[10px]">+{e.subject_ids.length - 3}</Badge>}
-                              {!(e.subject_ids || []).length && <span className="text-muted-foreground text-xs">—</span>}
+                              {!(e.subject_ids || []).length && <span className="text-muted-foreground text-xs">-</span>}
                             </div>
                           </TableCell>
                           <TableCell>{e.term}</TableCell>
                           <TableCell>{e.academic_year}</TableCell>
-                          <TableCell className="text-xs">{e.start_date || "—"} → {e.end_date || "—"}</TableCell>
+                          <TableCell className="text-xs">{e.start_date || "-"} → {e.end_date || "-"}</TableCell>
                           <TableCell>
                             {e.is_published
                               ? <Badge className="bg-green-100 text-green-800 border-green-300" variant="outline">Published</Badge>
@@ -1129,7 +1129,7 @@ export default function AcademicManagement() {
               <Select value={ttSubject} onValueChange={setTtSubject}>
                 <SelectTrigger><SelectValue placeholder="Select (leave empty to clear)" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="__clear">— Clear —</SelectItem>
+                  <SelectItem value="__clear">Clear selection</SelectItem>
                   {subjects.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
                 </SelectContent>
               </Select>
@@ -1163,7 +1163,7 @@ export default function AcademicManagement() {
               <Select value={sportsActivity} onValueChange={setSportsActivity}>
                 <SelectTrigger><SelectValue placeholder="Select activity (leave empty to clear)" /></SelectTrigger>
                 <SelectContent className="max-h-60 overflow-y-auto">
-                  <SelectItem value="__clear">— Clear —</SelectItem>
+                  <SelectItem value="__clear">Clear selection</SelectItem>
                   {sportsActivityOptions.map(a => <SelectItem key={a} value={a}>{a}</SelectItem>)}
                 </SelectContent>
               </Select>

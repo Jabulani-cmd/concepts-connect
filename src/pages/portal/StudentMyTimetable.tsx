@@ -16,7 +16,7 @@ export default function StudentMyTimetable() {
     <PortalTimetableView
       mode="class"
       classId={myClass?.id}
-      title={`Class Timetable — ${myClass?.name ?? ""}`}
+      title={`Class Timetable: ${myClass?.name ?? ""}`}
       subtitle="Every period shows your subject, teacher and venue."
     />
   );

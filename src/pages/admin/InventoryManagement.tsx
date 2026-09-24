@@ -442,10 +442,10 @@ export default function InventoryManagement() {
                       <TableRow key={item.id}>
                         <TableCell className="font-mono text-xs">{item.item_code}</TableCell>
                         <TableCell className="font-medium">{item.name}</TableCell>
-                        <TableCell>{item.inventory_categories?.name || "—"}</TableCell>
+                        <TableCell>{item.inventory_categories?.name || "-"}</TableCell>
                         <TableCell>{item.quantity} {item.unit}</TableCell>
                         <TableCell>{stockBadge(stockLevel(item))}</TableCell>
-                        <TableCell>{item.location || "—"}</TableCell>
+                        <TableCell>{item.location || "-"}</TableCell>
                         <TableCell>
                           <div className="flex gap-1">
                             <Button size="icon" variant="ghost" onClick={() => showBarcode(item)} title="Barcode">
@@ -506,7 +506,7 @@ export default function InventoryManagement() {
                             </div>
                           </TableCell>
                           <TableCell>{issue.inventory_items?.name}</TableCell>
-                          <TableCell>{issue.issued_date ? new Date(issue.issued_date).toLocaleDateString() : "—"}</TableCell>
+                          <TableCell>{issue.issued_date ? new Date(issue.issued_date).toLocaleDateString() : "-"}</TableCell>
                           <TableCell>{new Date(issue.due_date).toLocaleDateString()}</TableCell>
                           <TableCell>
                             {issue.status === "returned" ? (
@@ -570,15 +570,15 @@ export default function InventoryManagement() {
                     ) : transactions.map(tx => (
                       <TableRow key={tx.id}>
                         <TableCell>{new Date(tx.created_at).toLocaleDateString()}</TableCell>
-                        <TableCell>{tx.inventory_items?.name || "—"}</TableCell>
+                        <TableCell>{tx.inventory_items?.name || "-"}</TableCell>
                         <TableCell>
                           <Badge variant={tx.transaction_type === "received" || tx.transaction_type === "returned" ? "default" : "destructive"}>
                             {tx.transaction_type}
                           </Badge>
                         </TableCell>
                         <TableCell>{tx.quantity}</TableCell>
-                        <TableCell className="text-xs">{tx.reference || "—"}</TableCell>
-                        <TableCell className="text-xs">{tx.notes || "—"}</TableCell>
+                        <TableCell className="text-xs">{tx.reference || "-"}</TableCell>
+                        <TableCell className="text-xs">{tx.notes || "-"}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

@@ -210,7 +210,7 @@ function seedAllocations(): Allocation[] {
 }
 
 /**
- * AI Agent — constraint-solving timetable generator.
+ * AI Agent - constraint-solving timetable generator.
  * Enforces: no teacher double-booking, no room double-booking, room-type rules
  * (PE → Hall/Sports Field, Lab subjects → Lab, ICT → Computer Room),
  * and guarantees every placed slot has subject + teacher + room + times.
@@ -256,7 +256,7 @@ function aiGenerateTimetable(
     const candidateRooms = rooms.filter((r) => allowedTypes.includes(r.type));
     let placed = false;
 
-    // Try every (day, period) combination — prefer mornings for core subjects.
+    // Try every (day, period) combination - prefer mornings for core subjects.
     const slotsOfClass = slots
       .filter((s) => s.classId === alloc.classId && !s.subjectId)
       .sort((a, b) => a.period - b.period || a.day - b.day);
@@ -279,7 +279,7 @@ function aiGenerateTimetable(
     if (!placed) {
       const cls = classes.find((c) => c.id === alloc.classId);
       warnings.push(
-        `Could not place ${subj.name} for ${cls?.name} — no free teacher/room slot satisfying constraints.`,
+        `Could not place ${subj.name} for ${cls?.name}. No free teacher/room slot satisfying constraints.`,
       );
     }
   }
@@ -300,7 +300,7 @@ function validate(
 
   for (const s of slots) {
     const hasAny = s.subjectId || s.teacherId || s.roomId;
-    // Missing field check — only flag rows that were started.
+    // Missing field check - only flag rows that were started.
     if (hasAny && (!s.subjectId || !s.teacherId || !s.roomId)) {
       const cls = classes.find((c) => c.id === s.classId);
       conflicts.push({
@@ -337,7 +337,7 @@ function validate(
           id: `roomtype-${s.id}`,
           type: "wrong_room_type",
           severity: "error",
-          description: `${subj.name} (${cls?.name}, P${s.period}) is in ${room.name} (${room.type}) — requires ${subj.allowedRoomTypes.join(" or ")}.`,
+          description: `${subj.name} (${cls?.name}, P${s.period}) is in ${room.name} (${room.type}): requires ${subj.allowedRoomTypes.join(" or ")}.`,
           slotIds: [s.id],
           suggestion: `Move to a ${subj.allowedRoomTypes[0]} room such as ${rooms.find((r) => subj.allowedRoomTypes.includes(r.type))?.name ?? "(none available)"}.`,
         });
@@ -414,7 +414,7 @@ export function AllocationProvider({ children }: { children: ReactNode }) {
       id: `n-init`,
       at: new Date().toISOString(),
       kind: "ai_generated",
-      message: `AI Agent generated the master timetable — ${initialBuild.slots.filter((s) => s.subjectId).length} periods placed across ${seedClasses.length} classes.`,
+      message: `AI Agent generated the master timetable: ${initialBuild.slots.filter((s) => s.subjectId).length} periods placed across ${seedClasses.length} classes.`,
     },
   ]));
   const [publishedAt, setPublishedAt] = useState<string | null>(() => loadLS("publishedAt", null));
@@ -457,7 +457,7 @@ export function AllocationProvider({ children }: { children: ReactNode }) {
       setPublishedAt(now);
       pushNotification({
         kind: "ai_generated",
-        message: `Timetable published — synced to student, teacher and admin portals.`,
+        message: `Timetable published: synced to student, teacher and admin portals.`,
       });
     },
     setAllocation: (classId, subjectId, teacherId) => {
@@ -493,7 +493,7 @@ export function AllocationProvider({ children }: { children: ReactNode }) {
               : "slot_changed";
         pushNotification({
           kind,
-          message: `${cls?.name ?? ""} • ${subj?.name ?? "Slot"} — ${changes.join(", ") || "updated"}.`,
+          message: `${cls?.name ?? ""} • ${subj?.name ?? "Slot"} · ${changes.join(", ") || "updated"}.`,
           subjectName: subj?.name,
           teacherName: teacher?.name,
           className: cls?.name,
@@ -516,7 +516,7 @@ export function AllocationProvider({ children }: { children: ReactNode }) {
       const placed = built.slots.filter((s) => s.subjectId).length;
       pushNotification({
         kind: "ai_generated",
-        message: `AI Agent regenerated the master timetable — ${placed} periods placed${built.warnings.length ? `, ${built.warnings.length} warning(s)` : ""}.`,
+        message: `AI Agent regenerated the master timetable: ${placed} periods placed${built.warnings.length ? `, ${built.warnings.length} warning(s)` : ""}.`,
       });
       return { warnings: built.warnings, placed };
     },
@@ -532,7 +532,7 @@ export function AllocationProvider({ children }: { children: ReactNode }) {
       setPublishedAt(new Date().toISOString());
       pushNotification({
         kind: "ai_generated",
-        message: `Demo data loaded — ${data.classes.length} classes, ${data.teachers.length} teachers, ${data.slots.filter(s => s.subjectId).length} timetable periods.`,
+        message: `Demo data loaded: ${data.classes.length} classes, ${data.teachers.length} teachers, ${data.slots.filter(s => s.subjectId).length} timetable periods.`,
       });
     },
     resetToSeed: () => {

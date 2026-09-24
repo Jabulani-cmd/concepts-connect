@@ -134,7 +134,7 @@ export default function IncomeExpenditureReport() {
     income: searchedPayments.map((p) => ({
       date: p.payment_date,
       receipt: p.receipt_number,
-      party: p.students?.full_name || "—",
+      party: p.students?.full_name || "-",
       method: p.payment_method,
       usd: Number(p.amount_usd || 0),
       zig: Number(p.amount_zig || 0),
@@ -150,7 +150,7 @@ export default function IncomeExpenditureReport() {
     })),
     supplierPayments: searchedSupplierPayments.map((sp) => ({
       date: sp.payment_date,
-      supplier: sp.supplier_invoices?.supplier_name || "—",
+      supplier: sp.supplier_invoices?.supplier_name || "-",
       method: sp.payment_method,
       ref: sp.reference,
       usd: Number(sp.amount_usd || 0),
@@ -202,7 +202,7 @@ export default function IncomeExpenditureReport() {
           email={{
             documentLabel: "income & expenditure report",
             filename: `income-expenditure-${periodLabel.replace(/\s+/g, "-").toLowerCase()}`,
-            subject: `Income & Expenditure Report — ${periodLabel}`,
+            subject: `Income & Expenditure Report: ${periodLabel}`,
           }}
         />
       </div>
@@ -271,7 +271,7 @@ export default function IncomeExpenditureReport() {
       {/* Income Table */}
       <Card>
         <CardHeader>
-          <CardTitle className="font-heading text-green-700">Income — {months[Number(selectedMonth)]} {selectedYear}</CardTitle>
+          <CardTitle className="font-heading text-green-700">Income: {months[Number(selectedMonth)]} {selectedYear}</CardTitle>
           <CardDescription>{searchedPayments.length} payment(s) totalling {fmt(totalIncomeUsd)}</CardDescription>
         </CardHeader>
         <CardContent>
@@ -295,10 +295,10 @@ export default function IncomeExpenditureReport() {
                     <TableRow key={p.id}>
                       <TableCell className="text-xs">{p.payment_date}</TableCell>
                       <TableCell className="font-mono text-xs">{p.receipt_number}</TableCell>
-                      <TableCell>{p.students?.full_name || "—"}</TableCell>
+                      <TableCell>{p.students?.full_name || "-"}</TableCell>
                       <TableCell>{p.payment_method}</TableCell>
                       <TableCell className="text-right font-mono text-green-700">{formatMoney(p.amount_usd)}</TableCell>
-                      <TableCell className="text-xs">{p.reference_number || "—"}</TableCell>
+                      <TableCell className="text-xs">{p.reference_number || "-"}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -311,7 +311,7 @@ export default function IncomeExpenditureReport() {
       {/* Expenses Table */}
       <Card>
         <CardHeader>
-          <CardTitle className="font-heading text-destructive">Expenditure — {months[Number(selectedMonth)]} {selectedYear}</CardTitle>
+          <CardTitle className="font-heading text-destructive">Expenditure: {months[Number(selectedMonth)]} {selectedYear}</CardTitle>
           <CardDescription>{searchedExpenses.length} expense(s) + {searchedSupplierPayments.length} supplier payment(s) totalling {fmt(totalOutUsd)}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -364,10 +364,10 @@ export default function IncomeExpenditureReport() {
                       {searchedSupplierPayments.map(sp => (
                         <TableRow key={sp.id}>
                           <TableCell className="text-xs">{sp.payment_date}</TableCell>
-                          <TableCell>{sp.supplier_invoices?.supplier_name || "—"}</TableCell>
+                          <TableCell>{sp.supplier_invoices?.supplier_name || "-"}</TableCell>
                           <TableCell>{sp.payment_method}</TableCell>
                           <TableCell className="text-right font-mono text-destructive">{formatMoney(sp.amount_usd)}</TableCell>
-                          <TableCell className="text-xs">{sp.reference || "—"}</TableCell>
+                          <TableCell className="text-xs">{sp.reference || "-"}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

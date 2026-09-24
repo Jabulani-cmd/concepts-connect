@@ -1,4 +1,4 @@
-// Bursar-facing approvals panel — reviews void / delete requests submitted by
+// Bursar-facing approvals panel - reviews void / delete requests submitted by
 // Finance Clerks, then executes the approved action against the underlying
 // finance tables. Extracted so it can live inside the Bursar Portal without
 // dragging in the rest of the AdminSupervisorDashboard.
@@ -101,7 +101,7 @@ export default function FinanceApprovalsPanel() {
     // Notify the requester (Finance Clerk).
     await supabase.from("notifications").insert({
       user_id: selected.requested_by,
-      title: `Approval ${action === "approved" ? "Granted" : "Denied"} — Bursar`,
+      title: `Approval ${action === "approved" ? "Granted" : "Denied"}: Bursar`,
       message: `Your request to "${selected.description}" has been ${action}.${reviewNotes ? ` Notes: ${reviewNotes}` : ""}`,
       type: "approval",
     });
@@ -244,7 +244,7 @@ export default function FinanceApprovalsPanel() {
                         </Button>
                       ) : (
                         <span className="text-xs text-muted-foreground">
-                          {req.reviewed_at ? new Date(req.reviewed_at).toLocaleDateString("en-GB") : "—"}
+                          {req.reviewed_at ? new Date(req.reviewed_at).toLocaleDateString("en-GB") : "-"}
                         </span>
                       )}
                     </TableCell>

@@ -180,8 +180,8 @@ export default function ReportCardDownloadButton(props: ReportCardProps) {
           <td>${r.subject_name}${r.subject_code ? " (" + r.subject_code + ")" : ""}</td>
           <td><strong>${r.mark}</strong></td>
           <td><span class="grade-badge grade-${(r.grade || "U").toLowerCase().replace("*", "-star")}">${r.grade}</span></td>
-          <td>${r.class_rank && r.class_size ? r.class_rank + " of " + r.class_size : "—"}</td>
-          <td style="font-size:9pt;color:#555;max-width:120px;">${r.teacher_comment || "—"}</td>
+          <td>${r.class_rank && r.class_size ? r.class_rank + " of " + r.class_size : "-"}</td>
+          <td style="font-size:9pt;color:#555;max-width:120px;">${r.teacher_comment || "-"}</td>
         </tr>`
         )
         .join("")}
@@ -189,7 +189,7 @@ export default function ReportCardDownloadButton(props: ReportCardProps) {
         <td colspan="2">Overall</td>
         <td><strong>${props.averageMark}%</strong> (Total: ${totalMarks})</td>
         <td><strong>${props.averageGrade}</strong></td>
-        <td>${props.overallRank ? props.overallRank.rank + " of " + props.overallRank.total : "—"}</td>
+        <td>${props.overallRank ? props.overallRank.rank + " of " + props.overallRank.total : "-"}</td>
         <td>${props.results.length} subjects</td>
       </tr>
     </tbody>

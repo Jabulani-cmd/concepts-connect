@@ -316,7 +316,7 @@ export default function TermRegistration() {
         <CardHeader>
           <CardTitle className="font-heading text-lg flex items-center gap-2">
             <UserCheck className="h-5 w-5 text-primary" />
-            Term Registration — {term} {academicYear}
+            Term Registration: {term} {academicYear}
           </CardTitle>
           <CardDescription>
             Register existing students for a new term. Each registration automatically creates one invoice per student per term based on fee structures.
@@ -452,7 +452,7 @@ export default function TermRegistration() {
           <DialogHeader>
             <DialogTitle className="font-heading">Register for {term} {academicYear}</DialogTitle>
             <DialogDescription>
-              {selectedStudent?.full_name} — {selectedStudent?.admission_number}
+              {selectedStudent?.full_name} · {selectedStudent?.admission_number}
             </DialogDescription>
           </DialogHeader>
 

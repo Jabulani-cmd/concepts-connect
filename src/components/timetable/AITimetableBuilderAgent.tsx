@@ -66,7 +66,7 @@ export default function AITimetableBuilderAgent() {
   useEffect(() => {
     if (messages.length) return;
     push("agent",
-      `Hello! I'm your AI Timetable Builder. I'll walk you through six quick steps and then assemble the full weekly timetable for every class.\n\nI already have records for **${ctx.teachers.length} teachers**, **${ctx.subjects.length} subjects**, **${ctx.rooms.length} venues** and **${ctx.classes.length} classes** on file — I'll only ask you to confirm or fill what's missing.`);
+      `Hello! I'm your AI Timetable Builder. I'll walk you through six quick steps and then assemble the full weekly timetable for every class.\n\nI already have records for **${ctx.teachers.length} teachers**, **${ctx.subjects.length} subjects**, **${ctx.rooms.length} venues** and **${ctx.classes.length} classes** on file. I'll only ask you to confirm or fill what's missing.`);
     setTimeout(() => askForStep("structure"), 500);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -80,17 +80,17 @@ export default function AITimetableBuilderAgent() {
       case "structure": {
         const summary = formGroups.map(([g, cs]) =>
           `• Form ${g}: ${cs.map(c => c.name).join(", ")}`).join("\n");
-        agentSay(`**Step 1 — School structure.**\nFrom your records I see:\n${summary}\n\nIs this correct? Reply **yes** to confirm, or describe any missing form/stream (e.g. _"add Form 4D"_).`);
+        agentSay(`**Step 1: School structure.**\nFrom your records I see:\n${summary}\n\nIs this correct? Reply **yes** to confirm, or describe any missing form/stream (e.g. _"add Form 4D"_).`);
         break;
       }
       case "class_sizes": {
         const lines = ctx.classes.map(c => `• ${c.name}: ${c.studentCount} students`).join("\n");
-        agentSay(`**Step 2 — Class sizes.**\nCurrent enrolment:\n${lines}\n\nReply **yes** if accurate, or send corrections like _"Form 2B has 34 students"_.`);
+        agentSay(`**Step 2: Class sizes.**\nCurrent enrolment:\n${lines}\n\nReply **yes** if accurate, or send corrections like _"Form 2B has 34 students"_.`);
         break;
       }
       case "school_day": {
         const p = ctx.periodSchedule;
-        agentSay(`**Step 3 — School day.**\nDay starts **${p[0].start}**, ends **${p[p.length - 1].end}**, **${p.length} periods** of ~40 min each, with a morning break after P3 and lunch after P6.\n\nReply **yes** to accept, or describe changes (e.g. _"start at 08:00"_, _"7 periods only"_).`);
+        agentSay(`**Step 3: School day.**\nDay starts **${p[0].start}**, ends **${p[p.length - 1].end}**, **${p.length} periods** of ~40 min each, with a morning break after P3 and lunch after P6.\n\nReply **yes** to accept, or describe changes (e.g. _"start at 08:00"_, _"7 periods only"_).`);
         break;
       }
       case "subjects": {
@@ -101,20 +101,20 @@ export default function AITimetableBuilderAgent() {
           }).join(", ");
           return `• ${c.name}: ${subs}`;
         }).join("\n");
-        agentSay(`**Step 4 — Subject allocation per form.**\n${lines}\n\nVenue rules already enforced: Science → Lab, ICT → Computer Room, PE → Hall/Sports Field.\nReply **yes** to confirm.`);
+        agentSay(`**Step 4: Subject allocation per form.**\n${lines}\n\nVenue rules already enforced: Science → Lab, ICT → Computer Room, PE → Hall/Sports Field.\nReply **yes** to confirm.`);
         break;
       }
       case "teachers": {
         const lines = ctx.teachers.map(t => {
           const subs = t.qualifiedSubjects.map(id => ctx.subjects.find(s => s.id === id)?.name).filter(Boolean).join(", ");
-          return `• ${t.name} — ${t.employmentType}, max ${t.maxPeriodsPerWeek} p/wk, prefers ${t.preferredTime}, teaches ${subs}`;
+          return `• ${t.name} · ${t.employmentType}, max ${t.maxPeriodsPerWeek} p/wk, prefers ${t.preferredTime}, teaches ${subs}`;
         }).join("\n");
-        agentSay(`**Step 5 — Teacher availability.**\n${lines}\n\nAll teachers assumed available Mon–Fri unless you specify otherwise. Reply **yes** or note restrictions (e.g. _"Mrs Khumalo unavailable Friday"_).`);
+        agentSay(`**Step 5: Teacher availability.**\n${lines}\n\nAll teachers assumed available Mon–Fri unless you specify otherwise. Reply **yes** or note restrictions (e.g. _"Mrs Khumalo unavailable Friday"_).`);
         break;
       }
       case "venues": {
-        const lines = ctx.rooms.map(r => `• ${r.name} — ${r.type}, capacity ${r.capacity}`).join("\n");
-        agentSay(`**Step 6 — Venues.**\n${lines}\n\nLabs reserved for Science, Computer Room for ICT, Hall/Sports Field for PE. Reply **yes** to confirm and I'll generate the timetable.`);
+        const lines = ctx.rooms.map(r => `• ${r.name} · ${r.type}, capacity ${r.capacity}`).join("\n");
+        agentSay(`**Step 6: Venues.**\n${lines}\n\nLabs reserved for Science, Computer Room for ICT, Hall/Sports Field for PE. Reply **yes** to confirm and I'll generate the timetable.`);
         break;
       }
       case "review": {
@@ -133,7 +133,7 @@ export default function AITimetableBuilderAgent() {
   }
 
   function runGeneration() {
-    agentSay(`Generating the master timetable now — solving for teacher conflicts, room capacity and subject-venue rules…`, 200);
+    agentSay(`Generating the master timetable now. Solving for teacher conflicts, room capacity and subject-venue rules…`, 200);
     setTimeout(() => {
       const res = ctx.runAIAgent();
       let msg = `✅ **Timetable generated.** ${res.placed} periods placed across ${ctx.classes.length} classes.\n`;
@@ -142,7 +142,7 @@ export default function AITimetableBuilderAgent() {
       } else {
         msg += `\nNo unfilled slots.`;
       }
-      msg += `\n\nReview the grid below. Send corrections in plain text — for example:\n• _"Move Form 3C Mathematics to Wednesday Period 3"_\n• _"Replace Mr. Moyo with Mrs. Sibanda for all Friday slots"_\n\nWhen you're happy, click **Approve & Publish**.`;
+      msg += `\n\nReview the grid below. Send corrections in plain text, for example:\n• _"Move Form 3C Mathematics to Wednesday Period 3"_\n• _"Replace Mr. Moyo with Mrs. Sibanda for all Friday slots"_\n\nWhen you're happy, click **Approve & Publish**.`;
       push("agent", msg);
       setThinking(false);
     }, 1400);
@@ -190,7 +190,7 @@ export default function AITimetableBuilderAgent() {
           count++;
         });
         return count
-          ? `Done — substituted **${fromT.name} → ${toT.name}** on ${count} slot(s). Re-validating…`
+          ? `Done. Substituted **${fromT.name} → ${toT.name}** on ${count} slot(s). Re-validating…`
           : `No matching slots found to substitute.`;
       }
     }
@@ -230,8 +230,8 @@ export default function AITimetableBuilderAgent() {
         setTimeout(() => {
           const c = ctx.conflicts.length;
           agentSay(c
-            ? `Validation complete — **${c} conflict(s)** remain. See the conflicts panel for resolution suggestions.`
-            : `Validation passed — **no conflicts**. Ready to publish when you are.`);
+            ? `Validation complete: **${c} conflict(s)** remain. See the conflicts panel for resolution suggestions.`
+            : `Validation passed. **No conflicts**. Ready to publish when you are.`);
         }, 600);
       } else if (/(approve|publish|looks good|ship it)/.test(t)) {
         handlePublish();
@@ -246,7 +246,7 @@ export default function AITimetableBuilderAgent() {
       advance();
     } else if (step === "structure" || step === "class_sizes" || step === "school_day"
             || step === "subjects" || step === "teachers" || step === "venues") {
-      agentSay(`Noted — I've recorded your input ("${text.slice(0, 80)}"). Moving to the next step.`);
+      agentSay(`Noted. I've recorded your input ("${text.slice(0, 80)}"). Moving to the next step.`);
       setTimeout(() => advance(), 500);
     }
   }
@@ -256,7 +256,7 @@ export default function AITimetableBuilderAgent() {
     ctx.publishTimetable();
     setStep("published");
     push("agent",
-      `🎉 **Published.** The timetable is now live on:\n• **Student portal** — each student sees only their class.\n• **Teacher portal** — each teacher sees only their assigned classes.\n• **Admin portal** — full master view with edit access.\n\nAny further changes you approve through me will sync automatically.`);
+      `🎉 **Published.** The timetable is now live on:\n• **Student portal**: each student sees only their class.\n• **Teacher portal**: each teacher sees only their assigned classes.\n• **Admin portal**: full master view with edit access.\n\nAny further changes you approve through me will sync automatically.`);
     toast({ title: "Timetable published", description: "Synced to student, teacher and admin portals." });
   }
 
@@ -371,7 +371,7 @@ export default function AITimetableBuilderAgent() {
         {step === "published" && (
           <div className="rounded-lg border-2 border-green-500/40 bg-green-50 dark:bg-green-950/30 p-3 flex items-center gap-2 text-sm">
             <CheckCircle2 className="h-5 w-5 text-green-600" />
-            <span><strong>Published</strong> at {new Date(ctx.publishedAt!).toLocaleString()} — live across student, teacher and admin portals.</span>
+            <span><strong>Published</strong> at {new Date(ctx.publishedAt!).toLocaleString()}. Live across student, teacher and admin portals.</span>
           </div>
         )}
       </CardContent>

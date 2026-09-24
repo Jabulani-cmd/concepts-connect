@@ -16,7 +16,7 @@ interface LinkedPerson {
 }
 
 function fmtDate(d: Date | null) {
-  if (!d) return "—";
+  if (!d) return "-";
   return d.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" });
 }
 
@@ -162,7 +162,7 @@ export default function AccessStatusPanel({ className = "" }: { className?: stri
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
             <div className="rounded-lg border bg-card/50 p-3">
               <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">Plan</p>
-              <p className="text-sm font-semibold mt-0.5 truncate">{sub.plan || "—"}</p>
+              <p className="text-sm font-semibold mt-0.5 truncate">{sub.plan || "-"}</p>
             </div>
             <div className="rounded-lg border bg-card/50 p-3">
               <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">Expires</p>
@@ -179,7 +179,7 @@ export default function AccessStatusPanel({ className = "" }: { className?: stri
                     : "text-destructive"
                 }`}
               >
-                {sub.expiresAt ? `${sub.daysRemaining} day${sub.daysRemaining === 1 ? "" : "s"}` : "—"}
+                {sub.expiresAt ? `${sub.daysRemaining} day${sub.daysRemaining === 1 ? "" : "s"}` : "-"}
               </p>
             </div>
           </div>

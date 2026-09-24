@@ -51,7 +51,7 @@ describe("payment methods", () => {
 
   it("shows unknown values unchanged and blanks as a dash", () => {
     expect(paymentMethodLabel("cheque")).toBe("cheque");
-    expect(paymentMethodLabel(null)).toBe("—");
+    expect(paymentMethodLabel(null)).toBe("-");
   });
 });
 

@@ -9,7 +9,7 @@ interface ReceiptData {
   parentName: string;
   studentName: string;
   amount: number;
-  currency?: string;        // ignored — always USD (ZiG shown alongside)
+  currency?: string;        // ignored: always USD (ZiG shown alongside)
   method: string;
   transactionId: string;
   plan: string;

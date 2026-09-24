@@ -1,4 +1,8 @@
-// Teacher AI suite — lesson plans, worksheets, rubrics, feedback, parent messages,
+
+// AI text never shows em dashes: the model is told not to use them, and any that slip through are replaced.
+const NO_EM_DASH = " Never use em dash characters; use commas, colons or full stops instead.";
+const noEmDash = (s: string) => s.replace(/ \u2014 /g, ", ").replace(/\u2014/g, "-");
+// Teacher AI suite - lesson plans, worksheets, rubrics, feedback, parent messages,
 // at-risk explanations and class insights. ZIMSEC-aligned.
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -14,7 +18,7 @@ const LANGUAGES: Record<string, string> = {
 };
 
 function jsonResponse(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
+  return new Response(noEmDash(JSON.stringify(body)), {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
@@ -22,7 +26,7 @@ function jsonResponse(body: unknown, status = 200) {
 
 function buildPrompt(kind: string, p: Record<string, unknown>): { system: string; user: string } {
   const zimsec =
-    "You support secondary school teachers in Zimbabwe. Everything must align with the ZIMSEC curriculum, use Zimbabwean context and examples, and use Forms 1-6 / Grade terminology as given. Reply with valid JSON only — no markdown fences, no commentary.";
+    "You support secondary school teachers in Zimbabwe. Everything must align with the ZIMSEC curriculum, use Zimbabwean context and examples, and use Forms 1-6 / Grade terminology as given. Reply with valid JSON only. No markdown fences, no commentary.";
 
   switch (kind) {
     case "lesson_plan":
@@ -86,7 +90,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         model: MODEL,
         messages: [
-          { role: "system", content: system },
+          { role: "system", content: system + NO_EM_DASH },
           { role: "user", content: user },
         ],
         response_format: { type: "json_object" },

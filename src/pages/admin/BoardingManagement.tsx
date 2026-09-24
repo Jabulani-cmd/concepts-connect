@@ -218,7 +218,7 @@ export default function BoardingManagement() {
 
   // =========== HELPERS ===========
   const studentName = (id: string) => students.find(s => s.id === id)?.full_name || "Unknown";
-  const staffName = (id: string | null) => (id ? staff.find(s => s.id === id)?.full_name : null) || "—";
+  const staffName = (id: string | null) => (id ? staff.find(s => s.id === id)?.full_name : null) || "-";
   const allocatedStudentIds = new Set(allocations.map(a => a.student_id));
   const unallocatedStudents = students.filter(s => !allocatedStudentIds.has(s.id));
 
@@ -464,15 +464,15 @@ export default function BoardingManagement() {
                       <TableCell className="font-mono text-xs">{b.student?.admission_number}</TableCell>
                       <TableCell className="font-medium">{b.student?.full_name}</TableCell>
                       <TableCell>{b.student?.form}</TableCell>
-                      <TableCell>{b.hostel?.name || "—"}</TableCell>
-                      <TableCell>{b.room?.room_number || "—"}</TableCell>
-                      <TableCell>{b.bed_number || "—"}</TableCell>
+                      <TableCell>{b.hostel?.name || "-"}</TableCell>
+                      <TableCell>{b.room?.room_number || "-"}</TableCell>
+                      <TableCell>{b.bed_number || "-"}</TableCell>
                       <TableCell>
                         {b.student?.emergency_contact ? (
                           <a href={`tel:${b.student.emergency_contact}`} className="text-primary hover:underline text-xs flex items-center gap-1">
                             <Phone className="h-3 w-3" />{b.student.emergency_contact}
                           </a>
-                        ) : "—"}
+                        ) : "-"}
                       </TableCell>
                       <TableCell className="text-right">
                         <AlertDialog>
@@ -524,10 +524,10 @@ export default function BoardingManagement() {
                     <TableRow key={v.id}>
                       <TableCell className="text-xs">{new Date(v.visit_date).toLocaleDateString()}</TableCell>
                       <TableCell className="font-medium">{studentName(v.student_id)}</TableCell>
-                      <TableCell className="text-sm max-w-[200px] truncate">{v.symptoms || "—"}</TableCell>
-                      <TableCell className="text-sm max-w-[200px] truncate">{v.diagnosis || "—"}</TableCell>
-                      <TableCell className="text-sm max-w-[200px] truncate">{v.treatment || "—"}</TableCell>
-                      <TableCell className="text-xs">{v.follow_up_date ? new Date(v.follow_up_date).toLocaleDateString() : "—"}</TableCell>
+                      <TableCell className="text-sm max-w-[200px] truncate">{v.symptoms || "-"}</TableCell>
+                      <TableCell className="text-sm max-w-[200px] truncate">{v.diagnosis || "-"}</TableCell>
+                      <TableCell className="text-sm max-w-[200px] truncate">{v.treatment || "-"}</TableCell>
+                      <TableCell className="text-xs">{v.follow_up_date ? new Date(v.follow_up_date).toLocaleDateString() : "-"}</TableCell>
                       <TableCell><Badge variant={v.parent_notified ? "default" : "outline"} className="text-[10px]">{v.parent_notified ? "Yes" : "No"}</Badge></TableCell>
                     </TableRow>
                   ))}
@@ -619,7 +619,7 @@ export default function BoardingManagement() {
                     return roomAllocs.length < r.capacity;
                   }).map(r => {
                     const hostel = hostels.find(h => h.id === r.hostel_id);
-                    return <SelectItem key={r.id} value={r.id}>{hostel?.name} — {r.room_number}</SelectItem>;
+                    return <SelectItem key={r.id} value={r.id}>{hostel?.name} · {r.room_number}</SelectItem>;
                   })}
                 </SelectContent>
               </Select>

@@ -75,8 +75,8 @@ export default function StudentFeeTab({ studentId }: Props) {
   }, [fetchData, studentId]);
 
   const docStudent = {
-    fullName: student?.full_name || "—",
-    admissionNumber: student?.admission_number || "—",
+    fullName: student?.full_name || "-",
+    admissionNumber: student?.admission_number || "-",
     form: student?.form || null,
   };
 
@@ -126,7 +126,7 @@ export default function StudentFeeTab({ studentId }: Props) {
   const stmtEmail = {
     documentLabel: "Student Statement",
     filename: `statement-${(student?.full_name || "student").replace(/\s+/g, "-").toLowerCase()}`,
-    subject: `Statement of Account — ${student?.full_name || "Student"}`,
+    subject: `Statement of Account: ${student?.full_name || "Student"}`,
   };
 
   return (
@@ -209,7 +209,7 @@ export default function StudentFeeTab({ studentId }: Props) {
                         <span className="font-mono text-xs font-medium">{inv.invoice_number}</span>
                         <div className="flex items-center gap-2">
                           {statusBadge(inv.status)}
-                          <DocActionButtons labels actions={() => invoiceActions(inv, docStudent)} email={{ documentLabel: "Invoice", filename: `invoice-${inv.invoice_number}`, subject: `Invoice ${inv.invoice_number} — ${docStudent.fullName}` }} />
+                          <DocActionButtons labels actions={() => invoiceActions(inv, docStudent)} email={{ documentLabel: "Invoice", filename: `invoice-${inv.invoice_number}`, subject: `Invoice ${inv.invoice_number} · ${docStudent.fullName}` }} />
                         </div>
                       </div>
                       <p className="text-xs text-muted-foreground">{inv.term} {inv.academic_year}</p>
@@ -261,7 +261,7 @@ export default function StudentFeeTab({ studentId }: Props) {
                         </TableCell>
                         <TableCell className="text-center">{statusBadge(inv.status)}</TableCell>
                         <TableCell className="text-center">
-                          <DocActionButtons labels actions={() => invoiceActions(inv, docStudent)} email={{ documentLabel: "Invoice", filename: `invoice-${inv.invoice_number}`, subject: `Invoice ${inv.invoice_number} — ${docStudent.fullName}` }} />
+                          <DocActionButtons labels actions={() => invoiceActions(inv, docStudent)} email={{ documentLabel: "Invoice", filename: `invoice-${inv.invoice_number}`, subject: `Invoice ${inv.invoice_number} · ${docStudent.fullName}` }} />
                         </TableCell>
                       </TableRow>
                     );
@@ -321,7 +321,7 @@ export default function StudentFeeTab({ studentId }: Props) {
                       <TableRow key={p.id}>
                         <TableCell className="font-mono text-xs">{p.receipt_number}</TableCell>
                         <TableCell>{format(new Date(p.payment_date), "dd MMM yyyy")}</TableCell>
-                        <TableCell className="font-mono text-xs">{p.invoices?.invoice_number || "—"}</TableCell>
+                        <TableCell className="font-mono text-xs">{p.invoices?.invoice_number || "-"}</TableCell>
                         <TableCell className="text-right font-mono">{formatMoney(p.amount_usd || p.amount || 0)}</TableCell>
                         <TableCell>{p.payment_method}</TableCell>
                         <TableCell className="text-center">

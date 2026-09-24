@@ -159,7 +159,7 @@ export default function StudentExamResultsTab({ studentId, studentName, admissio
         <SelectContent>
           {exams.map((e) => (
             <SelectItem key={e.id} value={e.id}>
-              {e.name} — {e.term} {e.academic_year}
+              {e.name} · {e.term} {e.academic_year}
             </SelectItem>
           ))}
         </SelectContent>
@@ -199,7 +199,7 @@ export default function StudentExamResultsTab({ studentId, studentName, admissio
               <CardContent className="p-3 text-center">
                 <Trophy className="mx-auto mb-1 h-5 w-5 text-amber-600" />
                 <p className="text-lg font-bold text-amber-700">
-                  {overallRank ? `${overallRank.rank}` : "—"}
+                  {overallRank ? `${overallRank.rank}` : "-"}
                 </p>
                 <p className="text-[10px] text-muted-foreground">
                   {overallRank ? `of ${overallRank.total}` : "Class Rank"}
@@ -211,7 +211,7 @@ export default function StudentExamResultsTab({ studentId, studentName, admissio
               <CardContent className="p-3 text-center">
                 <Award className="mx-auto mb-1 h-5 w-5 text-emerald-600" />
                 <p className="text-xs font-bold text-emerald-700 truncate">
-                  {bestSubject?.subject_name || "—"}
+                  {bestSubject?.subject_name || "-"}
                 </p>
                 <p className="text-lg font-bold text-emerald-700">{bestSubject?.mark || 0}%</p>
                 <p className="text-[10px] text-muted-foreground">Best Subject</p>
@@ -292,7 +292,7 @@ export default function StudentExamResultsTab({ studentId, studentName, admissio
                               /{r.class_size}
                             </span>
                           ) : (
-                            "—"
+                            "-"
                           )}
                         </td>
                       </tr>
@@ -312,7 +312,7 @@ export default function StudentExamResultsTab({ studentId, studentName, admissio
                           <span className="text-xs">
                             <span className="font-semibold">{overallRank.rank}</span>/{overallRank.total}
                           </span>
-                        ) : "—"}
+                        ) : "-"}
                       </td>
                     </tr>
                   </tfoot>

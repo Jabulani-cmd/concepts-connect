@@ -80,7 +80,7 @@ export default function EmailDocumentDialog({
     downloadHtmlDocument(html, filename);
     const params = new URLSearchParams({
       subject,
-      body: `${message}\n\n(The branded ${documentLabel} has been downloaded — please attach the file "${filename}.html" to this email.)`,
+      body: `${message}\n\n(The branded ${documentLabel} has been downloaded. Please attach the file "${filename}.html" to this email.)`,
     });
     if (cc.trim()) params.set("cc", cc.trim());
     const href = `mailto:${encodeURIComponent(to.trim())}?${params.toString().replace(/\+/g, "%20")}`;
@@ -95,7 +95,7 @@ export default function EmailDocumentDialog({
             <Mail className="h-4 w-4 text-accent" /> Email {documentLabel}
           </DialogTitle>
           <DialogDescription>
-            Send this {documentLabel} as a branded MavingTech document. Demo mode simulates delivery — use "Open mail client" to send through your installed email app.
+            Send this {documentLabel} as a branded MavingTech document. Demo mode simulates delivery. Use "Open mail client" to send through your installed email app.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">

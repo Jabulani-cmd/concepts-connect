@@ -33,7 +33,7 @@ export default function Login() {
       if (error) throw error;
       setEmail(`admin@${DEMO_EMAIL_DOMAIN}`);
       setPassword(DEMO_PASSWORDS.admin);
-      toast({ title: "Demo admin ready", description: "Credentials pre-filled — click Sign In." });
+      toast({ title: "Demo admin ready", description: "Credentials pre-filled. Click Sign In." });
     } catch (e) {
       toast({ title: "Could not provision demo admin", description: errorMessage(e, "Unknown error"), variant: "destructive" });
     } finally {

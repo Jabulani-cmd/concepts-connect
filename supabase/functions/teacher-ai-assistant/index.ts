@@ -1,3 +1,7 @@
+
+// AI text never shows em dashes: the model is told not to use them, and any that slip through are replaced.
+const NO_EM_DASH = " Never use em dash characters; use commas, colons or full stops instead.";
+const noEmDash = (s: string) => s.replace(/ \u2014 /g, ", ").replace(/\u2014/g, "-");
 // Multi-model AI assistant for teachers (lesson planning, admin writing, etc.)
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -5,7 +9,7 @@ const corsHeaders = {
 };
 
 // Map friendly names to Lovable AI gateway model IDs.
-// DeepSeek / Claude are not on the gateway — they fall back to a close equivalent.
+// DeepSeek / Claude are not on the gateway - they fall back to a close equivalent.
 const MODEL_MAP: Record<string, { id: string; note?: string }> = {
   "gemini-pro": { id: "google/gemini-2.5-pro" },
   "gemini-flash": { id: "google/gemini-3-flash-preview" },
@@ -23,7 +27,7 @@ Deno.serve(async (req) => {
     const { messages, model = "gemini-flash", task = "general" } = await req.json();
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: "LOVABLE_API_KEY missing" }), {
+      return new Response(noEmDash(JSON.stringify({ error: "LOVABLE_API_KEY missing" })), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -46,7 +50,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         model: chosen.id,
         messages: [
-          { role: "system", content: systemPrompt + (chosen.note ? `\n\n(Note to relay if user asks about model: ${chosen.note})` : "") },
+          { role: "system", content: systemPrompt + NO_EM_DASH + (chosen.note ? `\n\n(Note to relay if user asks about model: ${chosen.note})` : "") },
           ...messages,
         ],
         stream: true,
@@ -55,28 +59,32 @@ Deno.serve(async (req) => {
 
     if (!res.ok) {
       if (res.status === 429) {
-        return new Response(JSON.stringify({ error: "AI rate limit exceeded. Please try again in a moment." }), {
+        return new Response(noEmDash(JSON.stringify({ error: "AI rate limit exceeded. Please try again in a moment." })), {
           status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       if (res.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted. Please contact your administrator." }), {
+        return new Response(noEmDash(JSON.stringify({ error: "AI credits exhausted. Please contact your administrator." })), {
           status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       const txt = await res.text();
       console.error("AI gateway error", res.status, txt);
-      return new Response(JSON.stringify({ error: "AI gateway error" }), {
+      return new Response(noEmDash(JSON.stringify({ error: "AI gateway error" })), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    return new Response(res.body, {
+    const cleaned = res.body!
+      .pipeThrough(new TextDecoderStream())
+      .pipeThrough(new TransformStream<string, string>({ transform: (chunk, out) => out.enqueue(noEmDash(chunk)) }))
+      .pipeThrough(new TextEncoderStream());
+    return new Response(cleaned, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
   } catch (e) {
     console.error("teacher-ai-assistant error", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
+    return new Response(noEmDash(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" })), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }

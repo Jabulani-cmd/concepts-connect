@@ -22,7 +22,7 @@ export default function FinanceDashboard() {
   const portalTitle = isBursar ? "Bursar Portal" : "Finance Clerk Portal";
   const portalSubtitle = isBursar
     ? "Oversight, audit and approvals over all finance clerk activity"
-    : "Daily finance operations — destructive actions require Bursar approval";
+    : "Daily finance operations: destructive actions require Bursar approval";
 
   const handleLogout = async () => {
     await signOut();
@@ -109,7 +109,7 @@ export default function FinanceDashboard() {
                 <Receipt className="h-5 w-5 sm:h-6 sm:w-6 text-accent" />
               )}
               <h2 className="font-heading text-lg sm:text-2xl font-bold text-primary">
-                {isBursar ? "Bursar — Finance Oversight" : "Finance Clerk — Daily Operations"}
+                {isBursar ? "Bursar: Finance Oversight" : "Finance Clerk: Daily Operations"}
               </h2>
             </div>
             <p className="mt-1 text-xs sm:text-sm text-muted-foreground">{portalSubtitle}</p>

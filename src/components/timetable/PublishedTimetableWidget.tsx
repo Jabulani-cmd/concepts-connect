@@ -106,7 +106,7 @@ export default function PublishedTimetableWidget({
     const s = filteredSlots.find((x) => x.day_of_week === day && x.period_index === period);
     if (!s) return null;
     if (s.is_break) return <div className="text-[10px] text-muted-foreground italic">{s.break_label || "Break"}</div>;
-    if (!s.subject_name) return <div className="text-[10px] text-muted-foreground">—</div>;
+    if (!s.subject_name) return <div className="text-[10px] text-muted-foreground">-</div>;
     const color = s.subject_color || colorForSubject(s.subject_name);
     return (
       <div

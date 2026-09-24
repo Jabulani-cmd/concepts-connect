@@ -673,7 +673,7 @@ Deno.serve(async (req) => {
 
             const guardianEmail = (student?.guardian_email ?? "").trim().toLowerCase();
             if (!student || !parentEmail || guardianEmail !== parentEmail) {
-              linkResults.push(`${child.admissionNumber}: not linked — the school must confirm you as this student's guardian`);
+              linkResults.push(`${child.admissionNumber}: not linked. The school must confirm you as this student's guardian`);
               continue;
             }
 

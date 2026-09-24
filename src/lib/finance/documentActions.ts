@@ -35,7 +35,7 @@ export type DocActions = {
   view: () => void;
   print: () => void;
   download: () => void;
-  /** Raw branded HTML — used by the Email dialog as an attachment-like body. */
+  /** Raw branded HTML - used by the Email dialog as an attachment-like body. */
   html: () => string;
 };
 

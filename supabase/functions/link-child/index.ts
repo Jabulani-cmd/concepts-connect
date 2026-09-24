@@ -79,7 +79,7 @@ Deno.serve(async (req) => {
       const guardianEmail = (student?.guardian_email ?? "").trim().toLowerCase();
       if (!student || !callerEmail || guardianEmail !== callerEmail) {
         return new Response(JSON.stringify({
-          error: "We couldn't link this child to your account. Your email must match the guardian email the school has for this student — please contact the school office.",
+          error: "We couldn't link this child to your account. Your email must match the guardian email the school has for this student. Please contact the school office.",
         }), {
           status: 403,
           headers: { ...corsHeaders, "Content-Type": "application/json" },

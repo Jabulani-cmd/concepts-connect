@@ -50,7 +50,7 @@ interface Submission {
 const SAMPLE_PENDING: Submission[] = [
   {
     id: "s1",
-    studentName: "Tafadzwa Ncube — Form 4B",
+    studentName: "Tafadzwa Ncube, Form 4B",
     type: "essay",
     subject: "English Literature",
     aiGrade: 72,
@@ -75,7 +75,7 @@ const SAMPLE_PENDING: Submission[] = [
   },
   {
     id: "s2",
-    studentName: "Rumbidzai Sibanda — Form 3A",
+    studentName: "Rumbidzai Sibanda, Form 3A",
     type: "mcq",
     subject: "Combined Science",
     aiGrade: 80,
@@ -141,7 +141,7 @@ export default function AIShadowMarker() {
         aiGrade: data.grade,
         result: data,
       });
-      toast({ title: "Graded by AI", description: `${data.grade}/100 — review and approve below.` });
+      toast({ title: "Graded by AI", description: `${data.grade}/100. Review and approve below.` });
     } catch (e) {
       toast({ title: "Grading failed", description: errorMessage(e, "Please try again."), variant: "destructive" });
     } finally {
@@ -211,13 +211,13 @@ export default function AIShadowMarker() {
               <div className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-primary" />
                 <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">AI Shadow Marker</span>
-                <Badge variant="secondary" className="ml-2">Demo — real Gemini calls</Badge>
+                <Badge variant="secondary" className="ml-2">Demo: real Gemini calls</Badge>
               </div>
               <h1 className="mt-3 font-heading text-3xl font-bold text-foreground md:text-4xl">
                 Automated & AI-assisted marking
               </h1>
               <p className="mt-2 max-w-2xl text-muted-foreground">
-                Grade multiple-choice tests instantly and use AI to draft a first-pass mark and feedback on essay answers. You stay in control — review, adjust, and approve.
+                Grade multiple-choice tests instantly and use AI to draft a first-pass mark and feedback on essay answers. You stay in control: review, adjust, and approve.
               </p>
             </div>
           </div>
@@ -242,7 +242,7 @@ export default function AIShadowMarker() {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="es">Student</Label>
-                    <Input id="es" value={essayStudent} onChange={(e) => setEssayStudent(e.target.value)} placeholder="e.g. Tafadzwa Ncube — 4B" />
+                    <Input id="es" value={essayStudent} onChange={(e) => setEssayStudent(e.target.value)} placeholder="e.g. Tafadzwa Ncube, 4B" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="esubj">Subject</Label>
@@ -339,7 +339,7 @@ export default function AIShadowMarker() {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="ms">Student</Label>
-                    <Input id="ms" value={mcqStudent} onChange={(e) => setMcqStudent(e.target.value)} placeholder="e.g. Rumbidzai Sibanda — 3A" />
+                    <Input id="ms" value={mcqStudent} onChange={(e) => setMcqStudent(e.target.value)} placeholder="e.g. Rumbidzai Sibanda, 3A" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="msubj">Subject</Label>
@@ -380,7 +380,7 @@ export default function AIShadowMarker() {
                         >
                           <span className="font-medium">Q{b.index}</span>
                           <span className="text-xs">
-                            {b.given || "—"} {b.correct ? "✓" : `(× ${b.expected})`}
+                            {b.given || "-"} {b.correct ? "✓" : `(× ${b.expected})`}
                           </span>
                         </div>
                       ))}
@@ -423,7 +423,7 @@ export default function AIShadowMarker() {
                     </div>
                     <div className="text-center">
                       <div className="text-xs uppercase tracking-wider text-muted-foreground">Teacher</div>
-                      <div className="font-heading text-xl font-bold text-foreground">{s.teacherGrade ?? "—"}</div>
+                      <div className="font-heading text-xl font-bold text-foreground">{s.teacherGrade ?? "-"}</div>
                     </div>
                     {s.approved ? (
                       <Badge className="bg-primary/15 text-primary hover:bg-primary/20"><CheckCircle2 className="mr-1 h-3 w-3" />Approved</Badge>

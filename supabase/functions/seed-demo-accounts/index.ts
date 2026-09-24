@@ -101,14 +101,14 @@ async function linkRecords(admin: SupabaseClient, linked: { account: Account; ui
     if (byAdmission.data?.length) continue;
     const byEmail = await admin.from("students").update({ user_id: uid }).eq("email", account.email).select("id");
     if (byEmail.error) problems.set(account.email, `student record: ${byEmail.error.message}`);
-    else if (!byEmail.data?.length) problems.set(account.email, `no student record with admission number ${account.admission_number ?? "?"} — load the demo data first`);
+    else if (!byEmail.data?.length) problems.set(account.email, `no student record with admission number ${account.admission_number ?? "?"}. Load the demo data first`);
   }
 
   // Teachers: attach the login to the staff record.
   for (const { account, uid } of linked.filter((l) => l.account.role === "teacher")) {
     const { data, error } = await admin.from("staff").update({ user_id: uid }).eq("email", account.email).select("id");
     if (error) problems.set(account.email, `staff record: ${error.message}`);
-    else if (!data?.length) problems.set(account.email, "no staff record with this email — load the demo data first");
+    else if (!data?.length) problems.set(account.email, "no staff record with this email. Load the demo data first");
   }
 
   // Parents: link every child and open portal access for the demo.
@@ -121,7 +121,7 @@ async function linkRecords(admin: SupabaseClient, linked: { account: Account; ui
 
   for (const { account } of parents) {
     const missing = account.children!.filter((c) => !studentId.has(c.admission_number)).map((c) => c.admission_number);
-    if (missing.length) problems.set(account.email, `no student record for ${missing.join(", ")} — load the demo data first`);
+    if (missing.length) problems.set(account.email, `no student record for ${missing.join(", ")}. Load the demo data first`);
   }
   const pairs = parents.flatMap(({ account, uid }) =>
     account.children!

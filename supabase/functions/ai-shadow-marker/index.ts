@@ -1,5 +1,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
+// AI text never shows em dashes: the model is told not to use them, and any that slip through are replaced.
+const NO_EM_DASH = " Never use em dash characters; use commas, colons or full stops instead.";
+const noEmDash = (s: string) => s.replace(/ \u2014 /g, ", ").replace(/\u2014/g, "-");
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -91,7 +95,7 @@ ${answer}
         body: JSON.stringify({
           model: "google/gemini-3-flash-preview",
           messages: [
-            { role: "system", content: systemPrompt },
+            { role: "system", content: systemPrompt + NO_EM_DASH },
             { role: "user", content: userPrompt },
           ],
           tools: [
@@ -158,7 +162,7 @@ ${answer}
 });
 
 function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
+  return new Response(noEmDash(JSON.stringify(body)), {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
