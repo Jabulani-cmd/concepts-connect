@@ -9,6 +9,9 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 type Row = Record<string, unknown>;
 const writes: { table: string; op: string; rows: Row[] }[] = [];
 const invokes: { accounts: Row[] }[] = [];
+type InvokeResult = { data: unknown; error: unknown };
+const ok = (): InvokeResult => ({ data: { ok: true, errors: 0 }, error: null });
+let respond: (body: { accounts: Row[] }) => InvokeResult = ok;
 
 function fakeQuery(table: string) {
   let result: { data: unknown; error: null } = { data: [], error: null };
@@ -36,7 +39,7 @@ vi.mock("@/integrations/supabase/client", () => ({
     functions: {
       invoke: vi.fn(async (_name: string, { body }: { body: { accounts: Row[] } }) => {
         invokes.push(body);
-        return { data: { ok: true, errors: 0 }, error: null };
+        return respond(body);
       }),
     },
   },
@@ -71,7 +74,7 @@ describe("Demo data seeder panel", () => {
 
     // Logins: 1 admin + 30 teachers + 500 students + every parent, in small batches.
     const accounts = invokes.flatMap((b) => b.accounts);
-    expect(invokes.every((b) => b.accounts.length <= 40)).toBe(true);
+    expect(invokes.every((b) => b.accounts.length <= 20)).toBe(true);
     expect(new Set(accounts.map((a) => a.email)).size).toBe(accounts.length);
     const count = (role: string) => accounts.filter((a) => a.role === role).length;
     expect([count("admin"), count("teacher"), count("student")]).toEqual([1, 30, 500]);
@@ -84,5 +87,37 @@ describe("Demo data seeder panel", () => {
     expect(firstParentCall).toBeGreaterThan(lastStudentCall);
     const linked = accounts.flatMap((a) => (a.children as { admission_number: string }[] | undefined) ?? []).map((c) => c.admission_number);
     expect(new Set(linked).size).toBe(500);
+  }, 30000);
+
+  it("creates missing logins for saved demo data and says why any failed", async () => {
+    writes.length = 0;
+    invokes.length = 0;
+    // The service refuses the whole call, the way it does when demo mode is switched off.
+    const refused = { error: "Demo mode is switched off for this school." };
+    respond = () => ({
+      data: null,
+      error: Object.assign(new Error("Edge Function returned a non-2xx status code"), {
+        context: new Response(JSON.stringify(refused), { status: 403 }),
+      }),
+    });
+
+    render(
+      <AllocationProvider>
+        <DemoPeopleProvider>
+          <DemoDataSeederPanel />
+        </DemoPeopleProvider>
+      </AllocationProvider>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /create missing logins/i }));
+    await waitFor(() => expect(screen.getByText(/some logins could not be created/i)).toBeInTheDocument(), { timeout: 15000 });
+    expect(screen.getAllByText(/demo mode is switched off/i).length).toBeGreaterThan(0);
+
+    // Only logins: the saved school records are left alone.
+    expect(writes).toHaveLength(0);
+    const accounts = invokes.flatMap((b) => b.accounts);
+    expect(accounts.filter((a) => a.role === "student")).toHaveLength(500);
+    expect(accounts.filter((a) => a.role === "teacher")).toHaveLength(30);
+    expect(accounts.filter((a) => a.role === "parent").length).toBeGreaterThan(800);
+    respond = ok;
   }, 30000);
 });

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Database, Sparkles, Trash2, CheckCircle2, Loader2, Download, Users, GraduationCap, BookOpen, Building2, CalendarClock, UserCog } from "lucide-react";
+import { Database, Sparkles, Trash2, CheckCircle2, Loader2, Download, Users, GraduationCap, BookOpen, Building2, CalendarClock, UserCog, KeyRound } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -35,8 +35,24 @@ type AccountPayload = {
   children?: { admission_number: string; relationship: string }[];
 };
 
-const ACCOUNTS_PER_CALL = 40;
-const PARALLEL_CALLS = 3;
+const ACCOUNTS_PER_CALL = 20;
+const PARALLEL_CALLS = 4;
+
+type AccountResult = { email: string; status: string; error?: string };
+
+/** The message an edge function sent back with a failed call (not just "non-2xx status"). */
+async function functionErrorMessage(error: unknown): Promise<string> {
+  const ctx = (error as { context?: Response })?.context;
+  if (ctx && typeof ctx.json === "function") {
+    try {
+      const body = await ctx.clone().json();
+      if (body?.error) return String(body.error);
+    } catch {
+      // Fall back to the generic message.
+    }
+  }
+  return errorMessage(error, "The account service could not be reached");
+}
 
 const chunk = <T,>(items: T[], size: number): T[][] =>
   Array.from({ length: Math.ceil(items.length / size) }, (_, i) => items.slice(i * size, i * size + size));
@@ -60,8 +76,9 @@ export default function DemoDataSeederPanel() {
   const [running, setRunning] = useState(false);
   const [stepIdx, setStepIdx] = useState(0);
   const [accountProgress, setAccountProgress] = useState<{ done: number; total: number; failed: number } | null>(null);
+  const [loginErrors, setLoginErrors] = useState<string[]>([]);
   const [summary, setSummary] = useState<null | {
-    students: number; parents: number; teachers: number; logins: number; failedLogins: number;
+    students: number; parents: number; teachers: number; logins: number; failedLogins: number; errors: string[];
     subjects: number; classes: number; rooms: number; periods: number;
   }>(null);
   const [showSummary, setShowSummary] = useState(false);
@@ -230,7 +247,7 @@ export default function DemoDataSeederPanel() {
   }
 
   /** Every login, created in parallel batches. Parents go last so their children's logins already exist. */
-  async function provisionAccounts(seed: Seed): Promise<{ total: number; failed: number }> {
+  async function provisionAccounts(seed: Seed): Promise<{ total: number; failed: number; errors: string[] }> {
     const admission = new Map(seed.students.map((s) => [s.id, s.admissionNumber]));
     const staffAndStudents: AccountPayload[] = [
       { email: `admin@${DEMO_EMAIL_DOMAIN}`, password: DEMO_PASSWORDS.admin, full_name: "Demo Administrator", role: "admin" },
@@ -244,6 +261,9 @@ export default function DemoDataSeederPanel() {
     const total = staffAndStudents.length + parents.length;
     let done = 0;
     let failed = 0;
+    // Distinct reasons, so the admin sees why logins failed rather than just how many.
+    const reasons = new Map<string, number>();
+    const note = (reason: string, count = 1) => reasons.set(reason, (reasons.get(reason) ?? 0) + count);
     setAccountProgress({ done, total, failed });
 
     const run = async (accounts: AccountPayload[]) => {
@@ -253,8 +273,15 @@ export default function DemoDataSeederPanel() {
         while (next < batches.length) {
           const batch = batches[next++];
           const { data, error } = await supabase.functions.invoke("seed-demo-accounts", { body: { accounts: batch } });
-          if (error) failed += batch.length;
-          else failed += Number(data?.errors ?? 0);
+          if (error) {
+            failed += batch.length;
+            note(await functionErrorMessage(error), batch.length);
+          } else {
+            failed += Number(data?.errors ?? 0);
+            for (const r of (data?.results ?? []) as AccountResult[]) {
+              if (r.status === "error") note(r.error ?? "unknown error");
+            }
+          }
           done += batch.length;
           setAccountProgress({ done, total, failed });
         }
@@ -265,12 +292,45 @@ export default function DemoDataSeederPanel() {
     await run(staffAndStudents);
     setStepIdx(5);
     await run(parents);
-    return { total, failed };
+    const errors = [...reasons.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([reason, n]) => `${n} × ${reason}`);
+    setLoginErrors(errors);
+    return { total, failed, errors };
+  }
+
+  /** Creates (or repairs) every demo login for demo data that is already saved. */
+  async function handleCreateLogins() {
+    setRunning(true);
+    setAccountProgress(null);
+    setLoginErrors([]);
+    setStepIdx(4);
+    const seed = generateDemoSeed(); // The demo school is the same every time, so this matches the saved records.
+    if (!seeded) {
+      alloc.replaceAllData({
+        teachers: seed.teachers, subjects: seed.subjects, rooms: seed.rooms,
+        classes: seed.classes, allocations: seed.allocations, slots: seed.slots,
+      });
+      people.setSeed({ students: seed.students, parents: seed.parents });
+    }
+    try {
+      const { total, failed, errors } = await provisionAccounts(seed);
+      setStepIdx(6);
+      toast(failed
+        ? { title: `${failed} of ${total} logins could not be created`, description: errors[0], variant: "destructive" }
+        : { title: "All demo logins are ready", description: `${total} teachers, students and parents can now sign in.` });
+    } catch (e) {
+      toast({ title: "Creating logins failed", description: errorMessage(e), variant: "destructive" });
+    } finally {
+      setRunning(false);
+    }
   }
 
   async function handleLoad() {
     setRunning(true);
     setAccountProgress(null);
+    setLoginErrors([]);
     setStepIdx(0);
     const seed = generateDemoSeed();
     setStepIdx(1);
@@ -289,7 +349,7 @@ export default function DemoDataSeederPanel() {
       setStepIdx(3);
       await persistSchool(seed);
       setStepIdx(4);
-      const { total, failed } = await provisionAccounts(seed);
+      const { total, failed, errors } = await provisionAccounts(seed);
       setStepIdx(6);
 
       const summ = {
@@ -298,6 +358,7 @@ export default function DemoDataSeederPanel() {
         teachers: seed.teachers.length,
         logins: total - failed,
         failedLogins: failed,
+        errors,
         subjects: seed.subjects.length,
         classes: seed.classes.length,
         rooms: seed.rooms.length,
@@ -306,7 +367,7 @@ export default function DemoDataSeederPanel() {
       setSummary(summ);
       setShowSummary(true);
       toast(failed
-        ? { title: "Demo data loaded with some login errors", description: `${failed} of ${total} logins could not be created. Run the seeder again to retry them.`, variant: "destructive" }
+        ? { title: `Demo data loaded, but ${failed} of ${total} logins failed`, description: `${errors[0] ?? ""} — use "Create missing logins" to retry.`, variant: "destructive" }
         : { title: "Demo data loaded", description: `${summ.students} students, ${summ.parents} parents and ${summ.teachers} teachers can now sign in.` });
     } catch (e) {
       toast({ title: "Loading demo data failed", description: errorMessage(e, "Could not save the demo school"), variant: "destructive" });
@@ -409,6 +470,9 @@ export default function DemoDataSeederPanel() {
               {running ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Sparkles className="h-4 w-4 mr-1" />}
               {seeded ? "Re-seed Demo Data" : "Load Demo Data"}
             </Button>
+            <Button onClick={handleCreateLogins} disabled={running} variant="outline" size="sm" title="Create or repair the sign-in accounts for the demo teachers, students and parents already loaded">
+              <KeyRound className="h-4 w-4 mr-1" /> Create missing logins
+            </Button>
             {seeded && (
               <>
                 <Button onClick={downloadCredentials} variant="outline" size="sm">
@@ -459,6 +523,15 @@ export default function DemoDataSeederPanel() {
             ))}
           </div>
 
+          {!running && loginErrors.length > 0 && (
+            <div className="mt-3 rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm">
+              <p className="font-medium text-destructive">Some logins could not be created:</p>
+              <ul className="mt-1 list-disc pl-5 text-xs text-muted-foreground">
+                {loginErrors.map((e) => <li key={e}>{e}</li>)}
+              </ul>
+            </div>
+          )}
+
           {seeded && (
             <p className="text-xs text-muted-foreground mt-3">
               Loaded {new Date(people.loadedAt!).toLocaleString()} — visible across student, teacher, parent and admin portals.
@@ -486,7 +559,7 @@ export default function DemoDataSeederPanel() {
               <Row label="Subjects"            value={summary.subjects}  hint="Linked to relevant forms" />
               <Row label="Classes"             value={summary.classes}   hint="Form 1A–4C, plus Form 5A/5B and Form 6A/6B" />
               <Row label="Venues"              value={summary.rooms}     hint="Classrooms, labs, hall, sports field" />
-              <Row label="Login accounts"      value={summary.logins}    hint={summary.failedLogins ? `${summary.failedLogins} failed — run the seeder again to retry` : "Admin, teachers, students and parents — all linked"} />
+              <Row label="Login accounts"      value={summary.logins}    hint={summary.failedLogins ? `${summary.failedLogins} failed: ${summary.errors[0] ?? "unknown error"} — use "Create missing logins" to retry` : "Admin, teachers, students and parents — all linked"} />
               <Row label="Timetable periods"   value={summary.periods}   hint="Lessons plus supervised study periods, with teacher, venue and time" />
             </div>
           )}
