@@ -62,6 +62,7 @@ export default function ParentSubscribe() {
 
   const [plans, setPlans] = useState<Plan[]>([]);
   const [children, setChildren] = useState<Child[]>([]);
+  const [parentName, setParentName] = useState<string>("");
   const [selectedChild, setSelectedChild] = useState<string | null>(null);
   const [bank, setBank] = useState<BankDetails | null>(null);
 
@@ -92,6 +93,8 @@ export default function ParentSubscribe() {
       setBank(b?.[0] ?? null);
 
       if (user) {
+        supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle()
+          .then(({ data: prof }) => setParentName(prof?.full_name || ""));
         // No FK relationship exists between parent_students/parent_student_links and students,
         // so PostgREST embeds return null. Fetch student IDs first, then load the student rows.
         const [{ data: linkRows }, { data: legacyRows }] = await Promise.all([
@@ -369,7 +372,7 @@ export default function ParentSubscribe() {
               data={completed}
               onDownload={() => downloadSubscriptionReceipt({
                 receiptNumber: completed.receiptNumber,
-                parentName: user?.email || "Parent",
+                parentName: parentName || user?.email || "Parent",
                 studentName: completed.childName,
                 amount: Number(completed.plan.amount_usd),
                 currency: "USD",
