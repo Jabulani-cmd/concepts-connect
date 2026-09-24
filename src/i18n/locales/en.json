@@ -483,5 +483,21 @@
     "contact": "Contact",
     "aboutUs": "About Us",
     "rights": "All rights reserved."
+  },
+  "pwa": {
+    "installTitle": "Install the MavingTech app",
+    "installBody": "Add the school portal to your home screen for quick access, even on a slow connection.",
+    "install": "Install",
+    "notNow": "Not now",
+    "gotIt": "Got it",
+    "installLink": "Install the app",
+    "iosTitle": "Add to your home screen",
+    "iosStep1": "Tap the Share button in Safari",
+    "iosStep2": "Choose “Add to Home Screen”",
+    "iosStep3": "Tap “Add” — the app icon appears on your home screen",
+    "updateReady": "A new version of the app is available.",
+    "update": "Update now",
+    "offline": "You're offline. Pages you have opened before still work; changes need a connection.",
+    "installed": "App installed"
   }
 }
