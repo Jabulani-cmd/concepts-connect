@@ -207,6 +207,27 @@ export type Database = {
         }
         Relationships: []
       }
+      agent_settings: {
+        Row: {
+          cron_secret: string
+          id: number
+          schedule: string
+          updated_at: string
+        }
+        Insert: {
+          cron_secret?: string
+          id?: number
+          schedule?: string
+          updated_at?: string
+        }
+        Update: {
+          cron_secret?: string
+          id?: number
+          schedule?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ai_timetable_logs: {
         Row: {
           conflicts_count: number | null
@@ -4230,6 +4251,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      agent_schedule_status: { Args: never; Returns: Json }
       agent_student_signals: {
         Args: { _recent_days?: number; _term_days?: number }
         Returns: {
