@@ -402,7 +402,9 @@ Deno.serve(async (req) => {
       };
       const allRoles = await allRows<{ user_id: string; role: string }>("user_roles", "user_id, role");
       const allProfiles = await allRows<{ id: string; user_id: string | null; full_name: string | null; email: string | null }>("profiles", "id, user_id, full_name, email");
-      const allStaff = await allRows<{ user_id: string | null; role: string | null; department: string | null }>("staff", "user_id, role, department");
+      const allStaff = await allRows<{ id: string; user_id: string | null; email: string | null; role: string | null; department: string | null }>("staff", "id, user_id, email, role, department");
+      const allStudents = await allRows<{ id: string; user_id: string | null; email: string | null; full_name: string; form: string | null; stream: string | null; class: string | null }>("students", "id, user_id, email, full_name, form, stream, class");
+      const allLinks = await allRows<{ parent_id: string; student_id: string; relationship: string | null }>("parent_students", "parent_id, student_id, relationship");
 
       // Sign-in details and password flags live on the auth user.
       const authInfo = new Map<string, { last_sign_in_at: string | null; created_at: string; must_change_password: boolean; password_reset_at: string | null }>();
@@ -424,27 +426,67 @@ Deno.serve(async (req) => {
       const roleMap: Record<string, string> = {};
       allRoles.forEach((r) => { roleMap[r.user_id] = r.role; });
 
-      const staffMap: Record<string, { role: string; department: string | null }> = {};
-      allStaff.forEach((s) => {
-        if (s.user_id) staffMap[s.user_id] = { role: s.role || "", department: s.department };
-      });
+      const lower = (e: string | null | undefined) => (e ?? "").trim().toLowerCase();
+      const staffByUser = new Map(allStaff.filter((s) => s.user_id).map((s) => [s.user_id!, s]));
+      const staffByEmail = new Map(allStaff.filter((s) => s.email).map((s) => [lower(s.email), s]));
+      const studentByUser = new Map(allStudents.filter((s) => s.user_id).map((s) => [s.user_id!, s]));
+      const studentByEmail = new Map(allStudents.filter((s) => s.email).map((s) => [lower(s.email), s]));
+      const studentById = new Map(allStudents.map((s) => [s.id, s]));
+      const className = (s: { form: string | null; stream: string | null; class: string | null }) =>
+        s.class || [s.form, s.stream].filter(Boolean).join("") || null;
+      const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
+      const linksByParent = new Map<string, typeof allLinks>();
+      for (const l of allLinks) linksByParent.set(l.parent_id, [...(linksByParent.get(l.parent_id) ?? []), l]);
+
+      // Staff records not yet linked to their login (matched by email) are linked now.
+      const toLink: { staffId: string; uid: string }[] = [];
 
       const users = allProfiles.map((p) => {
         const uid = p.user_id || p.id;
         const info = authInfo.get(uid);
+        const role = roleMap[uid] || "unknown";
+        let staff = staffByUser.get(uid);
+        if (!staff && p.email) {
+          const byEmail = staffByEmail.get(lower(p.email));
+          if (byEmail && !byEmail.user_id && role !== "student" && role !== "parent") {
+            staff = byEmail;
+            toLink.push({ staffId: byEmail.id, uid });
+          }
+        }
+        // Position and department (staff), class (students) or children (parents).
+        let position: string | null = staff?.role || null;
+        let unit: string | null = staff?.department || null;
+        if (!staff && role === "student") {
+          const st = studentByUser.get(uid) ?? studentByEmail.get(lower(p.email));
+          position = "Student";
+          unit = st ? className(st) : null;
+        } else if (!staff && role === "parent") {
+          const links = linksByParent.get(uid) ?? [];
+          const rel = links.find((l) => l.relationship)?.relationship;
+          position = rel ? cap(rel) : "Parent/Guardian";
+          const kids = links
+            .map((l) => studentById.get(l.student_id) ?? studentByUser.get(l.student_id))
+            .filter((k): k is NonNullable<typeof k> => !!k)
+            .map((k) => (className(k) ? `${k.full_name} (${className(k)})` : k.full_name));
+          unit = kids.length ? kids.join(", ") : null;
+        }
         return {
           id: uid,
           email: p.email || "",
           full_name: p.full_name || "",
-          portal_role: roleMap[uid] || "unknown",
-          staff_role: staffMap[uid]?.role || null,
-          department: staffMap[uid]?.department || null,
+          portal_role: role,
+          staff_role: position,
+          department: unit,
           created_at: info?.created_at ?? "",
           last_sign_in_at: info?.last_sign_in_at ?? null,
           must_change_password: info?.must_change_password ?? false,
           password_reset_at: info?.password_reset_at ?? null,
         };
       });
+
+      for (const { staffId, uid } of toLink) {
+        await supabaseAdmin.from("staff").update({ user_id: uid }).eq("id", staffId).is("user_id", null);
+      }
 
       return new Response(JSON.stringify({ users }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

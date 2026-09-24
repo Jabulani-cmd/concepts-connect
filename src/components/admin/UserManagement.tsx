@@ -291,7 +291,7 @@ export default function UserManagement() {
       // 3. Fetch student users from students table (optional - table may not exist in demo)
       const { data: studentsData, error: studentsError } = await supabase
         .from("students")
-        .select("id, user_id, admission_number, full_name, enrollment_date")
+        .select("id, user_id, admission_number, full_name, enrollment_date, form, stream, class")
         .not("user_id", "is", null);
       if (studentsError) console.warn("Students table unavailable:", studentsError.message);
 
@@ -300,8 +300,8 @@ export default function UserManagement() {
         email: `mhs${(s.admission_number || "").toLowerCase().replace(/^mhs/, "")}@mbsmavingtech.ac.zw`,
         full_name: s.full_name,
         portal_role: "student",
-        staff_role: undefined,
-        department: undefined,
+        staff_role: "Student",
+        department: s.class || [s.form, s.stream].filter(Boolean).join("") || undefined,
         created_at: s.enrollment_date,
       }));
 
@@ -1032,8 +1032,8 @@ export default function UserManagement() {
                       <TableHead>Name</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Portal Role</TableHead>
-                      <TableHead>Staff Position</TableHead>
-                      <TableHead>Department</TableHead>
+                      <TableHead>Position</TableHead>
+                      <TableHead>Department / Class</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
