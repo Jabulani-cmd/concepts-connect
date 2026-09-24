@@ -207,6 +207,27 @@ export type Database = {
         }
         Relationships: []
       }
+      agent_settings: {
+        Row: {
+          cron_secret: string
+          id: number
+          schedule: string
+          updated_at: string
+        }
+        Insert: {
+          cron_secret?: string
+          id?: number
+          schedule?: string
+          updated_at?: string
+        }
+        Update: {
+          cron_secret?: string
+          id?: number
+          schedule?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ai_timetable_logs: {
         Row: {
           conflicts_count: number | null
