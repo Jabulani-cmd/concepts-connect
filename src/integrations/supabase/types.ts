@@ -4230,7 +4230,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      agent_schedule_status: { Args: never; Returns: Json }
       agent_student_signals: {
         Args: { _recent_days?: number; _term_days?: number }
         Returns: {
