@@ -21,6 +21,7 @@ const DEMO_DOMAIN = "schooldemo.com";
 const DEMO_ADMIN = { email: `admin@${DEMO_DOMAIN}`, password: "Demo@2025", full_name: "Demo Administrator", role: "admin" as const };
 const ROLES = ["admin", "teacher", "student", "parent"] as const;
 const MAX_ACCOUNTS_PER_CALL = 60;
+const USER_PAGES = 10; // up to 10,000 users when looking one up by email
 
 type Role = (typeof ROLES)[number];
 type Account = {
@@ -74,32 +75,60 @@ async function upsertUser(admin: SupabaseClient, a: Account, existingId: string 
   return { id: data.user.id, created: true };
 }
 
-async function linkRecords(admin: SupabaseClient, linked: { account: Account; uid: string }[]) {
-  // Students: attach the login to the student record.
-  const students = linked.filter((l) => l.account.role === "student" && l.account.admission_number);
+/** Finds an auth user by email when no profile row points to it yet. */
+async function findUserId(admin: SupabaseClient, email: string): Promise<string | undefined> {
+  for (let page = 1; page <= USER_PAGES; page++) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
+    if (error) throw error;
+    const found = data.users.find((u) => u.email?.toLowerCase() === email.toLowerCase());
+    if (found) return found.id;
+    if (data.users.length < 1000) return undefined;
+  }
+  return undefined;
+}
+
+/** Links each login to its school record. Returns a problem per account that could not be linked. */
+async function linkRecords(admin: SupabaseClient, linked: { account: Account; uid: string }[]): Promise<Map<string, string>> {
+  const problems = new Map<string, string>();
+
+  // Students: attach the login to the student record (by admission number, else by email).
+  const students = linked.filter((l) => l.account.role === "student");
   for (const { account, uid } of students) {
-    await admin.from("students").update({ user_id: uid, email: account.email }).eq("admission_number", account.admission_number!);
+    const byAdmission = account.admission_number
+      ? await admin.from("students").update({ user_id: uid, email: account.email }).eq("admission_number", account.admission_number).select("id")
+      : { data: [], error: null };
+    if (byAdmission.error) { problems.set(account.email, `student record: ${byAdmission.error.message}`); continue; }
+    if (byAdmission.data?.length) continue;
+    const byEmail = await admin.from("students").update({ user_id: uid }).eq("email", account.email).select("id");
+    if (byEmail.error) problems.set(account.email, `student record: ${byEmail.error.message}`);
+    else if (!byEmail.data?.length) problems.set(account.email, `no student record with admission number ${account.admission_number ?? "?"} — load the demo data first`);
   }
 
   // Teachers: attach the login to the staff record.
   for (const { account, uid } of linked.filter((l) => l.account.role === "teacher")) {
-    await admin.from("staff").update({ user_id: uid }).eq("email", account.email);
+    const { data, error } = await admin.from("staff").update({ user_id: uid }).eq("email", account.email).select("id");
+    if (error) problems.set(account.email, `staff record: ${error.message}`);
+    else if (!data?.length) problems.set(account.email, "no staff record with this email — load the demo data first");
   }
 
   // Parents: link every child and open portal access for the demo.
   const parents = linked.filter((l) => l.account.role === "parent" && l.account.children?.length);
-  if (!parents.length) return;
+  if (!parents.length) return problems;
   const admissionNumbers = [...new Set(parents.flatMap((p) => p.account.children!.map((c) => c.admission_number)))];
   const { data: rows, error } = await admin.from("students").select("id, admission_number").in("admission_number", admissionNumbers);
   if (error) throw error;
   const studentId = new Map((rows ?? []).map((r) => [r.admission_number, r.id]));
 
+  for (const { account } of parents) {
+    const missing = account.children!.filter((c) => !studentId.has(c.admission_number)).map((c) => c.admission_number);
+    if (missing.length) problems.set(account.email, `no student record for ${missing.join(", ")} — load the demo data first`);
+  }
   const pairs = parents.flatMap(({ account, uid }) =>
     account.children!
       .map((c) => ({ parent_id: uid, student_id: studentId.get(c.admission_number), relationship: c.relationship ?? "Parent" }))
       .filter((p): p is { parent_id: string; student_id: string; relationship: string } => !!p.student_id),
   );
-  if (!pairs.length) return;
+  if (!pairs.length) return problems;
 
   const { error: psErr } = await admin.from("parent_students").upsert(pairs, { onConflict: "parent_id,student_id" });
   if (psErr) throw psErr;
@@ -128,6 +157,7 @@ async function linkRecords(admin: SupabaseClient, linked: { account: Account; ui
     const { error: gErr } = await admin.from("access_grants").insert(newGrants);
     if (gErr) throw gErr;
   }
+  return problems;
 }
 
 Deno.serve(async (req) => {
@@ -172,14 +202,15 @@ Deno.serve(async (req) => {
         } catch (e) {
           // The auth user exists but has no profile yet: find it, then update it.
           if (!String((e as Error).message).toLowerCase().includes("already")) throw e;
-          const { data } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
-          const found = data?.users.find((u) => u.email?.toLowerCase() === a.email.toLowerCase());
+          const found = await findUserId(admin, a.email);
           if (!found) throw e;
-          user = await upsertUser(admin, a, found.id);
+          user = await upsertUser(admin, a, found);
         }
 
-        await admin.from("user_roles").upsert({ user_id: user.id, role: a.role }, { onConflict: "user_id,role" });
-        await admin.from("profiles").upsert({ id: user.id, user_id: user.id, full_name: a.full_name, email: a.email }, { onConflict: "id" });
+        const { error: roleErr } = await admin.from("user_roles").upsert({ user_id: user.id, role: a.role }, { onConflict: "user_id,role" });
+        if (roleErr) throw new Error(`role: ${roleErr.message}`);
+        const { error: profErr } = await admin.from("profiles").upsert({ id: user.id, user_id: user.id, full_name: a.full_name, email: a.email }, { onConflict: "id" });
+        if (profErr) throw new Error(`profile: ${profErr.message}`);
         linked.push({ account: a, uid: user.id });
         results.push({ email: a.email, status: user.created ? "created" : "updated" });
       } catch (e) {
@@ -187,7 +218,11 @@ Deno.serve(async (req) => {
       }
     }
 
-    await linkRecords(admin, linked);
+    const problems = await linkRecords(admin, linked);
+    for (const r of results) {
+      const problem = problems.get(r.email);
+      if (problem && r.status !== "error") Object.assign(r, { status: "error", error: `login created but not linked: ${problem}` });
+    }
 
     return json({
       ok: true,
