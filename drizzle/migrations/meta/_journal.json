@@ -99,6 +99,13 @@
       "when": 1790239975087,
       "tag": "0013_apply_quiz_marking_teacher_scope",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1790243575087,
+      "tag": "0014_limit_class_assessment_reads",
+      "breakpoints": true
     }
   ]
 }
