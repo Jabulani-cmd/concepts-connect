@@ -31,10 +31,13 @@ export default function ParentPaymentHistory() {
   const { user } = useAuth();
   const sub = useSubscription();
   const [rows, setRows] = useState<SubscriptionPayment[]>([]);
+  const [parentName, setParentName] = useState<string>("");
 
   useEffect(() => {
     if (!user) return;
     (async () => {
+      supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle()
+        .then(({ data: prof }) => setParentName(prof?.full_name || ""));
       const { data } = await supabase
         .from("payments")
         .select("*, subscriptions(plan_type, term, academic_year, access_start, access_end, subscription_plans(name))")
@@ -112,7 +115,7 @@ export default function ParentPaymentHistory() {
                             onClick={() =>
                               downloadSubscriptionReceipt({
                                 receiptNumber: p.receipt_number,
-                                parentName: user?.email || "Parent",
+                                parentName: parentName || user?.email || "Parent",
                                 studentName: p.subscriptions?.subscription_plans?.name ? "Linked student" : "—",
                                 amount: Number(p.amount),
                                 currency: p.currency,
