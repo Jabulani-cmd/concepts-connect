@@ -6,6 +6,7 @@ import ministryLogo from "@/assets/ministry-of-education-logo.png";
 import zimsecLogo from "@/assets/zimsec-logo.png";
 import cambridgeLogo from "@/assets/cambridge-logo.png";
 import { SCHOOL_ADDRESS, SCHOOL_EMAIL, SCHOOL_PHONE, SCHOOL_PHONE_LINK } from "@/lib/school";
+import InstallAppButton from "@/components/pwa/InstallAppButton";
 
 export default function Footer() {
   const { t } = useTranslation();
@@ -98,6 +99,9 @@ export default function Footer() {
               <li className="flex items-center gap-3">
                 <Mail className="h-4 w-4 shrink-0 text-primary" />
                 <a href={`mailto:${SCHOOL_EMAIL}`} className="transition-colors hover:text-primary">{SCHOOL_EMAIL}</a>
+              </li>
+              <li>
+                <InstallAppButton className="inline-flex items-center gap-3 transition-colors hover:text-primary" />
               </li>
             </ul>
           </div>

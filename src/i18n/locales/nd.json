@@ -483,5 +483,21 @@
     "contact": "Xhumana Lathi",
     "aboutUs": "Ngathi",
     "rights": "Wonke amalungelo agodliwe."
+  },
+  "pwa": {
+    "installTitle": "Faka i-app yeMavingTech",
+    "installBody": "Faka i-portal yesikolo esikrinini sakho ukuze uyithole masinyane, lanxa inethiwekhi ihamba kancane.",
+    "install": "Faka",
+    "notNow": "Hatshi khathesi",
+    "gotIt": "Ngizwisisile",
+    "installLink": "Faka i-app",
+    "iosTitle": "Faka esikrinini sakho",
+    "iosStep1": "Thinta inkinobho ethi Share ku-Safari",
+    "iosStep2": "Khetha “Add to Home Screen”",
+    "iosStep3": "Thinta “Add” — uphawu lwe-app luvela esikrinini sakho",
+    "updateReady": "Kulenguqulo entsha ye-app.",
+    "update": "Buyekeza khathesi",
+    "offline": "Awuxhumananga le-inthanethi. Amakhasi owake wawavula asasebenza; ukuntshintsha kudinga i-inthanethi.",
+    "installed": "I-app ifakiwe"
   }
 }

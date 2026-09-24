@@ -483,5 +483,21 @@
     "contact": "Taura Nesu",
     "aboutUs": "Nezvedu",
     "rights": "Kodzero dzose dzakachengetedzwa."
+  },
+  "pwa": {
+    "installTitle": "Isa app yeMavingTech",
+    "installBody": "Isa portal yechikoro pascreen yako kuti uiwane nekukurumidza, kunyangwe netiweki inononoka.",
+    "install": "Isa",
+    "notNow": "Kwete zvino",
+    "gotIt": "Ndanzwisisa",
+    "installLink": "Isa app",
+    "iosTitle": "Isa pascreen yako",
+    "iosStep1": "Dzvanya bhatani reShare muSafari",
+    "iosStep2": "Sarudza “Add to Home Screen”",
+    "iosStep3": "Dzvanya “Add” — chiratidzo che app chinobuda pascreen yako",
+    "updateReady": "Pane shanduro itsva ye app.",
+    "update": "Vandudza zvino",
+    "offline": "Hauna kubatana neinternet. Mapeji awakamboona achiri kushanda; kuchinja kunoda internet.",
+    "installed": "App yaiswa"
   }
 }

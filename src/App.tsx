@@ -11,6 +11,7 @@ import ScrollToTop from "@/components/ScrollToTop";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AuthenticatedLayout from "@/components/layout/AuthenticatedLayout";
 import SiteTranslator from "@/components/i18n/SiteTranslator";
+import PwaPrompts from "@/components/pwa/PwaPrompts";
 import Index from "./pages/Index";
 
 // Route pages are code-split so visitors only download the screens they open.
@@ -77,6 +78,7 @@ const App = () => (
           <DemoPeopleProvider>
           <ScrollToTop />
           <SiteTranslator />
+          <PwaPrompts />
           <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<Index />} />

@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
+import { VitePWA } from "vite-plugin-pwa";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -17,7 +18,94 @@ export default defineConfig(({ mode }) => ({
     host: true,
     port: 4173,
   },
-  plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
+  plugins: [
+    react(),
+    mode === "development" && componentTagger(),
+    VitePWA({
+      // The app asks before switching to a new version (see UpdatePrompt).
+      registerType: "prompt",
+      injectRegister: false,
+      includeAssets: ["favicon.ico", "favicon.png", "icons/apple-touch-icon.png"],
+      manifest: {
+        id: "/",
+        name: "MavingTech High School",
+        short_name: "MavingTech",
+        description: "MavingTech High School portal for students, parents, teachers and staff.",
+        start_url: "/",
+        scope: "/",
+        display: "standalone",
+        orientation: "any",
+        background_color: "#ffffff",
+        theme_color: "#6237f1",
+        lang: "en",
+        categories: ["education"],
+        icons: [
+          { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+          { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+          { src: "/icons/icon-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+        ],
+        shortcuts: [
+          { name: "Portal login", short_name: "Login", url: "/login", icons: [{ src: "/icons/icon-192.png", sizes: "192x192" }] },
+          { name: "Pay fees online", short_name: "Pay fees", url: "/pay-online", icons: [{ src: "/icons/icon-192.png", sizes: "192x192" }] },
+        ],
+      },
+      workbox: {
+        // Download only the app shell up front (mobile data is expensive); every other
+        // screen and image is saved the first time it is opened.
+        // (Icons and favicons are added through includeAssets and the manifest.)
+        globPatterns: ["index.html", "assets/app-*.js", "assets/*.css", "assets/{react,supabase,query,motion}-*.js"],
+        navigateFallback: "/index.html",
+        navigateFallbackDenylist: [/^\/~/, /\/[^/?]+\.[^/]+$/],
+        cleanupOutdatedCaches: true,
+        runtimeCaching: [
+          {
+            // Built files have content hashes in their names, so they never change.
+            urlPattern: ({ sameOrigin, url }) => sameOrigin && url.pathname.startsWith("/assets/"),
+            handler: "CacheFirst",
+            options: {
+              cacheName: "app-files",
+              expiration: { maxEntries: 250, maxAgeSeconds: 60 * 60 * 24 * 60 },
+              cacheableResponse: { statuses: [200] },
+            },
+          },
+          {
+            urlPattern: ({ sameOrigin, request }) => sameOrigin && request.destination === "image",
+            handler: "CacheFirst",
+            options: {
+              cacheName: "images",
+              expiration: { maxEntries: 150, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              cacheableResponse: { statuses: [200] },
+            },
+          },
+          {
+            // Public website pictures (news, gallery). Private files and all school data
+            // always come from the network and are never stored on the device.
+            urlPattern: ({ url }) => url.hostname.endsWith(".supabase.co") && url.pathname.startsWith("/storage/v1/object/public/"),
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "public-media",
+              expiration: { maxEntries: 150, maxAgeSeconds: 60 * 60 * 24 * 7 },
+              cacheableResponse: { statuses: [200] },
+            },
+          },
+          {
+            urlPattern: ({ url }) => url.origin === "https://fonts.googleapis.com",
+            handler: "StaleWhileRevalidate",
+            options: { cacheName: "font-styles" },
+          },
+          {
+            urlPattern: ({ url }) => url.origin === "https://fonts.gstatic.com",
+            handler: "CacheFirst",
+            options: {
+              cacheName: "fonts",
+              expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+        ],
+      },
+    }),
+  ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -31,6 +119,8 @@ export default defineConfig(({ mode }) => ({
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
+        // A distinct name for the app's entry file, so the service worker can pre-download it.
+        entryFileNames: "assets/app-[hash].js",
         // Keep large, rarely-changing libraries in their own cacheable chunks.
         manualChunks: {
           react: ["react", "react-dom", "react-router-dom"],
