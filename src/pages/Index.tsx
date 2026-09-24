@@ -28,7 +28,7 @@ const heroImages = [hero1, hero2, hero3, hero4, hero5];
 const DirectorPhoto = forwardRef<HTMLDivElement>(function DirectorPhoto(_props, ref) {
   return (
     <div ref={ref} className="relative">
-      <img src={principalPhoto} alt="Mr. S.M. Moyo, Principal" className="aspect-[4/5] w-full rounded-lg object-cover object-top shadow-xl" />
+      <img src={principalPhoto} alt="Mr. F.J. Moyo, Principal" className="aspect-[4/5] w-full rounded-lg object-cover object-top shadow-xl" />
     </div>
   );
 });
