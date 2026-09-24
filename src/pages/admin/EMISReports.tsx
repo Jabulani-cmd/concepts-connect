@@ -14,6 +14,7 @@ import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { SCHOOL_LOGO_URL, SCHOOL_NAME, urlToDataUrl } from "@/lib/finance/pdf";
 import { DEFAULT_FORM, FORM_LEVELS } from "@/lib/forms";
+import { SCHOOL_CONTACT_LINE } from "@/lib/school";
 
 const CHART_COLORS = ["hsl(var(--primary))", "hsl(var(--accent))", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
 
@@ -176,15 +177,17 @@ export default function EMISReports() {
     doc.text("MINISTRY OF PRIMARY AND SECONDARY EDUCATION", pageWidth / 2, 15, { align: "center" });
     doc.setFontSize(11);
     doc.text(SCHOOL_NAME.toUpperCase(), pageWidth / 2, 22, { align: "center" });
-    doc.setFontSize(9);
+    doc.setFontSize(8);
     doc.setFont("helvetica", "normal");
-    doc.text(`EMIS ${reportType} Report — Academic Year ${academicYear}`, pageWidth / 2, 28, { align: "center" });
-    doc.text(`Generated: ${new Date().toLocaleDateString()}`, pageWidth / 2, 33, { align: "center" });
-    doc.line(14, 36, pageWidth - 14, 36);
+    doc.text(SCHOOL_CONTACT_LINE, pageWidth / 2, 27, { align: "center" });
+    doc.setFontSize(9);
+    doc.text(`EMIS ${reportType} Report — Academic Year ${academicYear}`, pageWidth / 2, 32, { align: "center" });
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, pageWidth / 2, 36, { align: "center" });
+    doc.line(14, 39, pageWidth - 14, 39);
 
     if (reportType === "Student Enrollment") {
       autoTable(doc, {
-        startY: 42,
+        startY: 45,
         head: [["Form Level", "Male", "Female", "Total"]],
         body: [
           ...enrollmentData.map(r => [r.form, r.male, r.female, r.total]),
@@ -196,7 +199,7 @@ export default function EMISReports() {
       });
     } else if (reportType === "Staff Returns") {
       autoTable(doc, {
-        startY: 42,
+        startY: 45,
         head: [["Category", "Count", "Qualified", "% Qualified"]],
         body: [
           ...staffData.map(r => [r.category, r.count, r.qualified, r.count > 0 ? `${Math.round((r.qualified / r.count) * 100)}%` : "0%"]),
@@ -211,7 +214,7 @@ export default function EMISReports() {
       doc.text(`Teacher-Student Ratio: 1:${staffSummary.teaching > 0 ? Math.round(totalStudents / staffSummary.teaching) : "N/A"}`, 14, finalY + 10);
     } else if (reportType === "Infrastructure") {
       autoTable(doc, {
-        startY: 42,
+        startY: 45,
         head: [["Facility", "Count/Quantity"]],
         body: [
           ["Classrooms", infraData.classrooms],

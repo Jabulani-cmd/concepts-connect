@@ -3,13 +3,10 @@ import autoTable from "jspdf-autotable";
 import { formatMoney } from "@/lib/currency";
 import { safeHtml } from "@/lib/utils";
 import { paymentMethodLabel } from "./paymentMethods";
+import { SCHOOL_NAME, SCHOOL_MOTTO, SCHOOL_ADDRESS, SCHOOL_PHONE, SCHOOL_EMAIL, SCHOOL_CONTACT_LINE, SCHOOL_PHONE_EMAIL_LINE } from "@/lib/school";
 
 // School branding constants (Zimbabwean context)
-export const SCHOOL_NAME = "MavingTech Business Solutions";
-export const SCHOOL_MOTTO = "Empowering Your Business Through Technology";
-export const SCHOOL_ADDRESS = "123 Samora Machel Avenue, Harare, Zimbabwe";
-export const SCHOOL_PHONE = "+263 24 255 0123";
-export const SCHOOL_EMAIL = "info@mbsmavingtech.ac.zw";
+export { SCHOOL_NAME, SCHOOL_MOTTO, SCHOOL_ADDRESS, SCHOOL_PHONE, SCHOOL_EMAIL, SCHOOL_CONTACT_LINE, SCHOOL_PHONE_EMAIL_LINE } from "@/lib/school";
 // Use an absolute URL so the logo resolves inside print windows (about:blank)
 // and any other context that doesn't share the app's base URL.
 export const SCHOOL_LOGO_PATH = "/images/school-logo-print.png";
@@ -213,7 +210,7 @@ export function buildInvoiceHtml(input: InvoicePdfInput): string {
       <div class="brand-text">
         <h1>${safeHtml(name)}</h1>
         <div class="motto">"${safeHtml(motto)}"</div>
-        <div class="address">${safeHtml(SCHOOL_ADDRESS)} | Tel: ${safeHtml(SCHOOL_PHONE)}</div>
+        <div class="address">${safeHtml(SCHOOL_ADDRESS)}<br/>${safeHtml(SCHOOL_PHONE_EMAIL_LINE)}</div>
       </div>
     </div>
     <div class="invoice-title">
@@ -251,7 +248,7 @@ export function buildInvoiceHtml(input: InvoicePdfInput): string {
 
   <div class="footer">
     <p>Generated: ${new Date().toLocaleString()} | This is a computer-generated document.</p>
-    <p>${safeHtml(name)} | ${safeHtml(SCHOOL_ADDRESS)}</p>
+    <p>${safeHtml(name)} | ${safeHtml(SCHOOL_CONTACT_LINE)}</p>
   </div>
 </body>
 </html>`;
@@ -312,7 +309,7 @@ export function buildReceiptHtml(input: ReceiptPrintInput) {
       <div class="brand-text">
         <h1>${safeHtml(name)}</h1>
         <div class="motto">"${safeHtml(motto)}"</div>
-        <div class="address">${safeHtml(SCHOOL_ADDRESS)} | Tel: ${safeHtml(SCHOOL_PHONE)}</div>
+        <div class="address">${safeHtml(SCHOOL_ADDRESS)}<br/>${safeHtml(SCHOOL_PHONE_EMAIL_LINE)}</div>
       </div>
     </div>
     <div class="receipt-title">
@@ -351,7 +348,7 @@ export function buildReceiptHtml(input: ReceiptPrintInput) {
   <p class="muted" style="margin-top: 16px;">Thank you for your payment. Please keep this receipt for your records.</p>
 
   <div class="footer">
-    <p>This is a computer-generated receipt. | ${safeHtml(name)} | ${safeHtml(SCHOOL_ADDRESS)}</p>
+    <p>This is a computer-generated receipt. | ${safeHtml(name)} | ${safeHtml(SCHOOL_CONTACT_LINE)}</p>
   </div>
 </body>
 </html>`;
@@ -425,7 +422,7 @@ export function buildStatementHtml(input: StatementPrintInput) {
     <div>
       <h1>${safeHtml(SCHOOL_NAME)}</h1>
       <div class="motto">"${safeHtml(SCHOOL_MOTTO)}"</div>
-      <div class="address">${safeHtml(SCHOOL_ADDRESS)} | Tel: ${safeHtml(SCHOOL_PHONE)}</div>
+      <div class="address">${safeHtml(SCHOOL_ADDRESS)}<br/>${safeHtml(SCHOOL_PHONE_EMAIL_LINE)}</div>
     </div>
   </div>
   <div class="divider"></div>
@@ -450,7 +447,7 @@ export function buildStatementHtml(input: StatementPrintInput) {
 
 
   <div class="footer">
-    <p>This is a computer-generated statement. | ${safeHtml(SCHOOL_NAME)} | ${safeHtml(SCHOOL_ADDRESS)}</p>
+    <p>This is a computer-generated statement. | ${safeHtml(SCHOOL_NAME)} | ${safeHtml(SCHOOL_CONTACT_LINE)}</p>
   </div>
 </body>
 </html>`;
@@ -555,7 +552,7 @@ export function buildIncomeExpenditureHtml(input: IncomeExpenditureInput): strin
     <div>
       <h1>${safeHtml(SCHOOL_NAME)}</h1>
       <div class="motto">"${safeHtml(SCHOOL_MOTTO)}"</div>
-      <div class="address">${safeHtml(SCHOOL_ADDRESS)} &nbsp;|&nbsp; Tel: ${safeHtml(SCHOOL_PHONE)} &nbsp;|&nbsp; Email: ${safeHtml(SCHOOL_EMAIL)}</div>
+      <div class="address">${safeHtml(SCHOOL_ADDRESS)}<br/>${safeHtml(SCHOOL_PHONE_EMAIL_LINE)}</div>
     </div>
   </div>
   <div class="divider"></div>
@@ -668,7 +665,7 @@ export function buildExpensesListHtml(input: ExpensesListInput): string {
     <div>
       <h1>${safeHtml(SCHOOL_NAME)}</h1>
       <div class="motto">"${safeHtml(SCHOOL_MOTTO)}"</div>
-      <div class="address">${safeHtml(SCHOOL_ADDRESS)} &nbsp;|&nbsp; Tel: ${safeHtml(SCHOOL_PHONE)} &nbsp;|&nbsp; Email: ${safeHtml(SCHOOL_EMAIL)}</div>
+      <div class="address">${safeHtml(SCHOOL_ADDRESS)}<br/>${safeHtml(SCHOOL_PHONE_EMAIL_LINE)}</div>
     </div>
   </div>
   <div class="divider"></div>

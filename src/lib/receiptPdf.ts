@@ -1,7 +1,8 @@
 // Simple HTML→print-window receipt generator (US$).
 import { openPrintWindow } from "@/lib/finance/print";
-import { SCHOOL_LOGO_URL } from "@/lib/finance/pdf";
-import { formatMoney, CITY, COUNTRY } from "@/lib/currency";
+import { SCHOOL_LOGO_URL, SCHOOL_NAME } from "@/lib/finance/pdf";
+import { formatMoney } from "@/lib/currency";
+import { SCHOOL_ADDRESS, SCHOOL_CONTACT_LINE, SCHOOL_PHONE_EMAIL_LINE } from "@/lib/school";
 
 interface ReceiptData {
   receiptNumber: string;
@@ -43,7 +44,8 @@ export function buildSubscriptionReceiptHtml(r: ReceiptData) {
   <div class="head">
     <img src="${SCHOOL_LOGO_URL}" alt="School Logo" />
     <div>
-      <h1>MavingTech Business Solutions</h1>
+      <h1>${SCHOOL_NAME}</h1>
+      <div class="sub">${SCHOOL_ADDRESS}<br/>${SCHOOL_PHONE_EMAIL_LINE}</div>
       <div class="sub">Official Subscription Receipt</div>
     </div>
   </div>
@@ -65,7 +67,7 @@ export function buildSubscriptionReceiptHtml(r: ReceiptData) {
 
   <div class="footer">
     Thank you for supporting your child's learning journey.<br/>
-    MavingTech Business Solutions · ${CITY}, ${COUNTRY} · info@mavingtech.com
+    ${SCHOOL_NAME} · ${SCHOOL_CONTACT_LINE}
   </div>
   </body></html>`;
 }

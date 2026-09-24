@@ -1,4 +1,5 @@
 // Timetable shared helpers: period generation, color assignment, conflict detection.
+import { SCHOOL_CONTACT_LINE, SCHOOL_NAME } from "@/lib/school";
 
 export interface SlotRow {
   id?: string;
@@ -199,10 +200,14 @@ export function printableTimetableHtml(
   return `<html><head><title>${defName}</title><style>
     body{font-family:system-ui,Segoe UI,Roboto,sans-serif;padding:24px}
     h1{margin:0 0 16px}
+    .school{margin:0 0 12px;padding-bottom:8px;border-bottom:2px solid #0f172a}
+    .school strong{font-size:16px}
+    .school div{font-size:12px;color:#475569}
     table{border-collapse:collapse;width:100%}
     th{padding:8px;background:#0f172a;color:white;text-align:left;border:1px solid #0f172a}
     @media print { @page { size: landscape; } }
   </style></head><body>
+    <div class="school"><strong>${SCHOOL_NAME}</strong><div>${SCHOOL_CONTACT_LINE}</div></div>
     <h1>${defName}</h1>
     <table>
       <thead><tr><th>Time</th>${schoolDays.map((d) => `<th>${dayName(d)}</th>`).join("")}</tr></thead>

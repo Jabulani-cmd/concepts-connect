@@ -5,6 +5,7 @@ import schoolLogo from "@/assets/mavingtech-logo.png";
 import ministryLogo from "@/assets/ministry-of-education-logo.png";
 import zimsecLogo from "@/assets/zimsec-logo.png";
 import cambridgeLogo from "@/assets/cambridge-logo.png";
+import { SCHOOL_ADDRESS, SCHOOL_EMAIL, SCHOOL_PHONE, SCHOOL_PHONE_LINK } from "@/lib/school";
 
 export default function Footer() {
   const { t } = useTranslation();
@@ -88,15 +89,15 @@ export default function Footer() {
             <ul className="space-y-3 text-sm text-white/70">
               <li className="flex items-start gap-3">
                 <MapPin className="h-4 w-4 shrink-0 text-primary mt-0.5" />
-                <span>Harare, Zimbabwe</span>
+                <span>{SCHOOL_ADDRESS}</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="h-4 w-4 shrink-0 text-primary" />
-                <span>+263 24 255 0123</span>
+                <a href={SCHOOL_PHONE_LINK} className="transition-colors hover:text-primary">{SCHOOL_PHONE}</a>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="h-4 w-4 shrink-0 text-primary" />
-                <span>info@mavingtech.com</span>
+                <a href={`mailto:${SCHOOL_EMAIL}`} className="transition-colors hover:text-primary">{SCHOOL_EMAIL}</a>
               </li>
             </ul>
           </div>
