@@ -175,7 +175,7 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="container flex items-center justify-between gap-4 py-3">
         {/* Logo left */}
-        <Link to="/" className="flex min-w-0 flex-shrink-0 items-center gap-4 2xl:gap-5">
+        <Link to="/" className="flex min-w-0 flex-shrink-0 items-center gap-4 rounded-lg outline-none transition-opacity focus-visible:opacity-70 2xl:gap-5">
           <img
             src={schoolLogo}
             alt="MavingTech High School"
