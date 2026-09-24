@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import hero from "@/assets/hero-students-5.jpg";
+import { SCHOOL_ADDRESS, SCHOOL_EMAIL, SCHOOL_PHONE } from "@/lib/school";
 
 const contactSchema = z.object({
   name: z.string().trim().min(1).max(100),
@@ -118,9 +119,9 @@ export default function Contact() {
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              { icon: MapPin, title: t("contact.cards.address"), text: t("contact.cards.addressText") },
-              { icon: Phone, title: t("contact.cards.phone"), text: "+263 24 255 0123" },
-              { icon: Mail, title: t("contact.cards.email"), text: "info@mavingtech.com" },
+              { icon: MapPin, title: t("contact.cards.address"), text: SCHOOL_ADDRESS },
+              { icon: Phone, title: t("contact.cards.phone"), text: SCHOOL_PHONE },
+              { icon: Mail, title: t("contact.cards.email"), text: SCHOOL_EMAIL },
               { icon: Clock, title: t("contact.cards.hours"), text: t("contact.cards.hoursText") },
             ].map((item, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1, duration: 0.6 }}

@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { FileDown, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { downloadHtmlDocument } from "@/lib/finance/print";
-import { SCHOOL_ADDRESS, SCHOOL_LOGO_URL, SCHOOL_MOTTO, SCHOOL_NAME, SCHOOL_PHONE } from "@/lib/finance/pdf";
+import { SCHOOL_LOGO_URL, SCHOOL_MOTTO, SCHOOL_NAME } from "@/lib/finance/pdf";
+import { SCHOOL_ADDRESS, SCHOOL_CONTACT_LINE, SCHOOL_PHONE_EMAIL_LINE } from "@/lib/school";
 import { GRADE_BANDS } from "@/lib/grading";
 
 interface ResultRow {
@@ -85,6 +86,7 @@ export default function ReportCardDownloadButton(props: ReportCardProps) {
   .school-logo { width: 86px; height: 86px; object-fit: contain; margin: 0 auto 6px; display: block; }
   .school-name { font-size: 22pt; font-weight: bold; color: #1a5276; letter-spacing: 1px; text-transform: uppercase; }
   .school-motto { font-size: 9pt; color: #555; font-style: italic; margin-top: 2px; }
+  .school-contact { font-size: 8pt; color: #555; margin-top: 3px; }
   .report-title { font-size: 14pt; font-weight: bold; margin-top: 10px; color: #2c3e50; text-transform: uppercase; letter-spacing: 2px; border: 2px solid #1a5276; display: inline-block; padding: 4px 20px; }
 
   /* Student Info */
@@ -145,6 +147,7 @@ export default function ReportCardDownloadButton(props: ReportCardProps) {
     <img class="school-logo" src="${SCHOOL_LOGO_URL}" alt="${SCHOOL_NAME} logo" />
     <div class="school-name">${SCHOOL_NAME}</div>
     <div class="school-motto">"${SCHOOL_MOTTO}"</div>
+    <div class="school-contact">${SCHOOL_ADDRESS}<br/>${SCHOOL_PHONE_EMAIL_LINE}</div>
     <div class="report-title">Termly Report Card</div>
   </div>
 
@@ -224,7 +227,7 @@ export default function ReportCardDownloadButton(props: ReportCardProps) {
   </div>
 
   <div class="footer">
-    <p>${SCHOOL_NAME} · ${SCHOOL_ADDRESS} · Tel: ${SCHOOL_PHONE}</p>
+    <p>${SCHOOL_NAME} · ${SCHOOL_CONTACT_LINE}</p>
     <p>Generated on ${new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</p>
   </div>
 </div>

@@ -20,6 +20,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Send, ExternalLink, Loader2 } from "lucide-react";
 import { downloadHtmlDocument } from "@/lib/finance/print";
+import { SCHOOL_ADDRESS, SCHOOL_EMAIL, SCHOOL_PHONE } from "@/lib/school";
 
 interface Props {
   open: boolean;
@@ -50,7 +51,7 @@ export default function EmailDocumentDialog({
   const [cc, setCc] = useState("");
   const [subject, setSubject] = useState(defaultSubject);
   const [message, setMessage] = useState(
-    `Dear recipient,\n\nPlease find attached your ${documentLabel} from MavingTech Business Solutions.\n\nFor any queries please contact the bursar's office.\n\nKind regards,\nBursar's Office`,
+    `Dear recipient,\n\nPlease find attached your ${documentLabel} from MavingTech Business Solutions.\n\nFor any queries please contact the bursar's office.\n\nKind regards,\nBursar's Office\n${SCHOOL_ADDRESS}\nTel: ${SCHOOL_PHONE} | Email: ${SCHOOL_EMAIL}`,
   );
   const [sending, setSending] = useState(false);
 

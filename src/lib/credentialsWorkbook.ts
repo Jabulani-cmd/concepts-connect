@@ -1,6 +1,7 @@
 import type { Teacher, Subject, SchoolClass } from "@/contexts/AllocationContext";
 import type { DemoStudent, DemoParent } from "@/lib/demoSeeder";
 import { DEMO_EMAIL_DOMAIN, DEMO_PASSWORDS } from "@/lib/demoSeeder";
+import { SCHOOL_CONTACT_LINE } from "@/lib/school";
 
 export interface CredentialsInput {
   schoolName: string;
@@ -44,6 +45,9 @@ export async function buildCredentialsWorkbook(input: CredentialsInput): Promise
   ov.mergeCells("B3:D3");
   ov.getCell("B3").value = `Generated ${generated}. Demo accounts only — keep this file private.`;
   ov.getCell("B3").font = { italic: true, size: 10, color: { argb: "FF6B7280" } };
+  ov.mergeCells("B4:D4");
+  ov.getCell("B4").value = SCHOOL_CONTACT_LINE;
+  ov.getCell("B4").font = { size: 10, color: { argb: "FF6B7280" } };
 
   const summary: [string, string | number, string][] = [
     ["Sign-in page", input.loginUrl, ""],

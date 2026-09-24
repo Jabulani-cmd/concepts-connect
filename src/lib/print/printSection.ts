@@ -7,10 +7,8 @@ import {
   SCHOOL_LOGO_URL,
   SCHOOL_NAME,
   SCHOOL_MOTTO,
-  SCHOOL_ADDRESS,
-  SCHOOL_PHONE,
-  SCHOOL_EMAIL,
 } from "@/lib/finance/pdf";
+import { SCHOOL_ADDRESS, SCHOOL_CONTACT_LINE, SCHOOL_PHONE_EMAIL_LINE } from "@/lib/school";
 
 export interface BrandedDocOptions {
   title: string;
@@ -59,7 +57,7 @@ export function buildBrandedHtml({ title, subtitle, bodyHtml }: BrandedDocOption
   <div class="school">
     <h1>${escapeHtml(SCHOOL_NAME)}</h1>
     <div class="motto">${escapeHtml(SCHOOL_MOTTO)}</div>
-    <div class="contact">${escapeHtml(SCHOOL_ADDRESS)} · ${escapeHtml(SCHOOL_PHONE)} · ${escapeHtml(SCHOOL_EMAIL)}</div>
+    <div class="contact">${escapeHtml(SCHOOL_ADDRESS)}<br/>${escapeHtml(SCHOOL_PHONE_EMAIL_LINE)}</div>
   </div>
 </div>
 <div class="doc-title">
@@ -68,7 +66,7 @@ export function buildBrandedHtml({ title, subtitle, bodyHtml }: BrandedDocOption
 </div>
 <div class="doc-meta">Generated ${dateStr}</div>
 <div class="doc-body">${bodyHtml}</div>
-<div class="doc-footer">${escapeHtml(SCHOOL_NAME)} · Official portal document</div>
+<div class="doc-footer">${escapeHtml(SCHOOL_NAME)} · ${escapeHtml(SCHOOL_CONTACT_LINE)} · Official portal document</div>
 </body></html>`;
 }
 

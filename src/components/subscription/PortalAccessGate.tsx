@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useSubscription } from "@/hooks/useSubscription";
+import { SCHOOL_EMAIL } from "@/lib/school";
 
 /**
  * Full-page portal gate. Shows a blurred preview of `children` and a
@@ -64,7 +65,7 @@ export default function PortalAccessGate({
                   Already paid?{" "}
                   <Link to="/portal/parent/payments" className="underline">Check payment status</Link>
                   {" · "}
-                  Or <a className="underline" href="mailto:info@mavingtech.com">contact admin</a>
+                  Or <a className="underline" href={`mailto:${SCHOOL_EMAIL}`}>contact admin</a>
                 </div>
               </>
             )}
