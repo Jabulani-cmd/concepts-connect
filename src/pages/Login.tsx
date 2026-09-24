@@ -13,6 +13,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { errorMessage } from "@/lib/errors";
+import { DEMO_EMAIL_DOMAIN, DEMO_PASSWORDS } from "@/lib/demoAccounts";
 
 export default function Login() {
   const { t } = useTranslation();
@@ -30,8 +31,8 @@ export default function Login() {
     try {
       const { error } = await supabase.functions.invoke("seed-demo-accounts", { body: {} });
       if (error) throw error;
-      setEmail("admin@schooldemo.com");
-      setPassword("Demo@2025");
+      setEmail(`admin@${DEMO_EMAIL_DOMAIN}`);
+      setPassword(DEMO_PASSWORDS.admin);
       toast({ title: "Demo admin ready", description: "Credentials pre-filled — click Sign In." });
     } catch (e) {
       toast({ title: "Could not provision demo admin", description: errorMessage(e, "Unknown error"), variant: "destructive" });
