@@ -2888,21 +2888,15 @@ export type Database = {
       }
       staff: {
         Row: {
-          address: string | null
-          bank_details: string | null
           bio: string | null
           category: string
           created_at: string
           date_joined: string | null
           department: string | null
           email: string | null
-          emergency_contact: string | null
           employment_date: string | null
           full_name: string
           id: string
-          national_id: string | null
-          nssa_number: string | null
-          paye_number: string | null
           phone: string | null
           photo_url: string | null
           qualifications: string | null
@@ -2915,21 +2909,15 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
-          address?: string | null
-          bank_details?: string | null
           bio?: string | null
           category?: string
           created_at?: string
           date_joined?: string | null
           department?: string | null
           email?: string | null
-          emergency_contact?: string | null
           employment_date?: string | null
           full_name: string
           id?: string
-          national_id?: string | null
-          nssa_number?: string | null
-          paye_number?: string | null
           phone?: string | null
           photo_url?: string | null
           qualifications?: string | null
@@ -2942,21 +2930,15 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
-          address?: string | null
-          bank_details?: string | null
           bio?: string | null
           category?: string
           created_at?: string
           date_joined?: string | null
           department?: string | null
           email?: string | null
-          emergency_contact?: string | null
           employment_date?: string | null
           full_name?: string
           id?: string
-          national_id?: string | null
-          nssa_number?: string | null
-          paye_number?: string | null
           phone?: string | null
           photo_url?: string | null
           qualifications?: string | null
@@ -2969,6 +2951,47 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      staff_private: {
+        Row: {
+          address: string | null
+          bank_details: string | null
+          emergency_contact: string | null
+          national_id: string | null
+          nssa_number: string | null
+          paye_number: string | null
+          staff_id: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          bank_details?: string | null
+          emergency_contact?: string | null
+          national_id?: string | null
+          nssa_number?: string | null
+          paye_number?: string | null
+          staff_id: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          bank_details?: string | null
+          emergency_contact?: string | null
+          national_id?: string | null
+          nssa_number?: string | null
+          paye_number?: string | null
+          staff_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_private_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: true
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       student_classes: {
         Row: {
@@ -4062,6 +4085,16 @@ export type Database = {
       delete_student_cascade: {
         Args: { _student_id: string }
         Returns: undefined
+      }
+      get_contact_directory: {
+        Args: { _limit?: number; _search?: string }
+        Returns: {
+          avatar_url: string
+          email: string
+          full_name: string
+          id: string
+          role: string
+        }[]
       }
       get_exam_rankings: {
         Args: { p_exam_id: string; p_student_id: string }
