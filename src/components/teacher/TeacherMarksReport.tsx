@@ -88,7 +88,7 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
       const studentIds = Array.from(new Set((scRows || []).map((r) => r.student_id)));
       if (studentIds.length === 0) { setRows([]); return; }
 
-      // 3. Student details — fetched separately, not via embedded join
+      // 3. Student details - fetched separately, not via embedded join
       const { data: studentRows, error: stErr } = await supabase
         .from("students")
         .select("id, full_name, admission_number, form, class")
@@ -116,7 +116,7 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
       const assessMap = new Map((assessments || []).map((a) => [a.id, a]));
       const assessIds = (assessments || []).map((a) => a.id);
 
-      // 6. AI/teacher-graded assessment results — separately, not embedded.
+      // 6. AI/teacher-graded assessment results - separately, not embedded.
       //    Scores live in `mark`; `percentage`, `grade` and `is_published` are set
       //    when the teacher (or the auto-marker) grades the submission.
       let arRows: AssessmentResultRow[] = [];
@@ -138,14 +138,14 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
         return {
           id: `m-${m.id}`,
           source: "manual",
-          student: st?.full_name || "—",
-          admission: st?.admission_number || "—",
-          grade: st?.form || st?.class || "—",
-          subject: subjectMap.get(m.subject_id) || "—",
+          student: st?.full_name || "-",
+          admission: st?.admission_number || "-",
+          grade: st?.form || st?.class || "-",
+          subject: subjectMap.get(m.subject_id) || "-",
           subjectId: m.subject_id,
-          description: m.comment || "—",
-          type: m.assessment_type || "—",
-          term: m.term || "—",
+          description: m.comment || "-",
+          type: m.assessment_type || "-",
+          term: m.term || "-",
           scoreLabel: `${m.mark}%`,
           percent: Number(m.mark) || 0,
           created_at: m.created_at,
@@ -162,14 +162,14 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
         return {
           id: `r-${r.id}`,
           source: r.graded_by ? "teacher" : "ai",
-          student: st?.full_name || "—",
-          admission: st?.admission_number || "—",
-          grade: st?.form || st?.class || "—",
-          subject: subjectMap.get(a?.subject_id) || "—",
+          student: st?.full_name || "-",
+          admission: st?.admission_number || "-",
+          grade: st?.form || st?.class || "-",
+          subject: subjectMap.get(a?.subject_id) || "-",
           subjectId: a?.subject_id || null,
           description: a?.title || "Assessment",
           type: a?.assessment_type || "assessment",
-          term: "—",
+          term: "-",
           scoreLabel: max > 0 ? `${r.mark}/${max}` : `${r.mark}`,
           percent: pct,
           created_at: r.created_at,
@@ -297,7 +297,7 @@ export default function TeacherMarksReport({ userId, classes, subjects }: Props)
       </Card>
 
       <PrintableSection
-        title={`Marks Report — ${className}`}
+        title={`Marks Report: ${className}`}
         subtitle={subtitle}
         fileName={`marks-${className}`.replace(/\s+/g, "-").toLowerCase()}
       >

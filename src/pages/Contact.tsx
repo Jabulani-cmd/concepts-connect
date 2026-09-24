@@ -45,12 +45,12 @@ type ContactForm = z.infer<typeof contactSchema>;
 type AppointmentForm = z.infer<typeof appointmentSchema>;
 
 const authorities = [
-  "Principal — Mrs. B. Dewa",
+  "Principal: Mrs. B. Dewa",
   "Deputy Principal",
-  "Head of Department — Sciences",
-  "Head of Department — Languages",
-  "Head of Department — Humanities",
-  "Head of Department — Commercials",
+  "Head of Department: Sciences",
+  "Head of Department: Languages",
+  "Head of Department: Humanities",
+  "Head of Department: Commercials",
   "Senior Teacher",
   "Bursar / Finance",
   "Admissions Office",
@@ -99,7 +99,7 @@ export default function Contact() {
     const { error } = await supabase.from("contact_messages").insert({
       name: data.name,
       email: data.email,
-      subject: `Appointment request — ${data.authority}`,
+      subject: `Appointment request: ${data.authority}`,
       message: details,
     });
     if (error) toast({ title: t("common.error"), variant: "destructive" });

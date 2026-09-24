@@ -45,7 +45,7 @@ type Step = "plans" | "method" | "card" | "eft" | "gateway" | "qr" | "success" |
 
 type Outcome = "auto" | "approve" | "insufficient" | "declined";
 
-// Mock Paynow Zimbabwe test cards — a card number ending in an odd digit fails.
+// Mock Paynow Zimbabwe test cards - a card number ending in an odd digit fails.
 function isTestCardApproved(number: string) {
   const digits = number.replace(/\s/g, "");
   if (digits.length < 12) return false;
@@ -143,8 +143,8 @@ export default function ParentSubscribe() {
   }
 
   function outcomeReason(o: Outcome): string {
-    if (o === "insufficient") return "Payment Declined — Insufficient Funds. Please use a different card or method.";
-    if (o === "declined") return "Transaction Failed — Card Declined by your bank. Please try again or use another method.";
+    if (o === "insufficient") return "Payment Declined: Insufficient Funds. Please use a different card or method.";
+    if (o === "declined") return "Transaction Failed: Card Declined by your bank. Please try again or use another method.";
     return "Your bank declined the transaction. Please try a different card or use Internet Banking (ZIPIT).";
   }
 
@@ -431,7 +431,7 @@ function PlansView({ plans, onPick }: { plans: Plan[]; onPick: (p: Plan) => void
 function DemoBadge() {
   return (
     <Badge variant="outline" className="border-amber-400/60 text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/30">
-      Demo Mode — no real money processed
+      Demo Mode. No real money processed
     </Badge>
   );
 }
@@ -464,11 +464,11 @@ function OutcomeSelect({ value, onChange, includeAuto = true }: { value: Outcome
 
 function MethodView({ plan, onPick }: { plan: Plan; onPick: (m: PaymentMethod) => void }) {
   const methods: { id: PaymentMethod; label: string; icon: typeof CreditCard; note: string }[] = [
-    { id: "card", label: "Card Payment", icon: CreditCard, note: "Visa / Mastercard — Paynow Zimbabwe" },
-    { id: "eft", label: "Internet Banking", icon: Building2, note: "ZIPIT — CBZ, Stanbic, Steward, ZB Bank" },
+    { id: "card", label: "Card Payment", icon: CreditCard, note: "Visa / Mastercard: Paynow Zimbabwe" },
+    { id: "eft", label: "Internet Banking", icon: Building2, note: "ZIPIT: CBZ, Stanbic, Steward, ZB Bank" },
     { id: "ecocash", label: "EcoCash", icon: CreditCard, note: "Pay from your EcoCash wallet" },
     { id: "onemoney", label: "OneMoney", icon: CreditCard, note: "Pay from your OneMoney wallet" },
-    { id: "bank_transfer", label: "Bank Transfer", icon: Building2, note: "RTGS transfer — upload proof of payment" },
+    { id: "bank_transfer", label: "Bank Transfer", icon: Building2, note: "RTGS transfer: upload proof of payment" },
   ];
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-3xl mx-auto">
@@ -499,7 +499,7 @@ function MethodView({ plan, onPick }: { plan: Plan; onPick: (m: PaymentMethod) =
         ))}
       </div>
       <div className="text-xs text-muted-foreground flex items-center gap-2 mt-4">
-        <ShieldCheck className="w-4 h-4" /> Processed by Paynow Zimbabwe. Demo environment — no real money is moved.
+        <ShieldCheck className="w-4 h-4" /> Processed by Paynow Zimbabwe. Demo environment. No real money is moved.
       </div>
     </motion.div>
   );
@@ -518,7 +518,7 @@ function CardView({ plan, cardNumber, setCardNumber, cardName, setCardName, card
       <Card className="p-6">
         <div className="flex items-center gap-2 mb-1">
           <Lock className="w-5 h-5 text-teal-600" />
-          <h3 className="font-semibold text-lg">Paynow Zimbabwe — Card Payment</h3>
+          <h3 className="font-semibold text-lg">Paynow Zimbabwe: Card Payment</h3>
         </div>
         <p className="text-xs text-muted-foreground mb-4">3D Secure protected · PCI-DSS Level 1</p>
 
@@ -576,7 +576,7 @@ function GatewayView({ plan, processing, onStart, forceOutcome, setForceOutcome 
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-md mx-auto">
       <Card className="p-6 text-center">
         <Building2 className="w-12 h-12 mx-auto mb-3 text-teal-600" />
-        <h3 className="font-semibold text-lg">Paynow Zimbabwe — Internet Banking (ZIPIT)</h3>
+        <h3 className="font-semibold text-lg">Paynow Zimbabwe: Internet Banking (ZIPIT)</h3>
         <p className="text-sm text-muted-foreground mt-1 mb-5">
           You will be redirected to your bank to authorise a {formatMoney(plan.amount_usd)} payment.
         </p>
@@ -609,7 +609,7 @@ function QrView({ plan, method, processing, onConfirm, forceOutcome, setForceOut
         <div className={`inline-block bg-gradient-to-br ${brandColor} text-white text-xs font-bold px-3 py-1 rounded-full mb-3`}>
           {brand}
         </div>
-        <h3 className="font-semibold text-lg">Paynow Zimbabwe — {brand}</h3>
+        <h3 className="font-semibold text-lg">Paynow Zimbabwe: {brand}</h3>
         <p className="text-sm text-muted-foreground mt-1 mb-4">
           Open your {brand} app and scan the QR code to pay {formatMoney(plan.amount_usd)}.
         </p>

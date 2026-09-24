@@ -62,7 +62,7 @@ export function formatUSD(amount: number | string | null | undefined, opts?: { d
   return `US$ ${opts?.decimals === false ? nfWhole.format(n) : nf.format(n)}`;
 }
 
-/** `ZiG 33,333.12` — takes a USD amount and converts it. */
+/** `ZiG 33,333.12` - takes a USD amount and converts it. */
 export function formatZiG(amountUsd: number | string | null | undefined, opts?: { decimals?: boolean }): string {
   const n = num(amountUsd) * zigRate;
   return `${ZIG_CODE} ${opts?.decimals === false ? nfWhole.format(n) : nf.format(n)}`;

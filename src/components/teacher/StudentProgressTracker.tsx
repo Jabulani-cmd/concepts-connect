@@ -164,7 +164,7 @@ export default function StudentProgressTracker({ classes, subjects }: Props) {
                     </div>
                     {/* Overall */}
                     <div className="text-right">
-                      <p className="text-lg font-bold text-primary">{s.avg !== null ? `${s.avg}%` : "—"}</p>
+                      <p className="text-lg font-bold text-primary">{s.avg !== null ? `${s.avg}%` : "-"}</p>
                       {s.avg !== null && <Badge className="text-[10px]">{gradeFor(s.avg)}</Badge>}
                     </div>
                     {/* Trend */}

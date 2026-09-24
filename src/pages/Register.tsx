@@ -68,7 +68,7 @@ export default function Register() {
       }
 
       const userId = data?.user?.id;
-      if (!userId) throw new Error("Registration failed — please try again.");
+      if (!userId) throw new Error("Registration failed. Please try again.");
 
       // Detect repeated signup (Supabase returns fake user with empty identities)
       const identities = data?.user?.identities;

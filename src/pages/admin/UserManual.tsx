@@ -82,7 +82,7 @@ export default function UserManual() {
           <ManualSection title="User Roles">
             <div className="grid gap-2 sm:grid-cols-2">
               {[
-                { role: "Admin", desc: "Full system access — manage users, content, finance, academics, and settings." },
+                { role: "Admin", desc: "Full system access: manage users, content, finance, academics, and settings." },
                 { role: "Teacher", desc: "Manage classes, upload materials, record attendance, grade assessments, publish results." },
                 { role: "Student", desc: "View timetable, access materials, submit assessments, check results and fees." },
                 { role: "Parent", desc: "Monitor child's attendance, results, fees, and communicate with teachers." },
@@ -159,8 +159,8 @@ export default function UserManual() {
             <Step n={2} text="If multiple cameras are connected, select the desired camera from the dropdown." />
             <Step n={3} text="Position the subject in front of the camera." />
             <Step n={4} text="Click 'Capture' to take the photo." />
-            <Step n={5} text="Review the photo — click 'Retake' if needed or 'Use Photo' to accept." />
-            <Step n={6} text="The image cropper will open — adjust the crop area and click 'Save Crop'." />
+            <Step n={5} text="Review the photo. Click 'Retake' if needed or 'Use Photo' to accept." />
+            <Step n={6} text="The image cropper will open. Adjust the crop area and click 'Save Crop'." />
           </ManualSection>
           <ManualSection title="Searching & Filtering Students">
             <Step n={1} text="Use the search bar to find students by name or admission number." />
@@ -196,7 +196,7 @@ export default function UserManual() {
             <Step n={4} text="Upload a photo using 'Upload Photo' or 'Take Photo' for webcam capture." />
             <Step n={5} text="If the staff member is a teacher, select the subjects they teach." />
             <Step n={6} text="Enter National ID, NSSA Number and ZIMRA PAYE / TIN Number as applicable." />
-            <Step n={7} text="Click 'Save' — the staff member will now appear in the system and on the public Staff page." />
+            <Step n={7} text="Click 'Save'. The staff member will now appear in the system and on the public Staff page." />
           </ManualSection>
           <Warning>Staff members should ONLY be added through the Staff Directory tab, not the Staff (Website) tab. The Staff Directory issues proper user credentials and HR records.</Warning>
           <ManualSection title="Managing the Public Staff Page">
@@ -316,7 +316,7 @@ export default function UserManual() {
           </ManualSection>
           <ManualSection title="Announcements">
             <Step n={1} text="Navigate to Announcements tab." />
-            <Step n={2} text="Click 'New Announcement' — set title, content, and optional expiry date." />
+            <Step n={2} text="Click 'New Announcement'. Set title, content, and optional expiry date." />
             <Step n={3} text="Toggle 'Public' to show on the homepage, or target specific groups." />
           </ManualSection>
           <ManualSection title="Downloads">
@@ -359,7 +359,7 @@ export default function UserManual() {
         <div className="space-y-4">
           <ManualSection title="Adding Inventory Items">
             <Step n={1} text="Go to Admin Dashboard → Inventory tab." />
-            <Step n={2} text="Click 'Add Item' — enter item code, name, category, unit, quantity, reorder level." />
+            <Step n={2} text="Click 'Add Item'. Enter item code, name, category, unit, quantity, reorder level." />
             <Step n={3} text="Enter purchase prices in USD and ZiG." />
             <Step n={4} text="Optionally generate a barcode for the item." />
           </ManualSection>
@@ -436,7 +436,7 @@ export default function UserManual() {
             <Step n={4} text="Choose material type: Document, Video, Link, or Presentation." />
             <Step n={5} text="Upload the file or paste a URL. Add title, description, and tags." />
             <Step n={6} text="Optionally set an expiry date." />
-            <Step n={7} text="Click 'Publish' — students in that class will receive a notification." />
+            <Step n={7} text="Click 'Publish'. Students in that class will receive a notification." />
           </ManualSection>
           <ManualSection title="Creating Assessments">
             <Step n={1} text="Navigate to the 'Assessments' tab." />
@@ -477,7 +477,7 @@ export default function UserManual() {
             <Step n={2} text="Click 'New Announcement'." />
             <Step n={3} text="Select target: specific class, form level, or parents." />
             <Step n={4} text="Write your message and optionally attach files." />
-            <Step n={5} text="Click 'Post' — targeted users receive notifications." />
+            <Step n={5} text="Click 'Post'. Targeted users receive notifications." />
           </ManualSection>
           <Tip>Use the personal schedule/timetable feature to organize your teaching week.</Tip>
         </div>
@@ -558,17 +558,17 @@ export default function UserManual() {
           <ManualSection title="Linking Your Child's Account">
             <Step n={1} text="After logging in, you'll see a 'Link Child' option." />
             <Step n={2} text="Enter your child's Admission Number (provided by the school)." />
-            <Step n={3} text="Click 'Link' — your child's information will now appear on your dashboard." />
+            <Step n={3} text="Click 'Link'. Your child's information will now appear on your dashboard." />
             <Step n={4} text="Repeat for additional children if applicable." />
           </ManualSection>
           <ManualSection title="Monitoring Your Child">
             <p className="text-sm text-muted-foreground">Once linked, you can view:</p>
             <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 ml-2">
-              <li><strong>Attendance</strong> — daily records and overall percentage</li>
-              <li><strong>Exam Results</strong> — marks, grades, and rankings per exam</li>
-              <li><strong>Fee Balance</strong> — invoices, payments, and outstanding amounts</li>
-              <li><strong>Announcements</strong> — school and class-specific notices</li>
-              <li><strong>Health Visits</strong> — if your child visited the school nurse</li>
+              <li><strong>Attendance</strong>: daily records and overall percentage</li>
+              <li><strong>Exam Results</strong>: marks, grades, and rankings per exam</li>
+              <li><strong>Fee Balance</strong>: invoices, payments, and outstanding amounts</li>
+              <li><strong>Announcements</strong>: school and class-specific notices</li>
+              <li><strong>Health Visits</strong>: if your child visited the school nurse</li>
             </ul>
           </ManualSection>
           <ManualSection title="Report Cards">
@@ -615,7 +615,7 @@ export default function UserManual() {
           <ManualSection title="Making an Appointment">
             <Step n={1} text="Visit the Contact page." />
             <Step n={2} text="Fill in the appointment form: name, email, authority to meet, preferred date/time, reason." />
-            <Step n={3} text="Submit — the school administration will review and confirm." />
+            <Step n={3} text="Submit. The school administration will review and confirm." />
           </ManualSection>
         </div>
       ),

@@ -300,7 +300,7 @@ export default function BulkUserImport({ onImportComplete }: { onImportComplete?
               {importing && (
                 <div className="space-y-1">
                   <Progress value={progress} />
-                  <p className="text-xs text-muted-foreground text-center">{progress}% — Importing users...</p>
+                  <p className="text-xs text-muted-foreground text-center">Importing users... {progress}%</p>
                 </div>
               )}
 

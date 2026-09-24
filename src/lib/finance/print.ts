@@ -43,7 +43,7 @@ export function openViewWindow(html: string) {
 }
 
 // Render a fully-formed HTML document string into an offscreen iframe,
-// snapshot its body with html2canvas, and paginate onto an A4 jsPDF —
+// snapshot its body with html2canvas, and paginate onto an A4 jsPDF -
 // producing a real .pdf file that mirrors the on-screen branded template.
 export async function renderHtmlToPdf(html: string): Promise<jsPDF> {
   const iframe = document.createElement("iframe");

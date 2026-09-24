@@ -94,9 +94,9 @@ export default function ReceiptSearchTab() {
       receiptNumber: payment.receipt_number,
       paymentDate: payment.payment_date,
       student: {
-        fullName: payment.students?.full_name || "—",
-        admissionNumber: payment.students?.admission_number || "—",
-        form: payment.students?.form || "—",
+        fullName: payment.students?.full_name || "-",
+        admissionNumber: payment.students?.admission_number || "-",
+        form: payment.students?.form || "-",
       },
       invoiceNumber: payment.invoices?.invoice_number,
       amounts: {
@@ -120,9 +120,9 @@ export default function ReceiptSearchTab() {
       receiptNumber: payment.receipt_number,
       paymentDate: payment.payment_date,
       student: {
-        fullName: payment.students?.full_name || "—",
-        admissionNumber: payment.students?.admission_number || "—",
-        form: payment.students?.form || "—",
+        fullName: payment.students?.full_name || "-",
+        admissionNumber: payment.students?.admission_number || "-",
+        form: payment.students?.form || "-",
       },
       invoiceNumber: payment.invoices?.invoice_number,
       amounts: {
@@ -150,9 +150,9 @@ export default function ReceiptSearchTab() {
       receiptNumber: payment.receipt_number,
       paymentDate: payment.payment_date,
       student: {
-        fullName: payment.students?.full_name || "—",
-        admissionNumber: payment.students?.admission_number || "—",
-        form: payment.students?.form || "—",
+        fullName: payment.students?.full_name || "-",
+        admissionNumber: payment.students?.admission_number || "-",
+        form: payment.students?.form || "-",
       },
       invoiceNumber: payment.invoices?.invoice_number,
       amounts: { usd: payment.amount_usd, zig: payment.amount_zig },
@@ -185,8 +185,8 @@ export default function ReceiptSearchTab() {
           referenceNumber: p.reference_number,
           amount: Number(p.amount_usd || p.amount || 0),
           student: {
-            fullName: p.students?.full_name || "—",
-            admissionNumber: p.students?.admission_number || "—",
+            fullName: p.students?.full_name || "-",
+            admissionNumber: p.students?.admission_number || "-",
             form: p.students?.form || null,
           },
           invoiceNumber: p.invoices?.invoice_number,
@@ -262,7 +262,7 @@ export default function ReceiptSearchTab() {
                     <TableCell>{format(new Date(p.payment_date), "dd MMM yyyy")}</TableCell>
                     <TableCell>{p.students?.full_name}</TableCell>
                     <TableCell>{p.students?.admission_number}</TableCell>
-                    <TableCell className="font-mono text-xs">{p.invoices?.invoice_number || "—"}</TableCell>
+                    <TableCell className="font-mono text-xs">{p.invoices?.invoice_number || "-"}</TableCell>
                     <TableCell className="text-right font-mono">{fmt(p.amount_usd)}</TableCell>
                     <TableCell>{p.payment_method}</TableCell>
                     <TableCell>

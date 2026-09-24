@@ -127,16 +127,16 @@
     "choosePlan": "Choose a plan",
     "chooseMethod": "Choose a payment method",
     "card": "Card Payment",
-    "cardNote": "Visa / Mastercard — Paynow Zimbabwe",
+    "cardNote": "Visa / Mastercard: Paynow Zimbabwe",
     "instantEft": "Internet Banking (ZIPIT)",
     "instantEftNote": "CBZ, Stanbic, FBC, ZB Bank, Steward Bank",
     "bankTransfer": "Bank Transfer",
-    "bankTransferNote": "RTGS transfer — upload proof of payment",
+    "bankTransferNote": "RTGS transfer: upload proof of payment",
     "snapscan": "EcoCash",
     "snapscanNote": "Pay with EcoCash",
     "zapper": "OneMoney",
     "zapperNote": "Pay with OneMoney",
-    "demoBadge": "Demo Mode — no real money is processed",
+    "demoBadge": "Demo Mode. No real money is processed",
     "processing": "Processing…",
     "contactingBank": "Contacting your bank…",
     "authenticating": "Authenticating 3D Secure",
@@ -154,8 +154,8 @@
     "outcomeAuto": "Auto (based on card number)",
     "success": "Payment Successful",
     "declined": "Payment Declined",
-    "declinedInsufficient": "Payment Declined — Insufficient Funds",
-    "declinedCard": "Transaction Failed — Card Declined",
+    "declinedInsufficient": "Payment Declined: Insufficient Funds",
+    "declinedCard": "Transaction Failed: Card Declined",
     "declinedEft": "Your bank did not authorise the ZIPIT payment.",
     "retry": "Try Again",
     "changeMethod": "Change Method",
@@ -183,7 +183,7 @@
     },
     "learning": {
       "title": "Learning Begins With Us",
-      "p1": "At MavingTech High School, we offer a supportive and inspiring environment for young African minds to learn, grow and thrive. Our passion for education goes beyond outstanding academic results — we build confident, creative thinkers prepared for a global future.",
+      "p1": "At MavingTech High School, we offer a supportive and inspiring environment for young African minds to learn, grow and thrive. Our passion for education goes beyond outstanding academic results. We build confident, creative thinkers prepared for a global future.",
       "p2": "From Form 1 through O-Level and A-Level, our students walk out with the character, discipline and skills to make their mark in the world.",
       "cta": "Know More About Us"
     },
@@ -196,10 +196,10 @@
     "director": {
       "eyebrow": "Message from the Principal",
       "title": "From the Principal's Desk",
-      "quote": "At MavingTech High School, we believe every student carries a unique gift. Our calling is to nurture that gift through discipline, faith, hard work and a love for knowledge — so that each of our students rises to become a leader of integrity and purpose.",
+      "quote": "At MavingTech High School, we believe every student carries a unique gift. Our calling is to nurture that gift through discipline, faith, hard work and a love for knowledge, so that each of our students rises to become a leader of integrity and purpose.",
       "body": "Welcome to our school community. Together with our dedicated teachers, supportive parents and ambitious students, we are building a school where academic excellence walks hand in hand with strong character. We are proud of who our students are becoming, and we invite you to be part of this journey.",
       "signature": "Mr. F.J. Moyo",
-      "signatureRole": "— Principal, MavingTech High School"
+      "signatureRole": "Principal, MavingTech High School"
     },
     "curriculum": {
       "eyebrow": "Programmes of Study",
@@ -247,7 +247,7 @@
     "values": {
       "eyebrow": "What We Stand For",
       "title": "Our Values",
-      "excellence": { "title": "Excellence", "desc": "Striving for the highest standards in every endeavour — academic, sporting and personal." },
+      "excellence": { "title": "Excellence", "desc": "Striving for the highest standards in every endeavour: academic, sporting and personal." },
       "integrity": { "title": "Integrity", "desc": "Honesty, discipline and accountability sit at the heart of our community." },
       "innovation": { "title": "Innovation", "desc": "Curiosity and creativity that prepare our students for a fast-changing world." }
     },
@@ -259,7 +259,7 @@
   "academics": {
     "eyebrow": "Learning & Excellence",
     "title": "Academics",
-    "subtitle": "A broad, balanced curriculum spanning ZIMSEC and Cambridge streams — designed to prepare every student for a global future.",
+    "subtitle": "A broad, balanced curriculum spanning ZIMSEC and Cambridge streams: designed to prepare every student for a global future.",
     "programmesEyebrow": "Programmes of Study",
     "programmesTitle": "Our Curriculum",
     "intro": "MavingTech offers both the ZIMSEC and Cambridge (CIE) examination streams, giving students the flexibility to pursue local or international qualifications at Ordinary and Advanced Level.",
@@ -423,7 +423,7 @@
   },
   "boarding": {
     "title": "Boarding",
-    "subtitle": "A home away from home — our boarding facilities provide a safe, nurturing environment where students thrive academically and socially.",
+    "subtitle": "A home away from home: our boarding facilities provide a safe, nurturing environment where students thrive academically and socially.",
     "features": {
       "accommodation": { "title": "Comfortable Accommodation", "desc": "Modern dormitories with supervised living spaces for boys and girls." },
       "safety": { "title": "Safety & Security", "desc": "24-hour security with trained house parents and matrons on duty." },
@@ -494,10 +494,14 @@
     "iosTitle": "Add to your home screen",
     "iosStep1": "Tap the Share button in Safari",
     "iosStep2": "Choose “Add to Home Screen”",
-    "iosStep3": "Tap “Add” — the app icon appears on your home screen",
+    "iosStep3": "Tap “Add”. The app icon appears on your home screen",
     "updateReady": "A new version of the app is available.",
     "update": "Update now",
     "offline": "You're offline. Pages you have opened before still work; changes need a connection.",
-    "installed": "App installed"
+    "installed": "App installed",
+    "errorTitle": "Something went wrong",
+    "errorBody": "This screen could not be loaded. Reloading usually fixes it.",
+    "reload": "Reload",
+    "home": "Home page"
   }
 }

@@ -219,8 +219,8 @@ export default function AuditLogs() {
                       <TableCell>
                         <Badge variant={ACTION_COLORS[l.action] || "outline"}>{l.action}</Badge>
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{l.table_name || "—"}</TableCell>
-                      <TableCell className="text-xs text-muted-foreground font-mono">{l.record_id ? l.record_id.slice(0, 8) + "…" : "—"}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{l.table_name || "-"}</TableCell>
+                      <TableCell className="text-xs text-muted-foreground font-mono">{l.record_id ? l.record_id.slice(0, 8) + "…" : "-"}</TableCell>
                       <TableCell className="text-right">
                         <Button variant="ghost" size="icon" onClick={() => setSelectedLog(l)}>
                           <Eye className="h-4 w-4" />
@@ -247,9 +247,9 @@ export default function AuditLogs() {
                 <div><span className="font-medium text-muted-foreground">Timestamp:</span><p>{new Date(selectedLog.created_at).toLocaleString()}</p></div>
                 <div><span className="font-medium text-muted-foreground">Action:</span><p><Badge variant={ACTION_COLORS[selectedLog.action] || "outline"}>{selectedLog.action}</Badge></p></div>
                 <div><span className="font-medium text-muted-foreground">User:</span><p>{selectedLog.user_id ? (profiles[selectedLog.user_id] || selectedLog.user_id) : "System"}</p></div>
-                <div><span className="font-medium text-muted-foreground">Table:</span><p>{selectedLog.table_name || "—"}</p></div>
-                <div><span className="font-medium text-muted-foreground">Record ID:</span><p className="font-mono text-xs">{selectedLog.record_id || "—"}</p></div>
-                <div><span className="font-medium text-muted-foreground">IP Address:</span><p>{selectedLog.ip_address || "—"}</p></div>
+                <div><span className="font-medium text-muted-foreground">Table:</span><p>{selectedLog.table_name || "-"}</p></div>
+                <div><span className="font-medium text-muted-foreground">Record ID:</span><p className="font-mono text-xs">{selectedLog.record_id || "-"}</p></div>
+                <div><span className="font-medium text-muted-foreground">IP Address:</span><p>{selectedLog.ip_address || "-"}</p></div>
               </div>
               {selectedLog.old_data && (
                 <div>

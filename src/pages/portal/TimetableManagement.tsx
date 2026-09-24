@@ -289,7 +289,7 @@ export default function TimetableManagement() {
               { label: "Total timetables", value: summary.total, icon: <Calendar className="h-4 w-4" /> },
               { label: "Active", value: summary.active, icon: <Eye className="h-4 w-4" /> },
               { label: "Pending conflicts", value: allSlots.length ? 0 : 0, icon: <AlertTriangle className="h-4 w-4" /> },
-              { label: "Next exam period", value: summary.next?.start_date ?? "—", icon: <Calendar className="h-4 w-4" /> },
+              { label: "Next exam period", value: summary.next?.start_date ?? "-", icon: <Calendar className="h-4 w-4" /> },
             ].map((c, i) => (
               <Card key={i}><CardContent className="p-4">
                 <div className="flex items-center justify-between text-xs text-muted-foreground">{c.label}{c.icon}</div>

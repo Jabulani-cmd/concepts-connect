@@ -131,12 +131,12 @@
     "instantEft": "I-EFT Esheshayo",
     "instantEftNote": "CBZ, Stanbic, FBC, ZB Bank, Steward Bank",
     "bankTransfer": "Ukuthumela Ebhanga",
-    "bankTransferNote": "I-EFT yesandla — layisha ubufakazi bokuhlawula",
+    "bankTransferNote": "I-EFT yesandla: layisha ubufakazi bokuhlawula",
     "snapscan": "I-EcoCash",
     "snapscanNote": "Hlawula ngeEcoCash",
     "zapper": "I-OneMoney",
     "zapperNote": "Hlawula ngeOneMoney",
-    "demoBadge": "Imodi Yedemo — akulamali yeqiniso ehlawulwayo",
+    "demoBadge": "Imodi Yedemo: akulamali yeqiniso ehlawulwayo",
     "processing": "Kuyacutshungulwa…",
     "contactingBank": "Sixhumana lebhanga lakho…",
     "authenticating": "Kuqinisekiswa i-3D Secure",
@@ -154,8 +154,8 @@
     "outcomeAuto": "Okuzenzakalelayo (ngenombolo yekhadi)",
     "success": "Inhlawulo Iphumelele",
     "declined": "Inhlawulo Yaliwe",
-    "declinedInsufficient": "Inhlawulo Yaliwe — Imali Kayanelanga",
-    "declinedCard": "Ukuthengiselana Kwehlulekile — Ikhadi Laliwe",
+    "declinedInsufficient": "Inhlawulo Yaliwe: Imali Kayanelanga",
+    "declinedCard": "Ukuthengiselana Kwehlulekile: Ikhadi Laliwe",
     "declinedEft": "Ibhanga lakho kalivumanga inhlawulo ye-EFT.",
     "retry": "Zama Futhi",
     "changeMethod": "Tshintsha Indlela",
@@ -183,7 +183,7 @@
     },
     "learning": {
       "title": "Ukufunda Kuqala Lathi",
-      "p1": "EMavingTech High School, sinika indawo esekelayo lekhuthazayo ukuze abafundi bafunde, bakhule njalo baphumelele. Uthando lwethu lwemfundo ludlula imiphumela emihle — sakha abacabangi abalesibindi, abadalayo, abalungele ikusasa.",
+      "p1": "EMavingTech High School, sinika indawo esekelayo lekhuthazayo ukuze abafundi bafunde, bakhule njalo baphumelele. Uthando lwethu lwemfundo ludlula imiphumela emihle: sakha abacabangi abalesibindi, abadalayo, abalungele ikusasa.",
       "p2": "Kusukela kuForm 1 kusiya ku-A Level, abafundi bethu baphuma belesimilo, ukuziphatha lamakhono okuguqula umhlaba.",
       "cta": "Yazi Okunengi Ngathi"
     },
@@ -199,7 +199,7 @@
       "quote": "EMavingTech High School, sikholwa ukuthi umfundi ngamunye ulesipho esikhethekileyo. Umsebenzi wethu yikondla lesosipho ngokuziphatha, ukholo, ukusebenza nzima lothando lolwazi.",
       "body": "Uyemukelwa emphakathini wethu wesikolo. Kanye labafundisi bethu abazinikeleyo, abazali abasekelayo labafundi abalethemba, sakha isikolo lapho ubungcweti bemfundo buhamba lesimilo esiqinileyo.",
       "signature": "Mnu. F.J. Moyo",
-      "signatureRole": "— Umphathisikolo, MavingTech High School"
+      "signatureRole": "Umphathisikolo, MavingTech High School"
     },
     "curriculum": {
       "eyebrow": "Izinhlelo Zokufunda",
@@ -247,7 +247,7 @@
     "values": {
       "eyebrow": "Esikumeleyo",
       "title": "Amagugu Ethu",
-      "excellence": { "title": "Ubungcweti", "desc": "Ukuzama izinga eliphezulu kukho konke — imfundo, imidlalo lesimilo." },
+      "excellence": { "title": "Ubungcweti", "desc": "Ukuzama izinga eliphezulu kukho konke: imfundo, imidlalo lesimilo." },
       "integrity": { "title": "Ubuqotho", "desc": "Iqiniso, ukuziphatha lokuziphendulela kusenhliziyweni yomphakathi wethu." },
       "innovation": { "title": "Ukusungula", "desc": "Ukudinga ulwazi lokudala okulungisela abafundi bethu umhlaba otshintsha masinyane." }
     },
@@ -423,7 +423,7 @@
   },
   "boarding": {
     "title": "Ukuhlala Esikolweni",
-    "subtitle": "Ikhaya elikhatshana lekhaya — amahostela ethu anika indawo ephephileyo lenakekelayo.",
+    "subtitle": "Ikhaya elikhatshana lekhaya: amahostela ethu anika indawo ephephileyo lenakekelayo.",
     "features": {
       "accommodation": { "title": "Indawo Enhle Yokuhlala", "desc": "Amakamelo amatsha lamahostela ehlukanisiweyo abafana lamantombazana." },
       "safety": { "title": "Ukuphepha", "desc": "Ukuphepha kwamahola angu-24 labanakekeli bendlu abaqeqetshiweyo." },
@@ -494,10 +494,14 @@
     "iosTitle": "Faka esikrinini sakho",
     "iosStep1": "Thinta inkinobho ethi Share ku-Safari",
     "iosStep2": "Khetha “Add to Home Screen”",
-    "iosStep3": "Thinta “Add” — uphawu lwe-app luvela esikrinini sakho",
+    "iosStep3": "Thinta “Add”: uphawu lwe-app luvela esikrinini sakho",
     "updateReady": "Kulenguqulo entsha ye-app.",
     "update": "Buyekeza khathesi",
     "offline": "Awuxhumananga le-inthanethi. Amakhasi owake wawavula asasebenza; ukuntshintsha kudinga i-inthanethi.",
-    "installed": "I-app ifakiwe"
+    "installed": "I-app ifakiwe",
+    "errorTitle": "Kukhona okungahambanga kahle",
+    "errorBody": "Ikhasi leli alivulekanga. Ukuvula kabusha kuvamisa ukukulungisa.",
+    "reload": "Vula kabusha",
+    "home": "Ikhasi lokuqala"
   }
 }

@@ -685,7 +685,7 @@ export default function CommunicationModule() {
                       <TableRow key={n.id}>
                         <TableCell className="text-xs whitespace-nowrap">{format(new Date(n.created_at), "MMM d, h:mm a")}</TableCell>
                         <TableCell className="font-medium text-sm">{n.title}</TableCell>
-                        <TableCell className="max-w-[200px] text-xs text-muted-foreground line-clamp-2">{n.message || "—"}</TableCell>
+                        <TableCell className="max-w-[200px] text-xs text-muted-foreground line-clamp-2">{n.message || "-"}</TableCell>
                         <TableCell><Badge variant="outline" className="text-[10px]">{n.type.replace("_", " ")}</Badge></TableCell>
                         <TableCell>
                           {n.is_read ? (

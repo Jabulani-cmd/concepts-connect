@@ -92,8 +92,8 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
     if (!approved) {
       setFailReason(
         forceOutcome === "insufficient"
-          ? "Payment Declined — Insufficient Funds."
-          : "Transaction Failed — Card Declined by your bank.",
+          ? "Payment Declined: Insufficient Funds."
+          : "Transaction Failed: Card Declined by your bank.",
       );
       setProcessing(false);
       setStep("failed");
@@ -117,7 +117,7 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
         payment_status: "paid",
         reference_number: txId,
         payment_date: payDate,
-        notes: `Paynow Zimbabwe (${paymentMethodLabel(method)}) — parent portal`,
+        notes: `Paynow Zimbabwe (${paymentMethodLabel(method)}), parent portal`,
       }).select("id").single();
       if (payErr) throw payErr;
 
@@ -135,7 +135,7 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
         amount: payAmount,
         student: {
           fullName: student.full_name,
-          admissionNumber: student.admission_number || "—",
+          admissionNumber: student.admission_number || "-",
         },
         invoiceNumber: invoice.invoice_number,
         autoVerify: true,
@@ -147,7 +147,7 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
       toast({ title: "Payment successful", description: `Receipt ${receiptNumber}` });
       onPaid?.();
     } catch (e) {
-      // Real backend/schema error — do NOT show as a gateway decline.
+      // Real backend/schema error - do NOT show as a gateway decline.
       console.error("[PayInvoiceDialog] Failed to record payment:", e);
       setFailReason("Something went wrong processing your payment. Please try again later.");
       setStep("failed");
@@ -163,7 +163,7 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
 
   const DemoBadge = () => (
     <Badge variant="outline" className="border-amber-400/60 text-amber-700 bg-amber-50">
-      Demo Mode — no real money processed
+      Demo Mode. No real money processed
     </Badge>
   );
 
@@ -230,7 +230,7 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
             <div className="grid grid-cols-2 gap-2">
               {([
                 { id: "card", label: "Card", icon: CreditCard, note: "Visa / Mastercard" },
-                { id: "eft", label: "Internet Banking", icon: Building2, note: "ZIPIT — CBZ, Stanbic, Steward, ZB…" },
+                { id: "eft", label: "Internet Banking", icon: Building2, note: "ZIPIT: CBZ, Stanbic, Steward, ZB…" },
                 { id: "ecocash", label: "EcoCash", icon: CreditCard, note: "Mobile money" },
                 { id: "onemoney", label: "OneMoney", icon: CreditCard, note: "Mobile money" },
               ] satisfies { id: PaymentMethod; label: string; icon: typeof CreditCard; note: string }[]).map((m) => (
@@ -252,7 +252,7 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <Lock className="w-5 h-5 text-teal-600" />
-              <h3 className="font-semibold">Paynow Zimbabwe — Card</h3>
+              <h3 className="font-semibold">Paynow Zimbabwe: Card</h3>
             </div>
             {!processing ? (
               <>
@@ -293,7 +293,7 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
         {step === "gateway" && (
           <div className="text-center space-y-3">
             <Building2 className="w-12 h-12 mx-auto text-teal-600" />
-            <h3 className="font-semibold">Paynow Zimbabwe — Internet Banking (ZIPIT)</h3>
+            <h3 className="font-semibold">Paynow Zimbabwe: Internet Banking (ZIPIT)</h3>
             <p className="text-sm text-muted-foreground">
               Authorise a {formatMoney(payAmount)} payment with your bank.
             </p>
@@ -308,7 +308,7 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
 
         {step === "qr" && (
           <div className="text-center space-y-3">
-            <h3 className="font-semibold">Paynow Zimbabwe — {method === "ecocash" ? "EcoCash" : "OneMoney"}</h3>
+            <h3 className="font-semibold">Paynow Zimbabwe: {method === "ecocash" ? "EcoCash" : "OneMoney"}</h3>
             <p className="text-sm text-muted-foreground">
               Scan to pay {formatMoney(payAmount)}
             </p>

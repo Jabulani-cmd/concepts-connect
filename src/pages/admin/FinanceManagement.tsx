@@ -175,7 +175,7 @@ export default function FinanceManagement() {
   );
   const isFinanceOrAdmin =
     role === "finance" || role === "finance_clerk" || role === "bursar" || role === "admin_supervisor" || role === "principal" || role === "deputy_principal";
-  // Bursar is the finance supervisor — they can directly void/delete and
+  // Bursar is the finance supervisor - they can directly void/delete and
   // approve requests from Finance Clerks. Finance/Finance Clerk roles must
   // request approval from the Bursar before any destructive action.
   const isFinanceClerk = role === "finance" || role === "finance_clerk";
@@ -603,7 +603,7 @@ export default function FinanceManagement() {
   }, [fetchExpenses, fetchFeeStructures, fetchInvoices, fetchPayments, fetchPettyCash, fetchSupplierInvoices, fetchSupplierPayments, rate]);
 
   useEffect(() => {
-    // Realtime subscription for ALL finance tables — keeps every finance user in sync
+    // Realtime subscription for ALL finance tables - keeps every finance user in sync
     const channel = supabase
       .channel("finance-all-realtime")
       .on("postgres_changes", { event: "*", schema: "public", table: "payments" }, () => {
@@ -864,7 +864,7 @@ export default function FinanceManagement() {
 
   function statusText(status: string | null) {
     const clean = (status ?? "").replace(/[^a-zA-Z]/g, "").toLowerCase();
-    const label = clean ? clean.charAt(0).toUpperCase() + clean.slice(1) : "—";
+    const label = clean ? clean.charAt(0).toUpperCase() + clean.slice(1) : "-";
     return `<span class="status-${clean}">${safeHtml(label)}</span>`;
   }
 
@@ -875,9 +875,9 @@ export default function FinanceManagement() {
     const rows = filtered.length
       ? filtered.map((d, i) => `<tr>
           <td>${i + 1}</td>
-          <td>${safeHtml(d.students?.full_name || "—")}</td>
-          <td>${safeHtml(d.students?.admission_number || "—")}</td>
-          <td>${safeHtml(d.students?.form || "—")}</td>
+          <td>${safeHtml(d.students?.full_name || "-")}</td>
+          <td>${safeHtml(d.students?.admission_number || "-")}</td>
+          <td>${safeHtml(d.students?.form || "-")}</td>
           <td class="mono">${safeHtml(d.invoice_number)}</td>
           <td>${safeHtml(d.term)}</td>
           <td class="right mono red">${formatMoney(Number(d.total_usd) - Number(d.paid_usd))}</td>
@@ -1178,8 +1178,8 @@ export default function FinanceManagement() {
         term: inv.term,
         dueDate: inv.due_date,
         student: {
-          fullName: student?.full_name || inv.students?.full_name || "—",
-          admissionNumber: student?.admission_number || inv.students?.admission_number || "—",
+          fullName: student?.full_name || inv.students?.full_name || "-",
+          admissionNumber: student?.admission_number || inv.students?.admission_number || "-",
           form: student?.form || inv.students?.form,
         },
         items: invoiceItems.map((it) => ({
@@ -1295,7 +1295,7 @@ export default function FinanceManagement() {
           invoiceNumber = preferredInvoice.invoice_number;
         }
 
-        // If truly no invoice exists at all, show error — student should be term-registered first
+        // If truly no invoice exists at all, show error - student should be term-registered first
         if (!invoiceId) {
           toast({
             title: "No invoice found",
@@ -1674,7 +1674,7 @@ export default function FinanceManagement() {
                           <TableCell>{fee.term}</TableCell>
                           <TableCell>{fee.form}</TableCell>
                           <TableCell>{fee.boarding_status === "boarding" ? "Boarding" : "Day"}</TableCell>
-                          <TableCell className="max-w-[200px] truncate">{fee.description || "—"}</TableCell>
+                          <TableCell className="max-w-[200px] truncate">{fee.description || "-"}</TableCell>
                           <TableCell className="text-right font-mono">{formatMoney(fee.amount_usd)}</TableCell>
                           <TableCell>
                             <div className="flex gap-1">
@@ -1799,8 +1799,8 @@ export default function FinanceManagement() {
                       {filteredInvoices.map((inv) => (
                         <TableRow key={inv.id}>
                           <TableCell className="font-mono text-xs">{inv.invoice_number}</TableCell>
-                          <TableCell>{inv.students?.full_name || "—"}</TableCell>
-                          <TableCell>{inv.students?.form || "—"}</TableCell>
+                          <TableCell>{inv.students?.full_name || "-"}</TableCell>
+                          <TableCell>{inv.students?.form || "-"}</TableCell>
                           <TableCell>{inv.term}</TableCell>
                           <TableCell className="text-xs">
                             {inv.due_date ? new Date(inv.due_date).toLocaleDateString() : "Not set"}
@@ -1822,14 +1822,14 @@ export default function FinanceManagement() {
                               <div className="flex items-center gap-1">
                                 <DocActionButtons
                                   actions={() => invoiceActions(inv, {
-                                    fullName: inv.students?.full_name || "—",
+                                    fullName: inv.students?.full_name || "-",
                                     admissionNumber: inv.students?.admission_number || "",
                                     form: inv.students?.form,
                                   })}
                                   email={{
                                     documentLabel: "invoice",
                                     filename: `invoice-${inv.invoice_number}`,
-                                    subject: `Invoice ${inv.invoice_number} — MavingTech Business Solutions`,
+                                    subject: `Invoice ${inv.invoice_number} | MavingTech Business Solutions`,
                                   }}
                                 />
                                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => deleteInvoice(inv)} title="Delete">
@@ -1949,24 +1949,24 @@ export default function FinanceManagement() {
                         <TableRow key={pay.id}>
                           <TableCell className="font-mono text-xs">{pay.receipt_number}</TableCell>
                           <TableCell>{pay.payment_date}</TableCell>
-                          <TableCell>{pay.students?.full_name || "—"}</TableCell>
-                          <TableCell className="font-mono text-xs">{pay.invoices?.invoice_number || "—"}</TableCell>
+                          <TableCell>{pay.students?.full_name || "-"}</TableCell>
+                          <TableCell className="font-mono text-xs">{pay.invoices?.invoice_number || "-"}</TableCell>
                           <TableCell className="text-right font-mono">{formatMoney(pay.amount_usd)}</TableCell>
                           <TableCell>{paymentMethodLabel(pay.payment_method)}</TableCell>
-                          <TableCell className="text-xs">{pay.reference_number || "—"}</TableCell>
+                          <TableCell className="text-xs">{pay.reference_number || "-"}</TableCell>
                           {isFinanceOrAdmin && (
                             <TableCell>
                               <div className="flex items-center gap-1">
                                 <DocActionButtons
                                   actions={receiptActions(pay, {
-                                    fullName: pay.students?.full_name || "—",
+                                    fullName: pay.students?.full_name || "-",
                                     admissionNumber: pay.students?.admission_number || "",
                                     form: pay.students?.form,
                                   })}
                                   email={{
                                     documentLabel: "receipt",
                                     filename: `receipt-${pay.receipt_number}`,
-                                    subject: `Official Receipt ${pay.receipt_number} — MavingTech Business Solutions`,
+                                    subject: `Official Receipt ${pay.receipt_number} | MavingTech Business Solutions`,
                                   }}
                                 />
                                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => deletePayment(pay)} title="Delete">
@@ -2076,9 +2076,9 @@ export default function FinanceManagement() {
                           {filtered.map((d, idx) => (
                             <TableRow key={d.id}>
                               <TableCell className="text-muted-foreground">{idx + 1}</TableCell>
-                              <TableCell>{d.students?.full_name || "—"}</TableCell>
-                              <TableCell>{d.students?.admission_number || "—"}</TableCell>
-                              <TableCell>{d.students?.form || "—"}</TableCell>
+                              <TableCell>{d.students?.full_name || "-"}</TableCell>
+                              <TableCell>{d.students?.admission_number || "-"}</TableCell>
+                              <TableCell>{d.students?.form || "-"}</TableCell>
                               <TableCell className="font-mono text-xs">{d.invoice_number}</TableCell>
                               <TableCell>{d.term}</TableCell>
                               <TableCell className="text-right font-mono text-destructive">
@@ -2233,7 +2233,7 @@ export default function FinanceManagement() {
                                   {pc.transaction_type === "deposit" ? "+" : "-"}
                                   {formatMoney(pc.amount_usd)}
                                 </TableCell>
-                                <TableCell className="text-xs">{pc.reference_number || "—"}</TableCell>
+                                <TableCell className="text-xs">{pc.reference_number || "-"}</TableCell>
                                 <TableCell>
                                   <Button variant="ghost" size="icon" onClick={() => deletePettyCash(pc.id)}>
                                     <Trash2 className="h-4 w-4 text-destructive" />
@@ -2330,8 +2330,8 @@ export default function FinanceManagement() {
                             <TableCell className="font-medium">{si.supplier_name}</TableCell>
                             <TableCell className="font-mono text-xs">{si.invoice_number}</TableCell>
                             <TableCell className="text-xs">{si.invoice_date}</TableCell>
-                            <TableCell className="text-xs">{si.due_date || "—"}</TableCell>
-                            <TableCell className="max-w-[200px] truncate">{si.description || "—"}</TableCell>
+                            <TableCell className="text-xs">{si.due_date || "-"}</TableCell>
+                            <TableCell className="max-w-[200px] truncate">{si.description || "-"}</TableCell>
                             <TableCell className="text-right font-mono">{formatMoney(si.amount_usd)}</TableCell>
                             <TableCell className="text-right font-mono text-green-700">{fmt(si.paid_usd)}</TableCell>
                             <TableCell className="text-right font-mono text-destructive">
@@ -2400,14 +2400,14 @@ export default function FinanceManagement() {
                         {supplierPayments.map((sp) => (
                           <TableRow key={sp.id}>
                             <TableCell className="text-xs">{sp.payment_date}</TableCell>
-                            <TableCell className="font-medium">{sp.supplier_invoices?.supplier_name || "—"}</TableCell>
+                            <TableCell className="font-medium">{sp.supplier_invoices?.supplier_name || "-"}</TableCell>
                             <TableCell className="font-mono text-xs">
-                              {sp.supplier_invoices?.invoice_number || "—"}
+                              {sp.supplier_invoices?.invoice_number || "-"}
                             </TableCell>
                             <TableCell>{paymentMethodLabel(sp.payment_method)}</TableCell>
-                            <TableCell className="font-mono text-xs">{sp.reference || "—"}</TableCell>
+                            <TableCell className="font-mono text-xs">{sp.reference || "-"}</TableCell>
                             <TableCell className="text-right font-mono">{formatMoney(sp.amount_usd)}</TableCell>
-                            <TableCell className="max-w-[200px] truncate">{sp.notes || "—"}</TableCell>
+                            <TableCell className="max-w-[200px] truncate">{sp.notes || "-"}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -2499,7 +2499,7 @@ export default function FinanceManagement() {
                         email={{
                           documentLabel: "Student Statement",
                           filename: `statement-${(stmtStudent.full_name || "student").replace(/\s+/g, "-").toLowerCase()}`,
-                          subject: `Statement of Account — ${stmtStudent.full_name}`,
+                          subject: `Statement of Account: ${stmtStudent.full_name}`,
                         }}
                       />
                     </div>
@@ -2608,10 +2608,10 @@ export default function FinanceManagement() {
                               <TableRow key={p.id}>
                                 <TableCell className="font-mono text-xs">{p.receipt_number}</TableCell>
                                 <TableCell>{p.payment_date}</TableCell>
-                                <TableCell className="font-mono text-xs">{p.invoices?.invoice_number || "—"}</TableCell>
+                                <TableCell className="font-mono text-xs">{p.invoices?.invoice_number || "-"}</TableCell>
                                 <TableCell className="text-right font-mono">{formatMoney(p.amount_usd)}</TableCell>
                                 <TableCell>{paymentMethodLabel(p.payment_method)}</TableCell>
-                                <TableCell className="text-xs">{p.reference_number || "—"}</TableCell>
+                                <TableCell className="text-xs">{p.reference_number || "-"}</TableCell>
                               </TableRow>
                             ))}
                           </TableBody>
@@ -3054,14 +3054,14 @@ export default function FinanceManagement() {
                       className="px-3 py-2 hover:bg-muted cursor-pointer text-sm"
                       onClick={() => selectSingleInvStudent(s)}
                     >
-                      {s.full_name} — {s.admission_number} ({s.form})
+                      {s.full_name} · {s.admission_number} ({s.form})
                     </div>
                   ))}
                 </div>
               )}
               {singleInvSelectedStudent && (
                 <Badge variant="outline" className="mt-1">
-                  {singleInvSelectedStudent.full_name} — {singleInvSelectedStudent.admission_number}
+                  {singleInvSelectedStudent.full_name} · {singleInvSelectedStudent.admission_number}
                 </Badge>
               )}
             </div>
@@ -3220,7 +3220,7 @@ export default function FinanceManagement() {
                       const balZig = Number(inv.total_zig) - Number(inv.paid_zig);
                       return (
                         <SelectItem key={inv.id} value={inv.id}>
-                          {inv.invoice_number} —{" "}
+                          {inv.invoice_number} ·{" "}
                           {balUsd < 0 ? `+${fmt(Math.abs(balUsd))} credit` : `${fmt(balUsd)} owing`} /{" "}
                           {balZig < 0 ? `+ZiG ${fmt(Math.abs(balZig))} credit` : `ZiG ${fmt(balZig)} owing`}
                         </SelectItem>
@@ -3433,7 +3433,7 @@ export default function FinanceManagement() {
             <DialogTitle>Record Supplier Payment</DialogTitle>
             <DialogDescription>
               {spInvoice
-                ? `Payment for ${spInvoice.supplier_name} — Invoice #${spInvoice.invoice_number} (Balance:  US$ ${fmt(Number(spInvoice.amount_usd) - Number(spInvoice.paid_usd))})`
+                ? `Payment for ${spInvoice.supplier_name}: Invoice #${spInvoice.invoice_number} (Balance:  US$ ${fmt(Number(spInvoice.amount_usd) - Number(spInvoice.paid_usd))})`
                 : "Select an unpaid supplier invoice and record a payment."}
             </DialogDescription>
           </DialogHeader>
@@ -3455,7 +3455,7 @@ export default function FinanceManagement() {
                       .filter((si) => si.status !== "paid")
                       .map((si) => (
                         <SelectItem key={si.id} value={si.id}>
-                          {si.supplier_name} — #{si.invoice_number} (Bal:  US$ $
+                          {si.supplier_name} · #{si.invoice_number} (Bal:  US$ $
                           {fmt(Number(si.amount_usd) - Number(si.paid_usd))})
                         </SelectItem>
                       ))}
@@ -3913,7 +3913,7 @@ export default function FinanceManagement() {
             <DialogDescription>
               {deleteTargetFee && (
                 <span className="block mt-1 font-medium text-foreground">
-                  {deleteTargetFee.form} — {deleteTargetFee.term} {deleteTargetFee.academic_year} (
+                  {deleteTargetFee.form} · {deleteTargetFee.term} {deleteTargetFee.academic_year} (
                   {deleteTargetFee.boarding_status === "boarding" ? "Boarding" : "Day"})
                 </span>
               )}

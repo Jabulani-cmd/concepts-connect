@@ -144,7 +144,7 @@ export default function BankReconciliation() {
   };
 
   function printReconciliation() {
-    const rows = filtered.map(tx => `<tr><td>${safeHtml(tx.transaction_date)}</td><td>${safeHtml(tx.description)}</td><td>${safeHtml(tx.reference_number || "—")}</td><td>${safeHtml(tx.bank_name || "—")}</td><td>${safeHtml(tx.transaction_type)}</td><td>${tx.transaction_type === "credit" ? "+" : "-"}${safeHtml(formatMoney(tx.amount_usd))}</td><td>${safeHtml(tx.reconciliation_status)}</td></tr>`).join("");
+    const rows = filtered.map(tx => `<tr><td>${safeHtml(tx.transaction_date)}</td><td>${safeHtml(tx.description)}</td><td>${safeHtml(tx.reference_number || "-")}</td><td>${safeHtml(tx.bank_name || "-")}</td><td>${safeHtml(tx.transaction_type)}</td><td>${tx.transaction_type === "credit" ? "+" : "-"}${safeHtml(formatMoney(tx.amount_usd))}</td><td>${safeHtml(tx.reconciliation_status)}</td></tr>`).join("");
     const bodyHtml = `<p><strong>Credits:</strong> ${safeHtml(formatMoney(totalCreditsUsd))} &nbsp; <strong>Debits:</strong> ${safeHtml(formatMoney(totalDebitsUsd))} &nbsp; <strong>Net:</strong> ${safeHtml(formatMoney(totalCreditsUsd - totalDebitsUsd))}</p><p>Reconciled: ${reconciledCount} | Unreconciled: ${unreconciledCount} | Disputed: ${disputedCount}</p><table><thead><tr><th>Date</th><th>Description</th><th>Ref</th><th>Bank</th><th>Type</th><th>Amount (US$ / ZiG)</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>`;
     openPrintWindow(buildBrandedHtml({ title: "Bank Reconciliation Report", bodyHtml }));
   }
@@ -249,8 +249,8 @@ export default function BankReconciliation() {
                     <TableRow key={tx.id} className={tx.reconciliation_status === "reconciled" ? "bg-green-50/30" : tx.reconciliation_status === "disputed" ? "bg-red-50/30" : ""}>
                       <TableCell className="text-xs">{tx.transaction_date}</TableCell>
                       <TableCell className="max-w-[200px] truncate">{tx.description}</TableCell>
-                      <TableCell className="font-mono text-xs">{tx.reference_number || "—"}</TableCell>
-                      <TableCell className="text-xs">{tx.bank_name || "—"}</TableCell>
+                      <TableCell className="font-mono text-xs">{tx.reference_number || "-"}</TableCell>
+                      <TableCell className="text-xs">{tx.bank_name || "-"}</TableCell>
                       <TableCell>
                         <Badge variant="outline" className={tx.transaction_type === "credit" ? "bg-green-100 text-green-800 border-green-300" : "bg-red-100 text-red-800 border-red-300"}>
                           {tx.transaction_type === "credit" ? "Credit" : "Debit"}

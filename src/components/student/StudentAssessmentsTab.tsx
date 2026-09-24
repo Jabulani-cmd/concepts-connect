@@ -29,7 +29,7 @@ interface Props {
   userId: string;
 }
 
-// Treat "due" as end-of-day on the due date, not midnight at the start of it —
+// Treat "due" as end-of-day on the due date, not midnight at the start of it -
 // otherwise an assessment due "today" shows as overdue the moment any time
 // passes 00:00 on that day.
 function isOverdueDate(dueDateStr: string): boolean {
@@ -107,9 +107,9 @@ export default function StudentAssessmentsTab({ studentId, studentClassId }: Pro
     const result = parseQuizResult(data);
     setShowQuiz(false);
     toast({
-      title: auto ? "Time's up — auto submitted!" : "Submitted & auto-marked",
+      title: auto ? "Time's up! Auto-submitted." : "Submitted & auto-marked",
       description: result
-        ? `${result.mark}/${result.total} (${result.percentage.toFixed(0)}%) — ${result.grade} · ${result.passed ? "Pass" : "Below pass mark"}`
+        ? `${result.mark}/${result.total} (${result.percentage.toFixed(0)}%) · ${result.grade} · ${result.passed ? "Pass" : "Below pass mark"}`
         : undefined,
     });
     fetchAll();
@@ -121,7 +121,7 @@ export default function StudentAssessmentsTab({ studentId, studentClassId }: Pro
   }, [fetchAll, studentClassId, studentId]);
 
   useEffect(() => {
-    // Realtime results — unique topic per mount to avoid re-subscribing a cached channel
+    // Realtime results - unique topic per mount to avoid re-subscribing a cached channel
     if (!studentId) return;
     const topic = `student-assess-${studentId}-${Math.random().toString(36).slice(2, 10)}`;
     const ch = supabase.channel(topic)
@@ -324,7 +324,7 @@ export default function StudentAssessmentsTab({ studentId, studentClassId }: Pro
           {selectedResult && (
             <div className="space-y-4">
               <div className="text-center py-4">
-                <p className={`text-4xl font-bold ${gradeTextClass(selectedResult.grade)}`}>{selectedResult.grade || "—"}</p>
+                <p className={`text-4xl font-bold ${gradeTextClass(selectedResult.grade)}`}>{selectedResult.grade || "-"}</p>
                 <p className="text-lg font-medium mt-1">{selectedResult.mark} / {selectedAssessment?.max_marks}</p>
                 <p className="text-sm text-muted-foreground">{selectedResult.percentage?.toFixed(1)}%</p>
               </div>

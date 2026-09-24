@@ -288,7 +288,7 @@ export default function UserManagement() {
         created_at: new Date().toISOString(),
       }));
 
-      // 3. Fetch student users from students table (optional — table may not exist in demo)
+      // 3. Fetch student users from students table (optional - table may not exist in demo)
       const { data: studentsData, error: studentsError } = await supabase
         .from("students")
         .select("id, user_id, admission_number, full_name, enrollment_date")
@@ -1046,9 +1046,9 @@ export default function UserManagement() {
                           <Badge variant={roleBadgeVariant(u.portal_role)}>{u.portal_role}</Badge>
                         </TableCell>
                         <TableCell>
-                          {u.staff_role ? staffRoleLabels[u.staff_role] || u.staff_role.replace(/_/g, " ") : "—"}
+                          {u.staff_role ? staffRoleLabels[u.staff_role] || u.staff_role.replace(/_/g, " ") : "-"}
                         </TableCell>
-                        <TableCell>{u.department || "—"}</TableCell>
+                        <TableCell>{u.department || "-"}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-1">
                             <Button variant="ghost" size="icon" title="Edit user" onClick={() => openEditDialog(u)}>

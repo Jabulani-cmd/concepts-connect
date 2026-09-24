@@ -109,7 +109,7 @@ export default function DemoDataSeederPanel() {
   async function persistPeople(seed: Seed): Promise<SavedIds> {
     const year = String(new Date().getFullYear());
 
-    // Subjects — reuse by name.
+    // Subjects - reuse by name.
     const subjectNames = seed.subjects.map((s) => s.name);
     const { data: existingSubs } = await supabase.from("subjects").select("id, name").in("name", subjectNames);
     const subByName = new Map((existingSubs ?? []).map((s) => [s.name, s.id]));
@@ -121,7 +121,7 @@ export default function DemoDataSeederPanel() {
     }
     const subIdMap = new Map(seed.subjects.map((s) => [s.id, subByName.get(s.name)!]));
 
-    // Classes — before students, so the roster trigger links each student to their class.
+    // Classes - before students, so the roster trigger links each student to their class.
     const classNames = seed.classes.map((c) => c.name);
     const { data: existingCls } = await supabase.from("classes").select("id, name").in("name", classNames);
     const clsByName = new Map((existingCls ?? []).map((c) => [c.name, c.id]));
@@ -139,7 +139,7 @@ export default function DemoDataSeederPanel() {
     }
     const classIdMap = new Map(seed.classes.map((c) => [c.id, clsByName.get(c.name)!]));
 
-    // Staff — one record per teacher; logins are attached later by email.
+    // Staff - one record per teacher; logins are attached later by email.
     const teacherEmails = seed.teachers.map((t) => t.email);
     const { data: existingStaff } = await supabase.from("staff").select("id, email").in("email", teacherEmails);
     const staffByEmail = new Map((existingStaff ?? []).map((s) => [s.email?.toLowerCase(), s.id]));
@@ -179,7 +179,7 @@ export default function DemoDataSeederPanel() {
       if (teacher) await supabase.from("classes").update({ class_teacher_id: teacher }).eq("id", classIdMap.get(c.id)!);
     }
 
-    // Students — upserted by admission number so re-seeding keeps their logins.
+    // Students - upserted by admission number so re-seeding keeps their logins.
     // The first parent listed for a family (the mother, or the guardian) is the student's contact.
     const guardianOf = new Map([...seed.parents].reverse().flatMap((p) => p.childIds.map((id) => [id, p] as const)));
     const studentRows = seed.students.map((s) => {
@@ -234,7 +234,7 @@ export default function DemoDataSeederPanel() {
         supabase.from("class_subjects").upsert(r, { onConflict: "class_id,subject_id" }));
     }
 
-    // timetable_entries — the weekly grid used by the student, teacher and parent portals.
+    // timetable_entries - the weekly grid used by the student, teacher and parent portals.
     await supabase.from("timetable_entries").delete().eq("term", "DEMO");
     const ttRows = seed.slots.filter((s) => s.subjectId).map((s) => ({
       class_id: classIdMap.get(s.classId)!,
@@ -250,7 +250,7 @@ export default function DemoDataSeederPanel() {
       await writeWithoutMissingTeachers(rows, warnings, "timetable teachers", (r) => supabase.from("timetable_entries").insert(r));
     }
 
-    // tt_definitions + tt_slots — the published timetable widget.
+    // tt_definitions + tt_slots - the published timetable widget.
     await supabase.from("tt_definitions").delete().like("name", "DEMO %");
     const periodToRow: Record<number, number> = { 1: 1, 2: 2, 3: 3, 4: 5, 5: 6, 6: 8, 7: 9, 8: 10 };
     const breakRows = [
@@ -418,7 +418,7 @@ export default function DemoDataSeederPanel() {
       setSummary(summ);
       setShowSummary(true);
       toast(failed
-        ? { title: `Demo data loaded, but ${failed} of ${total} logins failed`, description: `${errors[0] ?? ""} — use "Create missing logins" to retry.`, variant: "destructive" }
+        ? { title: `Demo data loaded, but ${failed} of ${total} logins failed`, description: `${errors[0] ?? ""}. Use "Create missing logins" to retry.`, variant: "destructive" }
         : { title: "Demo data loaded", description: `${summ.students} students, ${summ.parents} parents and ${summ.teachers} teachers can now sign in.` });
     } catch (e) {
       toast({ title: "Loading demo data failed", description: errorMessage(e, "Could not save the demo school"), variant: "destructive" });
@@ -512,7 +512,7 @@ export default function DemoDataSeederPanel() {
               {seeded && <Badge className="bg-green-600 hover:bg-green-700"><CheckCircle2 className="h-3 w-3 mr-1" />Loaded</Badge>}
             </CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
-              One-click populate the entire system with realistic Zimbabwean school data (ZIMSEC O-Level and A-Level) — students, parents,
+              One-click populate the entire system with realistic Zimbabwean school data (ZIMSEC O-Level and A-Level): students, parents,
               teachers, subjects, classes, venues and a complete weekly timetable.
             </p>
           </div>
@@ -545,7 +545,7 @@ export default function DemoDataSeederPanel() {
                 <p className="text-xs text-muted-foreground">
                   Logins: {accountProgress.done} / {accountProgress.total}
                   {accountProgress.failed > 0 && <span className="text-destructive"> · {accountProgress.failed} failed</span>}
-                  {" "}— this takes a few minutes; keep this page open.
+                  {" "}This takes a few minutes; keep this page open.
                 </p>
               )}
               <div className="space-y-1.5">
@@ -585,7 +585,7 @@ export default function DemoDataSeederPanel() {
 
           {seeded && (
             <p className="text-xs text-muted-foreground mt-3">
-              Loaded {new Date(people.loadedAt!).toLocaleString()} — visible across student, teacher, parent and admin portals.
+              Loaded {new Date(people.loadedAt!).toLocaleString()}. Visible across student, teacher, parent and admin portals.
               School day: {DEMO_PERIODS[0].start}–{DEMO_PERIODS[DEMO_PERIODS.length - 1].end}, {DEMO_PERIODS.length} periods × 45 min, break after P3, lunch after P5.
             </p>
           )}
@@ -610,7 +610,7 @@ export default function DemoDataSeederPanel() {
               <Row label="Subjects"            value={summary.subjects}  hint="Linked to relevant forms" />
               <Row label="Classes"             value={summary.classes}   hint="Form 1A–4C, plus Form 5A/5B and Form 6A/6B" />
               <Row label="Venues"              value={summary.rooms}     hint="Classrooms, labs, hall, sports field" />
-              <Row label="Login accounts"      value={summary.logins}    hint={summary.failedLogins ? `${summary.failedLogins} failed: ${summary.errors[0] ?? "unknown error"} — use "Create missing logins" to retry` : "Admin, teachers, students and parents — all linked"} />
+              <Row label="Login accounts"      value={summary.logins}    hint={summary.failedLogins ? `${summary.failedLogins} failed: ${summary.errors[0] ?? "unknown error"}. Use "Create missing logins" to retry` : "Admin, teachers, students and parents. All linked"} />
               <Row label="Timetable periods"   value={summary.periods}   hint="Lessons plus supervised study periods, with teacher, venue and time" />
             </div>
           )}

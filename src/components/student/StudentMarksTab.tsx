@@ -44,9 +44,9 @@ export default function StudentMarksTab({ studentId }: Props) {
     const manual: MarkRow[] = (marks || []).map((m) => ({
       id: `m-${m.id}`,
       source: "manual" as const,
-      subjectName: m.subjects?.name || "—",
-      description: m.comment || "—",
-      assessmentType: m.assessment_type || "—",
+      subjectName: m.subjects?.name || "-",
+      description: m.comment || "-",
+      assessmentType: m.assessment_type || "-",
       term: m.term,
       percent: Number(m.mark) || 0,
       scoreLabel: `${m.mark}%`,
@@ -61,7 +61,7 @@ export default function StudentMarksTab({ studentId }: Props) {
       return {
         id: `r-${r.id}`,
         source: r.graded_by ? "teacher" as const : "ai" as const,
-        subjectName: r.assessments?.subjects?.name || "—",
+        subjectName: r.assessments?.subjects?.name || "-",
         description: r.assessments?.title || "Assessment",
         assessmentType: r.assessments?.assessment_type || "assessment",
         term: null,

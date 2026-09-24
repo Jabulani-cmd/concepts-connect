@@ -312,7 +312,7 @@ export default function DataMigration() {
                         <TableRow key={i}>
                           <TableCell>{r.row}</TableCell>
                           <TableCell className="font-mono text-xs">{r.field}</TableCell>
-                          <TableCell className="max-w-[120px] truncate text-xs">{r.value || "—"}</TableCell>
+                          <TableCell className="max-w-[120px] truncate text-xs">{r.value || "-"}</TableCell>
                           <TableCell className="text-xs">{r.issue}</TableCell>
                           <TableCell>
                             {r.severity === "error" ? <Badge variant="destructive">Error</Badge> : <Badge className="bg-yellow-500">Warning</Badge>}

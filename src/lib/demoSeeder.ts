@@ -1,4 +1,4 @@
-// Demo data seeder — generates a complete, realistic Zimbabwean secondary school:
+// Demo data seeder - generates a complete, realistic Zimbabwean secondary school:
 // 500 students in Forms 1–6, their parents/guardians, teachers, classes, ZIMSEC
 // O-Level and A-Level subjects and a solved weekly timetable. Deterministic, so
 // every run produces the same people and the same logins.

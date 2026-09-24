@@ -556,7 +556,7 @@ function ChildSelector({
         <SelectContent>
           {children.map((c) => (
             <SelectItem key={c.id} value={c.id}>
-              {c.full_name} — {c.form} {c.stream}
+              {c.full_name} · {c.form} {c.stream}
             </SelectItem>
           ))}
         </SelectContent>
@@ -673,7 +673,7 @@ function TabContentInner(props: TabContentProps) {
                 <TrendingUp className="h-5 w-5 text-blue-600" />
               </div>
               <div>
-                <p className="text-lg font-bold text-blue-700">{avgMark > 0 ? `${avgMark}%` : "—"}</p>
+                <p className="text-lg font-bold text-blue-700">{avgMark > 0 ? `${avgMark}%` : "-"}</p>
                 <p className="text-[11px] text-muted-foreground">Avg. Grade</p>
               </div>
             </CardContent>
@@ -686,7 +686,7 @@ function TabContentInner(props: TabContentProps) {
               </div>
               <div>
                 <p className="text-lg font-bold text-amber-700">
-                  {rankings?.overall_rank ? `#${rankings.overall_rank}` : "—"}
+                  {rankings?.overall_rank ? `#${rankings.overall_rank}` : "-"}
                 </p>
                 <p className="text-[11px] text-muted-foreground">Class Rank</p>
               </div>
@@ -756,7 +756,7 @@ function TabContentInner(props: TabContentProps) {
 
     return (
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-        <PrintableSection title={`Exam Results — ${child.full_name}`} subtitle={selectedExam ? `${selectedExam.name} — ${selectedExam.term} ${selectedExam.academic_year}` : (child.form || "")} fileName={`exam-results-${child.admission_number || child.full_name}`} bare>
+        <PrintableSection title={`Exam Results: ${child.full_name}`} subtitle={selectedExam ? `${selectedExam.name} · ${selectedExam.term} ${selectedExam.academic_year}` : (child.form || "")} fileName={`exam-results-${child.admission_number || child.full_name}`} bare>
 
 
         {exams.length === 0 ? (
@@ -775,7 +775,7 @@ function TabContentInner(props: TabContentProps) {
               <SelectContent>
                 {exams.map((e) => (
                   <SelectItem key={e.id} value={e.id}>
-                    {e.name} — {e.term} {e.academic_year}
+                    {e.name} · {e.term} {e.academic_year}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -804,7 +804,7 @@ function TabContentInner(props: TabContentProps) {
                   <Card className="bg-gradient-to-br from-amber-50 to-amber-100/50 border-amber-200/40">
                     <CardContent className="p-3 text-center">
                       <Trophy className="mx-auto mb-1 h-5 w-5 text-amber-600" />
-                      <p className="text-lg font-bold text-amber-700">{overallRank ? overallRank.rank : "—"}</p>
+                      <p className="text-lg font-bold text-amber-700">{overallRank ? overallRank.rank : "-"}</p>
                       <p className="text-[10px] text-muted-foreground">
                         {overallRank ? `of ${overallRank.total}` : "Rank"}
                       </p>
@@ -814,7 +814,7 @@ function TabContentInner(props: TabContentProps) {
                     <CardContent className="p-3 text-center">
                       <Award className="mx-auto mb-1 h-5 w-5 text-emerald-600" />
                       <p className="text-xs font-bold text-emerald-700 truncate">
-                        {examResults[0]?.subjects?.name || "—"}
+                        {examResults[0]?.subjects?.name || "-"}
                       </p>
                       <p className="text-lg font-bold text-emerald-700">{examResults[0]?.mark || 0}%</p>
                       <p className="text-[10px] text-muted-foreground">Best</p>
@@ -863,7 +863,7 @@ function TabContentInner(props: TabContentProps) {
                                       <span className="font-semibold">{sr.rank}</span>/{sr.total}
                                     </span>
                                   ) : (
-                                    "—"
+                                    "-"
                                   )}
                                 </td>
                               </tr>
@@ -885,7 +885,7 @@ function TabContentInner(props: TabContentProps) {
                                   {overallRank.rank}/{overallRank.total}
                                 </span>
                               ) : (
-                                "—"
+                                "-"
                               )}
                             </td>
                           </tr>
@@ -907,7 +907,7 @@ function TabContentInner(props: TabContentProps) {
   if (activeTab === "marks") {
     return (
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-        <PrintableSection title={`Marks — ${child.full_name}`} subtitle={`Admission ${child.admission_number || ""}`} fileName={`marks-${child.admission_number || child.full_name}`} bare>
+        <PrintableSection title={`Marks: ${child.full_name}`} subtitle={`Admission ${child.admission_number || ""}`} fileName={`marks-${child.admission_number || child.full_name}`} bare>
           <StudentMarksTab studentId={child.id} />
         </PrintableSection>
       </motion.div>
@@ -922,7 +922,7 @@ function TabContentInner(props: TabContentProps) {
 
     return (
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-        <PrintableSection title={`Attendance — ${child.full_name}`} subtitle={`Admission ${child.admission_number || ""}`} fileName={`attendance-${child.admission_number || child.full_name}`} bare>
+        <PrintableSection title={`Attendance: ${child.full_name}`} subtitle={`Admission ${child.admission_number || ""}`} fileName={`attendance-${child.admission_number || child.full_name}`} bare>
 
 
         {/* Summary */}
@@ -994,7 +994,7 @@ function TabContentInner(props: TabContentProps) {
                           </Badge>
                         </td>
                         <td className="px-3 py-2 text-xs text-muted-foreground hidden sm:table-cell">
-                          {a.notes || "—"}
+                          {a.notes || "-"}
                         </td>
                       </tr>
                     ))}
@@ -1022,7 +1022,7 @@ function TabContentInner(props: TabContentProps) {
     );
     return (
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-        <h2 className="text-lg font-bold">Fee Statement — {child.full_name}</h2>
+        <h2 className="text-lg font-bold">Fee Statement: {child.full_name}</h2>
 
 
         {/* Balance summary */}
@@ -1093,7 +1093,7 @@ function TabContentInner(props: TabContentProps) {
             email={{
               documentLabel: "Student Statement",
               filename: `statement-${(child.full_name || "student").replace(/\s+/g, "-").toLowerCase()}`,
-              subject: `Statement of Account — ${child.full_name}`,
+              subject: `Statement of Account: ${child.full_name}`,
             }}
           />
         )}
@@ -1143,7 +1143,7 @@ function TabContentInner(props: TabContentProps) {
                               email={{
                                 documentLabel: "Invoice",
                                 filename: `invoice-${inv.invoice_number}`,
-                                subject: `Invoice ${inv.invoice_number} — ${child.full_name}`,
+                                subject: `Invoice ${inv.invoice_number} · ${child.full_name}`,
                               }}
                             />
                           </div>
@@ -1240,7 +1240,7 @@ function TabContentInner(props: TabContentProps) {
                               email={{
                                 documentLabel: "Invoice",
                                 filename: `invoice-${inv.invoice_number}`,
-                                subject: `Invoice ${inv.invoice_number} — ${child.full_name}`,
+                                subject: `Invoice ${inv.invoice_number} · ${child.full_name}`,
                               }}
                             />
                           </td>
@@ -1250,7 +1250,7 @@ function TabContentInner(props: TabContentProps) {
                                 <CreditCard className="w-3 h-3 mr-1" /> Pay
                               </Button>
                             ) : (
-                              <span className="text-xs text-muted-foreground">—</span>
+                              <span className="text-xs text-muted-foreground">-</span>
                             )}
                           </td>
                         </tr>
@@ -1309,7 +1309,7 @@ function TabContentInner(props: TabContentProps) {
   if (activeTab === "timetable") {
     return (
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-        <PrintableSection title={`Class Timetable — ${child.full_name}`} subtitle={`${child.form || ""} ${child.stream || ""}`.trim()} fileName={`class-timetable-${child.admission_number || child.full_name}`} bare>
+        <PrintableSection title={`Class Timetable: ${child.full_name}`} subtitle={`${child.form || ""} ${child.stream || ""}`.trim()} fileName={`class-timetable-${child.admission_number || child.full_name}`} bare>
           <StudentTimetableTab studentClassId={childClassId} studentId={child.id} />
         </PrintableSection>
       </motion.div>
@@ -1319,7 +1319,7 @@ function TabContentInner(props: TabContentProps) {
   if (activeTab === "exam-timetable") {
     return (
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-        <PrintableSection title={`Exam Timetable — ${child.full_name}`} subtitle={child.form || ""} fileName={`exam-timetable-${child.admission_number || child.full_name}`} bare>
+        <PrintableSection title={`Exam Timetable: ${child.full_name}`} subtitle={child.form || ""} fileName={`exam-timetable-${child.admission_number || child.full_name}`} bare>
           <StudentExamTimetableTab studentId={child.id} formLevel={child.form} />
         </PrintableSection>
       </motion.div>
@@ -1329,7 +1329,7 @@ function TabContentInner(props: TabContentProps) {
   if (activeTab === "reports") {
     return (
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-        <PrintableSection title={`Term Reports — ${child.full_name}`} subtitle={`Admission ${child.admission_number || ""}`} fileName={`term-reports-${child.admission_number || child.full_name}`} bare>
+        <PrintableSection title={`Term Reports: ${child.full_name}`} subtitle={`Admission ${child.admission_number || ""}`} fileName={`term-reports-${child.admission_number || child.full_name}`} bare>
           <StudentTermReportsTab />
         </PrintableSection>
       </motion.div>
@@ -1401,7 +1401,7 @@ function ParentPaymentHistory({
   const emailFor = (p: ChildPayment) => ({
     documentLabel: "Receipt",
     filename: `receipt-${p.receipt_number}`,
-    subject: `Official Receipt ${p.receipt_number} — ${childName}`,
+    subject: `Official Receipt ${p.receipt_number} · ${childName}`,
   });
 
   if (loading) return <div className="h-20 animate-pulse rounded-lg bg-muted" />;

@@ -7,7 +7,7 @@ import { buildReceiptHtml, SCHOOL_LOGO_URL, type ReceiptPrintInput } from "./pdf
 import { renderHtmlToPdf } from "./print";
 import { uploadPrivateFile } from "@/lib/privateFiles";
 
-// Payment methods that self-verify (instant gateway) — bank transfer requires
+// Payment methods that self-verify (instant gateway) - bank transfer requires
 // a clerk to review the uploaded proof-of-payment.
 const INSTANT_METHODS = new Set([
   "card", "eft", "ecocash", "onemoney", "telecash", "paynow_web", "online", "cash", "mobile_money", "paynow",
@@ -35,7 +35,7 @@ export type GenerateReceiptArgs = {
  * Renders the branded receipt as a PDF, uploads it to the private bucket as
  * receipts/<payment id>.pdf, and updates the payment row with a reference to it
  * (+ verified_at / verified_by when autoVerify is on). Returns the stored
- * reference (open it with openStoredFile), or null on any failure — the payment
+ * reference (open it with openStoredFile), or null on any failure - the payment
  * itself is left intact and the receipt can be regenerated later.
  */
 export async function generateAndStoreReceipt(args: GenerateReceiptArgs): Promise<string | null> {

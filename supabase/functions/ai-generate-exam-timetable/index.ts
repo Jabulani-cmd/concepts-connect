@@ -1,6 +1,10 @@
 // AI-powered exam timetable generation.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
+// AI text never shows em dashes: the model is told not to use them, and any that slip through are replaced.
+const NO_EM_DASH = " Never use em dash characters; use commas, colons or full stops instead.";
+const noEmDash = (s: string) => s.replace(/ \u2014 /g, ", ").replace(/\u2014/g, "-");
+
 const SYSTEM_PROMPT = `You generate exam timetables. Return ONLY via the build_exam_timetable tool.
 Rules:
 - Avoid student clashes: no two exams for the same grade in the same session.
@@ -17,7 +21,7 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: "LOVABLE_API_KEY missing" }),
+      return new Response(noEmDash(JSON.stringify({ error: "LOVABLE_API_KEY missing" })),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
@@ -27,7 +31,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: SYSTEM_PROMPT + NO_EM_DASH },
           { role: "user", content: `Build exam timetable:\n${JSON.stringify(body, null, 2)}` },
         ],
         tools: [{
@@ -68,20 +72,20 @@ Deno.serve(async (req) => {
 
     if (!aiRes.ok) {
       const txt = await aiRes.text();
-      return new Response(JSON.stringify({ error: "AI gateway error", detail: txt }),
+      return new Response(noEmDash(JSON.stringify({ error: "AI gateway error", detail: txt })),
         { status: aiRes.status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
     const ai = await aiRes.json();
     const call = ai?.choices?.[0]?.message?.tool_calls?.[0];
     if (!call?.function?.arguments) {
-      return new Response(JSON.stringify({ error: "No structured output" }),
+      return new Response(noEmDash(JSON.stringify({ error: "No structured output" })),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
     const result = JSON.parse(call.function.arguments);
-    return new Response(JSON.stringify({ ...result, generation_time_ms: Date.now() - startedAt }),
+    return new Response(noEmDash(JSON.stringify({ ...result, generation_time_ms: Date.now() - startedAt })),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (e) {
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown" }),
+    return new Response(noEmDash(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown" })),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 });

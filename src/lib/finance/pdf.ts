@@ -94,7 +94,7 @@ export function buildInvoicePdf(input: InvoicePdfInput): jsPDF {
   const detailY = topY + 33;
   doc.text(`Invoice #: ${input.invoiceNumber}`, 14, detailY);
   doc.text(`Term: ${input.term}  |  Year: ${input.academicYear}`, 14, detailY + 5);
-  doc.text(`Due Date: ${input.dueDate ? new Date(input.dueDate).toLocaleDateString() : "—"}`, 14, detailY + 10);
+  doc.text(`Due Date: ${input.dueDate ? new Date(input.dueDate).toLocaleDateString() : "-"}`, 14, detailY + 10);
 
   // Student info
   doc.text(`Student: ${input.student.fullName}`, pageWidth / 2, detailY, { align: "left" });
@@ -229,7 +229,7 @@ export function buildInvoiceHtml(input: InvoicePdfInput): string {
     </div>
     <div class="right">
       <div><strong>Term:</strong> ${safeHtml(input.term)} | <strong>Year:</strong> ${safeHtml(input.academicYear)}</div>
-      <div><strong>Due Date:</strong> ${input.dueDate ? new Date(input.dueDate).toLocaleDateString("en-GB") : "—"}</div>
+      <div><strong>Due Date:</strong> ${input.dueDate ? new Date(input.dueDate).toLocaleDateString("en-GB") : "-"}</div>
       <div><strong>Date:</strong> ${new Date().toLocaleDateString("en-GB")}</div>
     </div>
   </div>
@@ -335,7 +335,7 @@ export function buildReceiptHtml(input: ReceiptPrintInput) {
   <div class="box">
     <div class="row">
       <div><strong>Payment Method:</strong> ${safeHtml(paymentMethodLabel(input.paymentMethod))}</div>
-      <div><strong>Reference:</strong> <span class="mono">${safeHtml(input.referenceNumber || "—")}</span></div>
+      <div><strong>Reference:</strong> <span class="mono">${safeHtml(input.referenceNumber || "-")}</span></div>
     </div>
     <hr />
     <div class="row">
@@ -481,7 +481,7 @@ export function buildIncomeExpenditureHtml(input: IncomeExpenditureInput): strin
       <td>${safeHtml(r.party)}</td>
       <td>${safeHtml(r.method)}</td>
       <td class="right mono green">${formatMoney(r.usd)}</td>
-      <td class="mono">${safeHtml(r.ref || "—")}</td>
+      <td class="mono">${safeHtml(r.ref || "-")}</td>
     </tr>`).join("");
 
   const expenseRows = input.expenses.map(r => `
@@ -489,7 +489,7 @@ export function buildIncomeExpenditureHtml(input: IncomeExpenditureInput): strin
       <td>${safeHtml(r.date)}</td>
       <td>${safeHtml(r.category)}</td>
       <td>${safeHtml(r.description)}</td>
-      <td>${safeHtml(r.method || "—")}</td>
+      <td>${safeHtml(r.method || "-")}</td>
       <td class="right mono red">${formatMoney(r.usd)}</td>
     </tr>`).join("");
 
@@ -497,8 +497,8 @@ export function buildIncomeExpenditureHtml(input: IncomeExpenditureInput): strin
     <tr>
       <td>${safeHtml(r.date)}</td>
       <td>${safeHtml(r.supplier)}</td>
-      <td>${safeHtml(r.method || "—")}</td>
-      <td class="mono">${safeHtml(r.ref || "—")}</td>
+      <td>${safeHtml(r.method || "-")}</td>
+      <td class="mono">${safeHtml(r.ref || "-")}</td>
       <td class="right mono red">${formatMoney(r.usd)}</td>
     </tr>`).join("");
 
@@ -513,7 +513,7 @@ export function buildIncomeExpenditureHtml(input: IncomeExpenditureInput): strin
 <html><head>
   <meta charset="utf-8" />
   <base href="${typeof window !== "undefined" ? window.location.origin : ""}/" />
-  <title>Income & Expenditure — ${safeHtml(input.periodLabel)}</title>
+  <title>Income & Expenditure: ${safeHtml(input.periodLabel)}</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 24px; font-size: 11px; max-width: 900px; margin: 0 auto; color: #1a1a1a; }
     .header { display:flex; gap:18px; align-items:center; }
@@ -572,19 +572,19 @@ export function buildIncomeExpenditureHtml(input: IncomeExpenditureInput): strin
   ${categoryRows ? `<h3>Expenditure breakdown by category</h3>
   <table><thead><tr><th>Category</th><th class="right">Amount (US$ / ZiG)</th></tr></thead><tbody>${categoryRows}</tbody></table>` : ""}
 
-  <h3>Income — ${input.income.length} transaction(s)</h3>
+  <h3>Income: ${input.income.length} transaction(s)</h3>
   <table>
     <thead><tr><th>Date</th><th>Receipt #</th><th>Party / Student</th><th>Method</th><th class="right">Amount (US$ / ZiG)</th><th>Reference</th></tr></thead>
     <tbody>${incomeRows || `<tr><td colspan="6" style="text-align:center;color:#999;">No income recorded for this period.</td></tr>`}</tbody>
   </table>
 
-  <h3>General Expenses — ${input.expenses.length} transaction(s)</h3>
+  <h3>General Expenses: ${input.expenses.length} transaction(s)</h3>
   <table>
     <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Method</th><th class="right">Amount (US$ / ZiG)</th></tr></thead>
     <tbody>${expenseRows || `<tr><td colspan="5" style="text-align:center;color:#999;">No expenses recorded for this period.</td></tr>`}</tbody>
   </table>
 
-  <h3>Supplier Payments — ${input.supplierPayments.length} transaction(s)</h3>
+  <h3>Supplier Payments: ${input.supplierPayments.length} transaction(s)</h3>
   <table>
     <thead><tr><th>Date</th><th>Supplier</th><th>Method</th><th>Reference</th><th class="right">Amount (US$ / ZiG)</th></tr></thead>
     <tbody>${supplierRows || `<tr><td colspan="5" style="text-align:center;color:#999;">No supplier payments recorded for this period.</td></tr>`}</tbody>
@@ -627,8 +627,8 @@ export function buildExpensesListHtml(input: ExpensesListInput): string {
       <td>${safeHtml(e.expense_date)}</td>
       <td>${safeHtml(e.category)}</td>
       <td>${safeHtml(e.description)}</td>
-      <td>${safeHtml(e.payment_method || "—")}</td>
-      <td class="mono">${safeHtml(e.reference_number || "—")}</td>
+      <td>${safeHtml(e.payment_method || "-")}</td>
+      <td class="mono">${safeHtml(e.reference_number || "-")}</td>
       <td class="right mono red">${formatMoney(Number(e.amount_usd))}</td>
     </tr>`).join("");
 
@@ -637,7 +637,7 @@ export function buildExpensesListHtml(input: ExpensesListInput): string {
 <html><head>
   <meta charset="utf-8" />
   <base href="${typeof window !== "undefined" ? window.location.origin : ""}/" />
-  <title>Expenses Report — ${safeHtml(input.periodLabel)}</title>
+  <title>Expenses Report: ${safeHtml(input.periodLabel)}</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 24px; font-size: 11px; max-width: 900px; margin: 0 auto; color: #1a1a1a; }
     .header { display:flex; gap:18px; align-items:center; }

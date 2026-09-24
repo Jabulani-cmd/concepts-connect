@@ -25,7 +25,7 @@ const clubsData: Record<string, { name: string; desc: string }> = {
   drama: { name: "Drama Club", desc: "Annual productions and inter-school drama competitions." },
   debate: { name: "Debate Society", desc: "Critical thinking and public speaking development." },
   community: { name: "Community Service", desc: "Outreach programmes and environmental conservation." },
-  chess: { name: "Chess Club", desc: "Strategic thinking — provincial finalists 2025." },
+  chess: { name: "Chess Club", desc: "Strategic thinking: provincial finalists 2025." },
   science: { name: "Science Club", desc: "Hands-on experiments and science olympiads." },
 };
 

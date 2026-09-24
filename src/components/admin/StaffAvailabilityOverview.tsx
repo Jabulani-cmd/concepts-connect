@@ -199,14 +199,14 @@ export default function StaffAvailabilityOverview() {
                         {r.staff?.full_name || "Unknown"}
                         {isActive && <Badge variant="destructive" className="ml-2 text-[10px]">Away</Badge>}
                       </TableCell>
-                      <TableCell className="text-muted-foreground">{r.staff?.department || "—"}</TableCell>
+                      <TableCell className="text-muted-foreground">{r.staff?.department || "-"}</TableCell>
                       <TableCell className="capitalize">{r.leave_type.replace("_", " ")}</TableCell>
                       <TableCell className="text-xs">
-                        {new Date(r.start_date).toLocaleDateString()} — {new Date(r.end_date).toLocaleDateString()}
+                        {new Date(r.start_date).toLocaleDateString()} to {new Date(r.end_date).toLocaleDateString()}
                       </TableCell>
                       <TableCell className="text-center font-medium">{getDaysCount(r.start_date, r.end_date)}</TableCell>
                       <TableCell><Badge className={cfg.color}>{cfg.label}</Badge></TableCell>
-                      <TableCell className="max-w-[200px] truncate text-xs text-muted-foreground">{r.reason || "—"}</TableCell>
+                      <TableCell className="max-w-[200px] truncate text-xs text-muted-foreground">{r.reason || "-"}</TableCell>
                       <TableCell className="text-right">
                         {canAct && (
                           <div className="flex justify-end gap-1 flex-wrap">

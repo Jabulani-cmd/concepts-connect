@@ -100,7 +100,7 @@ export default function LessonPlanGenerator() {
             <BookOpen className="h-5 w-5 text-primary" /> Lesson Plan Generator
             <Badge variant="secondary">ZIMSEC aligned</Badge>
           </CardTitle>
-          <CardDescription>Objectives, a full lesson outline and an assessment idea — editable before saving.</CardDescription>
+          <CardDescription>Objectives, a full lesson outline and an assessment idea, editable before saving.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

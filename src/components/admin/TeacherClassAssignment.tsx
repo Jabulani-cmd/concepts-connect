@@ -279,7 +279,7 @@ export default function TeacherClassAssignment({ classes, subjects, staff, onRef
         <CardHeader>
           <CardTitle className="text-base font-heading">
             {selectedTeacher !== "all"
-              ? `Assignments — ${teachers.find(t => t.id === selectedTeacher)?.full_name || "Teacher"}`
+              ? `Assignments: ${teachers.find(t => t.id === selectedTeacher)?.full_name || "Teacher"}`
               : "All Teacher-Class Assignments"}
           </CardTitle>
           <CardDescription>
@@ -308,7 +308,7 @@ export default function TeacherClassAssignment({ classes, subjects, staff, onRef
                     );
                     return (
                       <TableRow key={a.id}>
-                        <TableCell className="font-medium">{a.staff?.full_name || "—"}</TableCell>
+                        <TableCell className="font-medium">{a.staff?.full_name || "-"}</TableCell>
                         <TableCell>{a.classes?.name}</TableCell>
                         <TableCell>{a.subjects?.name}</TableCell>
                         <TableCell>
@@ -321,7 +321,7 @@ export default function TeacherClassAssignment({ classes, subjects, staff, onRef
                               ))}
                             </div>
                           ) : (
-                            <span className="text-xs text-muted-foreground">None — use Auto-Generate</span>
+                            <span className="text-xs text-muted-foreground">None. Use Auto-Generate</span>
                           )}
                         </TableCell>
                         <TableCell>
@@ -372,10 +372,10 @@ export default function TeacherClassAssignment({ classes, subjects, staff, onRef
                             <td key={di} className="border px-1 py-1 text-center">
                               {entry ? (
                                 <div>
-                                  <p className="font-semibold text-accent">{entry.subjects?.name || "—"}</p>
+                                  <p className="font-semibold text-accent">{entry.subjects?.name || "-"}</p>
                                   <p className="text-muted-foreground">{entry.classes?.name}</p>
                                 </div>
-                              ) : "—"}
+                              ) : "-"}
                             </td>
                           );
                         })}
@@ -478,7 +478,7 @@ export default function TeacherClassAssignment({ classes, subjects, staff, onRef
             <div className="rounded-lg bg-muted p-3 text-sm space-y-1">
               <p className="font-medium">Will generate periods for:</p>
               {assignments.filter(a => a.teacher_id === autoTTTeacher).map(a => (
-                <p key={a.id} className="text-muted-foreground">• {a.classes?.name} — {a.subjects?.name}</p>
+                <p key={a.id} className="text-muted-foreground">• {a.classes?.name} · {a.subjects?.name}</p>
               ))}
             </div>
           )}

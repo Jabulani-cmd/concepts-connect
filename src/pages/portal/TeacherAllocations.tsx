@@ -59,7 +59,7 @@ export default function TeacherAllocations() {
           </p>
         </div>
         <Badge variant="secondary" className="bg-amber-100 text-amber-900 border border-amber-300">
-          DEMO MODE — in-memory data
+          DEMO MODE: in-memory data
         </Badge>
       </div>
 

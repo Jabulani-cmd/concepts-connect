@@ -16,7 +16,7 @@ const waitFor = async (fn: () => void | Promise<void>, timeout = 1000) => {
  *
  * Verifies that the hook subscribes to postgres_changes on all four tables
  * (subscriptions, payments, access_grants, parent_students) and that an event
- * on each one triggers a re-fetch — which is what unlocks both the parent
+ * on each one triggers a re-fetch - which is what unlocks both the parent
  * and student portals the moment any of those rows change.
  */
 

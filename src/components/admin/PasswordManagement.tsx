@@ -186,8 +186,8 @@ export default function PasswordManagement() {
                 <TableRow><TableCell colSpan={4} className="text-center py-8 text-muted-foreground">No users found.</TableCell></TableRow>
               ) : filtered.map(u => (
                 <TableRow key={u.id}>
-                  <TableCell className="font-medium">{u.full_name || "—"}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{u.email || "—"}</TableCell>
+                  <TableCell className="font-medium">{u.full_name || "-"}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{u.email || "-"}</TableCell>
                   <TableCell>
                     <Badge className={roleColors[u.portal_role] || "bg-muted text-muted-foreground"}>
                       {u.portal_role?.replace("_", " ") || "unknown"}

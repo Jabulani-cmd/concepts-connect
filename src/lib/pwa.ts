@@ -63,6 +63,29 @@ export async function promptInstall(): Promise<boolean> {
   return outcome === "accepted";
 }
 
+const RELOAD_KEY = "mavingtech.reloadedForUpdate";
+
+/**
+ * A screen's file could not be loaded: this copy of the app is older than the
+ * published one. Fetch the new version and reload, at most once a minute so a
+ * real outage cannot cause a reload loop. Returns false if it already tried.
+ */
+export function reloadForNewVersion(): boolean {
+  try {
+    const last = Number(sessionStorage.getItem(RELOAD_KEY));
+    if (last && Date.now() - last < 60_000) return false;
+    sessionStorage.setItem(RELOAD_KEY, String(Date.now()));
+  } catch {
+    // Without storage, still try once.
+  }
+  const reload = () => window.location.reload();
+  navigator.serviceWorker?.getRegistration()
+    .then((r) => r?.update())
+    .catch(() => {})
+    .finally(reload);
+  return true;
+}
+
 /** Switches to the new version and reloads the page. */
 export function updateNow() {
   void applyUpdate?.(true);
@@ -72,6 +95,10 @@ export function initPwa() {
   if (typeof window === "undefined") return;
 
   set({ installed: isStandalone() });
+  // Vite reports screen files that fail to load; recover by loading the new version.
+  window.addEventListener("vite:preloadError", (e) => {
+    if (reloadForNewVersion()) e.preventDefault();
+  });
   window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault(); // Show our own Install button instead of the browser's mini-bar.
     set({ installEvent: e as BeforeInstallPromptEvent });
@@ -89,8 +116,11 @@ export function initPwa() {
       applyUpdate = registerSW({
         onNeedRefresh: () => set({ updateReady: true }),
         onRegisteredSW: (_url, registration) => {
-          // Look for a new version every hour while the app stays open.
-          if (registration) setInterval(() => registration.update().catch(() => {}), 60 * 60 * 1000);
+          // Look for a new version whenever the app comes back to the foreground.
+          if (!registration) return;
+          document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible") registration.update().catch(() => {});
+          });
         },
       });
     })

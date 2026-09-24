@@ -348,9 +348,9 @@ export default function RegistrationDashboard() {
                           <TableCell className="font-mono font-medium">{s.admission_number}</TableCell>
                           <TableCell className="font-medium">{s.full_name}</TableCell>
                           <TableCell>{s.form}</TableCell>
-                          <TableCell>{s.stream || "—"}</TableCell>
-                          <TableCell>{s.gender || "—"}</TableCell>
-                          <TableCell className="text-sm">{s.guardian_name || "—"}</TableCell>
+                          <TableCell>{s.stream || "-"}</TableCell>
+                          <TableCell>{s.gender || "-"}</TableCell>
+                          <TableCell className="text-sm">{s.guardian_name || "-"}</TableCell>
                           <TableCell className="text-right space-x-1">
                             <Button size="sm" variant="ghost" onClick={() => setShowDetails(s)}>
                               <Eye className="h-4 w-4" />
@@ -487,19 +487,19 @@ export default function RegistrationDashboard() {
                 <div><span className="text-muted-foreground">Student #:</span> <strong className="font-mono">{showDetails.admission_number}</strong></div>
                 <div><span className="text-muted-foreground">Name:</span> <strong>{showDetails.full_name}</strong></div>
                 <div><span className="text-muted-foreground">Form:</span> {showDetails.form}</div>
-                <div><span className="text-muted-foreground">Stream:</span> {showDetails.stream || "—"}</div>
-                <div><span className="text-muted-foreground">Gender:</span> {showDetails.gender || "—"}</div>
-                <div><span className="text-muted-foreground">DOB:</span> {showDetails.date_of_birth || "—"}</div>
+                <div><span className="text-muted-foreground">Stream:</span> {showDetails.stream || "-"}</div>
+                <div><span className="text-muted-foreground">Gender:</span> {showDetails.gender || "-"}</div>
+                <div><span className="text-muted-foreground">DOB:</span> {showDetails.date_of_birth || "-"}</div>
                 <div><span className="text-muted-foreground">Status:</span> <Badge variant={showDetails.status === "active" ? "default" : "secondary"}>{showDetails.status}</Badge></div>
-                <div><span className="text-muted-foreground">Enrolled:</span> {showDetails.enrollment_date || "—"}</div>
+                <div><span className="text-muted-foreground">Enrolled:</span> {showDetails.enrollment_date || "-"}</div>
               </div>
               <div className="border-t pt-2">
                 <p className="font-semibold mb-1">Guardian</p>
                 <div className="grid grid-cols-2 gap-2">
-                  <div><span className="text-muted-foreground">Name:</span> {showDetails.guardian_name || "—"}</div>
-                  <div><span className="text-muted-foreground">Phone:</span> {showDetails.guardian_phone || "—"}</div>
-                  <div><span className="text-muted-foreground">Email:</span> {showDetails.guardian_email || "—"}</div>
-                  <div><span className="text-muted-foreground">Emergency:</span> {showDetails.emergency_contact || "—"}</div>
+                  <div><span className="text-muted-foreground">Name:</span> {showDetails.guardian_name || "-"}</div>
+                  <div><span className="text-muted-foreground">Phone:</span> {showDetails.guardian_phone || "-"}</div>
+                  <div><span className="text-muted-foreground">Email:</span> {showDetails.guardian_email || "-"}</div>
+                  <div><span className="text-muted-foreground">Emergency:</span> {showDetails.emergency_contact || "-"}</div>
                 </div>
               </div>
               {showDetails.medical_conditions && (
@@ -510,8 +510,8 @@ export default function RegistrationDashboard() {
                 </div>
               )}
               <div className="border-t pt-2">
-                <div><span className="text-muted-foreground">Address:</span> {showDetails.address || "—"}</div>
-                <div><span className="text-muted-foreground">Subject Combination:</span> {showDetails.subject_combination || "—"}</div>
+                <div><span className="text-muted-foreground">Address:</span> {showDetails.address || "-"}</div>
+                <div><span className="text-muted-foreground">Subject Combination:</span> {showDetails.subject_combination || "-"}</div>
               </div>
             </div>
           )}

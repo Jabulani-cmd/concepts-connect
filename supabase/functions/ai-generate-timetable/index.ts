@@ -1,6 +1,10 @@
 // AI-powered timetable generation via Lovable AI Gateway (Gemini).
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
+// AI text never shows em dashes: the model is told not to use them, and any that slip through are replaced.
+const NO_EM_DASH = " Never use em dash characters; use commas, colons or full stops instead.";
+const noEmDash = (s: string) => s.replace(/ \u2014 /g, ", ").replace(/\u2014/g, "-");
+
 interface SubjectRequirement {
   name: string;
   periodsPerWeek: number;
@@ -48,11 +52,11 @@ You MUST return a single JSON object via the build_timetable tool with this exac
   "prioritized": "What you optimized for"
 }
 - day: 1=Monday..7=Sunday, only include days in meta.schoolDays.
-- period: 0-based, MUST be < meta.periodsPerDay. Break periods are inserted by the client — do NOT emit them.
+- period: 0-based, MUST be < meta.periodsPerDay. Break periods are inserted by the client. Do NOT emit them.
 - Honor subject.periodsPerWeek exactly.
 - Honor teacher unavailability.
 - Prefer constraints in this order: hard conflicts > teacher unavailability > preferred time > constraints booleans > free text.
-Return ONLY through the tool — no chatter.`;
+Return ONLY through the tool. No chatter.`;
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -62,7 +66,7 @@ Deno.serve(async (req) => {
     const body = (await req.json()) as GenerateRequest;
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: "LOVABLE_API_KEY not configured" }), {
+      return new Response(noEmDash(JSON.stringify({ error: "LOVABLE_API_KEY not configured" })), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -75,7 +79,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: SYSTEM_PROMPT + NO_EM_DASH },
           { role: "user", content: userMessage },
         ],
         tools: [{
@@ -123,7 +127,7 @@ Deno.serve(async (req) => {
         ? "AI credits exhausted. Add funds in Workspace settings."
         : "AI gateway error.";
       console.error("AI error", status, txt);
-      return new Response(JSON.stringify({ error: friendly, detail: txt }), {
+      return new Response(noEmDash(JSON.stringify({ error: friendly, detail: txt })), {
         status, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -131,7 +135,7 @@ Deno.serve(async (req) => {
     const ai = await aiRes.json();
     const call = ai?.choices?.[0]?.message?.tool_calls?.[0];
     if (!call?.function?.arguments) {
-      return new Response(JSON.stringify({ error: "AI did not return structured timetable" }), {
+      return new Response(noEmDash(JSON.stringify({ error: "AI did not return structured timetable" })), {
         status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -143,7 +147,7 @@ Deno.serve(async (req) => {
     );
   } catch (e) {
     console.error("generate-timetable error", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
+    return new Response(noEmDash(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" })), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }

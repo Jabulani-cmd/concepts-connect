@@ -131,12 +131,12 @@
     "instantEft": "EFT Yekukurumidza",
     "instantEftNote": "CBZ, Stanbic, FBC, ZB Bank, Steward Bank",
     "bankTransfer": "Kutumira Kubhengi",
-    "bankTransferNote": "EFT yemaoko — isa uchapupu hwekubhadhara",
+    "bankTransferNote": "EFT yemaoko: isa uchapupu hwekubhadhara",
     "snapscan": "EcoCash",
     "snapscanNote": "Bhadhara uchishandisa EcoCash",
     "zapper": "OneMoney",
     "zapperNote": "Bhadhara uchishandisa OneMoney",
-    "demoBadge": "Demo Mode — hapana mari chaiyo inobhadharwa",
+    "demoBadge": "Demo Mode: hapana mari chaiyo inobhadharwa",
     "processing": "Kugadzirisa…",
     "contactingBank": "Tiri kubata bhengi rako…",
     "authenticating": "Kusimbisa 3D Secure",
@@ -154,8 +154,8 @@
     "outcomeAuto": "Otomatiki (maererano nenhamba yekadhi)",
     "success": "Mubhadharo Wabudirira",
     "declined": "Mubhadharo Warambwa",
-    "declinedInsufficient": "Mubhadharo Warambwa — Mari Haina Kukwana",
-    "declinedCard": "Kutengeserana Kwatadza — Kadhi Rarambwa",
+    "declinedInsufficient": "Mubhadharo Warambwa: Mari Haina Kukwana",
+    "declinedCard": "Kutengeserana Kwatadza: Kadhi Rarambwa",
     "declinedEft": "Bhengi rako harina kubvumira mubhadharo weEFT.",
     "retry": "Edza Zvakare",
     "changeMethod": "Chinja Nzira",
@@ -183,7 +183,7 @@
     },
     "learning": {
       "title": "Kudzidza Kunotanga Nesu",
-      "p1": "KuMavingTech High School, tinopa nzvimbo inotsigira uye inokurudzira vadzidzi kuti vadzidze, vakure uye vabudirire. Rudo rwedu rwedzidzo runopfuura mhedzisiro yakanaka — tinovaka vafungi vane chivimbo, vanogadzira, vakagadzirira ramangwana.",
+      "p1": "KuMavingTech High School, tinopa nzvimbo inotsigira uye inokurudzira vadzidzi kuti vadzidze, vakure uye vabudirire. Rudo rwedu rwedzidzo runopfuura mhedzisiro yakanaka: tinovaka vafungi vane chivimbo, vanogadzira, vakagadzirira ramangwana.",
       "p2": "Kubva kuForm 1 kusvika kuA Level, vadzidzi vedu vanobuda vaine hunhu, tsika neunyanzvi hwekushandura nyika.",
       "cta": "Ziva Zvimwe Nezvedu"
     },
@@ -199,7 +199,7 @@
       "quote": "KuMavingTech High School, tinotenda kuti mudzidzi wose ane chipo chakakosha. Basa redu nderekurera chipo ichocho netsika, kutenda, kushanda nesimba nerudo rwekuziva.",
       "body": "Mauya munharaunda yedu yechikoro. Pamwe chete nevadzidzisi vedu vakazvipira, vabereki vanotsigira nevadzidzi vane tariro, tinovaka chikoro apo hunyanzvi hwedzidzo hunofamba pamwe nehunhu hwakasimba.",
       "signature": "VaF.J. Moyo",
-      "signatureRole": "— Headmaster, MavingTech High School"
+      "signatureRole": "Headmaster, MavingTech High School"
     },
     "curriculum": {
       "eyebrow": "Zvirongwa Zvekudzidza",
@@ -247,7 +247,7 @@
     "values": {
       "eyebrow": "Zvatinomirira",
       "title": "Tsika Dzedu",
-      "excellence": { "title": "Hunyanzvi", "desc": "Kuedza kusvika pamwero wepamusoro mune zvose — dzidzo, mitambo nehunhu." },
+      "excellence": { "title": "Hunyanzvi", "desc": "Kuedza kusvika pamwero wepamusoro mune zvose: dzidzo, mitambo nehunhu." },
       "integrity": { "title": "Kuvimbika", "desc": "Chokwadi, hunhu nekuzvidavirira zviri pamwoyo wenharaunda yedu." },
       "innovation": { "title": "Kugadzira", "desc": "Kutsvaga ruzivo nekugadzira kunogadzirira vadzidzi vedu nyika iri kukurumidza kuchinja." }
     },
@@ -423,7 +423,7 @@
   },
   "boarding": {
     "title": "Kugara Pachikoro",
-    "subtitle": "Musha uri kure nemusha — hostel dzedu dzinopa nzvimbo yakachengeteka inorera.",
+    "subtitle": "Musha uri kure nemusha: hostel dzedu dzinopa nzvimbo yakachengeteka inorera.",
     "features": {
       "accommodation": { "title": "Nzvimbo Yakanaka Yekugara", "desc": "Makamuri azvino ane hostel dzakaparadzana dzevakomana nevasikana." },
       "safety": { "title": "Kuchengeteka", "desc": "Chengetedzo ya24 maawa nevachengeti vemba vakadzidziswa." },
@@ -494,10 +494,14 @@
     "iosTitle": "Isa pascreen yako",
     "iosStep1": "Dzvanya bhatani reShare muSafari",
     "iosStep2": "Sarudza “Add to Home Screen”",
-    "iosStep3": "Dzvanya “Add” — chiratidzo che app chinobuda pascreen yako",
+    "iosStep3": "Dzvanya “Add”: chiratidzo che app chinobuda pascreen yako",
     "updateReady": "Pane shanduro itsva ye app.",
     "update": "Vandudza zvino",
     "offline": "Hauna kubatana neinternet. Mapeji awakamboona achiri kushanda; kuchinja kunoda internet.",
-    "installed": "App yaiswa"
+    "installed": "App yaiswa",
+    "errorTitle": "Pane chakanganisika",
+    "errorBody": "Peji iri harina kukwanisa kuvhurika. Kuvhurazve kazhinji kunozvigadzirisa.",
+    "reload": "Vhurazve",
+    "home": "Peji rekutanga"
   }
 }

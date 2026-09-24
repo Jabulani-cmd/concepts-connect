@@ -271,8 +271,8 @@ export default function StaffManagementFull() {
         if (row.teacher_id) {
           if (!tcMap[row.teacher_id]) tcMap[row.teacher_id] = [];
           tcMap[row.teacher_id].push({
-            className: row.classes?.name || "—",
-            subjectName: row.subjects?.name || "—",
+            className: row.classes?.name || "-",
+            subjectName: row.subjects?.name || "-",
           });
         }
       });
@@ -371,7 +371,7 @@ export default function StaffManagementFull() {
       }
       toast({ title: "Staff member updated!" });
     } else {
-      // Ensure a portal email exists — auto-generate from full name if the
+      // Ensure a portal email exists - auto-generate from full name if the
       // admin didn't provide one.
       if (!payload.email) {
         payload.email = buildStaffEmail(
@@ -693,9 +693,9 @@ export default function StaffManagementFull() {
                         </div>
                       )}
                     </TableCell>
-                    <TableCell className="font-mono text-sm">{s.staff_number || "—"}</TableCell>
+                    <TableCell className="font-mono text-sm">{s.staff_number || "-"}</TableCell>
                     <TableCell className="font-medium">{s.full_name}</TableCell>
-                    <TableCell className="capitalize">{s.role || "—"}</TableCell>
+                    <TableCell className="capitalize">{s.role || "-"}</TableCell>
                     <TableCell>
                       {classTeacherMap[s.id] ? (
                         <div className="flex flex-wrap gap-1">
@@ -706,11 +706,11 @@ export default function StaffManagementFull() {
                           ))}
                         </div>
                       ) : (
-                        <span className="text-muted-foreground text-xs">—</span>
+                        <span className="text-muted-foreground text-xs">-</span>
                       )}
                     </TableCell>
-                    <TableCell>{s.department || "—"}</TableCell>
-                    <TableCell>{s.phone || "—"}</TableCell>
+                    <TableCell>{s.department || "-"}</TableCell>
+                    <TableCell>{s.phone || "-"}</TableCell>
                     <TableCell>
                       <Badge className={statusColor(s.status || "active")}>{s.status || "active"}</Badge>
                     </TableCell>
@@ -1084,7 +1084,7 @@ export default function StaffManagementFull() {
                     ].map(([label, value]) => (
                       <div key={label as string}>
                         <p className="text-xs text-muted-foreground">{label}</p>
-                        <p className="font-medium capitalize">{(value as string) || "—"}</p>
+                        <p className="font-medium capitalize">{(value as string) || "-"}</p>
                       </div>
                     ))}
                   </div>
@@ -1100,7 +1100,7 @@ export default function StaffManagementFull() {
                     ].map(([label, value]) => (
                       <div key={label as string}>
                         <p className="text-xs text-muted-foreground">{label}</p>
-                        <p className="font-medium">{(value as string) || "—"}</p>
+                        <p className="font-medium">{(value as string) || "-"}</p>
                       </div>
                     ))}
                   </div>
@@ -1182,7 +1182,7 @@ export default function StaffManagementFull() {
                             <div>
                               <p className="font-medium capitalize">{l.leave_type} Leave</p>
                               <p className="text-sm text-muted-foreground">
-                                {l.start_date} — {l.end_date}
+                                {l.start_date} to {l.end_date}
                               </p>
                               {l.reason && <p className="text-xs text-muted-foreground">{l.reason}</p>}
                             </div>
@@ -1312,7 +1312,7 @@ export default function StaffManagementFull() {
           {provisionResult && (
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                A portal account has been created for this staff member. Please share these credentials securely — they
+                A portal account has been created for this staff member. Please share these credentials securely. They
                 will be prompted to change their password on first login.
               </p>
               <div className="rounded-lg border bg-muted/50 p-4 space-y-3">

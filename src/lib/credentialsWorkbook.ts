@@ -40,10 +40,10 @@ export async function buildCredentialsWorkbook(input: CredentialsInput): Promise
   const ov = wb.addWorksheet("Overview", { views: [{ showGridLines: false }] });
   ov.columns = [{ width: 4 }, { width: 28 }, { width: 44 }, { width: 18 }];
   ov.mergeCells("B2:D2");
-  ov.getCell("B2").value = `${input.schoolName} — Demo Login Credentials`;
+  ov.getCell("B2").value = `${input.schoolName}: Demo Login Credentials`;
   ov.getCell("B2").font = { bold: true, size: 16, color: { argb: BRAND } };
   ov.mergeCells("B3:D3");
-  ov.getCell("B3").value = `Generated ${generated}. Demo accounts only — keep this file private.`;
+  ov.getCell("B3").value = `Generated ${generated}. Demo accounts only. Keep this file private.`;
   ov.getCell("B3").font = { italic: true, size: 10, color: { argb: "FF6B7280" } };
   ov.mergeCells("B4:D4");
   ov.getCell("B4").value = SCHOOL_CONTACT_LINE;
@@ -79,7 +79,7 @@ export async function buildCredentialsWorkbook(input: CredentialsInput): Promise
     { header: "Email (login)", key: "email", width: 42 },
     { header: "Password", key: "password", width: 15 },
   ], [
-    { no: "—", name: "Demo Administrator", subjects: "Full system access", classes: "", email: `admin@${DEMO_EMAIL_DOMAIN}`, password: DEMO_PASSWORDS.admin },
+    { no: "-", name: "Demo Administrator", subjects: "Full system access", classes: "", email: `admin@${DEMO_EMAIL_DOMAIN}`, password: DEMO_PASSWORDS.admin },
     ...input.teachers.map((t) => ({
       no: t.employeeNumber,
       name: t.name,
