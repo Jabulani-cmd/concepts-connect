@@ -498,6 +498,10 @@
     "updateReady": "Kulenguqulo entsha ye-app.",
     "update": "Buyekeza khathesi",
     "offline": "Awuxhumananga le-inthanethi. Amakhasi owake wawavula asasebenza; ukuntshintsha kudinga i-inthanethi.",
-    "installed": "I-app ifakiwe"
+    "installed": "I-app ifakiwe",
+    "errorTitle": "Kukhona okungahambanga kahle",
+    "errorBody": "Ikhasi leli alivulekanga. Ukuvula kabusha kuvamisa ukukulungisa.",
+    "reload": "Vula kabusha",
+    "home": "Ikhasi lokuqala"
   }
 }

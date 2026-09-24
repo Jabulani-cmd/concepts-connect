@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,51 +13,53 @@ import AuthenticatedLayout from "@/components/layout/AuthenticatedLayout";
 import SiteTranslator from "@/components/i18n/SiteTranslator";
 import PwaPrompts from "@/components/pwa/PwaPrompts";
 import Index from "./pages/Index";
+import { lazyPage } from "@/lib/lazyPage";
+import AppErrorBoundary from "@/components/AppErrorBoundary";
 
 // Route pages are code-split so visitors only download the screens they open.
-const TeacherAllocations = lazy(() => import("./pages/portal/TeacherAllocations"));
-const TeacherMyTimetable = lazy(() => import("./pages/portal/TeacherMyTimetable"));
-const StudentMyTimetable = lazy(() => import("./pages/portal/StudentMyTimetable"));
-const ParentChildTimetable = lazy(() => import("./pages/portal/ParentChildTimetable"));
-const ParentSubscribe = lazy(() => import("./pages/portal/ParentSubscribe"));
-const ParentPaymentHistory = lazy(() => import("./pages/portal/ParentPaymentHistory"));
-const ParentBilling = lazy(() => import("./pages/portal/ParentBilling"));
-const AdminPayments = lazy(() => import("./pages/portal/AdminPayments"));
-const About = lazy(() => import("./pages/About"));
-const Academics = lazy(() => import("./pages/Academics"));
-const Admissions = lazy(() => import("./pages/Admissions"));
-const SchoolLife = lazy(() => import("./pages/SchoolLife"));
-const News = lazy(() => import("./pages/News"));
-const Login = lazy(() => import("./pages/Login"));
-const Register = lazy(() => import("./pages/Register"));
-const StudentDashboard = lazy(() => import("./pages/portal/StudentDashboard"));
-const ParentDashboard = lazy(() => import("./pages/portal/ParentDashboard"));
-const TeacherDashboard = lazy(() => import("./pages/portal/TeacherDashboard"));
-const AIShadowMarker = lazy(() => import("./pages/portal/AIShadowMarker"));
-const AdminDashboard = lazy(() => import("./pages/portal/AdminDashboard"));
-const FinanceDashboard = lazy(() => import("./pages/portal/FinanceDashboard"));
-const PrincipalDashboard = lazy(() => import("./pages/portal/PrincipalDashboard"));
-const DeputyPrincipalDashboard = lazy(() => import("./pages/portal/DeputyPrincipalDashboard"));
-const HODDashboard = lazy(() => import("./pages/portal/HODDashboard"));
-const AdminSupervisorDashboard = lazy(() => import("./pages/portal/AdminSupervisorDashboard"));
-const RegistrationDashboard = lazy(() => import("./pages/portal/RegistrationDashboard"));
-const TimetableManagement = lazy(() => import("./pages/portal/TimetableManagement"));
-const Downloads = lazy(() => import("./pages/Downloads"));
-const Staff = lazy(() => import("./pages/Staff"));
-const Facilities = lazy(() => import("./pages/Facilities"));
-const Fees = lazy(() => import("./pages/Fees"));
-const Vacancies = lazy(() => import("./pages/Vacancies"));
-const SchoolProjects = lazy(() => import("./pages/SchoolProjects"));
-const Alumni = lazy(() => import("./pages/Alumni"));
-const PayOnline = lazy(() => import("./pages/PayOnline"));
-const Contact = lazy(() => import("./pages/Contact"));
-const Boarding = lazy(() => import("./pages/Boarding"));
-const SportsCulture = lazy(() => import("./pages/SportsCulture"));
-const Awards = lazy(() => import("./pages/Awards"));
-const NotFound = lazy(() => import("./pages/NotFound"));
-const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
-const ResetPassword = lazy(() => import("./pages/ResetPassword"));
-const ForceChangePassword = lazy(() => import("./pages/ForceChangePassword"));
+const TeacherAllocations = lazyPage(() => import("./pages/portal/TeacherAllocations"));
+const TeacherMyTimetable = lazyPage(() => import("./pages/portal/TeacherMyTimetable"));
+const StudentMyTimetable = lazyPage(() => import("./pages/portal/StudentMyTimetable"));
+const ParentChildTimetable = lazyPage(() => import("./pages/portal/ParentChildTimetable"));
+const ParentSubscribe = lazyPage(() => import("./pages/portal/ParentSubscribe"));
+const ParentPaymentHistory = lazyPage(() => import("./pages/portal/ParentPaymentHistory"));
+const ParentBilling = lazyPage(() => import("./pages/portal/ParentBilling"));
+const AdminPayments = lazyPage(() => import("./pages/portal/AdminPayments"));
+const About = lazyPage(() => import("./pages/About"));
+const Academics = lazyPage(() => import("./pages/Academics"));
+const Admissions = lazyPage(() => import("./pages/Admissions"));
+const SchoolLife = lazyPage(() => import("./pages/SchoolLife"));
+const News = lazyPage(() => import("./pages/News"));
+const Login = lazyPage(() => import("./pages/Login"));
+const Register = lazyPage(() => import("./pages/Register"));
+const StudentDashboard = lazyPage(() => import("./pages/portal/StudentDashboard"));
+const ParentDashboard = lazyPage(() => import("./pages/portal/ParentDashboard"));
+const TeacherDashboard = lazyPage(() => import("./pages/portal/TeacherDashboard"));
+const AIShadowMarker = lazyPage(() => import("./pages/portal/AIShadowMarker"));
+const AdminDashboard = lazyPage(() => import("./pages/portal/AdminDashboard"));
+const FinanceDashboard = lazyPage(() => import("./pages/portal/FinanceDashboard"));
+const PrincipalDashboard = lazyPage(() => import("./pages/portal/PrincipalDashboard"));
+const DeputyPrincipalDashboard = lazyPage(() => import("./pages/portal/DeputyPrincipalDashboard"));
+const HODDashboard = lazyPage(() => import("./pages/portal/HODDashboard"));
+const AdminSupervisorDashboard = lazyPage(() => import("./pages/portal/AdminSupervisorDashboard"));
+const RegistrationDashboard = lazyPage(() => import("./pages/portal/RegistrationDashboard"));
+const TimetableManagement = lazyPage(() => import("./pages/portal/TimetableManagement"));
+const Downloads = lazyPage(() => import("./pages/Downloads"));
+const Staff = lazyPage(() => import("./pages/Staff"));
+const Facilities = lazyPage(() => import("./pages/Facilities"));
+const Fees = lazyPage(() => import("./pages/Fees"));
+const Vacancies = lazyPage(() => import("./pages/Vacancies"));
+const SchoolProjects = lazyPage(() => import("./pages/SchoolProjects"));
+const Alumni = lazyPage(() => import("./pages/Alumni"));
+const PayOnline = lazyPage(() => import("./pages/PayOnline"));
+const Contact = lazyPage(() => import("./pages/Contact"));
+const Boarding = lazyPage(() => import("./pages/Boarding"));
+const SportsCulture = lazyPage(() => import("./pages/SportsCulture"));
+const Awards = lazyPage(() => import("./pages/Awards"));
+const NotFound = lazyPage(() => import("./pages/NotFound"));
+const ForgotPassword = lazyPage(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazyPage(() => import("./pages/ResetPassword"));
+const ForceChangePassword = lazyPage(() => import("./pages/ForceChangePassword"));
 
 const queryClient = new QueryClient();
 
@@ -79,6 +81,7 @@ const App = () => (
           <ScrollToTop />
           <SiteTranslator />
           <PwaPrompts />
+          <AppErrorBoundary>
           <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<Index />} />
@@ -212,6 +215,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
           </Suspense>
+          </AppErrorBoundary>
           </DemoPeopleProvider>
           </AllocationProvider>
         </AuthProvider>

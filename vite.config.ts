@@ -22,8 +22,9 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === "development" && componentTagger(),
     VitePWA({
-      // The app asks before switching to a new version (see UpdatePrompt).
-      registerType: "prompt",
+      // The installed app switches to a new version as soon as it is published, so an
+      // old copy never asks the server for screen files that no longer exist.
+      registerType: "autoUpdate",
       injectRegister: false,
       includeAssets: ["favicon.ico", "favicon.png", "icons/apple-touch-icon.png"],
       manifest: {
@@ -57,6 +58,8 @@ export default defineConfig(({ mode }) => ({
         navigateFallback: "/index.html",
         navigateFallbackDenylist: [/^\/~/, /\/[^/?]+\.[^/]+$/],
         cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true,
         runtimeCaching: [
           {
             // Built files have content hashes in their names, so they never change.
@@ -66,6 +69,8 @@ export default defineConfig(({ mode }) => ({
               cacheName: "app-files",
               expiration: { maxEntries: 250, maxAgeSeconds: 60 * 60 * 24 * 60 },
               cacheableResponse: { statuses: [200] },
+              // The host answers a missing file with the home page; never keep that as a script.
+              plugins: [{ cacheWillUpdate: async ({ response }) => (response.headers.get("content-type")?.includes("text/html") ? null : response) }],
             },
           },
           {
@@ -75,6 +80,7 @@ export default defineConfig(({ mode }) => ({
               cacheName: "images",
               expiration: { maxEntries: 150, maxAgeSeconds: 60 * 60 * 24 * 30 },
               cacheableResponse: { statuses: [200] },
+              plugins: [{ cacheWillUpdate: async ({ response }) => (response.headers.get("content-type")?.includes("text/html") ? null : response) }],
             },
           },
           {

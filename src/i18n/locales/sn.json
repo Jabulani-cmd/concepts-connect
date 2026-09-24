@@ -498,6 +498,10 @@
     "updateReady": "Pane shanduro itsva ye app.",
     "update": "Vandudza zvino",
     "offline": "Hauna kubatana neinternet. Mapeji awakamboona achiri kushanda; kuchinja kunoda internet.",
-    "installed": "App yaiswa"
+    "installed": "App yaiswa",
+    "errorTitle": "Pane chakanganisika",
+    "errorBody": "Peji iri harina kukwanisa kuvhurika. Kuvhurazve kazhinji kunozvigadzirisa.",
+    "reload": "Vhurazve",
+    "home": "Peji rekutanga"
   }
 }

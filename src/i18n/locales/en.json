@@ -498,6 +498,10 @@
     "updateReady": "A new version of the app is available.",
     "update": "Update now",
     "offline": "You're offline. Pages you have opened before still work; changes need a connection.",
-    "installed": "App installed"
+    "installed": "App installed",
+    "errorTitle": "Something went wrong",
+    "errorBody": "This screen could not be loaded. Reloading usually fixes it.",
+    "reload": "Reload",
+    "home": "Home page"
   }
 }
