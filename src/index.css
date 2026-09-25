@@ -4,55 +4,56 @@
 
 @layer base {
   :root {
-    /* Champion School Template - White + Indigo Palette */
+    /* Concepts Learning Academy palette - Purple + Grey */
     --background: 0 0% 100%;
-    --foreground: 222 25% 12%;
+    --foreground: 0 0% 13%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 25% 12%;
+    --card-foreground: 0 0% 13%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 25% 12%;
+    --popover-foreground: 0 0% 13%;
 
-    /* Indigo accent (~#5e35f2) */
-    --primary: 254 87% 58%;
+    /* Brand purple from the logo (#6508c5) */
+    --primary: 270 92% 40%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 254 87% 58%;
+    /* Brand grey from the logo (#3f3f3f) */
+    --secondary: 0 0% 25%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 220 20% 96%;
-    --muted-foreground: 220 10% 40%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 40%;
 
-    --accent: 254 87% 58%;
+    --accent: 270 92% 40%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 220 15% 90%;
-    --input: 220 15% 90%;
-    --ring: 254 87% 58%;
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 270 92% 40%;
 
     --radius: 0.375rem;
 
-    /* Footer / dark sections */
-    --footer-bg: 240 30% 14%;
+    /* Footer / dark sections - charcoal grey */
+    --footer-bg: 0 0% 16%;
     --footer-fg: 0 0% 95%;
 
-    --sidebar-background: 240 30% 14%;
+    --sidebar-background: 0 0% 16%;
     --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 254 87% 58%;
+    --sidebar-primary: 270 92% 40%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 30% 20%;
+    --sidebar-accent: 0 0% 22%;
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 240 30% 24%;
-    --sidebar-ring: 254 87% 58%;
+    --sidebar-border: 0 0% 26%;
+    --sidebar-ring: 270 85% 60%;
 
-    /* Custom tokens kept for legacy */
-    --maroon: 254 87% 58%;
-    --maroon-dark: 254 87% 42%;
-    --maroon-light: 254 60% 95%;
+    /* Custom tokens kept for legacy (maroon now maps to brand purple) */
+    --maroon: 270 92% 40%;
+    --maroon-dark: 270 90% 30%;
+    --maroon-light: 270 100% 97%;
     --silver: 0 0% 75%;
     --silver-light: 0 0% 92%;
     --gold: 42 80% 50%;
@@ -60,33 +61,33 @@
   }
 
   .dark {
-    --background: 0 0% 6%;
+    --background: 0 0% 8%;
     --foreground: 0 0% 95%;
-    --card: 0 0% 10%;
+    --card: 0 0% 11%;
     --card-foreground: 0 0% 95%;
-    --popover: 0 0% 10%;
+    --popover: 0 0% 11%;
     --popover-foreground: 0 0% 95%;
-    --primary: 0 0% 95%;
-    --primary-foreground: 0 0% 5%;
-    --secondary: 345 60% 40%;
+    --primary: 270 80% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 26%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 15%;
+    --muted: 0 0% 16%;
     --muted-foreground: 0 0% 65%;
-    --accent: 345 60% 40%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 270 80% 60%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 18%;
-    --input: 0 0% 18%;
-    --ring: 345 60% 40%;
-    --sidebar-background: 0 0% 5%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 270 80% 60%;
+    --sidebar-background: 0 0% 7%;
     --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 345 60% 40%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 0 0% 12%;
+    --sidebar-primary: 270 80% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 13%;
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 0 0% 18%;
-    --sidebar-ring: 345 60% 40%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 270 80% 60%;
   }
 }
 
@@ -107,11 +108,11 @@
 @layer utilities {
   .text-gradient-maroon {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(345 70% 30%), hsl(345 70% 45%));
+    background-image: linear-gradient(135deg, hsl(270 90% 30%), hsl(270 85% 48%));
   }
 
   .bg-maroon-gradient {
-    background: linear-gradient(135deg, hsl(0 0% 5%), hsl(0 0% 12%));
+    background: linear-gradient(135deg, hsl(0 0% 12%), hsl(270 30% 20%));
   }
 
   .bg-hero-overlay {
@@ -125,12 +126,12 @@
   .bg-section-warm {
     background: linear-gradient(
       180deg,
-      hsl(30 20% 98%) 0%,
-      hsl(30 15% 95%) 100%
+      hsl(0 0% 98%) 0%,
+      hsl(0 0% 95%) 100%
     );
   }
 
   .shadow-maroon {
-    box-shadow: 0 10px 30px -10px hsla(345, 70%, 30%, 0.25);
+    box-shadow: 0 10px 30px -10px hsla(270, 90%, 30%, 0.25);
   }
 }

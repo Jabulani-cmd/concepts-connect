@@ -52,7 +52,7 @@ export default function TimetableAnalytics({ allSlots }: Props) {
             {bySubject.slice(0, 12).map(([n, c]) => (
               <div key={n}>
                 <div className="flex justify-between text-xs"><span>{n}</span><span className="text-muted-foreground">{c}</span></div>
-                <div className="h-1.5 bg-muted rounded"><div className="h-1.5 rounded bg-teal-500" style={{ width: `${(c / maxSubject) * 100}%` }} /></div>
+                <div className="h-1.5 bg-muted rounded"><div className="h-1.5 rounded bg-purple-500" style={{ width: `${(c / maxSubject) * 100}%` }} /></div>
               </div>
             ))}
           </div>

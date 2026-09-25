@@ -271,11 +271,11 @@ export default function TimetableManagement() {
           <p className="text-sm text-muted-foreground">Build, generate and distribute class & exam timetables.</p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border bg-gradient-to-r from-purple-50 to-fuchsia-50 dark:from-purple-950/40 dark:to-fuchsia-950/40">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border bg-gradient-to-r from-purple-50 to-purple-50 dark:from-purple-950/40 dark:to-purple-950/40">
             <Label htmlFor="ai-switch" className="text-xs cursor-pointer">{aiMode ? "✨ AI Mode" : "Manual Mode"}</Label>
             <Switch id="ai-switch" checked={aiMode} onCheckedChange={setAiMode} />
           </div>
-          <Button onClick={() => setSetupOpen(true)} className={aiMode ? "bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-700 hover:to-fuchsia-700" : ""}>
+          <Button onClick={() => setSetupOpen(true)} className={aiMode ? "bg-gradient-to-r from-purple-600 to-purple-600 hover:from-purple-700 hover:to-purple-700" : ""}>
             {aiMode ? <Sparkles className="h-4 w-4 mr-1" /> : <Plus className="h-4 w-4 mr-1" />}
             Create New Timetable
           </Button>

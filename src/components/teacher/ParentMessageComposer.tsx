@@ -58,7 +58,7 @@ export default function ParentMessageComposer({ students, teacherName, triggerLa
           formLevel: student?.form ?? undefined,
           teacherName: teacherName || "Class Teacher",
           context,
-          schoolName: "MavingTech Business Solutions",
+          schoolName: "Concepts Learning Academy",
           variation: nextVariation,
         },
       });

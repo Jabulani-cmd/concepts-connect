@@ -22,8 +22,8 @@ export default function StudentMetricsCards({ attendancePercent, upcomingAssessm
       label: "Assessments Due",
       value: String(upcomingAssessments),
       icon: ClipboardList,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
+      color: "text-purple-600",
+      bgColor: "bg-purple-50",
     },
     {
       label: "New Materials",

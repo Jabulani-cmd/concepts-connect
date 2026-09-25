@@ -32,7 +32,7 @@ export default function SubscriptionGate({ children, feature = "this feature", h
       className={hard ? "flex items-center justify-center p-4 min-h-[50vh]" : "absolute inset-0 flex items-center justify-center p-4"}
     >
       <Card className="w-full max-w-md p-6 text-center border-2 border-primary/40 shadow-xl bg-background/95 backdrop-blur">
-        <div className="mx-auto w-14 h-14 rounded-full bg-gradient-to-br from-teal-500 to-blue-700 flex items-center justify-center mb-3">
+        <div className="mx-auto w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center mb-3">
           {pending ? <Clock className="w-7 h-7 text-white" /> : renewExpired ? <AlertTriangle className="w-7 h-7 text-white" /> : <Lock className="w-7 h-7 text-white" />}
         </div>
         <h3 className="font-display text-xl font-bold mb-1">
@@ -54,7 +54,7 @@ export default function SubscriptionGate({ children, feature = "this feature", h
             : `Unlock full access to ${feature}, the timetable, results, materials, messaging, and more.`}
         </p>
         {!pending && !isStudent && (
-          <Button asChild className="bg-gradient-to-r from-teal-600 to-blue-700 hover:opacity-90">
+          <Button asChild className="bg-gradient-to-r from-purple-600 to-purple-700 hover:opacity-90">
             <Link to="/portal/parent/subscribe">
               <Sparkles className="w-4 h-4 mr-2" />
               {renewExpired ? "Renew Now" : "View Plans"}

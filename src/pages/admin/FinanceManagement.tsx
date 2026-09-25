@@ -832,16 +832,16 @@ export default function FinanceManagement() {
     const body = `<style>
   *{box-sizing:border-box}
   body{font-family:Arial,Helvetica,sans-serif;color:#111;padding:32px;font-size:12px;background:#fff}
-  .header{border-bottom:3px solid #0f766e;padding-bottom:12px;margin-bottom:18px}
-  .header h1{margin:0;font-size:20px;color:#0f172a}
-  .header .tag{color:#0f766e;font-weight:600;font-size:12px;letter-spacing:.5px;text-transform:uppercase}
+  .header{border-bottom:3px solid #6508c5;padding-bottom:12px;margin-bottom:18px}
+  .header h1{margin:0;font-size:20px;color:#2d2d2d}
+  .header .tag{color:#6508c5;font-weight:600;font-size:12px;letter-spacing:.5px;text-transform:uppercase}
   .header .addr{color:#555;font-size:11px;margin-top:4px}
-  h2{font-size:14px;margin:22px 0 8px;color:#0f172a;border-bottom:1px solid #e2e8f0;padding-bottom:4px}
+  h2{font-size:14px;margin:22px 0 8px;color:#2d2d2d;border-bottom:1px solid #e2e8f0;padding-bottom:4px}
   .meta{color:#334155;font-size:12px;margin-bottom:6px}
-  .meta strong{color:#0f172a}
+  .meta strong{color:#2d2d2d}
   table{width:100%;border-collapse:collapse;margin-top:6px;font-size:11.5px}
   th,td{border:1px solid #cbd5e1;padding:6px 8px;text-align:left;vertical-align:top}
-  th{background:#0f766e;color:#fff;font-weight:600}
+  th{background:#6508c5;color:#fff;font-weight:600}
   tbody tr:nth-child(even){background:#f1f5f9}
   .right{text-align:right}
   .mono{font-family:'Courier New',monospace}
@@ -851,7 +851,7 @@ export default function FinanceManagement() {
   .status-paid{color:#047857;font-weight:600}
   .status-partial{color:#b45309;font-weight:600}
   .status-unpaid,.status-overdue{color:#b91c1c;font-weight:600}
-  .summary{margin-top:18px;padding:14px 18px;border:2px solid #0f172a;border-radius:6px;display:inline-block;background:#f8fafc}
+  .summary{margin-top:18px;padding:14px 18px;border:2px solid #2d2d2d;border-radius:6px;display:inline-block;background:#f8fafc}
   .summary p{margin:4px 0}
   .footer{margin-top:28px;padding-top:10px;border-top:1px solid #e2e8f0;color:#64748b;font-size:10px;text-align:center}
   @media print{body{padding:18px}thead{display:table-header-group}tr{page-break-inside:avoid}}
@@ -1829,7 +1829,7 @@ export default function FinanceManagement() {
                                   email={{
                                     documentLabel: "invoice",
                                     filename: `invoice-${inv.invoice_number}`,
-                                    subject: `Invoice ${inv.invoice_number} | MavingTech Business Solutions`,
+                                    subject: `Invoice ${inv.invoice_number} | Concepts Learning Academy`,
                                   }}
                                 />
                                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => deleteInvoice(inv)} title="Delete">
@@ -1966,7 +1966,7 @@ export default function FinanceManagement() {
                                   email={{
                                     documentLabel: "receipt",
                                     filename: `receipt-${pay.receipt_number}`,
-                                    subject: `Official Receipt ${pay.receipt_number} | MavingTech Business Solutions`,
+                                    subject: `Official Receipt ${pay.receipt_number} | Concepts Learning Academy`,
                                   }}
                                 />
                                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => deletePayment(pay)} title="Delete">
@@ -2681,7 +2681,7 @@ export default function FinanceManagement() {
                   email={{
                     documentLabel: "Expenses Report",
                     filename: "expenses-report",
-                    subject: `MavingTech Business Solutions – Expenses Report`,
+                    subject: `Concepts Learning Academy – Expenses Report`,
                   }}
                 />
               </div>

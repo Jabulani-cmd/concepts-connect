@@ -86,7 +86,7 @@
   "login": {
     "title": "Ngena Kuportal",
     "tagline": "Siqinisa Ibhizimusi Lakho Ngobuchwepheshe",
-    "subtitle": "Ngena kuportal yakho yeMavingTech",
+    "subtitle": "Ngena kuportal yakho yeConcepts Learning Academy",
     "emailPlaceholder": "wena@mavingtech.com",
     "signingIn": "Iyangena...",
     "signIn": "Ngena",
@@ -170,20 +170,20 @@
     "referenceNumber": "Inombolo yereferensi"
   },
   "brand": {
-    "schoolName": "MavingTech High School",
-    "schoolShort": "MavingTech",
+    "schoolName": "Concepts Learning Academy",
+    "schoolShort": "Concepts",
     "schoolSuffix": "High School",
     "tagline": "Ubungcweti Emfundweni"
   },
   "home": {
     "hero": {
-      "title": "Siyalemukela eMavingTech High School",
+      "title": "Siyalemukela eConcepts Learning Academy",
       "subtitle": "Lapho ingqondo zabatsha zikhuliswa zibe ngabakhokheli, abasunguli labaguquli bakusasa.",
       "cta": "Imfundo Yethu"
     },
     "learning": {
       "title": "Ukufunda Kuqala Lathi",
-      "p1": "EMavingTech High School, sinika indawo esekelayo lekhuthazayo ukuze abafundi bafunde, bakhule njalo baphumelele. Uthando lwethu lwemfundo ludlula imiphumela emihle: sakha abacabangi abalesibindi, abadalayo, abalungele ikusasa.",
+      "p1": "EConcepts Learning Academy, sinika indawo esekelayo lekhuthazayo ukuze abafundi bafunde, bakhule njalo baphumelele. Uthando lwethu lwemfundo ludlula imiphumela emihle: sakha abacabangi abalesibindi, abadalayo, abalungele ikusasa.",
       "p2": "Kusukela kuForm 1 kusiya ku-A Level, abafundi bethu baphuma belesimilo, ukuziphatha lamakhono okuguqula umhlaba.",
       "cta": "Yazi Okunengi Ngathi"
     },
@@ -196,15 +196,15 @@
     "director": {
       "eyebrow": "Ilizwi Elivela Kumphathisikolo",
       "title": "Kusuka Etafuleni Lomphathisikolo",
-      "quote": "EMavingTech High School, sikholwa ukuthi umfundi ngamunye ulesipho esikhethekileyo. Umsebenzi wethu yikondla lesosipho ngokuziphatha, ukholo, ukusebenza nzima lothando lolwazi.",
+      "quote": "EConcepts Learning Academy, sikholwa ukuthi umfundi ngamunye ulesipho esikhethekileyo. Umsebenzi wethu yikondla lesosipho ngokuziphatha, ukholo, ukusebenza nzima lothando lolwazi.",
       "body": "Uyemukelwa emphakathini wethu wesikolo. Kanye labafundisi bethu abazinikeleyo, abazali abasekelayo labafundi abalethemba, sakha isikolo lapho ubungcweti bemfundo buhamba lesimilo esiqinileyo.",
       "signature": "Mnu. F.J. Moyo",
-      "signatureRole": "Umphathisikolo, MavingTech High School"
+      "signatureRole": "Umphathisikolo, Concepts Learning Academy"
     },
     "curriculum": {
       "eyebrow": "Izinhlelo Zokufunda",
       "title": "Ukubuka Ikharikhulamu",
-      "intro": "IMavingTech inika bonke abafundi bethu ikharikhulamu ebanzi lelinganisiweyo ebalungiselela impilo.",
+      "intro": "IConcepts Learning Academy inika bonke abafundi bethu ikharikhulamu ebanzi lelinganisiweyo ebalungiselela impilo.",
       "cs": { "title": "I-Computer Science", "desc": "Ulwazi lokubhala izinhlelo lobuchwepheshe obutsha." },
       "math": { "title": "Izibalo", "desc": "Ukwakha isisekelo esiqinileyo sokuhlaziya ngokuxazulula inkinga zeqiniso." },
       "lit": { "title": "Ubuciko Lezindimi", "desc": "Ukwakha ukukhuluma, ukuzwisisa lothando lokubala lokubhala." },
@@ -232,12 +232,12 @@
   },
   "about": {
     "eyebrow": "Indaba Yethu",
-    "title": "Nge-MavingTech",
+    "title": "Nge-Concepts Learning Academy",
     "subtitle": "Iminyaka yokukhulisa ingqondo zabatsha zibe ngabakhokheli labasunguli.",
     "heritage": "Ilifa",
     "historyTitle": "Umlando Wethu",
-    "history1": "IMavingTech High School, isikolo esidumileyo, sasungulwa ngoJanuwari 1927 njengesikolo sokuqala sobuchwepheshe elizweni.",
-    "history2": "Isikolo sathola isimo sesekondari ngo-1931 sasusela endaweni yaso yakhathesi ngo-1953. Saqanjwa kutsha ngokuthi yiMavingTech Technical High School ngo-19 Agasti 1961, sabuya safinyezwa saba yiMavingTech High School ngo-1974.",
+    "history1": "IConcepts Learning Academy, isikolo esidumileyo, sasungulwa ngoJanuwari 1927 njengesikolo sokuqala sobuchwepheshe elizweni.",
+    "history2": "Isikolo sathola isimo sesekondari ngo-1931 sasusela endaweni yaso yakhathesi ngo-1953. Saqanjwa kutsha ngokuthi yiConcepts Learning Academy ngo-19 Agasti 1961, sabuya safinyezwa saba yiConcepts Learning Academy ngo-1974.",
     "history3": "Lamuhla, silabafundi abangaphezu kuka-800, siqhubeka lelifa lobungcweti kwezemfundo lezemidlalo.",
     "stats": {
       "students": "Abafundi Ababhalisiweyo",
@@ -262,7 +262,7 @@
     "subtitle": "Ikharikhulamu ebanzi lelinganisiweyo eyakhelwe ukulungiselela wonke umfundi ikusasa.",
     "programmesEyebrow": "Izinhlelo Zokufunda",
     "programmesTitle": "Ikharikhulamu Yethu",
-    "intro": "IMavingTech inika izinhlelo zezivivinyo zeZIMSEC leCambridge, inika abafundi ukukhetha ku-O Level le-A Level.",
+    "intro": "IConcepts Learning Academy inika izinhlelo zezivivinyo zeZIMSEC leCambridge, inika abafundi ukukhetha ku-O Level le-A Level.",
     "tabs": { "curriculum": "Ikharikhulamu", "results": "Imiphumela Lempumelelo" },
     "subjects": {
       "math": { "name": "Izibalo", "desc": "Pure Mathematics, Statistics" },
@@ -281,7 +281,7 @@
   "admissions": {
     "eyebrow": "Ngena Emphakathini Wethu",
     "title": "Ukubhalisa",
-    "subtitle": "Ngena emulini yeMavingTech. Semukela abafundi abafisa ukufunda lokukhula.",
+    "subtitle": "Ngena emulini yeConcepts Learning Academy. Semukela abafundi abafisa ukufunda lokukhula.",
     "processEyebrow": "Indlela Yokufaka Isicelo",
     "processTitle": "Inqubo Yokubhalisa",
     "steps": {
@@ -295,7 +295,7 @@
       "eyebrow": "Qala Uhambo Lwakho",
       "title": "Isicelo Se-inthanethi",
       "received": "Isicelo Samukelwe!",
-      "receivedBody": "Siyabonga ngokufakela isicelo eMavingTech High School. Sizaxhumana lawe phakathi kwensuku ezinhlanu zomsebenzi.",
+      "receivedBody": "Siyabonga ngokufakela isicelo eConcepts Learning Academy. Sizaxhumana lawe phakathi kwensuku ezinhlanu zomsebenzi.",
       "submittedToast": "Isicelo Sithunyelwe!",
       "submittedToastDesc": "Sizaxhumana lawe masinyane.",
       "firstName": "Ibizo Lomfundi",
@@ -313,7 +313,7 @@
   },
   "staff": {
     "title": "Abasebenzi Bethu",
-    "groupCaption": "Abasebenzi beMavingTech High School",
+    "groupCaption": "Abasebenzi beConcepts Learning Academy",
     "empty": "Uluhlu lwabasebenzi luyeza masinyane.",
     "categories": {
       "leadership": "Ubukhokheli Besikolo",
@@ -382,9 +382,9 @@
   },
   "facilities": {
     "title": "Izakhiwo Zethu",
-    "intro": "IMavingTech High School inika izakhiwo ezinhle ezisekela ubungcweti bemfundo, impumelelo yemidlalo lokukhula okugcweleyo.",
+    "intro": "IConcepts Learning Academy inika izakhiwo ezinhle ezisekela ubungcweti bemfundo, impumelelo yemidlalo lokukhula okugcweleyo.",
     "empty": "Izithombe zezakhiwo ziyeza masinyane.",
-    "lifeTitle": "Impilo eMavingTech",
+    "lifeTitle": "Impilo eConcepts Learning Academy",
     "types": {
       "boarding": "Izakhiwo Zokuhlala",
       "classrooms": "Amakilasi",
@@ -435,11 +435,11 @@
   },
   "alumni": {
     "title": "Abafunde Lapha Abadumileyo",
-    "subtitle": "Abaphothule beMavingTech benza umehluko emhlabeni wonke."
+    "subtitle": "Abaphothule beConcepts Learning Academy benza umehluko emhlabeni wonke."
   },
   "vacancies": {
     "title": "Amathuba Omsebenzi",
-    "intro": "Khangela amathuba omsebenzi akhona eMavingTech High School.",
+    "intro": "Khangela amathuba omsebenzi akhona eConcepts Learning Academy.",
     "empty": "Akulamathuba omsebenzi akhona khathesi. Buya uzokhangela."
   },
   "downloads": {
@@ -455,7 +455,7 @@
   },
   "awards": {
     "title": "Imiklomelo Lodumo",
-    "subtitle": "Sigubha ubungcweti lempumelelo eMavingTech High School",
+    "subtitle": "Sigubha ubungcweti lempumelelo eConcepts Learning Academy",
     "galleryTitle": "Igalari Yemiklomelo",
     "recipientsTitle": "Abemukeli Bemiklomelo",
     "empty": "Akulamiklomelo etshicilelweyo khathesi.",
@@ -485,7 +485,7 @@
     "rights": "Wonke amalungelo agodliwe."
   },
   "pwa": {
-    "installTitle": "Faka i-app yeMavingTech",
+    "installTitle": "Faka i-app yeConcepts Learning Academy",
     "installBody": "Faka i-portal yesikolo esikrinini sakho ukuze uyithole masinyane, lanxa inethiwekhi ihamba kancane.",
     "install": "Faka",
     "notNow": "Hatshi khathesi",

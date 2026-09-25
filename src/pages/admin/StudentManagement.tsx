@@ -440,7 +440,7 @@ export default function StudentManagement() {
 
   const statusColor = (s: string) => {
     if (s === "active") return "bg-green-100 text-green-800";
-    if (s === "graduated") return "bg-blue-100 text-blue-800";
+    if (s === "graduated") return "bg-purple-100 text-purple-800";
     return "bg-orange-100 text-orange-800";
   };
 

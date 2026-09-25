@@ -27,15 +27,15 @@ export function buildSubscriptionReceiptHtml(r: ReceiptData) {
   <html><head><title>Receipt ${r.receiptNumber}</title>
   <base href="${origin}/" />
   <style>
-    body{font-family:Inter,system-ui,sans-serif;padding:32px;color:#0f172a;}
-    .head{display:flex;align-items:center;gap:14px;border-bottom:3px solid #0d9488;padding-bottom:16px;margin-bottom:24px;}
+    body{font-family:Inter,system-ui,sans-serif;padding:32px;color:#2d2d2d;}
+    .head{display:flex;align-items:center;gap:14px;border-bottom:3px solid #6508c5;padding-bottom:16px;margin-bottom:24px;}
     .head img{height:90px;width:auto;max-width:140px;object-fit:contain;display:block;}
-    .head h1{margin:0;color:#0f172a;font-size:22px;}
+    .head h1{margin:0;color:#2d2d2d;font-size:22px;}
     .head .sub{color:#475569;font-size:13px;}
     table{width:100%;border-collapse:collapse;margin-top:12px;}
     td{padding:8px 6px;border-bottom:1px solid #e2e8f0;font-size:14px;}
     td:first-child{color:#475569;width:40%;}
-    .total{font-size:20px;font-weight:700;color:#0d9488;margin-top:18px;text-align:right;}
+    .total{font-size:20px;font-weight:700;color:#6508c5;margin-top:18px;text-align:right;}
     .stamp{margin-top:32px;display:inline-block;padding:8px 18px;border:3px solid #16a34a;color:#16a34a;font-weight:700;border-radius:8px;transform:rotate(-6deg);}
     .footer{margin-top:48px;font-size:12px;color:#64748b;text-align:center;border-top:1px solid #e2e8f0;padding-top:12px;}
     .demo{position:fixed;top:18px;right:18px;background:#f59e0b;color:#000;padding:4px 10px;font-weight:700;border-radius:6px;font-size:11px;}

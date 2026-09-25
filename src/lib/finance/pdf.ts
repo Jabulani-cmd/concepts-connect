@@ -193,12 +193,12 @@ export function buildInvoiceHtml(input: InvoicePdfInput): string {
     .muted { color: #444; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
     .right { text-align: right; }
-    .divider { border-top: 2px solid #0d9488; margin: 14px 0; }
+    .divider { border-top: 2px solid #6508c5; margin: 14px 0; }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th, td { border: 1px solid #ccc; padding: 5px 8px; text-align: left; font-size: 11px; }
-    th { background: #0d9488; color: #fff; }
+    th { background: #6508c5; color: #fff; }
     .totals { margin-top: 14px; font-size: 12px; }
-    .totals .balance { font-size: 14px; font-weight: bold; margin-top: 8px; border-top: 2px solid #0d9488; padding-top: 8px; }
+    .totals .balance { font-size: 14px; font-weight: bold; margin-top: 8px; border-top: 2px solid #6508c5; padding-top: 8px; }
     .footer { margin-top: 24px; font-size: 9px; color: #888; text-align: center; }
     @media print { body { padding: 12px; } }
   </style>
@@ -293,11 +293,11 @@ export function buildReceiptHtml(input: ReceiptPrintInput) {
     .receipt-title .num { font-family: monospace; font-size: 12px; }
     .row { display:flex; justify-content:space-between; gap: 12px; }
     .muted { color: #444; }
-    .box { border: 2px solid #0d9488; padding: 14px; margin-top: 14px; border-radius: 4px; }
+    .box { border: 2px solid #6508c5; padding: 14px; margin-top: 14px; border-radius: 4px; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
     .right { text-align: right; }
     hr { border: 0; border-top: 1px solid #ccc; margin: 12px 0; }
-    .divider { border-top: 2px solid #0d9488; margin: 14px 0; }
+    .divider { border-top: 2px solid #6508c5; margin: 14px 0; }
     .footer { margin-top: 20px; font-size: 9px; color: #888; text-align: center; }
     @media print { body { padding: 12px; } }
   </style>
@@ -405,10 +405,10 @@ export function buildStatementHtml(input: StatementPrintInput) {
     .header h1 { font-size: 18px; margin: 0; }
     .header .motto { color: #555; font-style: italic; font-size: 10px; }
     .header .address { color: #666; font-size: 9px; }
-    .divider { border-top: 2px solid #0d9488; margin: 10px 0; }
+    .divider { border-top: 2px solid #6508c5; margin: 10px 0; }
     table { width: 100%; border-collapse: collapse; margin-top: 8px; }
     th, td { border: 1px solid #ccc; padding: 4px 6px; text-align: left; font-size: 10px; }
-    th { background: #0d9488; color: #fff; }
+    th { background: #6508c5; color: #fff; }
     .right { text-align: right; }
     .mono { font-family: monospace; }
     .balance { font-size: 13px; font-weight: bold; margin-top: 14px; }
@@ -518,12 +518,12 @@ export function buildIncomeExpenditureHtml(input: IncomeExpenditureInput): strin
     body { font-family: Arial, sans-serif; padding: 24px; font-size: 11px; max-width: 900px; margin: 0 auto; color: #1a1a1a; }
     .header { display:flex; gap:18px; align-items:center; }
     .header img { height:90px; width:auto; max-width:140px; object-fit:contain; }
-    .header h1 { font-size: 20px; margin: 0; color: #0f172a; }
+    .header h1 { font-size: 20px; margin: 0; color: #2d2d2d; }
     .header .motto { color: #555; font-style: italic; font-size: 11px; margin: 2px 0; }
     .header .address { color: #666; font-size: 10px; }
-    .divider { border-top: 3px double #0d9488; margin: 14px 0; }
+    .divider { border-top: 3px double #6508c5; margin: 14px 0; }
     .title-row { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 10px; }
-    .title-row h2 { font-size: 16px; margin: 0; color: #0f172a; letter-spacing: 1px; }
+    .title-row h2 { font-size: 16px; margin: 0; color: #2d2d2d; letter-spacing: 1px; }
     .title-row .period { font-size: 12px; color: #555; font-weight: bold; }
     .summary { display:grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 14px 0; }
     .stat { border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px 12px; background: #f9fafb; }
@@ -537,12 +537,12 @@ export function buildIncomeExpenditureHtml(input: IncomeExpenditureInput): strin
     .stat.net.neg .val { color: #b91c1c; }
     table { width: 100%; border-collapse: collapse; margin: 8px 0 18px; }
     th, td { border: 1px solid #d1d5db; padding: 5px 8px; text-align: left; font-size: 10px; }
-    th { background: #0f172a; color: #fff; font-weight: 600; }
+    th { background: #2d2d2d; color: #fff; font-weight: 600; }
     .right { text-align: right; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
     .green { color: #047857; }
     .red { color: #b91c1c; }
-    h3 { font-size: 13px; color: #0f172a; margin: 18px 0 4px; border-left: 4px solid #0d9488; padding-left: 8px; }
+    h3 { font-size: 13px; color: #2d2d2d; margin: 18px 0 4px; border-left: 4px solid #6508c5; padding-left: 8px; }
     .footer { margin-top: 24px; padding-top: 12px; border-top: 1px solid #e5e7eb; font-size: 9px; color: #888; text-align: center; }
     @media print { body { padding: 12px; } .summary { gap: 6px; } }
   </style>
@@ -642,16 +642,16 @@ export function buildExpensesListHtml(input: ExpensesListInput): string {
     body { font-family: Arial, sans-serif; padding: 24px; font-size: 11px; max-width: 900px; margin: 0 auto; color: #1a1a1a; }
     .header { display:flex; gap:18px; align-items:center; }
     .header img { height:90px; width:auto; max-width:140px; object-fit:contain; }
-    .header h1 { font-size: 20px; margin: 0; color: #0f172a; }
+    .header h1 { font-size: 20px; margin: 0; color: #2d2d2d; }
     .header .motto { color: #555; font-style: italic; font-size: 11px; margin: 2px 0; }
     .header .address { color: #666; font-size: 10px; }
-    .divider { border-top: 3px double #0d9488; margin: 14px 0; }
+    .divider { border-top: 3px double #6508c5; margin: 14px 0; }
     .title-row { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 10px; }
-    .title-row h2 { font-size: 16px; margin: 0; color: #0f172a; letter-spacing: 1px; }
+    .title-row h2 { font-size: 16px; margin: 0; color: #2d2d2d; letter-spacing: 1px; }
     .title-row .period { font-size: 12px; color: #555; font-weight: bold; }
     table { width: 100%; border-collapse: collapse; margin: 8px 0 18px; }
     th, td { border: 1px solid #d1d5db; padding: 5px 8px; text-align: left; font-size: 10px; }
-    th { background: #0f172a; color: #fff; font-weight: 600; }
+    th { background: #2d2d2d; color: #fff; font-weight: 600; }
     .right { text-align: right; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
     .red { color: #b91c1c; }

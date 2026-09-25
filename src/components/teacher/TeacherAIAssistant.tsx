@@ -117,7 +117,7 @@ Please feel free to schedule a brief meeting at your convenience.
 
 Kind regards,
 **Class Teacher**
-MavingTech Business Solutions Demo School`;
+Concepts Learning Academy Demo School`;
 
     default:
       return header +

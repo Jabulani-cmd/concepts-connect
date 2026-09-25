@@ -75,7 +75,7 @@ export default function AdminAttendanceViewer() {
       case "present": return <CheckCircle2 className="h-4 w-4 text-green-600" />;
       case "absent": return <XCircle className="h-4 w-4 text-destructive" />;
       case "late": return <Clock className="h-4 w-4 text-yellow-600" />;
-      case "excused": return <AlertCircle className="h-4 w-4 text-blue-600" />;
+      case "excused": return <AlertCircle className="h-4 w-4 text-purple-600" />;
       default: return null;
     }
   };
@@ -183,7 +183,7 @@ export default function AdminAttendanceViewer() {
             <p className="text-xs text-muted-foreground">Late</p>
           </CardContent></Card>
           <Card><CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold text-blue-600">{summary.excused}</p>
+            <p className="text-2xl font-bold text-purple-600">{summary.excused}</p>
             <p className="text-xs text-muted-foreground">Excused</p>
           </CardContent></Card>
         </div>

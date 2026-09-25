@@ -72,7 +72,7 @@ export default function SubstitutionFinder({ allSlots }: { allSlots: SlotRow[] }
             <span className="text-orange-600 font-semibold">{affectedSlots.length} periods affected this week.</span> Highlighted in views as orange.
           </div>
         )}
-        <Button size="sm" onClick={find} disabled={!absent || loading} className="bg-gradient-to-r from-purple-600 to-fuchsia-600">
+        <Button size="sm" onClick={find} disabled={!absent || loading} className="bg-gradient-to-r from-purple-600 to-purple-600">
           {loading ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Sparkles className="h-3 w-3 mr-1" />}Find substitute
         </Button>
         {ranked.length > 0 && (

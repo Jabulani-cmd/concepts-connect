@@ -5,7 +5,7 @@ import { LogOut, DollarSign, ShieldCheck, FileSearch, Receipt } from "lucide-rea
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import schoolLogo from "@/assets/mavingtech-logo.png";
+import schoolLogo from "@/assets/concepts-logo.png";
 import LanguageSelect from "@/components/LanguageSelect";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -61,8 +61,8 @@ export default function FinanceDashboard() {
           <div className="flex items-center gap-2 sm:gap-3">
             <img
               src={schoolLogo}
-              alt="MavingTech Business Solutions"
-              className="h-auto w-24 object-contain sm:w-40"
+              alt="Concepts Learning Academy"
+              className="h-auto w-11 object-contain sm:w-16"
             />
             <div>
               <div className="flex items-center gap-2">

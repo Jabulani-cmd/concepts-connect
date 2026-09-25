@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import schoolLogo from "@/assets/mavingtech-logo.png";
+import schoolLogo from "@/assets/concepts-logo.png";
 import LanguageSelect from "@/components/LanguageSelect";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -132,7 +132,7 @@ export default function AdminSupervisorDashboard() {
       <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur">
         <div className="container mx-auto flex items-center justify-between px-3 sm:px-4 py-2 sm:py-4">
           <div className="flex items-center gap-2 sm:gap-3">
-            <img src={schoolLogo} alt="MavingTech High School" className="h-auto w-24 object-contain sm:w-40" />
+            <img src={schoolLogo} alt="Concepts Learning Academy" className="h-auto w-11 object-contain sm:w-16" />
             <div>
               <h1 className="font-heading text-sm sm:text-lg font-bold text-primary">Admin Supervisor</h1>
               <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">{user?.email}</p>

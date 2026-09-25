@@ -43,7 +43,7 @@ serve(async (req) => {
       return j({ error: "recipient, purpose and studentName are required" }, 400);
     }
 
-    const school = body.schoolName || "MavingTech Business Solutions";
+    const school = body.schoolName || "Concepts Learning Academy";
 
     const systemPrompt = `You draft warm, professional school communication messages for Zimbabwean secondary schools.
 Always:

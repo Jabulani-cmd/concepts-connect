@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import ReportCardCommentGenerator from "@/components/teacher/ReportCardCommentGenerator";
 import ParentMessageComposer from "@/components/teacher/ParentMessageComposer";
-import schoolLogo from "@/assets/mavingtech-logo.png";
+import schoolLogo from "@/assets/concepts-logo.png";
 import LanguageSelect from "@/components/LanguageSelect";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -337,7 +337,7 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
         <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur">
           <div className="container flex h-14 sm:h-20 items-center justify-between px-3 sm:px-4">
             <div className="flex items-center gap-2">
-              <img src={schoolLogo} alt="MavingTech High School" className="h-auto w-24 object-contain sm:w-40" />
+              <img src={schoolLogo} alt="Concepts Learning Academy" className="h-auto w-11 object-contain sm:w-16" />
               <span className="font-heading text-sm sm:text-lg font-bold text-primary">Teacher Portal</span>
             </div>
             <div className="flex items-center gap-2 sm:gap-3">
@@ -529,7 +529,7 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
                                 <td className="px-3 py-2 text-center capitalize">{r.type}</td>
                                 <td className="px-3 py-2 text-center">
                                   {r.source === "ai"
-                                    ? <Badge variant="outline" className="bg-violet-50 text-violet-700 border-violet-300"><Sparkles className="h-3 w-3 mr-1" />AI Marked</Badge>
+                                    ? <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-300"><Sparkles className="h-3 w-3 mr-1" />AI Marked</Badge>
                                     : <Badge variant="outline">Teacher</Badge>}
                                 </td>
                                 <td className="px-3 py-2 text-center font-bold">{r.scoreLabel}</td>

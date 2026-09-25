@@ -30,7 +30,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import schoolLogo from "@/assets/mavingtech-logo.png";
+import schoolLogo from "@/assets/concepts-logo.png";
 import LanguageSelect from "@/components/LanguageSelect";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -307,7 +307,7 @@ export default function ParentDashboard() {
       <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur-md">
         <div className="container flex h-16 items-center justify-between gap-2 px-3 sm:h-20 sm:px-4">
           <div className="flex items-center gap-2">
-            <img src={schoolLogo} alt="MavingTech High School" className="h-auto w-24 object-contain sm:w-36" />
+            <img src={schoolLogo} alt="Concepts Learning Academy" className="h-auto w-11 object-contain sm:w-14" />
             <div className="min-w-0">
               <span className="font-heading text-sm font-bold leading-tight text-foreground sm:text-base">Parent Portal</span>
               <p className="hidden text-xs text-muted-foreground leading-none sm:block">{displayName}</p>
@@ -676,11 +676,11 @@ function TabContentInner(props: TabContentProps) {
 
           <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab("grades")}>
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
-                <TrendingUp className="h-5 w-5 text-blue-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
+                <TrendingUp className="h-5 w-5 text-purple-600" />
               </div>
               <div>
-                <p className="text-lg font-bold text-blue-700">{avgMark > 0 ? `${avgMark}%` : "-"}</p>
+                <p className="text-lg font-bold text-purple-700">{avgMark > 0 ? `${avgMark}%` : "-"}</p>
                 <p className="text-[11px] text-muted-foreground">Avg. Grade</p>
               </div>
             </CardContent>
@@ -1063,7 +1063,7 @@ function TabContentInner(props: TabContentProps) {
               return (
                 <Button
                   size="lg"
-                  className="bg-teal-600 hover:bg-teal-700"
+                  className="bg-purple-600 hover:bg-purple-700"
                   onClick={() => setPayInvoice(target.inv)}
                 >
                   <CreditCard className="w-4 h-4 mr-2" /> Pay Now
@@ -1175,7 +1175,7 @@ function TabContentInner(props: TabContentProps) {
                         {bal > 0.001 && (
                           <Button
                             size="sm"
-                            className="w-full mt-2 bg-teal-600 hover:bg-teal-700"
+                            className="w-full mt-2 bg-purple-600 hover:bg-purple-700"
                             onClick={() => setPayInvoice(inv)}
                           >
                             <CreditCard className="w-3 h-3 mr-1" /> Pay {formatUSD(bal)}
@@ -1250,7 +1250,7 @@ function TabContentInner(props: TabContentProps) {
                           </td>
                           <td className="px-3 py-2 text-center">
                             {bal > 0.001 ? (
-                              <Button size="sm" className="bg-teal-600 hover:bg-teal-700" onClick={() => setPayInvoice(inv)}>
+                              <Button size="sm" className="bg-purple-600 hover:bg-purple-700" onClick={() => setPayInvoice(inv)}>
                                 <CreditCard className="w-3 h-3 mr-1" /> Pay
                               </Button>
                             ) : (

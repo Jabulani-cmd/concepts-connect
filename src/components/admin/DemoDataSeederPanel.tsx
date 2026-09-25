@@ -474,7 +474,7 @@ export default function DemoDataSeederPanel() {
     if (!people.students.length) return;
     try {
       const blob = await buildCredentialsWorkbook({
-        schoolName: "MavingTech High School",
+        schoolName: "Concepts Learning Academy",
         loginUrl: `${window.location.origin}/login`,
         teachers: alloc.teachers,
         subjects: alloc.subjects,
@@ -494,23 +494,23 @@ export default function DemoDataSeederPanel() {
   }
 
   const stats = [
-    { icon: GraduationCap, label: "Students",  value: people.students.length, color: "text-blue-600" },
+    { icon: GraduationCap, label: "Students",  value: people.students.length, color: "text-purple-600" },
     { icon: UserCog,       label: "Parents",   value: people.parents.length,  color: "text-purple-600" },
     { icon: Users,         label: "Teachers",  value: seeded ? alloc.teachers.length : 0, color: "text-emerald-600" },
     { icon: BookOpen,      label: "Subjects",  value: seeded ? alloc.subjects.length : 0, color: "text-amber-600" },
-    { icon: Building2,     label: "Classes",   value: seeded ? alloc.classes.length  : 0, color: "text-rose-600" },
-    { icon: CalendarClock, label: "Periods",   value: seeded ? alloc.slots.filter(s => s.subjectId).length : 0, color: "text-cyan-600" },
+    { icon: Building2,     label: "Classes",   value: seeded ? alloc.classes.length  : 0, color: "text-purple-600" },
+    { icon: CalendarClock, label: "Periods",   value: seeded ? alloc.slots.filter(s => s.subjectId).length : 0, color: "text-purple-600" },
   ];
 
   return (
     <>
-      <Card className="border-2 border-cyan-200 dark:border-cyan-900 bg-gradient-to-br from-cyan-50/60 via-background to-teal-50/40 dark:from-cyan-950/30 dark:to-teal-950/20">
+      <Card className="border-2 border-purple-200 dark:border-purple-900 bg-gradient-to-br from-purple-50/60 via-background to-purple-50/40 dark:from-purple-950/30 dark:to-purple-950/20">
         <CardHeader className="flex flex-row items-start justify-between gap-3">
           <div>
             <CardTitle className="font-heading flex items-center gap-2">
-              <Database className="h-5 w-5 text-cyan-600" />
+              <Database className="h-5 w-5 text-purple-600" />
               Demo Data Seeder
-              <Badge variant="outline" className="ml-2 border-cyan-300 text-cyan-700 dark:text-cyan-300">Demo</Badge>
+              <Badge variant="outline" className="ml-2 border-purple-300 text-purple-700 dark:text-purple-300">Demo</Badge>
               {seeded && <Badge className="bg-green-600 hover:bg-green-700"><CheckCircle2 className="h-3 w-3 mr-1" />Loaded</Badge>}
             </CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
@@ -519,7 +519,7 @@ export default function DemoDataSeederPanel() {
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
-            <Button onClick={handleLoad} disabled={running} className="bg-gradient-to-r from-cyan-600 to-teal-600 hover:opacity-90">
+            <Button onClick={handleLoad} disabled={running} className="bg-gradient-to-r from-purple-600 to-purple-600 hover:opacity-90">
               {running ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Sparkles className="h-4 w-4 mr-1" />}
               {seeded ? "Re-seed Demo Data" : "Load Demo Data"}
             </Button>
@@ -555,7 +555,7 @@ export default function DemoDataSeederPanel() {
                   <motion.div key={s} initial={{ opacity: 0 }} animate={{ opacity: i <= stepIdx ? 1 : 0.4 }}
                     className="flex items-center gap-2 text-sm">
                     {i < stepIdx ? <CheckCircle2 className="h-4 w-4 text-green-600" /> :
-                      i === stepIdx ? <Loader2 className="h-4 w-4 animate-spin text-cyan-600" /> :
+                      i === stepIdx ? <Loader2 className="h-4 w-4 animate-spin text-purple-600" /> :
                       <div className="h-4 w-4 rounded-full border-2 border-muted" />}
                     <span>{s}</span>
                   </motion.div>

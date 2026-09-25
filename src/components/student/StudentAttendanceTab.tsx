@@ -15,7 +15,7 @@ const statusConfig: Record<string, { color: string; bg: string; icon: LucideIcon
   present: { color: "text-green-700", bg: "bg-green-100", icon: CheckCircle },
   absent: { color: "text-red-700", bg: "bg-red-100", icon: CalendarX },
   late: { color: "text-yellow-700", bg: "bg-yellow-100", icon: Clock },
-  excused: { color: "text-blue-700", bg: "bg-blue-100", icon: CalendarCheck },
+  excused: { color: "text-purple-700", bg: "bg-purple-100", icon: CalendarCheck },
 };
 
 export default function StudentAttendanceTab({ studentId }: Props) {

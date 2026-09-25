@@ -823,7 +823,7 @@ export default function AcademicManagement() {
                     <span className="text-green-700">✓ Present: {Object.values(attRecords).filter(v => v === "present").length}</span>
                     <span className="text-red-700">✗ Absent: {Object.values(attRecords).filter(v => v === "absent").length}</span>
                     <span className="text-amber-700">⏱ Late: {Object.values(attRecords).filter(v => v === "late").length}</span>
-                    <span className="text-blue-700">📋 Excused: {Object.values(attRecords).filter(v => v === "excused").length}</span>
+                    <span className="text-purple-700">📋 Excused: {Object.values(attRecords).filter(v => v === "excused").length}</span>
                   </div>
                 </>
               ) : attClass ? (

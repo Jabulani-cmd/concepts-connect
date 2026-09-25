@@ -28,8 +28,8 @@ export function gradeLabel(grade: string | null | undefined): string {
 
 const GRADE_STYLES: Record<Grade, string> = {
   A: "bg-emerald-100 text-emerald-800 border-emerald-300",
-  B: "bg-blue-100 text-blue-800 border-blue-300",
-  C: "bg-sky-100 text-sky-800 border-sky-300",
+  B: "bg-purple-100 text-purple-800 border-purple-300",
+  C: "bg-gray-100 text-gray-800 border-gray-300",
   D: "bg-amber-100 text-amber-800 border-amber-300",
   E: "bg-orange-100 text-orange-800 border-orange-300",
   U: "bg-red-100 text-red-800 border-red-300",
@@ -46,9 +46,9 @@ export function gradeTextClass(grade: string | null | undefined): string {
     case "A":
       return "text-emerald-600";
     case "B":
-      return "text-blue-600";
+      return "text-purple-600";
     case "C":
-      return "text-sky-600";
+      return "text-gray-600";
     case "D":
     case "E":
       return "text-amber-600";
