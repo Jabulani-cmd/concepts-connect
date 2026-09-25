@@ -668,7 +668,7 @@ function BankView({ bank, proof, setProof, onSubmit, processing, error, plan }: 
         ) : (
           <div className="bg-muted/40 rounded-lg p-4 text-sm space-y-1">
             <div><span className="text-muted-foreground">Bank:</span> <strong>CBZ Bank</strong></div>
-            <div><span className="text-muted-foreground">Account Name:</span> <strong>MavingTech Demo School</strong></div>
+            <div><span className="text-muted-foreground">Account Name:</span> <strong>Concepts Learning Academy</strong></div>
             <div><span className="text-muted-foreground">Account #:</span> <strong>01123456780012</strong></div>
             <div><span className="text-muted-foreground">Branch:</span> Harare Main</div>
             <div><span className="text-muted-foreground">Reference:</span> <strong>PARENT-{plan.plan_type.toUpperCase()}</strong></div>

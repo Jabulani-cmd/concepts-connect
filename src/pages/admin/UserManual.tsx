@@ -70,7 +70,7 @@ export default function UserManual() {
       content: (
         <div className="space-y-4">
           <p className="text-sm leading-relaxed">
-            MavingTech High School Management System is a comprehensive web-based platform designed to manage all aspects of school operations. The system serves five types of users: <strong>Administrators</strong>, <strong>Bursars/Finance Staff</strong>, <strong>Teachers</strong>, <strong>Students</strong>, and <strong>Parents</strong>.
+            Concepts Learning Academy Management System is a comprehensive web-based platform designed to manage all aspects of school operations. The system serves five types of users: <strong>Administrators</strong>, <strong>Bursars/Finance Staff</strong>, <strong>Teachers</strong>, <strong>Students</strong>, and <strong>Parents</strong>.
           </p>
           <ManualSection title="Accessing the System">
             <Step n={1} text="Open your web browser (Chrome, Firefox, Safari, or Edge recommended)." />
@@ -681,7 +681,7 @@ export default function UserManual() {
           <h2 className="font-heading text-2xl font-bold flex items-center gap-2">
             <BookOpen className="h-6 w-6 text-primary" /> User Manual
           </h2>
-          <p className="text-sm text-muted-foreground">Complete guide for the MavingTech High School Management System</p>
+          <p className="text-sm text-muted-foreground">Complete guide for the Concepts Learning Academy Management System</p>
         </div>
         <Button variant="outline" onClick={() => window.print()}>
           <Printer className="mr-2 h-4 w-4" /> Print Manual

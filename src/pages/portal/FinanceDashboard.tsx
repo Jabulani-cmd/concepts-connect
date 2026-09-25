@@ -61,7 +61,7 @@ export default function FinanceDashboard() {
           <div className="flex items-center gap-2 sm:gap-3">
             <img
               src={schoolLogo}
-              alt="MavingTech Business Solutions"
+              alt="Concepts Learning Academy"
               className="h-auto w-11 object-contain sm:w-16"
             />
             <div>

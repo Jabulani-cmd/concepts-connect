@@ -44,11 +44,11 @@ const channelOptions = [
 ];
 
 const defaultTemplates = [
-  { name: "Fee Reminder", category: "fee_reminder", body: "Dear Parent/Guardian of {{student_name}}, this is a reminder that fees of ${{balance}} for {{term}} are due by {{due_date}}. Please make payment at your earliest convenience. MavingTech High School.", variables: ["student_name", "balance", "term", "due_date"] },
-  { name: "Attendance Alert", category: "attendance", body: "Dear Parent/Guardian, {{student_name}} was marked {{status}} on {{date}}. Please contact the school if you have any concerns. MavingTech High School.", variables: ["student_name", "status", "date"] },
-  { name: "Exam Results Released", category: "exam_results", body: "Dear Parent/Guardian, {{exam_name}} results for {{student_name}} are now available on the student portal. Please log in to view. MavingTech High School.", variables: ["exam_name", "student_name"] },
-  { name: "Meeting Notice", category: "meeting", body: "Dear {{recipient_name}}, you are invited to {{meeting_title}} on {{date}} at {{time}}, {{venue}}. Your attendance is important. MavingTech High School.", variables: ["recipient_name", "meeting_title", "date", "time", "venue"] },
-  { name: "Emergency Closure", category: "emergency", body: "URGENT: MavingTech High School will be closed on {{date}} due to {{reason}}. Students should remain at home. Normal operations resume on {{resume_date}}.", variables: ["date", "reason", "resume_date"] },
+  { name: "Fee Reminder", category: "fee_reminder", body: "Dear Parent/Guardian of {{student_name}}, this is a reminder that fees of ${{balance}} for {{term}} are due by {{due_date}}. Please make payment at your earliest convenience. Concepts Learning Academy.", variables: ["student_name", "balance", "term", "due_date"] },
+  { name: "Attendance Alert", category: "attendance", body: "Dear Parent/Guardian, {{student_name}} was marked {{status}} on {{date}}. Please contact the school if you have any concerns. Concepts Learning Academy.", variables: ["student_name", "status", "date"] },
+  { name: "Exam Results Released", category: "exam_results", body: "Dear Parent/Guardian, {{exam_name}} results for {{student_name}} are now available on the student portal. Please log in to view. Concepts Learning Academy.", variables: ["exam_name", "student_name"] },
+  { name: "Meeting Notice", category: "meeting", body: "Dear {{recipient_name}}, you are invited to {{meeting_title}} on {{date}} at {{time}}, {{venue}}. Your attendance is important. Concepts Learning Academy.", variables: ["recipient_name", "meeting_title", "date", "time", "venue"] },
+  { name: "Emergency Closure", category: "emergency", body: "URGENT: Concepts Learning Academy will be closed on {{date}} due to {{reason}}. Students should remain at home. Normal operations resume on {{resume_date}}.", variables: ["date", "reason", "resume_date"] },
 ];
 
 export default function CommunicationModule() {

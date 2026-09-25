@@ -16,12 +16,12 @@ const newsItems = [
   {
     id: 2, title: "Inter-house Athletics Day", date: "Mar 15, 2026",
     excerpt: "Annual athletics day at the school stadium. All parents welcome.",
-    body: "The annual Inter-house Athletics Day will take place on Saturday, 15 March 2026 at the MavingTech Stadium. Events include sprints, long-distance, relays, field events, and the prestigious house war cry competition. Gates open at 7:30 AM. Refreshments will be available. All parents and guardians are warmly invited to attend and support their house.",
+    body: "The annual Inter-house Athletics Day will take place on Saturday, 15 March 2026 at the Concepts Learning Academy Stadium. Events include sprints, long-distance, relays, field events, and the prestigious house war cry competition. Gates open at 7:30 AM. Refreshments will be available. All parents and guardians are warmly invited to attend and support their house.",
   },
   {
     id: 3, title: "Open Day for Prospective Students", date: "Apr 5, 2026",
     excerpt: "Tour our campus and meet our teachers. Register online now.",
-    body: "MavingTech High School invites prospective students and their families to our annual Open Day on Saturday, 5 April 2026. The programme includes campus tours, subject demonstrations, meet-and-greet with teachers, and a Q&A session with the headmaster. Pre-registration is recommended via the admissions page.",
+    body: "Concepts Learning Academy invites prospective students and their families to our annual Open Day on Saturday, 5 April 2026. The programme includes campus tours, subject demonstrations, meet-and-greet with teachers, and a Q&A session with the headmaster. Pre-registration is recommended via the admissions page.",
   },
   {
     id: 4, title: "Science Olympiad Team Wins Silver", date: "Feb 10, 2026",
@@ -31,7 +31,7 @@ const newsItems = [
   {
     id: 5, title: "New Computer Lab Inauguration", date: "Jan 20, 2026",
     excerpt: "State-of-the-art computer lab with 40 workstations now operational.",
-    body: "The school has inaugurated a new computer laboratory equipped with 40 modern workstations, high-speed internet, and the latest software for Computer Science and ICT classes. The lab was made possible through generous donations from the Old MavingTech alumni Association and corporate sponsors. It will serve students from Form 1 to Upper Sixth.",
+    body: "The school has inaugurated a new computer laboratory equipped with 40 modern workstations, high-speed internet, and the latest software for Computer Science and ICT classes. The lab was made possible through generous donations from the Old Concepts Learning Academy alumni Association and corporate sponsors. It will serve students from Form 1 to Upper Sixth.",
   },
 ];
 

@@ -1829,7 +1829,7 @@ export default function FinanceManagement() {
                                   email={{
                                     documentLabel: "invoice",
                                     filename: `invoice-${inv.invoice_number}`,
-                                    subject: `Invoice ${inv.invoice_number} | MavingTech Business Solutions`,
+                                    subject: `Invoice ${inv.invoice_number} | Concepts Learning Academy`,
                                   }}
                                 />
                                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => deleteInvoice(inv)} title="Delete">
@@ -1966,7 +1966,7 @@ export default function FinanceManagement() {
                                   email={{
                                     documentLabel: "receipt",
                                     filename: `receipt-${pay.receipt_number}`,
-                                    subject: `Official Receipt ${pay.receipt_number} | MavingTech Business Solutions`,
+                                    subject: `Official Receipt ${pay.receipt_number} | Concepts Learning Academy`,
                                   }}
                                 />
                                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => deletePayment(pay)} title="Delete">
@@ -2681,7 +2681,7 @@ export default function FinanceManagement() {
                   email={{
                     documentLabel: "Expenses Report",
                     filename: "expenses-report",
-                    subject: `MavingTech Business Solutions – Expenses Report`,
+                    subject: `Concepts Learning Academy – Expenses Report`,
                   }}
                 />
               </div>

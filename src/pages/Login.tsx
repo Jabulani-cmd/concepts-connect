@@ -90,7 +90,7 @@ export default function Login() {
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md px-4">
           <Card className="shadow-maroon">
             <CardHeader className="text-center">
-              <img src={schoolLogo} alt="MavingTech High School" className="mx-auto mb-2 h-auto w-28 object-contain sm:w-36" />
+              <img src={schoolLogo} alt="Concepts Learning Academy" className="mx-auto mb-2 h-auto w-28 object-contain sm:w-36" />
               <CardTitle className="font-heading text-2xl text-primary">{t("login.title")}</CardTitle>
               <p className="text-xs italic text-muted-foreground">{t("login.tagline")}</p>
               <p className="text-sm text-muted-foreground">{t("login.subtitle")}</p>

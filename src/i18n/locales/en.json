@@ -86,7 +86,7 @@
   "login": {
     "title": "Portal Login",
     "tagline": "Empowering Your Business Through Technology",
-    "subtitle": "Access your MavingTech portal",
+    "subtitle": "Access your Concepts Learning Academy portal",
     "emailPlaceholder": "you@mavingtech.com",
     "signingIn": "Signing in...",
     "signIn": "Sign In",
@@ -170,20 +170,20 @@
     "referenceNumber": "Reference number"
   },
   "brand": {
-    "schoolName": "MavingTech High School",
-    "schoolShort": "MavingTech",
+    "schoolName": "Concepts Learning Academy",
+    "schoolShort": "Concepts",
     "schoolSuffix": "High School",
     "tagline": "Excellence in Zimbabwean Education"
   },
   "home": {
     "hero": {
-      "title": "Welcome to MavingTech High School",
+      "title": "Welcome to Concepts Learning Academy",
       "subtitle": "Where young African minds are nurtured into confident leaders, innovators and changemakers of tomorrow.",
       "cta": "Our Academics"
     },
     "learning": {
       "title": "Learning Begins With Us",
-      "p1": "At MavingTech High School, we offer a supportive and inspiring environment for young African minds to learn, grow and thrive. Our passion for education goes beyond outstanding academic results. We build confident, creative thinkers prepared for a global future.",
+      "p1": "At Concepts Learning Academy, we offer a supportive and inspiring environment for young African minds to learn, grow and thrive. Our passion for education goes beyond outstanding academic results. We build confident, creative thinkers prepared for a global future.",
       "p2": "From Form 1 through O-Level and A-Level, our students walk out with the character, discipline and skills to make their mark in the world.",
       "cta": "Know More About Us"
     },
@@ -196,15 +196,15 @@
     "director": {
       "eyebrow": "Message from the Principal",
       "title": "From the Principal's Desk",
-      "quote": "At MavingTech High School, we believe every student carries a unique gift. Our calling is to nurture that gift through discipline, faith, hard work and a love for knowledge, so that each of our students rises to become a leader of integrity and purpose.",
+      "quote": "At Concepts Learning Academy, we believe every student carries a unique gift. Our calling is to nurture that gift through discipline, faith, hard work and a love for knowledge, so that each of our students rises to become a leader of integrity and purpose.",
       "body": "Welcome to our school community. Together with our dedicated teachers, supportive parents and ambitious students, we are building a school where academic excellence walks hand in hand with strong character. We are proud of who our students are becoming, and we invite you to be part of this journey.",
       "signature": "Mr. F.J. Moyo",
-      "signatureRole": "Principal, MavingTech High School"
+      "signatureRole": "Principal, Concepts Learning Academy"
     },
     "curriculum": {
       "eyebrow": "Programmes of Study",
       "title": "Curriculum Overview",
-      "intro": "MavingTech aims at offering all our students a broad and balanced curriculum that provides rewarding and stimulating activities to prepare them for the best social and cultural life.",
+      "intro": "Concepts Learning Academy aims at offering all our students a broad and balanced curriculum that provides rewarding and stimulating activities to prepare them for the best social and cultural life.",
       "cs": { "title": "Computer Science", "desc": "Hands-on experience with the latest programming languages and technology." },
       "math": { "title": "Mathematics", "desc": "Building strong analytical foundations through engaging, real-world problem solving." },
       "lit": { "title": "Literature & Languages", "desc": "Cultivating expression, comprehension and a lifelong love of reading and writing." },
@@ -232,12 +232,12 @@
   },
   "about": {
     "eyebrow": "Our Story",
-    "title": "About MavingTech",
+    "title": "About Concepts Learning Academy",
     "subtitle": "Nearly a century of nurturing young African minds into confident leaders, innovators and changemakers.",
     "heritage": "Heritage",
     "historyTitle": "Our History",
-    "history1": "MavingTech High School, a government school in Harare, Zimbabwe, was founded in January 1927 as a technical school, making it one of the first technical schools in what was then Southern Rhodesia.",
-    "history2": "The school achieved high school status in 1931 and, in a significant move, relocated to its current site in 1953. In honour of its long-serving founder, who led the institution for two decades, the school was renamed MavingTech Technical High School on 19 August 1961, and was finally shortened to MavingTech High School in 1974.",
+    "history1": "Concepts Learning Academy, a government school in Harare, Zimbabwe, was founded in January 1927 as a technical school, making it one of the first technical schools in what was then Southern Rhodesia.",
+    "history2": "The school achieved high school status in 1931 and, in a significant move, relocated to its current site in 1953. In honour of its long-serving founder, who led the institution for two decades, the school was renamed Concepts Learning Academy on 19 August 1961, and was finally shortened to Concepts Learning Academy in 1974.",
     "history3": "Today, with an enrolment of over 800 students, it continues a legacy of academic and sporting excellence encapsulated in its motto, Empowering Your Business Through Technology.",
     "stats": {
       "students": "Students Enrolled",
@@ -262,7 +262,7 @@
     "subtitle": "A broad, balanced curriculum spanning ZIMSEC and Cambridge streams: designed to prepare every student for a global future.",
     "programmesEyebrow": "Programmes of Study",
     "programmesTitle": "Our Curriculum",
-    "intro": "MavingTech offers both the ZIMSEC and Cambridge (CIE) examination streams, giving students the flexibility to pursue local or international qualifications at Ordinary and Advanced Level.",
+    "intro": "Concepts Learning Academy offers both the ZIMSEC and Cambridge (CIE) examination streams, giving students the flexibility to pursue local or international qualifications at Ordinary and Advanced Level.",
     "tabs": { "curriculum": "Curriculum", "results": "Results & Achievements" },
     "subjects": {
       "math": { "name": "Mathematics", "desc": "Pure & Applied Mathematics, Statistics" },
@@ -281,7 +281,7 @@
   "admissions": {
     "eyebrow": "Join Our Community",
     "title": "Admissions",
-    "subtitle": "Join the MavingTech family. We welcome students who are eager to learn, grow and contribute to our vibrant community.",
+    "subtitle": "Join the Concepts Learning Academy family. We welcome students who are eager to learn, grow and contribute to our vibrant community.",
     "processEyebrow": "How to Apply",
     "processTitle": "Admission Process",
     "steps": {
@@ -295,7 +295,7 @@
       "eyebrow": "Begin Your Journey",
       "title": "Online Application",
       "received": "Application Received!",
-      "receivedBody": "Thank you for applying to MavingTech High School. We will contact you within 5 business days.",
+      "receivedBody": "Thank you for applying to Concepts Learning Academy. We will contact you within 5 business days.",
       "submittedToast": "Application Submitted!",
       "submittedToastDesc": "We will be in touch shortly.",
       "firstName": "Student First Name",
@@ -313,7 +313,7 @@
   },
   "staff": {
     "title": "Our Staff",
-    "groupCaption": "MavingTech High School Staff",
+    "groupCaption": "Concepts Learning Academy Staff",
     "empty": "Staff directory coming soon.",
     "categories": {
       "leadership": "School Leadership",
@@ -382,9 +382,9 @@
   },
   "facilities": {
     "title": "Our Facilities",
-    "intro": "MavingTech High School is a boys-only boarding school providing excellent facilities to support academic excellence, sporting achievement, and holistic development. Our campus features modern classrooms, well-equipped laboratories, expansive sports grounds, a comprehensive library, ICT facilities, and comfortable boarding accommodation.",
+    "intro": "Concepts Learning Academy is a boys-only boarding school providing excellent facilities to support academic excellence, sporting achievement, and holistic development. Our campus features modern classrooms, well-equipped laboratories, expansive sports grounds, a comprehensive library, ICT facilities, and comfortable boarding accommodation.",
     "empty": "Facility images coming soon.",
-    "lifeTitle": "Life at MavingTech",
+    "lifeTitle": "Life at Concepts Learning Academy",
     "types": {
       "boarding": "Boarding Facilities",
       "classrooms": "Classrooms",
@@ -435,11 +435,11 @@
   },
   "alumni": {
     "title": "Notable Alumni",
-    "subtitle": "MavingTech graduates making an impact across the world."
+    "subtitle": "Concepts Learning Academy graduates making an impact across the world."
   },
   "vacancies": {
     "title": "Vacancies",
-    "intro": "View current job openings and career opportunities at MavingTech High School.",
+    "intro": "View current job openings and career opportunities at Concepts Learning Academy.",
     "empty": "No vacancies currently available. Please check back later."
   },
   "downloads": {
@@ -455,7 +455,7 @@
   },
   "awards": {
     "title": "Awards & Prize-Giving",
-    "subtitle": "Celebrating excellence and achievement at MavingTech High School",
+    "subtitle": "Celebrating excellence and achievement at Concepts Learning Academy",
     "galleryTitle": "Prize-Giving & Awards Gallery",
     "recipientsTitle": "Award Recipients",
     "empty": "No awards have been published yet.",
@@ -485,7 +485,7 @@
     "rights": "All rights reserved."
   },
   "pwa": {
-    "installTitle": "Install the MavingTech app",
+    "installTitle": "Install the Concepts Learning Academy app",
     "installBody": "Add the school portal to your home screen for quick access, even on a slow connection.",
     "install": "Install",
     "notNow": "Not now",

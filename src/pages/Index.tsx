@@ -1,4 +1,4 @@
-import { useState, useEffect, forwardRef } from "react";
+import { Fragment, useState, useEffect, forwardRef } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
@@ -103,7 +103,12 @@ export default function Home() {
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="max-w-2xl text-white">
             <div className="mb-6 h-[2px] w-12 bg-white" />
             <h1 className="font-heading text-4xl font-bold leading-tight md:text-6xl lg:text-7xl">
-              {t("home.hero.title")}
+              {t("home.hero.title").split(t("brand.schoolName")).map((part, i) => (
+                <Fragment key={i}>
+                  {i > 0 && <span className="text-purple-300 [text-shadow:0_2px_14px_rgba(0,0,0,0.6)]">{t("brand.schoolName")}</span>}
+                  {part}
+                </Fragment>
+              ))}
             </h1>
             <p className="mt-6 max-w-lg text-base leading-relaxed text-white/90 md:text-lg">
               {t("home.hero.subtitle")}

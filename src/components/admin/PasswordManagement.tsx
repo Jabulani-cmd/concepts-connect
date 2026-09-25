@@ -156,7 +156,7 @@ export default function PasswordManagement() {
   };
 
   const signInDetails = selectedUser
-    ? `MavingTech school portal\nSign in at: ${window.location.origin}/login\nEmail: ${selectedUser.email}\nPassword: ${newPassword}${forceChange ? "\nYou will be asked to choose your own password when you sign in." : ""}`
+    ? `Concepts Learning Academy portal\nSign in at: ${window.location.origin}/login\nEmail: ${selectedUser.email}\nPassword: ${newPassword}${forceChange ? "\nYou will be asked to choose your own password when you sign in." : ""}`
     : "";
 
   return (

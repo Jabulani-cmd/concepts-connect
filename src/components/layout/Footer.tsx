@@ -51,8 +51,8 @@ export default function Footer() {
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
           <div>
             <div className="mb-4 flex items-center gap-3">
-              <img src={schoolLogo} alt="MavingTech" className="h-auto w-20 object-contain" />
-              <span className="font-heading text-xl font-bold">{t("brand.schoolName")}</span>
+              <img src={schoolLogo} alt="Concepts Learning Academy" className="h-auto w-20 object-contain" />
+              <span className="font-heading text-xl font-bold text-purple-400">{t("brand.schoolName")}</span>
             </div>
             <p className="text-sm leading-relaxed text-white/70">{t("footer.description")}</p>
             <div className="mt-5 flex items-center gap-3">

@@ -474,7 +474,7 @@ export default function DemoDataSeederPanel() {
     if (!people.students.length) return;
     try {
       const blob = await buildCredentialsWorkbook({
-        schoolName: "MavingTech High School",
+        schoolName: "Concepts Learning Academy",
         loginUrl: `${window.location.origin}/login`,
         teachers: alloc.teachers,
         subjects: alloc.subjects,

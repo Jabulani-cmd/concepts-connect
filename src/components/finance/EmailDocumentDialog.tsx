@@ -51,7 +51,7 @@ export default function EmailDocumentDialog({
   const [cc, setCc] = useState("");
   const [subject, setSubject] = useState(defaultSubject);
   const [message, setMessage] = useState(
-    `Dear recipient,\n\nPlease find attached your ${documentLabel} from MavingTech Business Solutions.\n\nFor any queries please contact the bursar's office.\n\nKind regards,\nBursar's Office\n${SCHOOL_ADDRESS}\nTel: ${SCHOOL_PHONE} | Email: ${SCHOOL_EMAIL}`,
+    `Dear recipient,\n\nPlease find attached your ${documentLabel} from Concepts Learning Academy.\n\nFor any queries please contact the bursar's office.\n\nKind regards,\nBursar's Office\n${SCHOOL_ADDRESS}\nTel: ${SCHOOL_PHONE} | Email: ${SCHOOL_EMAIL}`,
   );
   const [sending, setSending] = useState(false);
 
@@ -95,7 +95,7 @@ export default function EmailDocumentDialog({
             <Mail className="h-4 w-4 text-accent" /> Email {documentLabel}
           </DialogTitle>
           <DialogDescription>
-            Send this {documentLabel} as a branded MavingTech document. Demo mode simulates delivery. Use "Open mail client" to send through your installed email app.
+            Send this {documentLabel} as a branded Concepts Learning Academy document. Demo mode simulates delivery. Use "Open mail client" to send through your installed email app.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">

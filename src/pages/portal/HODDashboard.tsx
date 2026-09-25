@@ -44,7 +44,7 @@ export default function HODDashboard() {
       <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur">
         <div className="container flex h-14 sm:h-20 items-center justify-between px-3 sm:px-4">
           <div className="flex items-center gap-2">
-            <img src={schoolLogo} alt="MavingTech High School" className="h-auto w-11 object-contain sm:w-16" />
+            <img src={schoolLogo} alt="Concepts Learning Academy" className="h-auto w-11 object-contain sm:w-16" />
             <span className="font-heading text-sm sm:text-lg font-bold text-primary">HOD Portal</span>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">

@@ -29,9 +29,9 @@ export default defineConfig(({ mode }) => ({
       includeAssets: ["favicon.ico", "favicon.png", "icons/apple-touch-icon.png"],
       manifest: {
         id: "/",
-        name: "MavingTech High School",
-        short_name: "MavingTech",
-        description: "MavingTech High School portal for students, parents, teachers and staff.",
+        name: "Concepts Learning Academy",
+        short_name: "Concepts",
+        description: "Concepts Learning Academy portal for students, parents, teachers and staff.",
         start_url: "/",
         scope: "/",
         display: "standalone",

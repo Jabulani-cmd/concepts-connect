@@ -7,7 +7,7 @@ describe("login credentials workbook", () => {
   it("has a readable sheet per group with one row per person", async () => {
     const seed = generateDemoSeed();
     const blob = await buildCredentialsWorkbook({
-      schoolName: "MavingTech High School", loginUrl: "https://example.test/login",
+      schoolName: "Concepts Learning Academy", loginUrl: "https://example.test/login",
       teachers: seed.teachers, subjects: seed.subjects, classes: seed.classes,
       students: seed.students, parents: seed.parents, generatedAt: new Date("2026-09-23T10:00:00Z"),
     });

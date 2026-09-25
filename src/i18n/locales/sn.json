@@ -86,7 +86,7 @@
   "login": {
     "title": "Pinda muPortal",
     "tagline": "Tinosimbisa Bhizinesi Rako neTekinoroji",
-    "subtitle": "Pinda muportal yako yeMavingTech",
+    "subtitle": "Pinda muportal yako yeConcepts Learning Academy",
     "emailPlaceholder": "iwe@mavingtech.com",
     "signingIn": "Kupinda...",
     "signIn": "Pinda",
@@ -170,20 +170,20 @@
     "referenceNumber": "Nhamba yereferenzi"
   },
   "brand": {
-    "schoolName": "MavingTech High School",
-    "schoolShort": "MavingTech",
+    "schoolName": "Concepts Learning Academy",
+    "schoolShort": "Concepts",
     "schoolSuffix": "High School",
     "tagline": "Hunyanzvi muDzidzo"
   },
   "home": {
     "hero": {
-      "title": "Mauya kuMavingTech High School",
+      "title": "Mauya kuConcepts Learning Academy",
       "subtitle": "Apo pfungwa dzechidiki dzinorerwa kuva vatungamiri, vagadziri nevashanduri veramangwana.",
       "cta": "Dzidzo Yedu"
     },
     "learning": {
       "title": "Kudzidza Kunotanga Nesu",
-      "p1": "KuMavingTech High School, tinopa nzvimbo inotsigira uye inokurudzira vadzidzi kuti vadzidze, vakure uye vabudirire. Rudo rwedu rwedzidzo runopfuura mhedzisiro yakanaka: tinovaka vafungi vane chivimbo, vanogadzira, vakagadzirira ramangwana.",
+      "p1": "KuConcepts Learning Academy, tinopa nzvimbo inotsigira uye inokurudzira vadzidzi kuti vadzidze, vakure uye vabudirire. Rudo rwedu rwedzidzo runopfuura mhedzisiro yakanaka: tinovaka vafungi vane chivimbo, vanogadzira, vakagadzirira ramangwana.",
       "p2": "Kubva kuForm 1 kusvika kuA Level, vadzidzi vedu vanobuda vaine hunhu, tsika neunyanzvi hwekushandura nyika.",
       "cta": "Ziva Zvimwe Nezvedu"
     },
@@ -196,15 +196,15 @@
     "director": {
       "eyebrow": "Shoko Kubva Kumukuru weChikoro",
       "title": "Kubva Padesk RaHeadmaster",
-      "quote": "KuMavingTech High School, tinotenda kuti mudzidzi wose ane chipo chakakosha. Basa redu nderekurera chipo ichocho netsika, kutenda, kushanda nesimba nerudo rwekuziva.",
+      "quote": "KuConcepts Learning Academy, tinotenda kuti mudzidzi wose ane chipo chakakosha. Basa redu nderekurera chipo ichocho netsika, kutenda, kushanda nesimba nerudo rwekuziva.",
       "body": "Mauya munharaunda yedu yechikoro. Pamwe chete nevadzidzisi vedu vakazvipira, vabereki vanotsigira nevadzidzi vane tariro, tinovaka chikoro apo hunyanzvi hwedzidzo hunofamba pamwe nehunhu hwakasimba.",
       "signature": "VaF.J. Moyo",
-      "signatureRole": "Headmaster, MavingTech High School"
+      "signatureRole": "Headmaster, Concepts Learning Academy"
     },
     "curriculum": {
       "eyebrow": "Zvirongwa Zvekudzidza",
       "title": "Ongororo yeKarikulamu",
-      "intro": "MavingTech inopa vadzidzi vose karikulamu yakafara uye yakaenzana inovagadzirira upenyu hwavo.",
+      "intro": "Concepts Learning Academy inopa vadzidzi vose karikulamu yakafara uye yakaenzana inovagadzirira upenyu hwavo.",
       "cs": { "title": "Computer Science", "desc": "Ruzivo rwekunyora purogiramu netekinoroji itsva." },
       "math": { "title": "Masvomhu", "desc": "Kuvaka hwaro hwakasimba hwekuongorora nekugadzirisa matambudziko chaiwo." },
       "lit": { "title": "Hunyanzvi neMitauro", "desc": "Kuvaka kutaura, kunzwisisa uye rudo rwekuverenga nekunyora." },
@@ -232,12 +232,12 @@
   },
   "about": {
     "eyebrow": "Nyaya Yedu",
-    "title": "Nezve MavingTech",
+    "title": "Nezve Concepts Learning Academy",
     "subtitle": "Makore ekurera pfungwa dzechidiki kuti dzive vatungamiri vane chivimbo nevagadziri.",
     "heritage": "Nhaka",
     "historyTitle": "Nhoroondo Yedu",
-    "history1": "MavingTech High School, chikoro chine mukurumbira, chakavambwa muna Ndira 1927 sechikoro chekutanga chetekinoroji munyika.",
-    "history2": "Chikoro chakawana chinzvimbo chesekondari muna 1931 uye chakatamira kunzvimbo yacho yazvino muna 1953. Chakatumidzwa zita rekuti MavingTech Technical High School musi wa19 Nyamavhuvhu 1961, chikazopfupikiswa kuva MavingTech High School muna 1974.",
+    "history1": "Concepts Learning Academy, chikoro chine mukurumbira, chakavambwa muna Ndira 1927 sechikoro chekutanga chetekinoroji munyika.",
+    "history2": "Chikoro chakawana chinzvimbo chesekondari muna 1931 uye chakatamira kunzvimbo yacho yazvino muna 1953. Chakatumidzwa zita rekuti Concepts Learning Academy musi wa19 Nyamavhuvhu 1961, chikazopfupikiswa kuva Concepts Learning Academy muna 1974.",
     "history3": "Nhasi, nevadzidzi vanopfuura mazana masere, tinoenderera nenhaka yehunyanzvi mudzidzo nemitambo.",
     "stats": {
       "students": "Vadzidzi Vakanyoreswa",
@@ -262,7 +262,7 @@
     "subtitle": "Karikulamu yakafara uye yakaenzana yakagadzirirwa kugadzirira mudzidzi wese ramangwana.",
     "programmesEyebrow": "Zvirongwa Zvekudzidza",
     "programmesTitle": "Karikulamu Yedu",
-    "intro": "MavingTech inopa zvirongwa zvebvunzo zveZIMSEC neCambridge, ichipa vadzidzi sarudzo paO Level neA Level.",
+    "intro": "Concepts Learning Academy inopa zvirongwa zvebvunzo zveZIMSEC neCambridge, ichipa vadzidzi sarudzo paO Level neA Level.",
     "tabs": { "curriculum": "Karikulamu", "results": "Mhedzisiro neBudiriro" },
     "subjects": {
       "math": { "name": "Masvomhu", "desc": "Pure Mathematics, Statistics" },
@@ -281,7 +281,7 @@
   "admissions": {
     "eyebrow": "Pinda muNharaunda Yedu",
     "title": "Kunyoresa",
-    "subtitle": "Pinda mumhuri yeMavingTech. Tinogamuchira vadzidzi vanoda kudzidza nekukura.",
+    "subtitle": "Pinda mumhuri yeConcepts Learning Academy. Tinogamuchira vadzidzi vanoda kudzidza nekukura.",
     "processEyebrow": "Nzira Yekunyorera",
     "processTitle": "Maitiro Ekunyoresa",
     "steps": {
@@ -295,7 +295,7 @@
       "eyebrow": "Tanga Rwendo Rwako",
       "title": "Chikumbiro chePaindaneti",
       "received": "Chikumbiro Chagamuchirwa!",
-      "receivedBody": "Tinotenda nekunyorera kuMavingTech High School. Tichabata newe mumazuva mashanu ebasa.",
+      "receivedBody": "Tinotenda nekunyorera kuConcepts Learning Academy. Tichabata newe mumazuva mashanu ebasa.",
       "submittedToast": "Chikumbiro Chatumirwa!",
       "submittedToastDesc": "Tichabata newe munguva pfupi.",
       "firstName": "Zita reMudzidzi",
@@ -313,7 +313,7 @@
   },
   "staff": {
     "title": "Vashandi Vedu",
-    "groupCaption": "Vashandi veMavingTech High School",
+    "groupCaption": "Vashandi veConcepts Learning Academy",
     "empty": "Rondedzero yevashandi ichauya munguva pfupi.",
     "categories": {
       "leadership": "Utungamiri hweChikoro",
@@ -382,9 +382,9 @@
   },
   "facilities": {
     "title": "Zvivakwa Zvedu",
-    "intro": "MavingTech High School inopa zvivakwa zvakanaka zvinotsigira hunyanzvi hwedzidzo, budiriro yemitambo nekukura kwakazara.",
+    "intro": "Concepts Learning Academy inopa zvivakwa zvakanaka zvinotsigira hunyanzvi hwedzidzo, budiriro yemitambo nekukura kwakazara.",
     "empty": "Mifananidzo yezvivakwa ichauya munguva pfupi.",
-    "lifeTitle": "Upenyu kuMavingTech",
+    "lifeTitle": "Upenyu kuConcepts Learning Academy",
     "types": {
       "boarding": "Zvivakwa Zvekugara",
       "classrooms": "Makirasi",
@@ -435,11 +435,11 @@
   },
   "alumni": {
     "title": "Vakambodzidza Vane Mukurumbira",
-    "subtitle": "Vakapedza kuMavingTech vari kuita mutsauko pasi rose."
+    "subtitle": "Vakapedza kuConcepts Learning Academy vari kuita mutsauko pasi rose."
   },
   "vacancies": {
     "title": "Nzvimbo dzeBasa",
-    "intro": "Tarisa mikana yebasa iripo kuMavingTech High School.",
+    "intro": "Tarisa mikana yebasa iripo kuConcepts Learning Academy.",
     "empty": "Hapana mikana yebasa iripo parizvino. Dzoka utarise zvakare."
   },
   "downloads": {
@@ -455,7 +455,7 @@
   },
   "awards": {
     "title": "Mibairo neKuremekedzwa",
-    "subtitle": "Tichipemberera hunyanzvi nebudiriro kuMavingTech High School",
+    "subtitle": "Tichipemberera hunyanzvi nebudiriro kuConcepts Learning Academy",
     "galleryTitle": "Gareri yeMibairo",
     "recipientsTitle": "Vagamuchiri veMibairo",
     "empty": "Hapana mibairo yakaburitswa parizvino.",
@@ -485,7 +485,7 @@
     "rights": "Kodzero dzose dzakachengetedzwa."
   },
   "pwa": {
-    "installTitle": "Isa app yeMavingTech",
+    "installTitle": "Isa app yeConcepts Learning Academy",
     "installBody": "Isa portal yechikoro pascreen yako kuti uiwane nekukurumidza, kunyangwe netiweki inononoka.",
     "install": "Isa",
     "notNow": "Kwete zvino",
