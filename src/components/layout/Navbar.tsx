@@ -179,7 +179,7 @@ export default function Navbar() {
           <img
             src={schoolLogo}
             alt="Concepts Learning Academy"
-            className="h-auto w-14 flex-shrink-0 object-contain sm:w-16 xl:w-20 2xl:w-24"
+            className="h-auto w-20 flex-shrink-0 object-contain sm:w-24 xl:w-28 2xl:w-32"
           />
           <div className="hidden flex-col leading-tight sm:flex">
             <span className="font-heading text-xl font-extrabold tracking-tight text-primary md:text-3xl 2xl:text-4xl">
