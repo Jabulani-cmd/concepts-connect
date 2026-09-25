@@ -29,7 +29,7 @@ export default function StudentAnnouncementsSection({ announcements, limit }: Pr
         <Card key={a.id}>
           <CardContent className="p-3">
             <div className="flex items-start gap-2">
-              <Megaphone className="h-4 w-4 text-secondary mt-0.5 flex-shrink-0" />
+              <Megaphone className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium leading-tight">{a.title}</p>
                 <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{a.content}</p>
@@ -52,7 +52,7 @@ export default function StudentAnnouncementsSection({ announcements, limit }: Pr
                         href={url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[11px] text-secondary underline"
+                        className="text-[11px] text-primary underline"
                       >
                         Attachment {i + 1}
                       </a>

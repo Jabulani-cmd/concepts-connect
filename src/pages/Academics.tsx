@@ -38,7 +38,7 @@ export default function Academics() {
           <div className="grid items-end gap-8 lg:grid-cols-2">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
               <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">{t("academics.programmesEyebrow")}</span>
-              <h2 className="mt-3 font-heading text-3xl font-bold leading-tight text-foreground md:text-5xl">{t("academics.programmesTitle")}</h2>
+              <h2 className="mt-3 font-heading text-3xl font-bold leading-tight text-primary md:text-5xl">{t("academics.programmesTitle")}</h2>
               <div className="mt-5 h-[3px] w-12 bg-primary" />
             </motion.div>
             <motion.p initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="leading-relaxed text-muted-foreground">
@@ -60,7 +60,7 @@ export default function Academics() {
                     <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10">
                       <s.icon className="h-5 w-5 text-primary" />
                     </div>
-                    <h3 className="mt-4 font-heading text-lg font-bold text-foreground">{s.name}</h3>
+                    <h3 className="mt-4 font-heading text-lg font-bold text-purple-900 dark:text-purple-200">{s.name}</h3>
                     <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
                   </motion.div>
                 ))}
@@ -70,7 +70,7 @@ export default function Academics() {
             <TabsContent value="results">
               <div className="grid items-center gap-12 lg:grid-cols-2">
                 <div>
-                  <h3 className="font-heading text-2xl font-bold text-foreground">{t("academics.results.title")}</h3>
+                  <h3 className="font-heading text-2xl font-bold text-purple-900 dark:text-purple-200">{t("academics.results.title")}</h3>
                   <div className="mt-4 h-[3px] w-12 bg-primary" />
                   <p className="mt-6 leading-relaxed text-muted-foreground">{t("academics.results.body")}</p>
                   <div className="mt-8 overflow-hidden rounded-lg ring-1 ring-border/60">

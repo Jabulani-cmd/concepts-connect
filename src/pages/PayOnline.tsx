@@ -25,12 +25,12 @@ export default function PayOnline() {
 
   return (
     <Layout>
-      <section className="bg-secondary py-16">
+      <section className="bg-maroon-gradient py-16">
         <div className="container">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="font-heading text-4xl font-bold text-secondary-foreground"
+            className="font-heading text-4xl font-bold text-white"
           >
             Pay Online
           </motion.h1>
@@ -38,7 +38,7 @@ export default function PayOnline() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="mt-2 text-secondary-foreground/80"
+            className="mt-2 text-white/85"
           >
             Secure online payments for school fees and donations
           </motion.p>
@@ -151,7 +151,7 @@ function FeePaymentForm() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <GraduationCap className="h-5 w-5 text-secondary" />
+          <GraduationCap className="h-5 w-5 text-primary" />
           Pay School Fees
         </CardTitle>
         <p className="text-sm text-muted-foreground">
@@ -330,7 +330,7 @@ function DonationForm({ initialProjectId }: { initialProjectId: string }) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Heart className="h-5 w-5 text-secondary" />
+          <Heart className="h-5 w-5 text-primary" />
           Make a Donation
         </CardTitle>
         <p className="text-sm text-muted-foreground">

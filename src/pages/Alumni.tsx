@@ -13,12 +13,12 @@ export default function Alumni() {
   const { t } = useTranslation();
   return (
     <Layout>
-      <section className="bg-secondary py-16">
+      <section className="bg-maroon-gradient py-16">
         <div className="container">
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="font-heading text-4xl font-bold text-secondary-foreground">
+          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="font-heading text-4xl font-bold text-white">
             {t("alumni.title")}
           </motion.h1>
-          <p className="mt-2 text-secondary-foreground/70">{t("alumni.subtitle")}</p>
+          <p className="mt-2 text-white/75">{t("alumni.subtitle")}</p>
         </div>
       </section>
 

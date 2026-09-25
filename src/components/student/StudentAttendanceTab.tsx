@@ -62,7 +62,7 @@ export default function StudentAttendanceTab({ studentId }: Props) {
   return (
     <div className="space-y-4">
       {/* Summary */}
-      <Card className="border-none shadow-sm bg-gradient-to-r from-secondary/10 to-secondary/5">
+      <Card className="border-none shadow-sm bg-gradient-to-r from-primary/10 to-primary/5">
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>

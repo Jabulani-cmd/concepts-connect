@@ -182,7 +182,7 @@ export default function StudentDashboard() {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-secondary border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -365,11 +365,11 @@ function TabContent({
             {/* Quick Actions */}
             <div className="grid grid-cols-2 gap-2">
               <Button variant="outline" className="h-auto py-3 flex-col gap-1" onClick={() => setActiveTab("materials")}>
-                <BookOpen className="h-5 w-5 text-secondary" />
+                <BookOpen className="h-5 w-5 text-primary" />
                 <span className="text-xs">Materials</span>
               </Button>
               <Button variant="outline" className="h-auto py-3 flex-col gap-1" onClick={() => setActiveTab("assessments")}>
-                <ClipboardCheck className="h-5 w-5 text-secondary" />
+                <ClipboardCheck className="h-5 w-5 text-primary" />
                 <span className="text-xs">Assessments</span>
               </Button>
             </div>

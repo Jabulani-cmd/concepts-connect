@@ -38,9 +38,9 @@ export default function Facilities() {
 
   return (
     <Layout>
-      <section className="bg-secondary py-16">
+      <section className="bg-maroon-gradient py-16">
         <div className="container">
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="font-heading text-4xl font-bold text-secondary-foreground">
+          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="font-heading text-4xl font-bold text-white">
             {t("facilities.title")}
           </motion.h1>
         </div>

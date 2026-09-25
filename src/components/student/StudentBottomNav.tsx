@@ -28,11 +28,11 @@ export default function StudentBottomNav({ activeTab, onTabChange }: Props) {
               className={cn(
                 "flex min-h-[56px] min-w-[56px] flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-medium transition-colors",
                 isActive
-                  ? "text-secondary"
+                  ? "text-primary"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <Icon className={cn("h-5 w-5", isActive && "text-secondary")} />
+              <Icon className={cn("h-5 w-5", isActive && "text-primary")} />
               <span>{item.label}</span>
             </button>
           );

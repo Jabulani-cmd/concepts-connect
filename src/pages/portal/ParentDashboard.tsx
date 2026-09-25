@@ -283,7 +283,7 @@ export default function ParentDashboard() {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-secondary border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -546,8 +546,8 @@ function ChildSelector({
     return (
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary/10">
-            <GraduationCap className="h-5 w-5 text-secondary" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+            <GraduationCap className="h-5 w-5 text-primary" />
           </div>
           <div>
             <p className="text-sm font-semibold text-foreground">{child.full_name}</p>
@@ -664,11 +664,11 @@ function TabContentInner(props: TabContentProps) {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab("attendance")}>
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary/10">
-                <Calendar className="h-5 w-5 text-secondary" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                <Calendar className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <p className="text-lg font-bold text-secondary">{attendancePercent}%</p>
+                <p className="text-lg font-bold text-primary">{attendancePercent}%</p>
                 <p className="text-[11px] text-muted-foreground">Attendance</p>
               </div>
             </CardContent>
@@ -729,7 +729,7 @@ function TabContentInner(props: TabContentProps) {
           <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab("grades")}>
             <CardContent className="p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <GraduationCap className="h-5 w-5 text-secondary" />
+                <GraduationCap className="h-5 w-5 text-primary" />
                 <span className="text-sm font-medium">View Exam Results</span>
               </div>
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -741,7 +741,7 @@ function TabContentInner(props: TabContentProps) {
           >
             <CardContent className="p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Bell className="h-5 w-5 text-secondary" />
+                <Bell className="h-5 w-5 text-primary" />
                 <span className="text-sm font-medium">Announcements ({announcements.length})</span>
               </div>
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -802,10 +802,10 @@ function TabContentInner(props: TabContentProps) {
               <>
                 {/* Summary */}
                 <div className="grid grid-cols-3 gap-2">
-                  <Card className="bg-gradient-to-br from-secondary/5 to-secondary/10 border-secondary/20">
+                  <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
                     <CardContent className="p-3 text-center">
-                      <TrendingUp className="mx-auto mb-1 h-5 w-5 text-secondary" />
-                      <p className="text-lg font-bold text-secondary">{avgMark}%</p>
+                      <TrendingUp className="mx-auto mb-1 h-5 w-5 text-primary" />
+                      <p className="text-lg font-bold text-primary">{avgMark}%</p>
                       <Badge className={`mt-1 text-[10px] ${gradeBadgeClass(avgGrade)}`} variant="outline">
                         {avgGrade}
                       </Badge>
@@ -939,7 +939,7 @@ function TabContentInner(props: TabContentProps) {
         <div className="grid grid-cols-4 gap-2">
           <Card>
             <CardContent className="p-3 text-center">
-              <p className="text-lg font-bold text-secondary">{attendancePercent}%</p>
+              <p className="text-lg font-bold text-primary">{attendancePercent}%</p>
               <p className="text-[10px] text-muted-foreground">Rate</p>
             </CardContent>
           </Card>

@@ -31,7 +31,7 @@ export default class AppErrorBoundary extends Component<{ children: ReactNode },
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background p-6 text-center">
         <img src="/icons/icon-192.png" alt="" className="h-16 w-16 rounded-2xl border border-border" />
-        <h1 className="font-heading text-xl font-bold text-foreground">{i18n.t("pwa.errorTitle")}</h1>
+        <h1 className="font-heading text-xl font-bold text-primary">{i18n.t("pwa.errorTitle")}</h1>
         <p className="max-w-sm text-sm text-muted-foreground">{i18n.t("pwa.errorBody")}</p>
         <div className="flex gap-2">
           <button type="button" onClick={this.reload} className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">

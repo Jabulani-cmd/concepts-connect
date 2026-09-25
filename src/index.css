@@ -6,7 +6,7 @@
   :root {
     /* Concepts Learning Academy palette - Purple + Grey */
     --background: 0 0% 100%;
-    --foreground: 0 0% 13%;
+    --foreground: 272 30% 12%;
 
     --card: 0 0% 100%;
     --card-foreground: 0 0% 13%;
@@ -18,12 +18,12 @@
     --primary: 270 92% 40%;
     --primary-foreground: 0 0% 100%;
 
-    /* Brand grey from the logo (#3f3f3f) */
-    --secondary: 0 0% 25%;
-    --secondary-foreground: 0 0% 100%;
+    /* Soft lavender (secondary buttons, tinted surfaces) */
+    --secondary: 270 70% 94%;
+    --secondary-foreground: 272 80% 22%;
 
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 40%;
+    --muted: 270 60% 97%;
+    --muted-foreground: 270 8% 38%;
 
     --accent: 270 92% 40%;
     --accent-foreground: 0 0% 100%;
@@ -31,23 +31,23 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 88%;
-    --input: 0 0% 88%;
+    --border: 270 35% 88%;
+    --input: 270 30% 84%;
     --ring: 270 92% 40%;
 
     --radius: 0.375rem;
 
-    /* Footer / dark sections - charcoal grey */
-    --footer-bg: 0 0% 16%;
-    --footer-fg: 0 0% 95%;
+    /* Footer / dark sections - deep brand purple */
+    --footer-bg: 274 65% 14%;
+    --footer-fg: 270 30% 96%;
 
-    --sidebar-background: 0 0% 16%;
-    --sidebar-foreground: 0 0% 95%;
+    --sidebar-background: 274 65% 14%;
+    --sidebar-foreground: 270 30% 96%;
     --sidebar-primary: 270 92% 40%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 22%;
+    --sidebar-accent: 274 55% 22%;
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 0 0% 26%;
+    --sidebar-border: 274 45% 26%;
     --sidebar-ring: 270 85% 60%;
 
     /* Custom tokens kept for legacy (maroon now maps to brand purple) */
@@ -103,6 +103,19 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-heading;
   }
+
+  /* Headings are brand purple unless a colour class says otherwise */
+  h1, h2 {
+    color: hsl(var(--primary));
+  }
+
+  h3, h4 {
+    color: hsl(272 85% 22%);
+  }
+
+  .dark h3, .dark h4 {
+    color: hsl(270 80% 88%);
+  }
 }
 
 @layer utilities {
@@ -112,7 +125,7 @@
   }
 
   .bg-maroon-gradient {
-    background: linear-gradient(135deg, hsl(0 0% 12%), hsl(270 30% 20%));
+    background: linear-gradient(135deg, hsl(274 70% 20%), hsl(270 85% 40%));
   }
 
   .bg-hero-overlay {
@@ -126,8 +139,8 @@
   .bg-section-warm {
     background: linear-gradient(
       180deg,
-      hsl(0 0% 98%) 0%,
-      hsl(0 0% 95%) 100%
+      hsl(270 70% 98%) 0%,
+      hsl(270 60% 95%) 100%
     );
   }
 

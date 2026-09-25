@@ -97,12 +97,12 @@ export default function Home() {
             style={{ objectPosition: "center 30%" }}
           />
         </AnimatePresence>
-        <div className="absolute inset-0 bg-gradient-to-r from-foreground/55 via-foreground/25 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-950/70 via-purple-900/30 to-transparent" />
 
         <div className="container relative z-10 flex h-full items-center">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="max-w-2xl text-white">
-            <div className="mb-6 h-[2px] w-12 bg-white" />
-            <h1 className="font-heading text-4xl font-bold leading-tight md:text-6xl lg:text-7xl">
+            <div className="mb-6 h-[3px] w-12 bg-purple-400" />
+            <h1 className="font-heading text-4xl font-bold leading-tight text-white md:text-6xl lg:text-7xl">
               {t("home.hero.title").split(t("brand.schoolName")).map((part, i) => (
                 <Fragment key={i}>
                   {i > 0 && <span className="text-purple-300 [text-shadow:0_2px_14px_rgba(0,0,0,0.6)]">{t("brand.schoolName")}</span>}
@@ -132,7 +132,7 @@ export default function Home() {
       <section className="py-20 md:py-28">
         <div className="container grid items-center gap-14 lg:grid-cols-2">
           <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
-            <h2 className="font-heading text-3xl font-bold leading-tight text-foreground md:text-5xl">
+            <h2 className="font-heading text-3xl font-bold leading-tight text-primary md:text-5xl">
               {t("home.learning.title")}
             </h2>
             <div className="mt-5 h-[3px] w-12 bg-primary" />
@@ -165,7 +165,7 @@ export default function Home() {
           </motion.div>
           <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }} className="lg:col-span-3">
             <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">{t("home.director.eyebrow")}</span>
-            <h2 className="mt-4 font-heading text-3xl font-bold leading-tight text-foreground md:text-4xl">{t("home.director.title")}</h2>
+            <h2 className="mt-4 font-heading text-3xl font-bold leading-tight text-primary md:text-4xl">{t("home.director.title")}</h2>
             <div className="mt-4 h-[3px] w-12 bg-primary" />
             <p className="mt-6 text-lg leading-relaxed text-muted-foreground italic">"{t("home.director.quote")}"</p>
             <p className="mt-6 leading-relaxed text-muted-foreground">{t("home.director.body")}</p>
@@ -180,7 +180,7 @@ export default function Home() {
         <div className="container">
           <div className="grid items-end gap-8 lg:grid-cols-2">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-              <h2 className="font-heading text-3xl font-bold leading-tight text-foreground md:text-5xl">{t("home.curriculum.title")}</h2>
+              <h2 className="font-heading text-3xl font-bold leading-tight text-primary md:text-5xl">{t("home.curriculum.title")}</h2>
               <div className="mt-5 h-[3px] w-12 bg-primary" />
             </motion.div>
             <motion.p initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="leading-relaxed text-muted-foreground">
@@ -196,7 +196,7 @@ export default function Home() {
                   <img src={c.img} alt={c.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 </div>
                 <div className="p-6">
-                  <h3 className="font-heading text-lg font-bold text-foreground">{c.title}</h3>
+                  <h3 className="font-heading text-lg font-bold text-purple-900 dark:text-purple-200">{c.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{c.desc}</p>
                 </div>
               </motion.div>
@@ -209,7 +209,7 @@ export default function Home() {
         <div className="container">
           <div className="mb-12 text-center">
             <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">{t("home.activities.eyebrow")}</span>
-            <h2 className="mt-3 font-heading text-3xl font-bold text-foreground md:text-5xl">{t("home.activities.title")}</h2>
+            <h2 className="mt-3 font-heading text-3xl font-bold text-primary md:text-5xl">{t("home.activities.title")}</h2>
             <div className="mx-auto mt-4 h-[3px] w-12 bg-primary" />
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -232,7 +232,7 @@ export default function Home() {
           <div className="container">
             <div className="mb-12 text-center">
               <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">{t("home.news.eyebrow")}</span>
-              <h2 className="mt-3 font-heading text-3xl font-bold text-foreground md:text-5xl">{t("home.news.title")}</h2>
+              <h2 className="mt-3 font-heading text-3xl font-bold text-primary md:text-5xl">{t("home.news.title")}</h2>
               <div className="mx-auto mt-4 h-[3px] w-12 bg-primary" />
             </div>
             <div className="grid gap-8 md:grid-cols-3">
@@ -242,7 +242,7 @@ export default function Home() {
                   <span className="text-xs font-semibold uppercase tracking-wider text-primary">
                     {new Date(a.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                   </span>
-                  <h3 className="mt-3 font-heading text-lg font-bold text-foreground">{a.title}</h3>
+                  <h3 className="mt-3 font-heading text-lg font-bold text-purple-900 dark:text-purple-200">{a.title}</h3>
                   {a.content && <p className="mt-2 line-clamp-4 text-sm leading-relaxed text-muted-foreground">{a.content}</p>}
                 </motion.article>
               ))}
@@ -253,7 +253,7 @@ export default function Home() {
 
       <section className="relative isolate overflow-hidden bg-primary py-20 text-primary-foreground md:py-24">
         <div className="container text-center">
-          <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="font-heading text-3xl font-bold md:text-5xl">
+          <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="font-heading text-3xl font-bold text-primary-foreground md:text-5xl">
             {t("home.cta.title")}
           </motion.h2>
           <p className="mx-auto mt-5 max-w-2xl leading-relaxed text-white/85">{t("home.cta.desc")}</p>

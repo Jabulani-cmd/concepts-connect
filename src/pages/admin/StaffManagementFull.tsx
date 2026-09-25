@@ -599,12 +599,12 @@ export default function StaffManagementFull() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="font-heading text-2xl font-bold text-foreground">Staff Management</h2>
+        <h2 className="font-heading text-2xl font-bold text-primary">Staff Management</h2>
         <div className="flex gap-2">
           <Button onClick={exportCSV} variant="outline" size="sm">
             <Download className="mr-1 h-4 w-4" /> Export CSV
           </Button>
-          <Button onClick={openAdd} className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
+          <Button onClick={openAdd} className="bg-primary text-primary-foreground hover:bg-primary/90">
             <Plus className="mr-1 h-4 w-4" /> Add Staff
           </Button>
         </div>
@@ -689,7 +689,7 @@ export default function StaffManagementFull() {
                         <img src={s.photo_url} alt={s.full_name} className="h-8 w-8 rounded-full object-cover" />
                       ) : (
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-maroon-light">
-                          <User className="h-4 w-4 text-secondary" />
+                          <User className="h-4 w-4 text-primary" />
                         </div>
                       )}
                     </TableCell>
@@ -782,7 +782,7 @@ export default function StaffManagementFull() {
                   <img src={photoUrl} alt="Preview" className="h-16 w-16 rounded-full object-cover" />
                 ) : (
                   <div className="flex h-16 w-16 items-center justify-center rounded-full bg-maroon-light">
-                    <User className="h-8 w-8 text-secondary" />
+                    <User className="h-8 w-8 text-primary" />
                   </div>
                 )}
                 <div className="flex gap-2">
@@ -993,7 +993,7 @@ export default function StaffManagementFull() {
                 {subjectsList.map((subject) => (
                   <label
                     key={subject}
-                    className={`flex cursor-pointer items-center gap-2 rounded-lg border p-2 text-sm transition-colors ${(formData.subjects_taught || []).includes(subject) ? "border-secondary bg-maroon-light" : "border-border hover:bg-muted"}`}
+                    className={`flex cursor-pointer items-center gap-2 rounded-lg border p-2 text-sm transition-colors ${(formData.subjects_taught || []).includes(subject) ? "border-primary bg-maroon-light" : "border-border hover:bg-muted"}`}
                   >
                     <input
                       type="checkbox"
@@ -1014,7 +1014,7 @@ export default function StaffManagementFull() {
             <Button
               onClick={handleSave}
               disabled={saving}
-              className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {saving ? "Saving..." : editingId ? "Update Staff" : "Add Staff"}
             </Button>
@@ -1053,7 +1053,7 @@ export default function StaffManagementFull() {
                     />
                   ) : (
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-maroon-light">
-                      <User className="h-6 w-6 text-secondary" />
+                      <User className="h-6 w-6 text-primary" />
                     </div>
                   )}
                   {selectedStaff.title ? `${selectedStaff.title} ` : ""}
@@ -1167,7 +1167,7 @@ export default function StaffManagementFull() {
                     <Button
                       size="sm"
                       onClick={() => setLeaveDialogOpen(true)}
-                      className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
+                      className="bg-primary text-primary-foreground hover:bg-primary/90"
                     >
                       <Calendar className="mr-1 h-4 w-4" /> Request Leave
                     </Button>
@@ -1284,7 +1284,7 @@ export default function StaffManagementFull() {
             <Button
               onClick={handleLeaveSubmit}
               disabled={!leaveForm.start_date || !leaveForm.end_date}
-              className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               Submit Request
             </Button>

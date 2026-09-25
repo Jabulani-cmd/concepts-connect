@@ -184,10 +184,10 @@ export default function StudentExamResultsTab({ studentId, studentName, admissio
         <>
           {/* Summary Cards */}
           <div className="grid grid-cols-3 gap-2">
-            <Card className="bg-gradient-to-br from-secondary/5 to-secondary/10 border-secondary/20">
+            <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
               <CardContent className="p-3 text-center">
-                <TrendingUp className="mx-auto mb-1 h-5 w-5 text-secondary" />
-                <p className="text-lg font-bold text-secondary">{avgMark}%</p>
+                <TrendingUp className="mx-auto mb-1 h-5 w-5 text-primary" />
+                <p className="text-lg font-bold text-primary">{avgMark}%</p>
                 <p className="text-[10px] text-muted-foreground">Average</p>
                 <Badge className={`mt-1 text-[10px] ${gradeBadgeClass(avgGrade)}`} variant="outline">
                   {avgGrade}

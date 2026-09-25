@@ -128,14 +128,14 @@ export default function StaffLeaveRequest() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-heading text-lg font-semibold text-foreground">My Leave Requests</h3>
+        <h3 className="font-heading text-lg font-semibold text-purple-900 dark:text-purple-200">My Leave Requests</h3>
         <Button onClick={() => setShowForm(!showForm)} size="sm" variant={showForm ? "outline" : "default"}>
           <Plus className="mr-1 h-4 w-4" /> {showForm ? "Cancel" : "New Request"}
         </Button>
       </div>
 
       {showForm && (
-        <Card className="border-secondary/30">
+        <Card className="border-primary/30">
           <CardHeader>
             <CardTitle className="text-base">Apply for Leave</CardTitle>
           </CardHeader>

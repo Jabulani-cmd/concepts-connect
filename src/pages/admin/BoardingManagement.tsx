@@ -254,7 +254,7 @@ export default function BoardingManagement() {
 
   return (
     <div className="space-y-6">
-      <h2 className="font-heading text-2xl font-bold text-foreground">Boarding Management</h2>
+      <h2 className="font-heading text-2xl font-bold text-primary">Boarding Management</h2>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
@@ -276,7 +276,7 @@ export default function BoardingManagement() {
               {/* Summary cards */}
               <div className="grid gap-4 sm:grid-cols-4">
                 <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-primary">{detailHostel.capacity}</p><p className="text-xs text-muted-foreground">Total Capacity</p></CardContent></Card>
-                <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-secondary">{detailAllocations.length}</p><p className="text-xs text-muted-foreground">Current Boarders</p></CardContent></Card>
+                <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-primary">{detailAllocations.length}</p><p className="text-xs text-muted-foreground">Current Boarders</p></CardContent></Card>
                 <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-accent">{detailRooms.length}</p><p className="text-xs text-muted-foreground">Rooms</p></CardContent></Card>
                 <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold">{detailHostel.capacity - detailAllocations.length}</p><p className="text-xs text-muted-foreground">Vacancies</p></CardContent></Card>
               </div>

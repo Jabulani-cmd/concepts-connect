@@ -114,7 +114,7 @@ export default function Contact() {
         <div className="container">
           <div className="mb-14 text-center">
             <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">{t("contact.detailsEyebrow")}</span>
-            <h2 className="mt-3 font-heading text-3xl font-bold text-foreground md:text-5xl">{t("contact.detailsTitle")}</h2>
+            <h2 className="mt-3 font-heading text-3xl font-bold text-primary md:text-5xl">{t("contact.detailsTitle")}</h2>
             <div className="mx-auto mt-4 h-[3px] w-12 bg-primary" />
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -129,7 +129,7 @@ export default function Contact() {
                 <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
                   <item.icon className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="font-heading text-base font-bold text-foreground">{item.title}</h3>
+                <h3 className="font-heading text-base font-bold text-purple-900 dark:text-purple-200">{item.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.text}</p>
               </motion.div>
             ))}
@@ -141,7 +141,7 @@ export default function Contact() {
         <div className="container max-w-4xl">
           <div className="mb-10 text-center">
             <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">{t("contact.formsEyebrow")}</span>
-            <h2 className="mt-3 font-heading text-3xl font-bold text-foreground md:text-4xl">{t("contact.formsTitle")}</h2>
+            <h2 className="mt-3 font-heading text-3xl font-bold text-primary md:text-4xl">{t("contact.formsTitle")}</h2>
             <div className="mx-auto mt-4 h-[3px] w-12 bg-primary" />
           </div>
           <Tabs defaultValue={defaultTab} className="w-full">
@@ -156,7 +156,7 @@ export default function Contact() {
                 <CardContent>
                   {contactSent ? (
                     <div className="flex flex-col items-center gap-4 py-12 text-center">
-                      <CheckCircle className="h-16 w-16 text-secondary" />
+                      <CheckCircle className="h-16 w-16 text-primary" />
                       <h3 className="font-heading text-xl font-semibold">{t("contact.message.sent")}</h3>
                       <p className="text-muted-foreground">{t("contact.message.sentBody")}</p>
                       <Button onClick={() => setContactSent(false)} variant="outline">{t("common.sendAnother")}</Button>
@@ -197,7 +197,7 @@ export default function Contact() {
                 <CardContent>
                   {appointmentSent ? (
                     <div className="flex flex-col items-center gap-4 py-12 text-center">
-                      <CheckCircle className="h-16 w-16 text-secondary" />
+                      <CheckCircle className="h-16 w-16 text-primary" />
                       <h3 className="font-heading text-xl font-semibold">{t("contact.appointment.submitted")}</h3>
                       <p className="text-muted-foreground">{t("contact.appointment.submittedBody")}</p>
                       <Button onClick={() => setAppointmentSent(false)} variant="outline">{t("common.bookAnother")}</Button>
