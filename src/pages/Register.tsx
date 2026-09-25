@@ -120,7 +120,7 @@ export default function Register() {
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-lg px-4">
           <Card className="shadow-maroon">
             <CardHeader className="text-center">
-              <img src={schoolLogo} alt="MavingTech High School" className="mx-auto mb-2 h-[9rem] w-[9rem] object-contain" />
+              <img src={schoolLogo} alt="MavingTech High School" className="mx-auto mb-2 h-auto w-40 object-contain" />
               <CardTitle className="font-heading text-2xl text-primary">Parent Registration</CardTitle>
               <p className="text-xs italic text-muted-foreground">Empowering Your Business Through Technology</p>
             </CardHeader>

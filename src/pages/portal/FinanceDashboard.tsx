@@ -42,7 +42,7 @@ export default function FinanceDashboard() {
     };
     load();
     const channel = supabase
-      .channel("bursar-approvals-badge")
+      .channel(`bursar-approvals-badge-${Math.random().toString(36).slice(2)}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "finance_approval_requests" },
@@ -62,7 +62,7 @@ export default function FinanceDashboard() {
             <img
               src={schoolLogo}
               alt="MavingTech Business Solutions"
-              className="h-[7.5rem] w-[7.5rem] sm:h-[10.5rem] sm:w-[10.5rem] object-contain"
+              className="h-auto w-24 object-contain sm:w-40"
             />
             <div>
               <div className="flex items-center gap-2">

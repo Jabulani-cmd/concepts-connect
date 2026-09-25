@@ -90,7 +90,7 @@ export default function Login() {
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md px-4">
           <Card className="shadow-maroon">
             <CardHeader className="text-center">
-              <img src={schoolLogo} alt="MavingTech High School" className="mx-auto mb-2 h-[18rem] w-[18rem] object-contain" />
+              <img src={schoolLogo} alt="MavingTech High School" className="mx-auto mb-2 h-auto w-52 object-contain sm:w-72" />
               <CardTitle className="font-heading text-2xl text-primary">{t("login.title")}</CardTitle>
               <p className="text-xs italic text-muted-foreground">{t("login.tagline")}</p>
               <p className="text-sm text-muted-foreground">{t("login.subtitle")}</p>
@@ -117,7 +117,7 @@ export default function Login() {
 
                 <div className="rounded-md border border-dashed border-primary/40 bg-primary/5 p-3 text-center">
                   <p className="text-xs text-muted-foreground mb-2">{t("login.demoNote")}</p>
-                  <Button type="button" variant="outline" size="sm" onClick={handleSeedDemoAdmin} disabled={seedingDemo} className="w-full">
+                  <Button type="button" variant="outline" size="sm" onClick={handleSeedDemoAdmin} disabled={seedingDemo} className="h-auto w-full whitespace-normal py-2 leading-snug">
                     {seedingDemo ? t("login.provisioning") : t("login.provisionAdmin")}
                   </Button>
                 </div>

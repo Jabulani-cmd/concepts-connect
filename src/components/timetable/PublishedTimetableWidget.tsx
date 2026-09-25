@@ -7,6 +7,14 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { colorForSubject, dayName } from "@/lib/timetableUtils";
 import type { Tables } from "@/integrations/supabase/types";
+import { useIsMobile } from "@/hooks/use-mobile";
+
+// "Form 1 A" and "Form 1A" name the same class.
+const norm = (v: string | null | undefined) => (v ?? "").replace(/\s+/g, "").toLowerCase();
+// "Mr. Tafadzwa Mhlanga" and "Tafadzwa Mhlanga" name the same teacher.
+const bareName = (v: string) =>
+  v.toLowerCase().replace(/^(mr|mrs|ms|miss|dr|prof)\.?\s+/, "").replace(/\s+/g, " ").trim();
+const sameTeacher = (a: string, b: string) => !!bareName(b) && bareName(a) === bareName(b);
 
 interface Props {
   title?: string;
@@ -28,27 +36,44 @@ export default function PublishedTimetableWidget({
   const [selectedDefId, setSelectedDefId] = useState<string>("");
   const [filter, setFilter] = useState<string>(filterValue ?? "");
   const [live, setLive] = useState(false);
+  const [mobileDay, setMobileDay] = useState<number | null>(null);
+  const isMobile = useIsMobile();
 
   const load = useCallback(async () => {
-    const { data: d } = await supabase
-      .from("tt_definitions")
-      .select("*")
-      .eq("type", "class")
-      .eq("status", "active")
-      .order("updated_at", { ascending: false });
+    const [{ data: d }, { data: s }] = await Promise.all([
+      supabase
+        .from("tt_definitions")
+        .select("*")
+        .eq("type", "class")
+        .eq("status", "active")
+        .order("updated_at", { ascending: false }),
+      supabase.from("tt_slots").select("*"),
+    ]);
     const activeDefs = d ?? [];
+    const allSlots = s ?? [];
     setDefs(activeDefs);
+    setSlots(allSlots);
     if (activeDefs.length) {
-      // Auto-pick (by class_label when the caller specified one) unless a timetable is already selected.
+      // Auto-pick the caller's class (or the timetable where the teacher has most lessons)
+      // unless a timetable is already selected.
       let pick = activeDefs[0].id;
       if (mode === "class" && filterValue) {
-        const match = activeDefs.find((x) => (x.class_label || "").toLowerCase() === filterValue.toLowerCase());
+        const match = activeDefs.find((x) => norm(x.class_label) === norm(filterValue));
         if (match) pick = match.id;
+      } else if (mode === "teacher" && filterValue) {
+        let best = 0;
+        for (const def of activeDefs) {
+          const n = allSlots.filter(
+            (x) => x.definition_id === def.id && x.teacher_name && sameTeacher(x.teacher_name, filterValue),
+          ).length;
+          if (n > best) {
+            best = n;
+            pick = def.id;
+          }
+        }
       }
       setSelectedDefId((current) => current || pick);
     }
-    const { data: s } = await supabase.from("tt_slots").select("*");
-    setSlots(s ?? []);
   }, [filterValue, mode]);
 
   useEffect(() => {
@@ -57,7 +82,7 @@ export default function PublishedTimetableWidget({
 
   useEffect(() => {
     const ch = supabase
-      .channel(`published-timetable-sync-${Date.now()}`)
+      .channel(`published-timetable-sync-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "tt_slots" }, () => {
         setLive(true);
         load();
@@ -82,12 +107,23 @@ export default function PublishedTimetableWidget({
     return Array.from(set).sort();
   }, [defSlots]);
 
+  // The teacher's name as spelt in this timetable (titles and spacing can differ).
+  const teacherFilter = useMemo(
+    () =>
+      mode === "teacher" && filter && filter !== "__all__"
+        ? (teachers.find((t) => sameTeacher(t, filter)) ?? "")
+        : "",
+    [mode, filter, teachers],
+  );
+
   const filteredSlots = useMemo(() => {
-    if (mode === "teacher" && filter && filter !== "__all__") return defSlots.filter((s) => s.teacher_name === filter);
+    if (teacherFilter) return defSlots.filter((s) => s.teacher_name === teacherFilter);
     return defSlots;
-  }, [defSlots, mode, filter]);
+  }, [defSlots, teacherFilter]);
 
   const days = activeDef?.school_days ?? [1, 2, 3, 4, 5];
+  const today = new Date().getDay();
+  const shownDay = mobileDay ?? (days.includes(today) ? today : days[0]);
   const periods = useMemo(() => {
     const map = new Map<number, { start: string; end: string; isBreak: boolean; label?: string }>();
     filteredSlots.forEach((s) => {
@@ -151,9 +187,9 @@ export default function PublishedTimetableWidget({
               </Badge>
             )}
           </CardTitle>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid w-full grid-cols-1 gap-2 sm:flex sm:w-auto sm:flex-wrap">
             <Select value={selectedDefId} onValueChange={setSelectedDefId}>
-              <SelectTrigger className="h-8 w-[180px] text-xs">
+              <SelectTrigger className="h-8 w-full text-xs sm:w-[180px]">
                 <SelectValue placeholder="Pick timetable" />
               </SelectTrigger>
               <SelectContent>
@@ -165,8 +201,8 @@ export default function PublishedTimetableWidget({
               </SelectContent>
             </Select>
             {mode === "teacher" && (
-              <Select value={filter || "__all__"} onValueChange={(v) => setFilter(v === "__all__" ? "" : v)}>
-                <SelectTrigger className="h-8 w-[160px] text-xs">
+              <Select value={teacherFilter || "__all__"} onValueChange={(v) => setFilter(v === "__all__" ? "" : v)}>
+                <SelectTrigger className="h-8 w-full text-xs sm:w-[160px]">
                   <SelectValue placeholder="All teachers" />
                 </SelectTrigger>
                 <SelectContent>
@@ -185,6 +221,37 @@ export default function PublishedTimetableWidget({
         </div>
       </CardHeader>
       <CardContent>
+        {isMobile ? (
+          <div className="space-y-3">
+            <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${days.length}, minmax(0, 1fr))` }}>
+              {days.map((d: number) => (
+                <button
+                  key={d}
+                  type="button"
+                  onClick={() => setMobileDay(d)}
+                  className={`rounded-md py-1.5 text-xs font-medium transition-colors ${
+                    d === shownDay ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {dayName(d).slice(0, 3)}
+                </button>
+              ))}
+            </div>
+            <ul className="divide-y rounded-lg border">
+              {periods.map(([p, t]) => (
+                <li key={p} className="flex items-start gap-3 p-2">
+                  <div className="w-[4.5rem] shrink-0 pt-0.5 text-[11px] leading-tight text-muted-foreground">
+                    <div>{t.start}</div>
+                    <div>{t.end}</div>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    {cell(shownDay, p) ?? <div className="text-[11px] text-muted-foreground">Free</div>}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : (
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-xs">
             <thead>
@@ -218,6 +285,7 @@ export default function PublishedTimetableWidget({
             </tbody>
           </table>
         </div>
+        )}
       </CardContent>
     </Card>
   );

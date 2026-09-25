@@ -624,10 +624,11 @@ export default function MessagingPanel() {
       {/* Floating button */}
       <Button
         onClick={() => setOpen(true)}
-        className="fixed bottom-24 right-6 z-40 h-14 w-14 rounded-full shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground md:bottom-6"
+        aria-label="Messages"
+        className="fixed bottom-20 right-4 z-40 h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 sm:right-6 sm:h-14 sm:w-14 md:bottom-6"
         size="icon"
       >
-        <MessageSquare className="h-6 w-6" />
+        <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6" />
         {totalUnread > 0 && (
           <Badge className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full p-0 text-[10px]">
             {totalUnread > 99 ? "99+" : totalUnread}
@@ -642,7 +643,7 @@ export default function MessagingPanel() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-24 right-6 z-50 flex h-[520px] w-[380px] flex-col overflow-hidden rounded-xl border bg-background shadow-2xl sm:w-[420px] md:bottom-6"
+            className="fixed inset-x-2 bottom-20 top-20 z-50 flex flex-col overflow-hidden rounded-xl border bg-background shadow-2xl sm:inset-x-auto sm:top-auto sm:bottom-24 sm:right-6 sm:h-[520px] sm:w-[420px] md:bottom-6"
           >
             {/* Header */}
             <div className="flex items-center justify-between border-b bg-primary px-4 py-3">

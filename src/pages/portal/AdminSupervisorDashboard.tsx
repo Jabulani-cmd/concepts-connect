@@ -50,7 +50,7 @@ export default function AdminSupervisorDashboard() {
     fetchApprovalRequests();
 
     const channel = supabase
-      .channel("approval-requests")
+      .channel(`approval-requests-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "finance_approval_requests" }, () => {
         fetchApprovalRequests();
       })
@@ -132,7 +132,7 @@ export default function AdminSupervisorDashboard() {
       <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur">
         <div className="container mx-auto flex items-center justify-between px-3 sm:px-4 py-2 sm:py-4">
           <div className="flex items-center gap-2 sm:gap-3">
-            <img src={schoolLogo} alt="MavingTech High School" className="h-[7.5rem] w-[7.5rem] sm:h-[10.5rem] sm:w-[10.5rem] object-contain" />
+            <img src={schoolLogo} alt="MavingTech High School" className="h-auto w-24 object-contain sm:w-40" />
             <div>
               <h1 className="font-heading text-sm sm:text-lg font-bold text-primary">Admin Supervisor</h1>
               <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">{user?.email}</p>

@@ -50,7 +50,7 @@ export default function AdminPayments() {
   useEffect(() => {
     refresh();
     const ch = supabase
-      .channel("admin-pay-rt")
+      .channel(`admin-pay-rt-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "payments" }, refresh)
       .on("postgres_changes", { event: "*", schema: "public", table: "subscriptions" }, refresh)
       .subscribe();

@@ -38,8 +38,8 @@ export default function DocActionButtons({ actions, labels = false, email }: Pro
 
   const emailBtn = email && (
     labels ? (
-      <Button variant="outline" size="sm" onClick={openEmail}>
-        <Mail className="mr-1 h-4 w-4" /> Email
+      <Button variant="outline" size="sm" aria-label="Email" className="px-2.5 sm:px-3" onClick={openEmail}>
+        <Mail className="h-4 w-4 sm:mr-1" /><span className="hidden sm:inline">Email</span>
       </Button>
     ) : (
       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={openEmail} title="Email">
@@ -64,14 +64,14 @@ export default function DocActionButtons({ actions, labels = false, email }: Pro
     return (
       <>
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" onClick={() => handle("view")}>
-            <Eye className="mr-1 h-4 w-4" /> View
+          <Button variant="outline" size="sm" aria-label="View" className="px-2.5 sm:px-3" onClick={() => handle("view")}>
+            <Eye className="h-4 w-4 sm:mr-1" /><span className="hidden sm:inline">View</span>
           </Button>
-          <Button variant="outline" size="sm" onClick={() => handle("print")}>
-            <Printer className="mr-1 h-4 w-4" /> Print
+          <Button variant="outline" size="sm" aria-label="Print" className="px-2.5 sm:px-3" onClick={() => handle("print")}>
+            <Printer className="h-4 w-4 sm:mr-1" /><span className="hidden sm:inline">Print</span>
           </Button>
-          <Button variant="outline" size="sm" onClick={() => handle("download")}>
-            <Download className="mr-1 h-4 w-4" /> Download
+          <Button variant="outline" size="sm" aria-label="Download" className="px-2.5 sm:px-3" onClick={() => handle("download")}>
+            <Download className="h-4 w-4 sm:mr-1" /><span className="hidden sm:inline">Download</span>
           </Button>
           {emailBtn}
         </div>

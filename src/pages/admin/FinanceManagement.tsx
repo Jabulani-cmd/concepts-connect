@@ -605,7 +605,7 @@ export default function FinanceManagement() {
   useEffect(() => {
     // Realtime subscription for ALL finance tables - keeps every finance user in sync
     const channel = supabase
-      .channel("finance-all-realtime")
+      .channel(`finance-all-realtime-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "payments" }, () => {
         fetchPayments();
         fetchInvoices();
