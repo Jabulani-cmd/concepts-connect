@@ -66,7 +66,7 @@ export default function ForgotPassword() {
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md px-4">
           <Card className="shadow-maroon">
             <CardHeader className="text-center">
-              <img src={schoolLogo} alt="MavingTech High School" className="mx-auto mb-2 h-[10.5rem] w-[10.5rem] object-contain" />
+              <img src={schoolLogo} alt="MavingTech High School" className="mx-auto mb-2 h-auto w-44 object-contain sm:w-48" />
               <CardTitle className="font-heading text-2xl text-primary">Forgot Password</CardTitle>
               <p className="text-sm text-muted-foreground">Enter your email to receive a reset link</p>
             </CardHeader>

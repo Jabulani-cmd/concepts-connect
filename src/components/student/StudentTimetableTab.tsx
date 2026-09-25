@@ -126,7 +126,7 @@ export default function StudentTimetableTab({ studentClassId, studentId }: Props
     let channel: RealtimeChannel | undefined;
     if (resolvedClassId) {
       channel = supabase
-        .channel(`student-tt-${resolvedClassId}`)
+        .channel(`student-tt-${resolvedClassId}-${Math.random().toString(36).slice(2)}`)
         .on("postgres_changes", { event: "*", schema: "public", table: "timetable_entries", filter: `class_id=eq.${resolvedClassId}` }, () => load())
         .subscribe();
     }

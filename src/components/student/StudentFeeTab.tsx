@@ -67,7 +67,7 @@ export default function StudentFeeTab({ studentId }: Props) {
     if (!studentId) { setLoading(false); return; }
     fetchData();
     const ch = supabase
-      .channel(`student-fees-${studentId}`)
+      .channel(`student-fees-${studentId}-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "payments", filter: `student_id=eq.${studentId}` }, () => fetchData())
       .on("postgres_changes", { event: "*", schema: "public", table: "invoices", filter: `student_id=eq.${studentId}` }, () => fetchData())
       .subscribe();

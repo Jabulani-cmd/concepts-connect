@@ -54,7 +54,8 @@ import PublishedTimetableWidget from "@/components/timetable/PublishedTimetableW
 import SubscriptionGate from "@/components/subscription/SubscriptionGate";
 import PrintableSection from "@/components/shared/PrintableSection";
 import PayInvoiceDialog from "@/components/finance/PayInvoiceDialog";
-import { formatMoney } from "@/lib/currency";
+import { formatMoney, formatUSD } from "@/lib/currency";
+import Money from "@/components/Money";
 import { errorMessage } from "@/lib/errors";
 import { gradeFor, gradeBadgeClass } from "@/lib/grading";
 import type { ExamRankings } from "@/types/school";
@@ -218,7 +219,7 @@ export default function ParentDashboard() {
   useEffect(() => {
     if (!selectedChildId) return;
     const channel = supabase
-      .channel(`parent-payments-${selectedChildId}`)
+      .channel(`parent-payments-${selectedChildId}-${Math.random().toString(36).slice(2)}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "payments", filter: `student_id=eq.${selectedChildId}` },
@@ -292,20 +293,19 @@ export default function ParentDashboard() {
     <div className="min-h-screen bg-background pb-20 md:pb-6">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur-md">
-        <div className="container flex h-20 items-center justify-between px-4">
+        <div className="container flex h-16 items-center justify-between gap-2 px-3 sm:h-20 sm:px-4">
           <div className="flex items-center gap-2">
-            <img src={schoolLogo} alt="MavingTech High School" className="h-[9rem] w-[9rem] object-contain" />
+            <img src={schoolLogo} alt="MavingTech High School" className="h-auto w-24 object-contain sm:w-36" />
             <div className="hidden sm:block">
               <span className="font-heading text-base font-bold text-foreground">Parent Portal</span>
               <p className="text-xs text-muted-foreground leading-none">{displayName}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <NotificationBell />
             <LanguageSelect />
-            <span className="text-xs text-muted-foreground sm:hidden max-w-[120px] truncate">{displayName}</span>
-            <Button variant="ghost" size="sm" onClick={handleLogout}>
-              <LogOut className="mr-1 h-4 w-4" /> Logout
+            <Button variant="ghost" size="sm" onClick={handleLogout} aria-label="Logout" className="px-2 sm:px-3">
+              <LogOut className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">Logout</span>
             </Button>
           </div>
         </div>
@@ -646,13 +646,6 @@ function TabContentInner(props: TabContentProps) {
           </p>
         </div>
 
-        <PublishedTimetableWidget
-          title={`${child.full_name?.split(" ")[0]}'s Timetable`}
-          mode="class"
-          filterValue={`${child.form || ""} ${child.stream || ""}`.trim()}
-          compact
-        />
-
         {/* Metrics */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab("attendance")}>
@@ -695,16 +688,12 @@ function TabContentInner(props: TabContentProps) {
 
           <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab("fees")}>
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-100">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-100">
                 <span className="text-lg font-bold text-red-600">$</span>
               </div>
-              <div>
-                <p className={`text-lg font-bold ${feeBalance > 0 ? "text-red-700" : "text-emerald-700"}`}>
-                  {feeBalance > 0
-                    ? `${formatMoney(feeBalance)}`
-                    : feeBalance < 0
-                      ? `${formatMoney(Math.abs(feeBalance))} credit`
-                      : formatMoney(0)}
+              <div className="min-w-0">
+                <p className={`text-lg font-bold leading-tight ${feeBalance > 0 ? "text-red-700" : "text-emerald-700"}`}>
+                  <Money usd={Math.abs(feeBalance)} suffix={feeBalance < 0 ? "credit" : undefined} />
                 </p>
                 <p className="text-[11px] text-muted-foreground">
                   {feeBalance > 0 ? "Fee Balance" : feeBalance < 0 ? "Credit Balance" : "Fees Settled"}
@@ -713,6 +702,13 @@ function TabContentInner(props: TabContentProps) {
             </CardContent>
           </Card>
         </div>
+
+        <PublishedTimetableWidget
+          title={`${child.full_name?.split(" ")[0]}'s Timetable`}
+          mode="class"
+          filterValue={`${child.form || ""} ${child.stream || ""}`.trim()}
+          compact
+        />
 
         {/* Quick links */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1030,18 +1026,14 @@ function TabContentInner(props: TabContentProps) {
           <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-4">
             <span className={`flex h-10 w-10 items-center justify-center rounded-full text-xl font-bold ${feeBalance > 0 ? "bg-red-100 text-red-600" : "bg-emerald-100 text-emerald-600"}`}>$</span>
             <div className="flex-1 min-w-0">
-              <p className="text-2xl font-bold">
-                {feeBalance > 0
-                  ? `${formatMoney(feeBalance)} owing`
-                  : feeBalance < 0
-                    ? `${formatMoney(Math.abs(feeBalance))} credit`
-                    : formatMoney(0)}
+              <p className="text-2xl font-bold leading-tight">
+                <Money usd={Math.abs(feeBalance)} suffix={feeBalance > 0 ? "owing" : feeBalance < 0 ? "credit" : undefined} />
               </p>
               <p className="text-sm text-muted-foreground">
                 {feeBalance > 0 ? "Outstanding Balance" : feeBalance < 0 ? "Credit Balance" : "No Outstanding Balance"}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                Total Invoiced: {formatMoney(totalInvoiced)} · Total Paid: {formatMoney(totalPaidAll)}
+                Total invoiced: <span className="whitespace-nowrap">{formatMoney(totalInvoiced)}</span> · Total paid: <span className="whitespace-nowrap">{formatMoney(totalPaidAll)}</span>
               </p>
             </div>
             {feeBalance > 0 && (() => {
@@ -1117,8 +1109,8 @@ function TabContentInner(props: TabContentProps) {
                   return (
                     <Card key={inv.id} className="border">
                       <CardContent className="p-3 space-y-1">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="font-mono text-xs font-medium">{inv.invoice_number}</span>
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <span className="whitespace-nowrap font-mono text-xs font-medium">{inv.invoice_number}</span>
                           <div className="flex items-center gap-2">
                             <Badge
                               variant="outline"
@@ -1154,19 +1146,17 @@ function TabContentInner(props: TabContentProps) {
 
                         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs mt-1">
                           <span className="text-muted-foreground">Total:</span>
-                          <span className="text-right font-mono">{formatMoney(inv.total_usd)}</span>
+                          <Money usd={inv.total_usd} className="items-end text-right font-mono" />
 
                           <span className="text-muted-foreground">Paid:</span>
-                          <span className="text-right font-mono text-emerald-600">{formatMoney(paid)}</span>
+                          <Money usd={paid} className="items-end text-right font-mono text-emerald-600" />
 
                           <span className="text-muted-foreground">Balance:</span>
-                          <span
-                            className={`text-right font-mono ${bal < 0 ? "text-emerald-600" : bal > 0 ? "text-destructive" : ""}`}
-                          >
-                            {bal < 0
-                              ? `+${formatMoney(Math.abs(bal))} credit`
-                              : formatMoney(bal)}
-                          </span>
+                          <Money
+                            usd={Math.abs(bal)}
+                            suffix={bal < 0 ? "credit" : undefined}
+                            className={`items-end text-right font-mono font-semibold ${bal < 0 ? "text-emerald-600" : bal > 0 ? "text-destructive" : ""}`}
+                          />
                         </div>
                         {bal > 0.001 && (
                           <Button
@@ -1174,7 +1164,7 @@ function TabContentInner(props: TabContentProps) {
                             className="w-full mt-2 bg-teal-600 hover:bg-teal-700"
                             onClick={() => setPayInvoice(inv)}
                           >
-                            <CreditCard className="w-3 h-3 mr-1" /> Pay {formatMoney(bal)}
+                            <CreditCard className="w-3 h-3 mr-1" /> Pay {formatUSD(bal)}
                           </Button>
                         )}
                       </CardContent>
@@ -1374,7 +1364,7 @@ function ParentPaymentHistory({
     let active = true;
     fetchPayments();
     const channel = supabase
-      .channel(`parent-pay-hist-${childId}-${Date.now()}`)
+      .channel(`parent-pay-hist-${childId}-${Math.random().toString(36).slice(2)}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "payments", filter: `student_id=eq.${childId}` },

@@ -58,7 +58,7 @@ export default function NotificationBell() {
     fetchNotifications();
 
     const channel = supabase
-      .channel("teacher-notifications")
+      .channel(`teacher-notifications-${Math.random().toString(36).slice(2)}`)
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },

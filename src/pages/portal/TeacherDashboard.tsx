@@ -194,7 +194,7 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
     };
     loadTT();
     const channel = supabase
-      .channel(`teacher-tt-${selectedTTClass}`)
+      .channel(`teacher-tt-${selectedTTClass}-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "timetable_entries", filter: `class_id=eq.${selectedTTClass}` }, () => loadTT())
       .subscribe();
     return () => { supabase.removeChannel(channel); };
@@ -320,7 +320,7 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
     if (!user) return;
     refreshAiResults();
     const ch = supabase
-      .channel(`teacher-ai-results-${user.id}`)
+      .channel(`teacher-ai-results-${user.id}-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "assessment_results" }, () => refreshAiResults())
       .subscribe();
     return () => { supabase.removeChannel(ch); };
@@ -337,7 +337,7 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
         <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur">
           <div className="container flex h-14 sm:h-20 items-center justify-between px-3 sm:px-4">
             <div className="flex items-center gap-2">
-              <img src={schoolLogo} alt="MavingTech High School" className="h-[7.5rem] w-[7.5rem] sm:h-[10.5rem] sm:w-[10.5rem] object-contain" />
+              <img src={schoolLogo} alt="MavingTech High School" className="h-auto w-24 object-contain sm:w-40" />
               <span className="font-heading text-sm sm:text-lg font-bold text-primary">Teacher Portal</span>
             </div>
             <div className="flex items-center gap-2 sm:gap-3">
@@ -367,33 +367,36 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
             </div>
             <Button size="sm" variant="outline">Open</Button>
           </a>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <Card><CardContent className="flex items-center gap-3 p-4">
-              <Users className="h-8 w-8 text-primary" />
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
+            <Card><CardContent className="flex items-start gap-2.5 p-3 sm:items-center sm:gap-3 sm:p-4">
+              <Users className="h-6 w-6 shrink-0 text-primary sm:h-8 sm:w-8" />
               <div>
                 <p className="text-2xl font-bold">{stats.classCount}</p>
                 <p className="text-xs text-muted-foreground">Classes</p>
                 {classes.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-1">
-                    {classes.map(c => (
+                    {classes.slice(0, 4).map(c => (
                       <Badge key={c.id} variant="secondary" className="text-[10px] px-1.5 py-0">
                         {c.name}
                       </Badge>
                     ))}
+                    {classes.length > 4 && (
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">+{classes.length - 4} more</Badge>
+                    )}
                   </div>
                 )}
               </div>
             </CardContent></Card>
-            <Card><CardContent className="flex items-center gap-3 p-4">
-              <FileText className="h-8 w-8 text-primary" />
+            <Card><CardContent className="flex items-center gap-2.5 p-3 sm:gap-3 sm:p-4">
+              <FileText className="h-6 w-6 shrink-0 text-primary sm:h-8 sm:w-8" />
               <div><p className="text-2xl font-bold">{stats.materialsCount}</p><p className="text-xs text-muted-foreground">Materials</p></div>
             </CardContent></Card>
-            <Card><CardContent className="flex items-center gap-3 p-4">
-              <GraduationCap className="h-8 w-8 text-primary" />
+            <Card><CardContent className="flex items-center gap-2.5 p-3 sm:gap-3 sm:p-4">
+              <GraduationCap className="h-6 w-6 shrink-0 text-primary sm:h-8 sm:w-8" />
               <div><p className="text-2xl font-bold">{marks.length}</p><p className="text-xs text-muted-foreground">Marks Entered</p></div>
             </CardContent></Card>
-            <Card><CardContent className="flex items-center gap-3 p-4">
-              <Clock className="h-8 w-8 text-primary" />
+            <Card><CardContent className="flex items-center gap-2.5 p-3 sm:gap-3 sm:p-4">
+              <Clock className="h-6 w-6 shrink-0 text-primary sm:h-8 sm:w-8" />
               <div><p className="text-2xl font-bold">{stats.upcomingHw}</p><p className="text-xs text-muted-foreground">Upcoming Tasks</p></div>
             </CardContent></Card>
           </div>
