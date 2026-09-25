@@ -296,9 +296,9 @@ export default function ParentDashboard() {
         <div className="container flex h-16 items-center justify-between gap-2 px-3 sm:h-20 sm:px-4">
           <div className="flex items-center gap-2">
             <img src={schoolLogo} alt="MavingTech High School" className="h-auto w-24 object-contain sm:w-36" />
-            <div className="hidden sm:block">
-              <span className="font-heading text-base font-bold text-foreground">Parent Portal</span>
-              <p className="text-xs text-muted-foreground leading-none">{displayName}</p>
+            <div className="min-w-0">
+              <span className="font-heading text-sm font-bold leading-tight text-foreground sm:text-base">Parent Portal</span>
+              <p className="hidden text-xs text-muted-foreground leading-none sm:block">{displayName}</p>
             </div>
           </div>
           <div className="flex items-center gap-1 sm:gap-2">
