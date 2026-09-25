@@ -246,6 +246,18 @@ export default function ParentDashboard() {
 
   const selectedChild = children.find((c) => c.id === selectedChildId);
   const displayName = profile?.full_name || user?.user_metadata?.full_name || "Parent";
+  const welcome = (
+    <div>
+      <h1 className="font-heading text-xl font-bold leading-tight text-primary sm:text-2xl">Welcome, {displayName}</h1>
+      <p className="text-sm text-muted-foreground">
+        {children.length === 0
+          ? "Link your child to follow their progress, fees and school news."
+          : children.length === 1 && selectedChild
+            ? `Here is how ${selectedChild.full_name.split(" ")[0]} is doing at school.`
+            : "Here is how your children are doing at school."}
+      </p>
+    </div>
+  );
 
   // Computed metrics for selected child
   const attendancePercent =
@@ -340,6 +352,7 @@ export default function ParentDashboard() {
         </aside>
 
         <main className="flex-1 p-6 max-w-4xl">
+          <div className="mb-4">{welcome}</div>
           <ChildSelector
             children={children}
             selectedChildId={selectedChildId}
@@ -374,6 +387,7 @@ export default function ParentDashboard() {
       {/* Mobile */}
       <div className="md:hidden">
         <main className="container px-4 py-4 space-y-4">
+          {welcome}
           <ChildSelector
             children={children}
             selectedChildId={selectedChildId}
