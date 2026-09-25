@@ -351,15 +351,15 @@ export default function ParentDashboard() {
           })}
         </aside>
 
-        <main className="flex-1 p-6 max-w-4xl">
-          <div className="mb-4">{welcome}</div>
+        <main className="flex-1 max-w-4xl space-y-4 p-6">
+          {welcome}
           <ChildSelector
             children={children}
             selectedChildId={selectedChildId}
             onSelect={setSelectedChildId}
             onLinked={fetchInitialData}
           />
-          <AccessStatusPanel className="mt-4" />
+          <AccessStatusPanel />
           <TabContent
             activeTab={activeTab}
             setActiveTab={setActiveTab}
