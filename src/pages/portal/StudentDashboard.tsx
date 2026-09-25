@@ -194,14 +194,14 @@ export default function StudentDashboard() {
         <div className="container flex h-16 items-center justify-between gap-2 px-3 sm:h-20 sm:px-4">
           <div className="flex items-center gap-2">
             <img src={schoolLogo} alt="MavingTech High School" className="h-auto w-24 object-contain sm:w-40" />
-            <span className="font-heading text-base font-bold text-foreground hidden sm:inline">Student Portal</span>
+            <span className="font-heading text-sm font-bold leading-tight text-foreground sm:text-base">Student Portal</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <NotificationBell />
             <LanguageSelect />
             <span className="text-xs text-muted-foreground hidden sm:inline max-w-[120px] truncate">{displayName}</span>
-            <Button variant="ghost" size="sm" onClick={handleLogout} className="hidden md:flex">
-              <LogOut className="mr-1 h-4 w-4" /> Logout
+            <Button variant="ghost" size="sm" onClick={handleLogout} aria-label="Logout" className="px-2 sm:px-3">
+              <LogOut className="h-4 w-4 sm:mr-1" /> <span className="hidden sm:inline">Logout</span>
             </Button>
           </div>
         </div>
