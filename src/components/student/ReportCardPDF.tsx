@@ -82,12 +82,12 @@ export default function ReportCardDownloadButton(props: ReportCardProps) {
   .container { max-width: 210mm; margin: 0 auto; padding: 10mm; }
 
   /* Header */
-  .header { text-align: center; border-bottom: 3px double #1a5276; padding-bottom: 12px; margin-bottom: 16px; }
+  .header { text-align: center; border-bottom: 3px double #6b2bab; padding-bottom: 12px; margin-bottom: 16px; }
   .school-logo { width: 86px; height: 86px; object-fit: contain; margin: 0 auto 6px; display: block; }
-  .school-name { font-size: 22pt; font-weight: bold; color: #1a5276; letter-spacing: 1px; text-transform: uppercase; }
+  .school-name { font-size: 22pt; font-weight: bold; color: #6b2bab; letter-spacing: 1px; text-transform: uppercase; }
   .school-motto { font-size: 9pt; color: #555; font-style: italic; margin-top: 2px; }
   .school-contact { font-size: 8pt; color: #555; margin-top: 3px; }
-  .report-title { font-size: 14pt; font-weight: bold; margin-top: 10px; color: #2c3e50; text-transform: uppercase; letter-spacing: 2px; border: 2px solid #1a5276; display: inline-block; padding: 4px 20px; }
+  .report-title { font-size: 14pt; font-weight: bold; margin-top: 10px; color: #3f3f46; text-transform: uppercase; letter-spacing: 2px; border: 2px solid #6b2bab; display: inline-block; padding: 4px 20px; }
 
   /* Student Info */
   .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 24px; margin: 16px 0; padding: 12px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; }
@@ -97,13 +97,13 @@ export default function ReportCardDownloadButton(props: ReportCardProps) {
 
   /* Results Table */
   .results-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 10pt; }
-  .results-table th { background: #1a5276; color: #fff; padding: 8px 10px; text-align: left; font-weight: 600; }
+  .results-table th { background: #6b2bab; color: #fff; padding: 8px 10px; text-align: left; font-weight: 600; }
   .results-table th:nth-child(n+3) { text-align: center; }
   .results-table td { padding: 7px 10px; border-bottom: 1px solid #dee2e6; }
   .results-table td:nth-child(n+3) { text-align: center; }
   .results-table tr:nth-child(even) { background: #f8f9fa; }
   .results-table tr:hover { background: #e9ecef; }
-  .results-table .total-row { background: #1a5276 !important; color: #fff; font-weight: bold; }
+  .results-table .total-row { background: #6b2bab !important; color: #fff; font-weight: bold; }
 
   .grade-badge { display: inline-block; padding: 2px 8px; border-radius: 3px; font-weight: bold; font-size: 10pt; }
   .grade-a-star { background: #d4edda; color: #155724; }
@@ -117,13 +117,13 @@ export default function ReportCardDownloadButton(props: ReportCardProps) {
   /* Summary */
   .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
   .summary-box { border: 1px solid #dee2e6; border-radius: 4px; padding: 12px; }
-  .summary-box h3 { font-size: 11pt; color: #1a5276; border-bottom: 1px solid #dee2e6; padding-bottom: 6px; margin-bottom: 8px; }
+  .summary-box h3 { font-size: 11pt; color: #6b2bab; border-bottom: 1px solid #dee2e6; padding-bottom: 6px; margin-bottom: 8px; }
   .summary-row { display: flex; justify-content: space-between; font-size: 10pt; padding: 3px 0; }
   .summary-row .val { font-weight: bold; }
 
   /* Grading Key */
   .grading-key { margin: 16px 0; }
-  .grading-key h3 { font-size: 10pt; color: #1a5276; margin-bottom: 6px; }
+  .grading-key h3 { font-size: 10pt; color: #6b2bab; margin-bottom: 6px; }
   .grading-key-grid { display: flex; gap: 8px; flex-wrap: wrap; font-size: 9pt; }
   .grading-key-item { padding: 2px 8px; border: 1px solid #ccc; border-radius: 3px; }
 
@@ -135,7 +135,7 @@ export default function ReportCardDownloadButton(props: ReportCardProps) {
   /* Footer */
   .footer { text-align: center; margin-top: 20px; font-size: 8pt; color: #888; border-top: 1px solid #dee2e6; padding-top: 8px; }
 
-  .print-btn { position: fixed; top: 20px; right: 20px; padding: 10px 24px; background: #1a5276; color: #fff; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; z-index: 999; }
+  .print-btn { position: fixed; top: 20px; right: 20px; padding: 10px 24px; background: #6b2bab; color: #fff; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; z-index: 999; }
   .print-btn:hover { background: #154360; }
   @media print { .print-btn { display: none; } }
 </style>

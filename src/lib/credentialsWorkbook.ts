@@ -14,7 +14,7 @@ export interface CredentialsInput {
   generatedAt?: Date;
 }
 
-const BRAND = "FF5B21B6"; // school purple
+const BRAND = "FF6B2BAB"; // brand purple
 const STRIPE = "FFF8F7FC";
 const BORDER = "FFD9D6E3";
 

@@ -35,7 +35,7 @@ export function buildLessonPlanHtml(plan: LessonPlanPrintData): string {
   const bodyHtml = `<style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: Arial, Helvetica, sans-serif; color: #1a1a1a; padding: 40px; max-width: 800px; margin: 0 auto; line-height: 1.6; }
-  .header { border-bottom: 3px solid #2563eb; padding-bottom: 16px; margin-bottom: 24px; }
+  .header { border-bottom: 3px solid #6b2bab; padding-bottom: 16px; margin-bottom: 24px; }
   .header h1 { font-size: 22px; color: #1e3a5f; margin-bottom: 6px; }
   .meta { display: flex; gap: 20px; flex-wrap: wrap; font-size: 13px; color: #555; }
   .meta span { background: #f0f4f8; padding: 3px 10px; border-radius: 4px; }
@@ -44,7 +44,7 @@ export function buildLessonPlanHtml(plan: LessonPlanPrintData): string {
   .badge-in_progress { background: #dbeafe; color: #1e40af; }
   .badge-completed { background: #d1fae5; color: #065f46; }
   .section { margin-bottom: 20px; }
-  .section h2 { font-size: 14px; color: #2563eb; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; border-left: 3px solid #2563eb; padding-left: 10px; }
+  .section h2 { font-size: 14px; color: #6b2bab; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; border-left: 3px solid #6b2bab; padding-left: 10px; }
   .section p { font-size: 14px; white-space: pre-wrap; word-wrap: break-word; }
   @media print { body { padding: 20px; } }
 </style>
