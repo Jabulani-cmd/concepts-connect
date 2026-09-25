@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, EyeOff, ShieldAlert } from "lucide-react";
-import schoolLogo from "@/assets/mavingtech-logo.png";
+import schoolLogo from "@/assets/concepts-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { errorMessage } from "@/lib/errors";
@@ -56,7 +56,7 @@ export default function ForceChangePassword() {
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md px-4">
           <Card className="shadow-maroon">
             <CardHeader className="text-center">
-              <img src={schoolLogo} alt="MavingTech High School" className="mx-auto mb-2 h-auto w-44 object-contain sm:w-48" />
+              <img src={schoolLogo} alt="MavingTech High School" className="mx-auto mb-2 h-auto w-24 object-contain sm:w-28" />
               <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
                 <ShieldAlert className="h-6 w-6 text-amber-600" />
               </div>

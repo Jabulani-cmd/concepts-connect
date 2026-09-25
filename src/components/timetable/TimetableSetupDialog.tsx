@@ -202,7 +202,7 @@ export default function TimetableSetupDialog({ open, aiMode, onOpenChange, onSub
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={() => { onSubmit(v); onOpenChange(false); }} className={aiMode ? "bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-700 hover:to-fuchsia-700" : ""}>
+          <Button onClick={() => { onSubmit(v); onOpenChange(false); }} className={aiMode ? "bg-gradient-to-r from-purple-600 to-purple-600 hover:from-purple-700 hover:to-purple-700" : ""}>
             {aiMode ? <><Sparkles className="h-4 w-4 mr-1" />Generate Timetable with AI</> : "Proceed to Build"}
           </Button>
         </DialogFooter>

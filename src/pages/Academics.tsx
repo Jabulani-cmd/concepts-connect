@@ -4,7 +4,7 @@ import Layout from "@/components/layout/Layout";
 import PageHero from "@/components/layout/PageHero";
 import { BookOpen, FlaskConical, Languages, Calculator, Palette, Laptop } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import achievementsImg from "@/assets/achievements.png";
+import achievementsImg from "@/assets/achievements.jpg";
 import hero from "@/assets/academics-computers.jpg";
 
 const fadeUp = {

@@ -26,7 +26,7 @@ const statusConfig: Record<string, { color: string; icon: typeof Clock; label?: 
   pending: { color: "bg-amber-100 text-amber-800", icon: Clock },
   approved: { color: "bg-green-100 text-green-800", icon: CheckCircle2 },
   rejected: { color: "bg-red-100 text-red-800", icon: XCircle },
-  discuss: { color: "bg-blue-100 text-blue-800", icon: Clock, label: "Discussion Required. Please see your supervisor" },
+  discuss: { color: "bg-purple-100 text-purple-800", icon: Clock, label: "Discussion Required. Please see your supervisor" },
 };
 
 export default function StaffLeaveRequest() {
@@ -190,7 +190,7 @@ export default function StaffLeaveRequest() {
             return (
               <Card key={r.id}>
                 <CardContent className="flex items-start gap-3 p-4">
-                  <StatusIcon className={`mt-0.5 h-5 w-5 flex-shrink-0 ${r.status === "approved" ? "text-green-600" : r.status === "rejected" ? "text-red-600" : r.status === "discuss" ? "text-blue-600" : "text-amber-600"}`} />
+                  <StatusIcon className={`mt-0.5 h-5 w-5 flex-shrink-0 ${r.status === "approved" ? "text-green-600" : r.status === "rejected" ? "text-red-600" : r.status === "discuss" ? "text-purple-600" : "text-amber-600"}`} />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-sm font-medium capitalize">{r.leave_type.replace("_", " ")} Leave</span>
@@ -202,7 +202,7 @@ export default function StaffLeaveRequest() {
                     </p>
                     {r.reason && <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{r.reason}</p>}
                     {r.status === "discuss" && (
-                      <p className="text-xs font-medium text-blue-700 mt-1">⚠ Please arrange a meeting with your supervisor to discuss this leave request.</p>
+                      <p className="text-xs font-medium text-purple-700 mt-1">⚠ Please arrange a meeting with your supervisor to discuss this leave request.</p>
                     )}
                   </div>
                 </CardContent>

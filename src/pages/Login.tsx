@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Home, Eye, EyeOff } from "lucide-react";
-import schoolLogo from "@/assets/mavingtech-logo.png";
+import schoolLogo from "@/assets/concepts-logo.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -90,7 +90,7 @@ export default function Login() {
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md px-4">
           <Card className="shadow-maroon">
             <CardHeader className="text-center">
-              <img src={schoolLogo} alt="MavingTech High School" className="mx-auto mb-2 h-auto w-52 object-contain sm:w-72" />
+              <img src={schoolLogo} alt="MavingTech High School" className="mx-auto mb-2 h-auto w-28 object-contain sm:w-36" />
               <CardTitle className="font-heading text-2xl text-primary">{t("login.title")}</CardTitle>
               <p className="text-xs italic text-muted-foreground">{t("login.tagline")}</p>
               <p className="text-sm text-muted-foreground">{t("login.subtitle")}</p>

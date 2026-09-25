@@ -319,7 +319,7 @@ export default function CommunicationModule() {
       case "sent": return <Badge className="bg-green-600/10 text-green-700 border-green-200">Sent</Badge>;
       case "pending": return <Badge variant="secondary">Pending</Badge>;
       case "failed": return <Badge variant="destructive">Failed</Badge>;
-      case "scheduled": return <Badge className="bg-blue-500/10 text-blue-700 border-blue-200">Scheduled</Badge>;
+      case "scheduled": return <Badge className="bg-purple-500/10 text-purple-700 border-purple-200">Scheduled</Badge>;
       default: return <Badge variant="outline">{status}</Badge>;
     }
   };
@@ -341,7 +341,7 @@ export default function CommunicationModule() {
           { label: "Templates", value: templates.length, icon: FileText, color: "text-primary" },
           { label: "Messages Sent", value: logs.filter(l => l.status === "sent").length, icon: Send, color: "text-green-600" },
           { label: "Pending", value: logs.filter(l => l.status === "pending").length, icon: Clock, color: "text-orange-500" },
-          { label: "Total Notifications", value: notifications.length, icon: Bell, color: "text-blue-500" },
+          { label: "Total Notifications", value: notifications.length, icon: Bell, color: "text-purple-500" },
         ].map((s, i) => (
           <Card key={i} className="border-none shadow-maroon">
             <CardContent className="flex items-center gap-4 p-5">

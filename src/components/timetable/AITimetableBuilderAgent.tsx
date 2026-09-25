@@ -273,7 +273,7 @@ export default function AITimetableBuilderAgent() {
   const stepIdx = STEPS.indexOf(step);
 
   return (
-    <Card className="border-2 border-purple-200 dark:border-purple-900 bg-gradient-to-br from-purple-50/60 via-background to-fuchsia-50/40 dark:from-purple-950/30 dark:to-fuchsia-950/20">
+    <Card className="border-2 border-purple-200 dark:border-purple-900 bg-gradient-to-br from-purple-50/60 via-background to-purple-50/40 dark:from-purple-950/30 dark:to-purple-950/20">
       <CardHeader className="flex flex-row items-start justify-between gap-3">
         <div>
           <CardTitle className="font-heading flex items-center gap-2">

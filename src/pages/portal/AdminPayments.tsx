@@ -19,7 +19,7 @@ import { formatMoney } from "@/lib/currency";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 import type { Tables } from "@/integrations/supabase/types";
 
-const PIE_COLORS = ["#0d9488", "#2563eb", "#7c3aed", "#f59e0b", "#ef4444", "#0ea5e9"];
+const PIE_COLORS = ["#6508c5", "#3f3f3f", "#9a57f3", "#8a8a8a", "#d6bbfe", "#c4c4c4"];
 
 export default function AdminPayments() {
   const nav = useNavigate();
@@ -230,7 +230,7 @@ export default function AdminPayments() {
           <div className="flex gap-2 flex-wrap">
             <Dialog open={aiOpen} onOpenChange={setAiOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90">
+                <Button className="bg-gradient-to-r from-purple-600 to-purple-600 hover:opacity-90">
                   <Sparkles className="w-4 h-4 mr-2" /> Send Reminders ✨
                 </Button>
               </DialogTrigger>
@@ -280,12 +280,12 @@ export default function AdminPayments() {
 
         {/* Metric cards */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
-          <Metric icon={DollarSign} label="Revenue (term)" value={formatMoney(totalRevenueTerm)} tint="from-emerald-500 to-teal-600" />
-          <Metric icon={TrendingUp} label="Revenue (month)" value={formatMoney(totalRevenueMonth)} tint="from-teal-500 to-cyan-600" />
-          <Metric icon={Users} label="Active subs" value={activeCount} tint="from-blue-500 to-indigo-600" />
+          <Metric icon={DollarSign} label="Revenue (term)" value={formatMoney(totalRevenueTerm)} tint="from-emerald-500 to-purple-600" />
+          <Metric icon={TrendingUp} label="Revenue (month)" value={formatMoney(totalRevenueMonth)} tint="from-purple-500 to-purple-600" />
+          <Metric icon={Users} label="Active subs" value={activeCount} tint="from-purple-500 to-purple-600" />
           <Metric icon={AlertTriangle} label="Expired" value={expiredCount} tint="from-amber-500 to-orange-600" />
-          <Metric icon={Clock} label="Pending verify" value={pendingVerifications} tint="from-purple-500 to-pink-600" />
-          <Metric icon={Gift} label="Comp grants" value={grants.filter((g) => g.grant_type === "complimentary" && g.is_active).length} tint="from-rose-500 to-pink-600" />
+          <Metric icon={Clock} label="Pending verify" value={pendingVerifications} tint="from-purple-500 to-purple-600" />
+          <Metric icon={Gift} label="Comp grants" value={grants.filter((g) => g.grant_type === "complimentary" && g.is_active).length} tint="from-purple-500 to-purple-600" />
         </div>
 
         <Tabs defaultValue="subs">
@@ -364,7 +364,7 @@ export default function AdminPayments() {
                     <div>
                       <div className="font-semibold">{formatMoney(p.amount_usd ?? p.amount)} · {p.payment_method}</div>
                       <div className="text-xs text-muted-foreground">Parent {p.parent_id.slice(0, 8)} · {new Date(p.created_at).toLocaleString()}</div>
-                      {p.proof_of_payment_url && <a href={p.proof_of_payment_url} className="text-xs text-blue-600 underline" target="_blank" rel="noreferrer">View proof</a>}
+                      {p.proof_of_payment_url && <a href={p.proof_of_payment_url} className="text-xs text-purple-600 underline" target="_blank" rel="noreferrer">View proof</a>}
                     </div>
                     <div className="flex gap-2">
                       <Button size="sm" onClick={() => verifyPayment(p.id, p.subscription_id, true)}><CheckCircle2 className="w-4 h-4 mr-1" />Approve</Button>
@@ -384,7 +384,7 @@ export default function AdminPayments() {
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={monthlyChart}>
                       <XAxis dataKey="label" /><YAxis /><Tooltip />
-                      <Bar dataKey="total" fill="#0d9488" radius={[6, 6, 0, 0]} />
+                      <Bar dataKey="total" fill="#6508c5" radius={[6, 6, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>

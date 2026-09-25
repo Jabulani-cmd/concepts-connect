@@ -700,7 +700,7 @@ export default function StaffManagementFull() {
                       {classTeacherMap[s.id] ? (
                         <div className="flex flex-wrap gap-1">
                           {classTeacherMap[s.id].map((cn) => (
-                            <Badge key={cn} className="bg-blue-100 text-blue-800 text-xs">
+                            <Badge key={cn} className="bg-purple-100 text-purple-800 text-xs">
                               {cn}
                             </Badge>
                           ))}
@@ -1112,7 +1112,7 @@ export default function StaffManagementFull() {
                     {classTeacherMap[selectedStaff.id] && classTeacherMap[selectedStaff.id].length > 0 ? (
                       <div className="flex flex-wrap gap-2">
                         {classTeacherMap[selectedStaff.id].map((cn) => (
-                          <Badge key={cn} className="bg-blue-100 text-blue-800">
+                          <Badge key={cn} className="bg-purple-100 text-purple-800">
                             {cn}
                           </Badge>
                         ))}

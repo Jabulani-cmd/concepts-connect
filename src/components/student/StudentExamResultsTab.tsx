@@ -38,7 +38,7 @@ interface ResultRow {
 
 function getMarkBarColor(mark: number): string {
   if (mark >= 80) return "bg-emerald-500";
-  if (mark >= 60) return "bg-blue-500";
+  if (mark >= 60) return "bg-purple-500";
   if (mark >= 50) return "bg-amber-500";
   return "bg-red-500";
 }

@@ -37,7 +37,7 @@ export default defineConfig(({ mode }) => ({
         display: "standalone",
         orientation: "any",
         background_color: "#ffffff",
-        theme_color: "#6b2bab",
+        theme_color: "#6508c5",
         lang: "en",
         categories: ["education"],
         icons: [

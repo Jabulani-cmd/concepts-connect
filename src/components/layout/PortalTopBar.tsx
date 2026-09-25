@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import LanguageSelect from "@/components/LanguageSelect";
 import { portalHomeFor } from "@/lib/portalHome";
-import schoolLogo from "@/assets/mavingtech-logo.png";
+import schoolLogo from "@/assets/concepts-logo.png";
 
 /** Navigation bar for portal pages that do not have their own header. */
 export default function PortalTopBar() {

@@ -200,11 +200,11 @@ export function printableTimetableHtml(
   return `<html><head><title>${defName}</title><style>
     body{font-family:system-ui,Segoe UI,Roboto,sans-serif;padding:24px}
     h1{margin:0 0 16px}
-    .school{margin:0 0 12px;padding-bottom:8px;border-bottom:2px solid #0f172a}
+    .school{margin:0 0 12px;padding-bottom:8px;border-bottom:2px solid #2d2d2d}
     .school strong{font-size:16px}
     .school div{font-size:12px;color:#475569}
     table{border-collapse:collapse;width:100%}
-    th{padding:8px;background:#0f172a;color:white;text-align:left;border:1px solid #0f172a}
+    th{padding:8px;background:#2d2d2d;color:white;text-align:left;border:1px solid #2d2d2d}
     @media print { @page { size: landscape; } }
   </style></head><body>
     <div class="school"><strong>${SCHOOL_NAME}</strong><div>${SCHOOL_CONTACT_LINE}</div></div>

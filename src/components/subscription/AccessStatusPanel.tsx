@@ -235,7 +235,7 @@ export default function AccessStatusPanel({ className = "" }: { className?: stri
 
           {/* CTA for parents only */}
           {isParent && !sub.isActive && sub.status !== "pending" && (
-            <Button asChild size="sm" className="w-full bg-gradient-to-r from-teal-600 to-blue-700 hover:opacity-90">
+            <Button asChild size="sm" className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:opacity-90">
               <Link to="/portal/parent/subscribe">
                 <Sparkles className="mr-2 h-4 w-4" />
                 {sub.status === "expired" ? "Renew subscription" : "View plans"}

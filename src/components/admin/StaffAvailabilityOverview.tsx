@@ -26,7 +26,7 @@ const statusConfig: Record<string, { color: string; label: string }> = {
   pending: { color: "bg-amber-100 text-amber-800", label: "Pending" },
   approved: { color: "bg-green-100 text-green-800", label: "Approved" },
   rejected: { color: "bg-red-100 text-red-800", label: "Rejected" },
-  discuss: { color: "bg-blue-100 text-blue-800", label: "Discuss" },
+  discuss: { color: "bg-purple-100 text-purple-800", label: "Discuss" },
 };
 
 export default function StaffAvailabilityOverview() {
@@ -124,11 +124,11 @@ export default function StaffAvailabilityOverview() {
         </Card>
         <Card className="border-none shadow-maroon">
           <CardContent className="flex items-center gap-4 p-5">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
-              <MessageSquare className="h-5 w-5 text-blue-600" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
+              <MessageSquare className="h-5 w-5 text-purple-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-blue-600">{discussCount}</p>
+              <p className="text-2xl font-bold text-purple-600">{discussCount}</p>
               <p className="text-xs text-muted-foreground">Needs Discussion</p>
             </div>
           </CardContent>
@@ -194,7 +194,7 @@ export default function StaffAvailabilityOverview() {
                   const isActive = r.status === "approved" && r.start_date <= today && r.end_date >= today;
                   const canAct = r.status === "pending" || r.status === "discuss";
                   return (
-                    <TableRow key={r.id} className={isActive ? "bg-red-50/50" : r.status === "discuss" ? "bg-blue-50/50" : ""}>
+                    <TableRow key={r.id} className={isActive ? "bg-red-50/50" : r.status === "discuss" ? "bg-purple-50/50" : ""}>
                       <TableCell className="font-medium">
                         {r.staff?.full_name || "Unknown"}
                         {isActive && <Badge variant="destructive" className="ml-2 text-[10px]">Away</Badge>}
@@ -232,7 +232,7 @@ export default function StaffAvailabilityOverview() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="text-blue-600 border-blue-300 hover:bg-blue-50"
+                                className="text-purple-600 border-purple-300 hover:bg-purple-50"
                                 disabled={updating === r.id}
                                 onClick={() => handleAction(r.id, "discuss")}
                               >

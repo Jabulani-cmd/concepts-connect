@@ -367,7 +367,7 @@ export default function InventoryManagement() {
         {[
           { label: "Total Items", value: items.length, icon: Package, color: "text-primary" },
           { label: "Low Stock Alerts", value: lowStockItems.length, icon: AlertTriangle, color: "text-orange-500" },
-          { label: "Books Issued", value: issues.filter(i => i.status === "issued").length, icon: BookOpen, color: "text-blue-500" },
+          { label: "Books Issued", value: issues.filter(i => i.status === "issued").length, icon: BookOpen, color: "text-purple-500" },
           { label: "Overdue Returns", value: overdueIssues.length, icon: AlertTriangle, color: "text-destructive" },
         ].map((s, i) => (
           <Card key={i} className="border-none shadow-maroon">

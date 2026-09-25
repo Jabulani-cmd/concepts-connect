@@ -36,7 +36,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Bell, Image, Calendar, LogOut, Plus, Trash2, Upload, Layers, GraduationCap, Download, FileText, HandshakeIcon, Settings, UserCheck, Building, FolderKanban, BookOpen, Briefcase, DollarSign, Shield, BedDouble, Package, MessageSquare, ClipboardList, ShieldCheck, Database, Rocket, Megaphone, Trophy, ShieldAlert, CheckCircle2, CalendarOff, Bot } from "lucide-react";
-import schoolLogo from "@/assets/mavingtech-logo.png";
+import schoolLogo from "@/assets/concepts-logo.png";
 import LanguageSelect from "@/components/LanguageSelect";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -448,7 +448,7 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
       <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur">
         <div className="container flex h-14 sm:h-20 items-center justify-between px-3 sm:px-4">
           <div className="flex items-center gap-2">
-            <img src={schoolLogo} alt="MavingTech High School" className="h-auto w-24 object-contain sm:w-40" />
+            <img src={schoolLogo} alt="MavingTech High School" className="h-auto w-11 object-contain sm:w-16" />
             <span className="font-heading text-sm sm:text-lg font-bold text-primary">{displayTitle}</span>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">

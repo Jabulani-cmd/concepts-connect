@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Lock, UserPlus, Plus, X } from "lucide-react";
-import schoolLogo from "@/assets/mavingtech-logo.png";
+import schoolLogo from "@/assets/concepts-logo.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -120,7 +120,7 @@ export default function Register() {
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-lg px-4">
           <Card className="shadow-maroon">
             <CardHeader className="text-center">
-              <img src={schoolLogo} alt="MavingTech High School" className="mx-auto mb-2 h-auto w-40 object-contain" />
+              <img src={schoolLogo} alt="MavingTech High School" className="mx-auto mb-2 h-auto w-24 object-contain" />
               <CardTitle className="font-heading text-2xl text-primary">Parent Registration</CardTitle>
               <p className="text-xs italic text-muted-foreground">Empowering Your Business Through Technology</p>
             </CardHeader>

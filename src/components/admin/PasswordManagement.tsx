@@ -25,15 +25,15 @@ type PortalUser = {
 
 const roleColors: Record<string, string> = {
   admin: "bg-red-100 text-red-800",
-  student: "bg-blue-100 text-blue-800",
+  student: "bg-purple-100 text-purple-800",
   teacher: "bg-green-100 text-green-800",
-  parent: "bg-purple-100 text-purple-800",
+  parent: "bg-gray-200 text-gray-800",
   finance: "bg-amber-100 text-amber-800",
-  principal: "bg-indigo-100 text-indigo-800",
-  deputy_principal: "bg-teal-100 text-teal-800",
-  hod: "bg-cyan-100 text-cyan-800",
+  principal: "bg-purple-700 text-white",
+  deputy_principal: "bg-purple-300 text-purple-950",
+  hod: "bg-gray-700 text-white",
   admin_supervisor: "bg-orange-100 text-orange-800",
-  registration: "bg-pink-100 text-pink-800",
+  registration: "bg-gray-100 text-gray-700 border border-gray-300",
 };
 
 const PAGE_SIZE = 50;

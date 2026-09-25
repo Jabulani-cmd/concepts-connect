@@ -4,90 +4,90 @@
 
 @layer base {
   :root {
-    /* MavingTech palette - Purple + Grey */
+    /* Concepts Learning Academy palette - Purple + Grey */
     --background: 0 0% 100%;
-    --foreground: 240 6% 13%;
+    --foreground: 0 0% 13%;
 
     --card: 0 0% 100%;
-    --card-foreground: 240 6% 13%;
+    --card-foreground: 0 0% 13%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 6% 13%;
+    --popover-foreground: 0 0% 13%;
 
-    /* Brand purple (~#6b2bab) */
-    --primary: 270 60% 42%;
+    /* Brand purple from the logo (#6508c5) */
+    --primary: 270 92% 40%;
     --primary-foreground: 0 0% 100%;
 
-    /* Brand grey (~#56565e) */
-    --secondary: 240 4% 35%;
+    /* Brand grey from the logo (#3f3f3f) */
+    --secondary: 0 0% 25%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 240 5% 96%;
-    --muted-foreground: 240 4% 40%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 40%;
 
-    --accent: 270 60% 42%;
+    --accent: 270 92% 40%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 5% 88%;
-    --input: 240 5% 88%;
-    --ring: 270 60% 42%;
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 270 92% 40%;
 
     --radius: 0.375rem;
 
     /* Footer / dark sections - charcoal grey */
-    --footer-bg: 240 4% 16%;
+    --footer-bg: 0 0% 16%;
     --footer-fg: 0 0% 95%;
 
-    --sidebar-background: 240 4% 16%;
+    --sidebar-background: 0 0% 16%;
     --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 270 60% 42%;
+    --sidebar-primary: 270 92% 40%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 4% 22%;
+    --sidebar-accent: 0 0% 22%;
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 240 4% 26%;
-    --sidebar-ring: 270 60% 55%;
+    --sidebar-border: 0 0% 26%;
+    --sidebar-ring: 270 85% 60%;
 
     /* Custom tokens kept for legacy (maroon now maps to brand purple) */
-    --maroon: 270 60% 42%;
-    --maroon-dark: 270 60% 30%;
-    --maroon-light: 270 50% 95%;
-    --silver: 240 4% 75%;
-    --silver-light: 240 5% 92%;
+    --maroon: 270 92% 40%;
+    --maroon-dark: 270 90% 30%;
+    --maroon-light: 270 100% 97%;
+    --silver: 0 0% 75%;
+    --silver-light: 0 0% 92%;
     --gold: 42 80% 50%;
     --gold-light: 42 60% 85%;
   }
 
   .dark {
-    --background: 240 4% 8%;
+    --background: 0 0% 8%;
     --foreground: 0 0% 95%;
-    --card: 240 4% 11%;
+    --card: 0 0% 11%;
     --card-foreground: 0 0% 95%;
-    --popover: 240 4% 11%;
+    --popover: 0 0% 11%;
     --popover-foreground: 0 0% 95%;
-    --primary: 270 60% 62%;
+    --primary: 270 80% 60%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 240 4% 26%;
+    --secondary: 0 0% 26%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 240 4% 16%;
-    --muted-foreground: 240 4% 65%;
-    --accent: 270 60% 62%;
+    --muted: 0 0% 16%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 270 80% 60%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 4% 20%;
-    --input: 240 4% 20%;
-    --ring: 270 60% 62%;
-    --sidebar-background: 240 4% 7%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 270 80% 60%;
+    --sidebar-background: 0 0% 7%;
     --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 270 60% 62%;
+    --sidebar-primary: 270 80% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 4% 13%;
+    --sidebar-accent: 0 0% 13%;
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 240 4% 20%;
-    --sidebar-ring: 270 60% 62%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 270 80% 60%;
   }
 }
 
@@ -108,11 +108,11 @@
 @layer utilities {
   .text-gradient-maroon {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(270 60% 32%), hsl(270 60% 48%));
+    background-image: linear-gradient(135deg, hsl(270 90% 30%), hsl(270 85% 48%));
   }
 
   .bg-maroon-gradient {
-    background: linear-gradient(135deg, hsl(240 4% 12%), hsl(270 30% 20%));
+    background: linear-gradient(135deg, hsl(0 0% 12%), hsl(270 30% 20%));
   }
 
   .bg-hero-overlay {
@@ -126,12 +126,12 @@
   .bg-section-warm {
     background: linear-gradient(
       180deg,
-      hsl(240 5% 98%) 0%,
-      hsl(240 5% 95%) 100%
+      hsl(0 0% 98%) 0%,
+      hsl(0 0% 95%) 100%
     );
   }
 
   .shadow-maroon {
-    box-shadow: 0 10px 30px -10px hsla(270, 60%, 32%, 0.25);
+    box-shadow: 0 10px 30px -10px hsla(270, 90%, 30%, 0.25);
   }
 }

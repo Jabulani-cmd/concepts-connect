@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import schoolLogo from "@/assets/mavingtech-logo.png";
+import schoolLogo from "@/assets/concepts-logo.png";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import LanguageSelect from "@/components/LanguageSelect";
@@ -179,7 +179,7 @@ export default function Navbar() {
           <img
             src={schoolLogo}
             alt="MavingTech High School"
-            className="h-auto w-24 flex-shrink-0 object-contain sm:w-28 xl:w-32 2xl:w-36"
+            className="h-auto w-14 flex-shrink-0 object-contain sm:w-16 xl:w-20 2xl:w-24"
           />
           <div className="hidden flex-col leading-tight sm:flex">
             <span className="font-heading text-2xl font-extrabold tracking-tight text-foreground md:text-4xl 2xl:text-5xl">
