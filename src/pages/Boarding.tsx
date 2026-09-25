@@ -26,7 +26,7 @@ export default function Boarding() {
                   <Card className="h-full border-primary/10 transition-shadow hover:shadow-lg">
                     <CardContent className="flex flex-col items-center p-6 text-center">
                       <div className="mb-4 rounded-full bg-primary/10 p-3"><Icon className="h-8 w-8 text-primary" /></div>
-                      <h3 className="mb-2 text-lg font-semibold text-foreground">{t(`boarding.features.${k}.title`)}</h3>
+                      <h3 className="mb-2 text-lg font-semibold text-purple-900 dark:text-purple-200">{t(`boarding.features.${k}.title`)}</h3>
                       <p className="text-sm text-muted-foreground">{t(`boarding.features.${k}.desc`)}</p>
                     </CardContent>
                   </Card>

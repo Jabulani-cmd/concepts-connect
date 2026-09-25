@@ -204,7 +204,7 @@ export default function AIShadowMarker() {
 
   return (
     <Layout>
-      <section className="border-b bg-gradient-to-br from-primary/5 via-background to-secondary/5 py-10">
+      <section className="border-b bg-gradient-to-br from-primary/5 via-background to-primary/5 py-10">
         <div className="container">
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -213,7 +213,7 @@ export default function AIShadowMarker() {
                 <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">AI Shadow Marker</span>
                 <Badge variant="secondary" className="ml-2">Demo: real Gemini calls</Badge>
               </div>
-              <h1 className="mt-3 font-heading text-3xl font-bold text-foreground md:text-4xl">
+              <h1 className="mt-3 font-heading text-3xl font-bold text-primary md:text-4xl">
                 Automated & AI-assisted marking
               </h1>
               <p className="mt-2 max-w-2xl text-muted-foreground">

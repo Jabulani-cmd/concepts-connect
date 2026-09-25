@@ -16,7 +16,7 @@ export default function PageHero({ eyebrow, title, subtitle, image }: PageHeroPr
         className="absolute inset-0 h-full w-full object-cover"
         style={{ objectPosition: "center 45%" }}
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-black/20" />
+      <div className="absolute inset-0 bg-gradient-to-r from-purple-950/85 via-purple-900/45 to-black/10" />
       <div className="container relative z-10 flex h-full items-end pb-14">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -29,8 +29,8 @@ export default function PageHero({ eyebrow, title, subtitle, image }: PageHeroPr
               {eyebrow}
             </span>
           )}
-          <div className="mb-5 mt-4 h-[2px] w-12 bg-white" />
-          <h1 className="font-heading text-4xl font-bold leading-tight md:text-6xl">
+          <div className="mb-5 mt-4 h-[3px] w-12 bg-purple-400" />
+          <h1 className="font-heading text-4xl font-bold leading-tight text-white md:text-6xl">
             {title}
           </h1>
           {subtitle && (

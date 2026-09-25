@@ -456,10 +456,10 @@ export default function StudentManagement() {
         </TabsContent>
         <TabsContent value="students">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="font-heading text-2xl font-bold text-foreground">Student Management</h2>
+        <h2 className="font-heading text-2xl font-bold text-primary">Student Management</h2>
         <div className="flex flex-wrap gap-2">
           <Button onClick={exportCSV} variant="outline" size="sm"><Download className="mr-1 h-4 w-4" /> Export CSV</Button>
-          <Button onClick={openAdd} className="bg-secondary text-secondary-foreground hover:bg-secondary/90"><Plus className="mr-1 h-4 w-4" /> Add Student</Button>
+          <Button onClick={openAdd} className="bg-primary text-primary-foreground hover:bg-primary/90"><Plus className="mr-1 h-4 w-4" /> Add Student</Button>
         </div>
       </div>
 
@@ -516,7 +516,7 @@ export default function StudentManagement() {
                       <img src={s.profile_photo_url} alt={s.full_name} className="h-8 w-8 rounded-full object-cover" />
                     ) : (
                       <div className="flex h-8 w-8 items-center justify-center rounded-full bg-maroon-light">
-                        <User className="h-4 w-4 text-secondary" />
+                        <User className="h-4 w-4 text-primary" />
                       </div>
                     )}
                   </TableCell>
@@ -585,7 +585,7 @@ export default function StudentManagement() {
               {photoUrl ? (
                 <img src={photoUrl} alt="Preview" className="h-16 w-16 rounded-full object-cover" />
               ) : (
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-maroon-light"><User className="h-8 w-8 text-secondary" /></div>
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-maroon-light"><User className="h-8 w-8 text-primary" /></div>
               )}
               <div className="flex gap-2">
                 <input type="file" accept="image/*" ref={photoRef} onChange={handlePhotoSelect} className="hidden" />
@@ -808,7 +808,7 @@ export default function StudentManagement() {
 
           <div className="flex justify-end gap-2 pt-4">
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleSave} disabled={saving} className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
+            <Button onClick={handleSave} disabled={saving} className="bg-primary text-primary-foreground hover:bg-primary/90">
               {saving ? "Saving..." : editingId ? "Update Student" : "Add Student"}
             </Button>
           </div>
@@ -838,7 +838,7 @@ export default function StudentManagement() {
                   {selectedStudent.profile_photo_url ? (
                     <img src={selectedStudent.profile_photo_url} alt={selectedStudent.full_name} className="h-12 w-12 rounded-full object-cover" />
                   ) : (
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-maroon-light"><User className="h-6 w-6 text-secondary" /></div>
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-maroon-light"><User className="h-6 w-6 text-primary" /></div>
                   )}
                   {selectedStudent.full_name}
                   {selectedStudent.has_medical_alert && <Badge variant="destructive"><AlertTriangle className="mr-1 h-3 w-3" /> Medical Alert</Badge>}

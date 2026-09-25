@@ -54,7 +54,7 @@ export default function SportsCulture() {
                     <motion.div key={k} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
                       <Card className="h-full border-primary/10 transition-shadow hover:shadow-lg">
                         <CardContent className="p-6">
-                          <h3 className="mb-2 text-lg font-semibold text-foreground">{s.name}</h3>
+                          <h3 className="mb-2 text-lg font-semibold text-purple-900 dark:text-purple-200">{s.name}</h3>
                           <p className="text-sm text-muted-foreground">{s.desc}</p>
                         </CardContent>
                       </Card>
@@ -74,7 +74,7 @@ export default function SportsCulture() {
                         <CardContent className="flex items-start gap-4 p-6">
                           <div className="rounded-full bg-primary/10 p-2"><Icon className="h-6 w-6 text-primary" /></div>
                           <div>
-                            <h3 className="mb-1 text-lg font-semibold text-foreground">{c.name}</h3>
+                            <h3 className="mb-1 text-lg font-semibold text-purple-900 dark:text-purple-200">{c.name}</h3>
                             <p className="text-sm text-muted-foreground">{c.desc}</p>
                           </div>
                         </CardContent>

@@ -52,56 +52,56 @@ export default function Footer() {
           <div>
             <div className="mb-4 flex items-center gap-3">
               <img src={schoolLogo} alt="Concepts Learning Academy" className="h-auto w-20 object-contain" />
-              <span className="font-heading text-xl font-bold text-purple-400">{t("brand.schoolName")}</span>
+              <span className="font-heading text-xl font-bold text-purple-300">{t("brand.schoolName")}</span>
             </div>
             <p className="text-sm leading-relaxed text-white/70">{t("footer.description")}</p>
             <div className="mt-5 flex items-center gap-3">
-              <a href="#" aria-label="Twitter" className="rounded-full border border-white/20 p-2 transition-colors hover:border-primary hover:text-primary"><Twitter className="h-4 w-4" /></a>
-              <a href="#" aria-label="Facebook" className="rounded-full border border-white/20 p-2 transition-colors hover:border-primary hover:text-primary"><Facebook className="h-4 w-4" /></a>
-              <a href="#" aria-label="Instagram" className="rounded-full border border-white/20 p-2 transition-colors hover:border-primary hover:text-primary"><Instagram className="h-4 w-4" /></a>
-              <a href="https://wa.me/263242550123" aria-label="WhatsApp" className="rounded-full border border-white/20 p-2 transition-colors hover:border-primary hover:text-primary"><MessageCircle className="h-4 w-4" /></a>
+              <a href="#" aria-label="Twitter" className="rounded-full border border-white/20 p-2 transition-colors hover:border-purple-300 hover:text-purple-300"><Twitter className="h-4 w-4" /></a>
+              <a href="#" aria-label="Facebook" className="rounded-full border border-white/20 p-2 transition-colors hover:border-purple-300 hover:text-purple-300"><Facebook className="h-4 w-4" /></a>
+              <a href="#" aria-label="Instagram" className="rounded-full border border-white/20 p-2 transition-colors hover:border-purple-300 hover:text-purple-300"><Instagram className="h-4 w-4" /></a>
+              <a href="https://wa.me/263242550123" aria-label="WhatsApp" className="rounded-full border border-white/20 p-2 transition-colors hover:border-purple-300 hover:text-purple-300"><MessageCircle className="h-4 w-4" /></a>
             </div>
           </div>
 
           <div>
-            <h4 className="mb-4 font-heading text-base font-semibold">{t("footer.quickLinks")}</h4>
+            <h4 className="mb-4 font-heading text-base font-semibold text-white">{t("footer.quickLinks")}</h4>
             <ul className="space-y-2.5 text-sm text-white/70">
-              <li><Link to="/about" className="transition-colors hover:text-primary">{t("footer.aboutUs")}</Link></li>
-              <li><Link to="/academics" className="transition-colors hover:text-primary">{t("nav.academics")}</Link></li>
-              <li><Link to="/admissions" className="transition-colors hover:text-primary">{t("nav.admissions")}</Link></li>
-              <li><Link to="/school-life" className="transition-colors hover:text-primary">{t("nav.schoolLife")}</Link></li>
-              <li><Link to="/news" className="transition-colors hover:text-primary">{t("nav.news")}</Link></li>
+              <li><Link to="/about" className="transition-colors hover:text-purple-300">{t("footer.aboutUs")}</Link></li>
+              <li><Link to="/academics" className="transition-colors hover:text-purple-300">{t("nav.academics")}</Link></li>
+              <li><Link to="/admissions" className="transition-colors hover:text-purple-300">{t("nav.admissions")}</Link></li>
+              <li><Link to="/school-life" className="transition-colors hover:text-purple-300">{t("nav.schoolLife")}</Link></li>
+              <li><Link to="/news" className="transition-colors hover:text-purple-300">{t("nav.news")}</Link></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="mb-4 font-heading text-base font-semibold">{t("footer.programs")}</h4>
+            <h4 className="mb-4 font-heading text-base font-semibold text-white">{t("footer.programs")}</h4>
             <ul className="space-y-2.5 text-sm text-white/70">
-              <li><Link to="/sports-culture" className="transition-colors hover:text-primary">{t("nav.sportsCulture")}</Link></li>
-              <li><Link to="/awards" className="transition-colors hover:text-primary">{t("nav.awards")}</Link></li>
-              <li><Link to="/facilities" className="transition-colors hover:text-primary">{t("nav.facilities")}</Link></li>
-              <li><Link to="/boarding" className="transition-colors hover:text-primary">{t("nav.boarding")}</Link></li>
-              <li><Link to="/fees" className="transition-colors hover:text-primary">{t("nav.fees")}</Link></li>
+              <li><Link to="/sports-culture" className="transition-colors hover:text-purple-300">{t("nav.sportsCulture")}</Link></li>
+              <li><Link to="/awards" className="transition-colors hover:text-purple-300">{t("nav.awards")}</Link></li>
+              <li><Link to="/facilities" className="transition-colors hover:text-purple-300">{t("nav.facilities")}</Link></li>
+              <li><Link to="/boarding" className="transition-colors hover:text-purple-300">{t("nav.boarding")}</Link></li>
+              <li><Link to="/fees" className="transition-colors hover:text-purple-300">{t("nav.fees")}</Link></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="mb-4 font-heading text-base font-semibold">{t("footer.contact")}</h4>
+            <h4 className="mb-4 font-heading text-base font-semibold text-white">{t("footer.contact")}</h4>
             <ul className="space-y-3 text-sm text-white/70">
               <li className="flex items-start gap-3">
-                <MapPin className="h-4 w-4 shrink-0 text-primary mt-0.5" />
+                <MapPin className="h-4 w-4 shrink-0 text-purple-300 mt-0.5" />
                 <span>{SCHOOL_ADDRESS}</span>
               </li>
               <li className="flex items-center gap-3">
-                <Phone className="h-4 w-4 shrink-0 text-primary" />
-                <a href={SCHOOL_PHONE_LINK} className="transition-colors hover:text-primary">{SCHOOL_PHONE}</a>
+                <Phone className="h-4 w-4 shrink-0 text-purple-300" />
+                <a href={SCHOOL_PHONE_LINK} className="transition-colors hover:text-purple-300">{SCHOOL_PHONE}</a>
               </li>
               <li className="flex items-center gap-3">
-                <Mail className="h-4 w-4 shrink-0 text-primary" />
-                <a href={`mailto:${SCHOOL_EMAIL}`} className="transition-colors hover:text-primary">{SCHOOL_EMAIL}</a>
+                <Mail className="h-4 w-4 shrink-0 text-purple-300" />
+                <a href={`mailto:${SCHOOL_EMAIL}`} className="transition-colors hover:text-purple-300">{SCHOOL_EMAIL}</a>
               </li>
               <li>
-                <InstallAppButton className="inline-flex items-center gap-3 transition-colors hover:text-primary" />
+                <InstallAppButton className="inline-flex items-center gap-3 transition-colors hover:text-purple-300" />
               </li>
             </ul>
           </div>

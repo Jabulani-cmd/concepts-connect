@@ -166,8 +166,8 @@ export default function StudentMaterialsTab({ studentClassId }: Props) {
             return (
               <Card key={m.id} className="overflow-hidden">
                 <CardContent className="flex items-center gap-3 p-3">
-                  <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg bg-secondary/10">
-                    <Icon className="h-5 w-5 text-secondary" />
+                  <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                    <Icon className="h-5 w-5 text-primary" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium leading-tight truncate">{m.title}</p>

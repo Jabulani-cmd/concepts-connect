@@ -206,7 +206,7 @@ export default function StaffManagement() {
                   />
                   <button
                     onClick={() => document.getElementById(`photo-${member.id}`)?.click()}
-                    className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/90"
+                    className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80"
                     title="Change photo (crop)"
                   >
                     <Edit2 className="h-3 w-3" />

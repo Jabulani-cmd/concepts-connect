@@ -600,7 +600,7 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
           <TabsContent value="announcements">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="font-heading text-lg font-semibold text-foreground">Announcements</h2>
+                <h2 className="font-heading text-lg font-semibold text-primary">Announcements</h2>
                 <Button onClick={() => setShowAnnouncementDialog(true)}>
                   <Plus className="mr-1 h-4 w-4" /> New Announcement
                 </Button>

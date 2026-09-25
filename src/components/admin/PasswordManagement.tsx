@@ -163,7 +163,7 @@ export default function PasswordManagement() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="font-heading text-2xl font-bold text-foreground">Password Management</h2>
+          <h2 className="font-heading text-2xl font-bold text-primary">Password Management</h2>
           <p className="text-sm text-muted-foreground">View demo passwords and set a new password for any portal user.</p>
         </div>
         <Button variant="outline" size="sm" onClick={fetchUsers} disabled={loading}>

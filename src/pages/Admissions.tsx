@@ -44,7 +44,7 @@ export default function Admissions() {
         <div className="container">
           <div className="mb-14 text-center">
             <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">{t("admissions.processEyebrow")}</span>
-            <h2 className="mt-3 font-heading text-3xl font-bold text-foreground md:text-5xl">{t("admissions.processTitle")}</h2>
+            <h2 className="mt-3 font-heading text-3xl font-bold text-primary md:text-5xl">{t("admissions.processTitle")}</h2>
             <div className="mx-auto mt-4 h-[3px] w-12 bg-primary" />
           </div>
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
@@ -55,7 +55,7 @@ export default function Admissions() {
                   <s.icon className="h-6 w-6 text-primary" />
                 </div>
                 <p className="mt-5 text-xs font-semibold uppercase tracking-[0.2em] text-primary">{t("admissions.stepLabel")} {i + 1}</p>
-                <h3 className="mt-2 font-heading text-lg font-bold text-foreground">{s.title}</h3>
+                <h3 className="mt-2 font-heading text-lg font-bold text-purple-900 dark:text-purple-200">{s.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
               </motion.div>
             ))}
@@ -67,14 +67,14 @@ export default function Admissions() {
         <div className="container max-w-2xl">
           <div className="mb-10 text-center">
             <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">{t("admissions.form.eyebrow")}</span>
-            <h2 className="mt-3 font-heading text-3xl font-bold text-foreground md:text-4xl">{t("admissions.form.title")}</h2>
+            <h2 className="mt-3 font-heading text-3xl font-bold text-primary md:text-4xl">{t("admissions.form.title")}</h2>
             <div className="mx-auto mt-4 h-[3px] w-12 bg-primary" />
           </div>
           <div className="rounded-lg bg-card p-8 shadow-sm ring-1 ring-border/60 md:p-10">
             {submitted ? (
               <div className="py-12 text-center">
                 <CheckCircle className="mx-auto mb-4 h-16 w-16 text-primary" />
-                <h3 className="font-heading text-xl font-bold text-foreground">{t("admissions.form.received")}</h3>
+                <h3 className="font-heading text-xl font-bold text-purple-900 dark:text-purple-200">{t("admissions.form.received")}</h3>
                 <p className="mt-2 text-muted-foreground">{t("admissions.form.receivedBody")}</p>
               </div>
             ) : (

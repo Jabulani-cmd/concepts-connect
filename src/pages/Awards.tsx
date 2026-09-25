@@ -25,10 +25,10 @@ export default function Awards() {
 
   return (
     <Layout>
-      <section className="bg-gradient-to-br from-primary to-secondary py-16 text-primary-foreground">
+      <section className="bg-gradient-to-br from-primary to-primary py-16 text-primary-foreground">
         <div className="container text-center">
           <img src={schoolLogo} alt="Concepts Learning Academy" className="mx-auto mb-4 h-auto w-28 object-contain" />
-          <h1 className="font-heading text-4xl font-bold">{t("awards.title")}</h1>
+          <h1 className="font-heading text-4xl font-bold text-primary-foreground">{t("awards.title")}</h1>
           <p className="mt-2 text-lg opacity-90">{t("awards.subtitle")}</p>
         </div>
       </section>

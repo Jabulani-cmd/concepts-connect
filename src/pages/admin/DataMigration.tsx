@@ -231,7 +231,7 @@ export default function DataMigration() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-heading text-2xl font-bold text-foreground">Data Migration Tool</h2>
+          <h2 className="font-heading text-2xl font-bold text-primary">Data Migration Tool</h2>
           <p className="text-sm text-muted-foreground">Import existing school data from Excel/CSV files</p>
         </div>
         {step !== "upload" && (

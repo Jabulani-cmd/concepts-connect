@@ -107,7 +107,7 @@ export default function StudentProfileTab({ profile, student, studentClassName, 
       <Card>
         <CardContent className="p-4">
           <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-secondary/10 overflow-hidden">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 overflow-hidden">
               {(student?.profile_photo_url || profile?.avatar_url) ? (
                 <img
                   src={student?.profile_photo_url || profile?.avatar_url}
@@ -115,7 +115,7 @@ export default function StudentProfileTab({ profile, student, studentClassName, 
                   className="h-16 w-16 rounded-full object-cover"
                 />
               ) : (
-                <User className="h-8 w-8 text-secondary" />
+                <User className="h-8 w-8 text-primary" />
               )}
             </div>
             <div className="flex-1">

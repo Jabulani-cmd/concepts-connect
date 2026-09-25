@@ -52,7 +52,7 @@ export default function SchoolProjects() {
                       </div>
                     )}
                     <CardContent className="p-6">
-                      <h3 className="font-heading text-lg font-semibold text-foreground">{p.name}</h3>
+                      <h3 className="font-heading text-lg font-semibold text-purple-900 dark:text-purple-200">{p.name}</h3>
                       {p.description && (<p className="mt-2 text-sm leading-relaxed text-muted-foreground">{p.description}</p>)}
                       <div className="mt-3 flex items-center justify-between">
                         <p className="text-xs text-muted-foreground">
