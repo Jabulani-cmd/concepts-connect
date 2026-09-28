@@ -305,6 +305,87 @@ export type Database = {
         }
         Relationships: []
       }
+      award_photos: {
+        Row: {
+          caption: string | null
+          created_at: string
+          id: string
+          image_url: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          image_url: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string
+        }
+        Relationships: []
+      }
+      awards: {
+        Row: {
+          created_at: string
+          id: string
+          recipient: string
+          title: string
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          recipient: string
+          title: string
+          year: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          recipient?: string
+          title?: string
+          year?: number
+        }
+        Relationships: []
+      }
+      bank_transactions: {
+        Row: {
+          amount_usd: number
+          bank_name: string | null
+          created_at: string
+          description: string
+          id: string
+          reconciliation_status: string
+          reference_number: string | null
+          transaction_date: string
+          transaction_type: string
+        }
+        Insert: {
+          amount_usd?: number
+          bank_name?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          reconciliation_status?: string
+          reference_number?: string | null
+          transaction_date: string
+          transaction_type?: string
+        }
+        Update: {
+          amount_usd?: number
+          bank_name?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          reconciliation_status?: string
+          reference_number?: string | null
+          transaction_date?: string
+          transaction_type?: string
+        }
+        Relationships: []
+      }
       class_subjects: {
         Row: {
           academic_year_id: string
