@@ -13,7 +13,7 @@ export interface DemoStudent {
   id: string;
   fullName: string;
   dob: string;
-  gender: "Male" | "Female";
+  gender: "male" | "female";
   admissionNumber: string;
   form: number;           // 1–6
   stream: string;         // "A", "B", "C"
@@ -283,7 +283,7 @@ export function generateDemoSeed(): DemoSeed {
         id,
         fullName: `${first} ${surname}`,
         dob: `${year - age}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`,
-        gender: female ? "Female" : "Male",
+        gender: female ? "female" : "male",
         admissionNumber: `STU${String(n + 1).padStart(4, "0")}`,
         form: c.formLevel,
         stream: streamLetter(c),
