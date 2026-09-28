@@ -141,9 +141,13 @@ export default function DemoDataSeederPanel() {
 
     // Staff - one record per teacher; logins are attached later by email.
     const teacherEmails = seed.teachers.map((t) => t.email);
-    const { data: existingStaff } = await supabase.from("staff").select("id, email").in("email", teacherEmails);
+    const { data: existingStaff, error: lookupErr } = await supabase.from("staff").select("id, email").in("email", teacherEmails);
+    if (lookupErr) throw new Error(`Teacher records could not be looked up: ${lookupErr.message}`);
     const staffByEmail = new Map((existingStaff ?? []).map((s) => [s.email?.toLowerCase(), s.id]));
     const staffIdMap = new Map<string, string>();
+    let inserted = 0;
+    let updated = 0;
+    let firstStaffError = "";
     for (const [i, t] of seed.teachers.entries()) {
       const subjectsTaught = t.qualifiedSubjects.map((sid) => seed.subjects.find((s) => s.id === sid)?.name).filter((n): n is string => !!n);
       const row = {
@@ -154,11 +158,14 @@ export default function DemoDataSeederPanel() {
       };
       const existing = staffByEmail.get(t.email.toLowerCase());
       if (existing) {
-        await supabase.from("staff").update(row).eq("id", existing);
+        const { error } = await supabase.from("staff").update(row).eq("id", existing);
+        if (error) firstStaffError ||= error.message;
+        else updated++;
         staffIdMap.set(t.id, existing);
       } else {
         const { data: ins, error } = await supabase.from("staff").insert(row).select("id").single();
-        if (error) throw error;
+        if (error) throw new Error(`Teacher ${t.email} could not be saved: ${error.message}`);
+        inserted++;
         staffIdMap.set(t.id, ins.id);
       }
     }
@@ -172,7 +179,13 @@ export default function DemoDataSeederPanel() {
       if (id) staffIdMap.set(t.id, id);
     }
     const unsaved = seed.teachers.filter((t) => !staffIdMap.has(t.id));
-    if (unsaved.length) throw new Error(`${unsaved.length} teacher records could not be saved (e.g. ${unsaved[0].email})`);
+    if (unsaved.length) {
+      throw new Error(
+        `${unsaved.length} teacher records could not be saved (e.g. ${unsaved[0].email}): ` +
+        `${inserted} inserted, ${updated} updated, ${savedByEmail.size} found when read back` +
+        (firstStaffError ? `; database said: ${firstStaffError}` : ""),
+      );
+    }
 
     for (const c of seed.classes) {
       const teacher = staffIdMap.get(c.classTeacherId ?? "");
