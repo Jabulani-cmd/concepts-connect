@@ -796,6 +796,7 @@ export type Database = {
           description: string
           expense_date: string
           id: string
+          payment_method: string | null
           recorded_by: string
           reference: string | null
           updated_at: string
@@ -808,6 +809,7 @@ export type Database = {
           description: string
           expense_date?: string
           id?: string
+          payment_method?: string | null
           recorded_by: string
           reference?: string | null
           updated_at?: string
@@ -820,6 +822,7 @@ export type Database = {
           description?: string
           expense_date?: string
           id?: string
+          payment_method?: string | null
           recorded_by?: string
           reference?: string | null
           updated_at?: string
@@ -1309,6 +1312,7 @@ export type Database = {
           receipt_number: string
           recorded_by: string
           reference: string | null
+          reference_number: string | null
           student_id: string
           updated_at: string
           zig_rate: number | null
@@ -1326,6 +1330,7 @@ export type Database = {
           receipt_number: string
           recorded_by: string
           reference?: string | null
+          reference_number?: string | null
           student_id: string
           updated_at?: string
           zig_rate?: number | null
@@ -1343,6 +1348,7 @@ export type Database = {
           receipt_number?: string
           recorded_by?: string
           reference?: string | null
+          reference_number?: string | null
           student_id?: string
           updated_at?: string
           zig_rate?: number | null
@@ -1457,6 +1463,30 @@ export type Database = {
           preferred_language?: string
           status?: Database["public"]["Enums"]["profile_status"]
           updated_at?: string
+        }
+        Relationships: []
+      }
+      school_projects: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
         }
         Relationships: []
       }
