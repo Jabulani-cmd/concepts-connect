@@ -77,9 +77,9 @@ describe("Demo data seeder panel", () => {
     expect(students.every((s) => /^Form [1-6]$/.test(String(s.form)) && s.class === `${s.form}${s.stream}`)).toBe(true);
     expect(students.every((s) => s.guardian_name && s.guardian_phone && s.province)).toBe(true);
 
-    // Logins: 1 admin + 30 teachers + 500 students + every parent, in small batches.
+    // Logins: 1 admin + 30 teachers + 500 students + every parent, in batches the service accepts (≤ 60).
     const accounts = invokes.flatMap((b) => b.accounts);
-    expect(invokes.every((b) => b.accounts.length <= 20)).toBe(true);
+    expect(invokes.every((b) => b.accounts.length <= 50)).toBe(true);
     expect(new Set(accounts.map((a) => a.email)).size).toBe(accounts.length);
     const count = (role: string) => accounts.filter((a) => a.role === role).length;
     expect([count("admin"), count("teacher"), count("student")]).toEqual([1, 30, 500]);
@@ -124,6 +124,44 @@ describe("Demo data seeder panel", () => {
     expect(accounts.filter((a) => a.role === "student")).toHaveLength(500);
     expect(accounts.filter((a) => a.role === "teacher")).toHaveLength(30);
     expect(accounts.filter((a) => a.role === "parent").length).toBeGreaterThan(800);
+    respond = ok;
+  }, 30000);
+
+  it("retries a call the service refused because it could not confirm the sign-in", async () => {
+    writes.length = 0;
+    invokes.length = 0;
+    saved.clear();
+    // The first call is refused the way the older service refuses when the auth server
+    // turns its sign-in check away; the retry goes through.
+    let calls = 0;
+    respond = () => {
+      calls += 1;
+      if (calls > 1) return ok();
+      return {
+        data: null,
+        error: Object.assign(new Error("Edge Function returned a non-2xx status code"), {
+          context: new Response(JSON.stringify({ error: "Only a school administrator can seed demo accounts" }), { status: 403 }),
+        }),
+      };
+    };
+
+    render(
+      <AllocationProvider>
+        <DemoPeopleProvider>
+          <DemoDataSeederPanel />
+        </DemoPeopleProvider>
+      </AllocationProvider>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /create missing logins/i }));
+    await waitFor(() => expect(screen.queryByRole("button", { name: /create missing logins/i })).toBeEnabled(), { timeout: 20000 });
+    await waitFor(() => expect(calls).toBeGreaterThan(20), { timeout: 20000 });
+
+    // The refused batch was sent exactly twice, every other account once, and nothing was reported as failed.
+    const firstEmail = invokes[0].accounts[0].email;
+    expect(invokes.filter((b) => b.accounts[0].email === firstEmail)).toHaveLength(2);
+    const emails = invokes.flatMap((b) => b.accounts.map((a) => a.email));
+    expect(emails.length - new Set(emails).size).toBe(invokes[0].accounts.length);
+    expect(screen.queryByText(/some items need attention/i)).not.toBeInTheDocument();
     respond = ok;
   }, 30000);
 });
