@@ -790,6 +790,7 @@ export type Database = {
       expenses: {
         Row: {
           amount_usd: number
+          amount_zig: number | null
           category: string
           created_at: string
           description: string
@@ -801,6 +802,7 @@ export type Database = {
         }
         Insert: {
           amount_usd: number
+          amount_zig?: number | null
           category: string
           created_at?: string
           description: string
@@ -812,6 +814,7 @@ export type Database = {
         }
         Update: {
           amount_usd?: number
+          amount_zig?: number | null
           category?: string
           created_at?: string
           description?: string
@@ -897,6 +900,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      finance_approval_requests: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          metadata: Json
+          request_type: string
+          requested_by: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          target_id: string | null
+          target_table: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json
+          request_type: string
+          requested_by?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          target_id?: string | null
+          target_table?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json
+          request_type?: string
+          requested_by?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          target_id?: string | null
+          target_table?: string | null
+        }
+        Relationships: []
       }
       guardians: {
         Row: {
@@ -1253,11 +1298,14 @@ export type Database = {
       payments: {
         Row: {
           amount_usd: number
+          amount_zig: number | null
           created_at: string
           id: string
           invoice_id: string | null
           method: Database["public"]["Enums"]["payment_method"]
           paid_at: string
+          payment_date: string | null
+          payment_method: string | null
           receipt_number: string
           recorded_by: string
           reference: string | null
@@ -1267,11 +1315,14 @@ export type Database = {
         }
         Insert: {
           amount_usd: number
+          amount_zig?: number | null
           created_at?: string
           id?: string
           invoice_id?: string | null
           method: Database["public"]["Enums"]["payment_method"]
           paid_at?: string
+          payment_date?: string | null
+          payment_method?: string | null
           receipt_number: string
           recorded_by: string
           reference?: string | null
@@ -1281,11 +1332,14 @@ export type Database = {
         }
         Update: {
           amount_usd?: number
+          amount_zig?: number | null
           created_at?: string
           id?: string
           invoice_id?: string | null
           method?: Database["public"]["Enums"]["payment_method"]
           paid_at?: string
+          payment_date?: string | null
+          payment_method?: string | null
           receipt_number?: string
           recorded_by?: string
           reference?: string | null
@@ -1331,6 +1385,42 @@ export type Database = {
           id?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      petty_cash: {
+        Row: {
+          amount_usd: number
+          amount_zig: number | null
+          created_at: string
+          description: string | null
+          id: string
+          recorded_by: string | null
+          reference_number: string | null
+          transaction_date: string | null
+          transaction_type: string
+        }
+        Insert: {
+          amount_usd?: number
+          amount_zig?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          recorded_by?: string | null
+          reference_number?: string | null
+          transaction_date?: string | null
+          transaction_type?: string
+        }
+        Update: {
+          amount_usd?: number
+          amount_zig?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          recorded_by?: string | null
+          reference_number?: string | null
+          transaction_date?: string | null
+          transaction_type?: string
         }
         Relationships: []
       }
@@ -1652,6 +1742,104 @@ export type Database = {
             columns: ["department_id"]
             isOneToOne: false
             referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      supplier_invoices: {
+        Row: {
+          amount_usd: number
+          amount_zig: number | null
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          invoice_date: string | null
+          invoice_number: string | null
+          paid_usd: number
+          paid_zig: number
+          recorded_by: string | null
+          status: string
+          supplier_contact: string | null
+          supplier_name: string
+        }
+        Insert: {
+          amount_usd?: number
+          amount_zig?: number | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_date?: string | null
+          invoice_number?: string | null
+          paid_usd?: number
+          paid_zig?: number
+          recorded_by?: string | null
+          status?: string
+          supplier_contact?: string | null
+          supplier_name: string
+        }
+        Update: {
+          amount_usd?: number
+          amount_zig?: number | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_date?: string | null
+          invoice_number?: string | null
+          paid_usd?: number
+          paid_zig?: number
+          recorded_by?: string | null
+          status?: string
+          supplier_contact?: string | null
+          supplier_name?: string
+        }
+        Relationships: []
+      }
+      supplier_payments: {
+        Row: {
+          amount_usd: number
+          amount_zig: number | null
+          created_at: string
+          id: string
+          notes: string | null
+          payment_date: string | null
+          payment_method: string | null
+          recorded_by: string | null
+          reference: string | null
+          supplier_invoice_id: string | null
+        }
+        Insert: {
+          amount_usd?: number
+          amount_zig?: number | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          payment_date?: string | null
+          payment_method?: string | null
+          recorded_by?: string | null
+          reference?: string | null
+          supplier_invoice_id?: string | null
+        }
+        Update: {
+          amount_usd?: number
+          amount_zig?: number | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          payment_date?: string | null
+          payment_method?: string | null
+          recorded_by?: string | null
+          reference?: string | null
+          supplier_invoice_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_payments_supplier_invoice_id_fkey"
+            columns: ["supplier_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_invoices"
             referencedColumns: ["id"]
           },
         ]
