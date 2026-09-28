@@ -673,6 +673,96 @@ export type Database = {
           },
         ]
       }
+      exam_timetable_entries: {
+        Row: {
+          created_at: string
+          end_time: string
+          exam_date: string
+          exam_id: string
+          id: string
+          invigilators: string[] | null
+          notes: string | null
+          start_time: string
+          subject_id: string | null
+          venue: string | null
+        }
+        Insert: {
+          created_at?: string
+          end_time: string
+          exam_date: string
+          exam_id: string
+          id?: string
+          invigilators?: string[] | null
+          notes?: string | null
+          start_time: string
+          subject_id?: string | null
+          venue?: string | null
+        }
+        Update: {
+          created_at?: string
+          end_time?: string
+          exam_date?: string
+          exam_id?: string
+          id?: string
+          invigilators?: string[] | null
+          notes?: string | null
+          start_time?: string
+          subject_id?: string | null
+          venue?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_timetable_entries_exam_id_fkey"
+            columns: ["exam_id"]
+            isOneToOne: false
+            referencedRelation: "exams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exam_timetable_entries_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exams: {
+        Row: {
+          academic_year: string | null
+          created_at: string
+          form_level: string | null
+          id: string
+          is_published: boolean
+          name: string
+          subject_ids: string[] | null
+          term: string | null
+          updated_at: string
+        }
+        Insert: {
+          academic_year?: string | null
+          created_at?: string
+          form_level?: string | null
+          id?: string
+          is_published?: boolean
+          name: string
+          subject_ids?: string[] | null
+          term?: string | null
+          updated_at?: string
+        }
+        Update: {
+          academic_year?: string | null
+          created_at?: string
+          form_level?: string | null
+          id?: string
+          is_published?: boolean
+          name?: string
+          subject_ids?: string[] | null
+          term?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       exchange_rates: {
         Row: {
           created_at: string
