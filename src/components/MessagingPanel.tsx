@@ -353,7 +353,7 @@ export default function MessagingPanel() {
 
     let results: UserProfile[] = profiles
       .filter(p => !blockedIds.includes(p.id))
-      .map(p => ({ ...p, role: p.role || "user" }));
+      .map(p => ({ ...p, avatar_url: null, role: p.role || "user" }));
 
     if (contactRoleFilter !== "all") {
       results = results.filter(p => p.role === contactRoleFilter);
