@@ -137,6 +137,54 @@ export type Database = {
           },
         ]
       }
+      attendance: {
+        Row: {
+          class_id: string | null
+          created_at: string
+          date: string
+          id: string
+          is_published: boolean
+          notes: string | null
+          status: string
+          student_id: string
+        }
+        Insert: {
+          class_id?: string | null
+          created_at?: string
+          date: string
+          id?: string
+          is_published?: boolean
+          notes?: string | null
+          status?: string
+          student_id: string
+        }
+        Update: {
+          class_id?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          is_published?: boolean
+          notes?: string | null
+          status?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attendance_records: {
         Row: {
           created_at: string
@@ -955,6 +1003,30 @@ export type Database = {
           },
         ]
       }
+      personal_timetables: {
+        Row: {
+          created_at: string
+          data: Json
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_path: string | null
@@ -1094,6 +1166,7 @@ export type Database = {
           date_of_birth: string | null
           enrollment_status: Database["public"]["Enums"]["enrollment_status"]
           first_name: string
+          full_name: string | null
           gender: Database["public"]["Enums"]["gender_type"] | null
           id: string
           last_name: string
@@ -1108,6 +1181,7 @@ export type Database = {
           date_of_birth?: string | null
           enrollment_status?: Database["public"]["Enums"]["enrollment_status"]
           first_name: string
+          full_name?: string | null
           gender?: Database["public"]["Enums"]["gender_type"] | null
           id?: string
           last_name: string
@@ -1122,6 +1196,7 @@ export type Database = {
           date_of_birth?: string | null
           enrollment_status?: Database["public"]["Enums"]["enrollment_status"]
           first_name?: string
+          full_name?: string | null
           gender?: Database["public"]["Enums"]["gender_type"] | null
           id?: string
           last_name?: string
