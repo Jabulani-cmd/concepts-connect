@@ -352,34 +352,46 @@ export type Database = {
       }
       bank_transactions: {
         Row: {
+          account_number: string | null
           amount_usd: number
+          amount_zig: number | null
           bank_name: string | null
           created_at: string
           description: string
           id: string
+          notes: string | null
           reconciliation_status: string
+          recorded_by: string | null
           reference_number: string | null
           transaction_date: string
           transaction_type: string
         }
         Insert: {
+          account_number?: string | null
           amount_usd?: number
+          amount_zig?: number | null
           bank_name?: string | null
           created_at?: string
           description: string
           id?: string
+          notes?: string | null
           reconciliation_status?: string
+          recorded_by?: string | null
           reference_number?: string | null
           transaction_date: string
           transaction_type?: string
         }
         Update: {
+          account_number?: string | null
           amount_usd?: number
+          amount_zig?: number | null
           bank_name?: string | null
           created_at?: string
           description?: string
           id?: string
+          notes?: string | null
           reconciliation_status?: string
+          recorded_by?: string | null
           reference_number?: string | null
           transaction_date?: string
           transaction_type?: string
@@ -447,31 +459,37 @@ export type Database = {
       }
       classes: {
         Row: {
+          academic_year: string | null
           active: boolean
           capacity: number | null
           created_at: string
           id: string
-          level_name: string
+          level: string | null
+          level_name: string | null
           name: string
           stream: string | null
           updated_at: string
         }
         Insert: {
+          academic_year?: string | null
           active?: boolean
           capacity?: number | null
           created_at?: string
           id?: string
-          level_name: string
+          level?: string | null
+          level_name?: string | null
           name: string
           stream?: string | null
           updated_at?: string
         }
         Update: {
+          academic_year?: string | null
           active?: boolean
           capacity?: number | null
           created_at?: string
           id?: string
-          level_name?: string
+          level?: string | null
+          level_name?: string | null
           name?: string
           stream?: string | null
           updated_at?: string
@@ -1146,41 +1164,62 @@ export type Database = {
       }
       staff: {
         Row: {
+          category: string | null
           created_at: string
+          department: string | null
           department_id: string | null
-          employment_status: string
-          first_name: string
+          email: string | null
+          employment_status: string | null
+          first_name: string | null
+          full_name: string | null
           id: string
-          last_name: string
+          last_name: string | null
           phone: string | null
-          position: string
-          staff_number: string
+          position: string | null
+          role: string | null
+          staff_number: string | null
+          status: string | null
+          subjects_taught: string[] | null
           updated_at: string
           user_id: string | null
         }
         Insert: {
+          category?: string | null
           created_at?: string
+          department?: string | null
           department_id?: string | null
-          employment_status?: string
-          first_name: string
+          email?: string | null
+          employment_status?: string | null
+          first_name?: string | null
+          full_name?: string | null
           id?: string
-          last_name: string
+          last_name?: string | null
           phone?: string | null
-          position: string
-          staff_number: string
+          position?: string | null
+          role?: string | null
+          staff_number?: string | null
+          status?: string | null
+          subjects_taught?: string[] | null
           updated_at?: string
           user_id?: string | null
         }
         Update: {
+          category?: string | null
           created_at?: string
+          department?: string | null
           department_id?: string | null
-          employment_status?: string
-          first_name?: string
+          email?: string | null
+          employment_status?: string | null
+          first_name?: string | null
+          full_name?: string | null
           id?: string
-          last_name?: string
+          last_name?: string | null
           phone?: string | null
-          position?: string
-          staff_number?: string
+          position?: string | null
+          role?: string | null
+          staff_number?: string | null
+          status?: string | null
+          subjects_taught?: string[] | null
           updated_at?: string
           user_id?: string | null
         }
@@ -1290,28 +1329,31 @@ export type Database = {
       subjects: {
         Row: {
           active: boolean
-          code: string
+          code: string | null
           created_at: string
           department_id: string | null
           id: string
+          is_examinable: boolean
           name: string
           updated_at: string
         }
         Insert: {
           active?: boolean
-          code: string
+          code?: string | null
           created_at?: string
           department_id?: string | null
           id?: string
+          is_examinable?: boolean
           name: string
           updated_at?: string
         }
         Update: {
           active?: boolean
-          code?: string
+          code?: string | null
           created_at?: string
           department_id?: string | null
           id?: string
+          is_examinable?: boolean
           name?: string
           updated_at?: string
         }
