@@ -823,6 +823,30 @@ export type Database = {
         }
         Relationships: []
       }
+      facility_images: {
+        Row: {
+          caption: string | null
+          created_at: string
+          facility_type: string | null
+          id: string
+          image_url: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          facility_type?: string | null
+          id?: string
+          image_url: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          facility_type?: string | null
+          id?: string
+          image_url?: string
+        }
+        Relationships: []
+      }
       fee_structures: {
         Row: {
           active: boolean
