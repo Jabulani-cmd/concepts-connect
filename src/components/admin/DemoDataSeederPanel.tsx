@@ -144,10 +144,9 @@ export default function DemoDataSeederPanel() {
     const { data: existingStaff, error: lookupErr } = await supabase.from("staff").select("id, email").in("email", teacherEmails);
     if (lookupErr) throw new Error(`Teacher records could not be looked up: ${lookupErr.message}`);
     const staffByEmail = new Map((existingStaff ?? []).map((s) => [s.email?.toLowerCase(), s.id]));
+    // Each teacher's id comes from the database's reply to its own write, not from a
+    // second lookup: on a hosted database that lookup can briefly miss rows just written.
     const staffIdMap = new Map<string, string>();
-    let inserted = 0;
-    let updated = 0;
-    let firstStaffError = "";
     for (const [i, t] of seed.teachers.entries()) {
       const subjectsTaught = t.qualifiedSubjects.map((sid) => seed.subjects.find((s) => s.id === sid)?.name).filter((n): n is string => !!n);
       const row = {
@@ -158,33 +157,17 @@ export default function DemoDataSeederPanel() {
       };
       const existing = staffByEmail.get(t.email.toLowerCase());
       if (existing) {
-        const { error } = await supabase.from("staff").update(row).eq("id", existing);
-        if (error) firstStaffError ||= error.message;
-        else updated++;
-        staffIdMap.set(t.id, existing);
-      } else {
-        const { data: ins, error } = await supabase.from("staff").insert(row).select("id").single();
-        if (error) throw new Error(`Teacher ${t.email} could not be saved: ${error.message}`);
-        inserted++;
-        staffIdMap.set(t.id, ins.id);
+        const { data: upd, error } = await supabase.from("staff").update(row).eq("id", existing).select("id");
+        if (error) throw new Error(`Teacher ${t.email} could not be updated: ${error.message}`);
+        if (upd?.length) {
+          staffIdMap.set(t.id, upd[0].id);
+          continue;
+        }
+        // The record found earlier is gone; create it again below.
       }
-    }
-    // Use only staff records that really exist now, whatever was in the database before.
-    const { data: savedStaff, error: staffErr } = await supabase.from("staff").select("id, email").in("email", teacherEmails);
-    if (staffErr) throw staffErr;
-    const savedByEmail = new Map((savedStaff ?? []).map((s) => [s.email?.toLowerCase(), s.id]));
-    staffIdMap.clear();
-    for (const t of seed.teachers) {
-      const id = savedByEmail.get(t.email.toLowerCase());
-      if (id) staffIdMap.set(t.id, id);
-    }
-    const unsaved = seed.teachers.filter((t) => !staffIdMap.has(t.id));
-    if (unsaved.length) {
-      throw new Error(
-        `${unsaved.length} teacher records could not be saved (e.g. ${unsaved[0].email}): ` +
-        `${inserted} inserted, ${updated} updated, ${savedByEmail.size} found when read back` +
-        (firstStaffError ? `; database said: ${firstStaffError}` : ""),
-      );
+      const { data: ins, error } = await supabase.from("staff").insert(row).select("id").single();
+      if (error) throw new Error(`Teacher ${t.email} could not be saved: ${error.message}`);
+      staffIdMap.set(t.id, ins.id);
     }
 
     for (const c of seed.classes) {
