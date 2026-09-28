@@ -44,6 +44,36 @@ export type Database = {
         }
         Relationships: []
       }
+      access_grants: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          reason: string | null
+          student_id: string | null
+          term: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          reason?: string | null
+          student_id?: string | null
+          term?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          reason?: string | null
+          student_id?: string | null
+          term?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       announcements: {
         Row: {
           audience_roles: Database["public"]["Enums"]["app_role"][]
@@ -86,6 +116,7 @@ export type Database = {
           class_subject_id: string
           created_at: string
           created_by: string
+          description: string | null
           due_at: string | null
           id: string
           published: boolean
@@ -99,6 +130,7 @@ export type Database = {
           class_subject_id: string
           created_at?: string
           created_by: string
+          description?: string | null
           due_at?: string | null
           id?: string
           published?: boolean
@@ -112,6 +144,7 @@ export type Database = {
           class_subject_id?: string
           created_at?: string
           created_by?: string
+          description?: string | null
           due_at?: string | null
           id?: string
           published?: boolean
@@ -1045,6 +1078,64 @@ export type Database = {
           },
         ]
       }
+      parent_student_links: {
+        Row: {
+          created_at: string
+          id: string
+          parent_id: string
+          student_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          parent_id: string
+          student_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          parent_id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parent_student_links_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      parent_students: {
+        Row: {
+          created_at: string
+          id: string
+          parent_id: string
+          student_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          parent_id: string
+          student_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          parent_id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parent_students_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           amount_usd: number
@@ -1236,6 +1327,51 @@ export type Database = {
           },
         ]
       }
+      student_classes: {
+        Row: {
+          academic_year: string | null
+          class_id: string | null
+          created_at: string
+          id: string
+          status: string
+          student_id: string
+          term: string | null
+        }
+        Insert: {
+          academic_year?: string | null
+          class_id?: string | null
+          created_at?: string
+          id?: string
+          status?: string
+          student_id: string
+          term?: string | null
+        }
+        Update: {
+          academic_year?: string | null
+          class_id?: string | null
+          created_at?: string
+          id?: string
+          status?: string
+          student_id?: string
+          term?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_classes_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_classes_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_guardians: {
         Row: {
           can_collect: boolean
@@ -1285,45 +1421,81 @@ export type Database = {
         Row: {
           address: string | null
           admission_number: string
+          boarding_status: string | null
+          class: string | null
           created_at: string
           date_of_birth: string | null
+          email: string | null
+          emergency_contact: string | null
+          enrollment_date: string | null
           enrollment_status: Database["public"]["Enums"]["enrollment_status"]
           first_name: string
+          form: string | null
           full_name: string | null
           gender: Database["public"]["Enums"]["gender_type"] | null
+          guardian_email: string | null
+          guardian_name: string | null
+          guardian_phone: string | null
           id: string
           last_name: string
           phone: string | null
+          province: string | null
+          status: string | null
+          stream: string | null
           updated_at: string
           user_id: string | null
         }
         Insert: {
           address?: string | null
           admission_number: string
+          boarding_status?: string | null
+          class?: string | null
           created_at?: string
           date_of_birth?: string | null
+          email?: string | null
+          emergency_contact?: string | null
+          enrollment_date?: string | null
           enrollment_status?: Database["public"]["Enums"]["enrollment_status"]
           first_name: string
+          form?: string | null
           full_name?: string | null
           gender?: Database["public"]["Enums"]["gender_type"] | null
+          guardian_email?: string | null
+          guardian_name?: string | null
+          guardian_phone?: string | null
           id?: string
           last_name: string
           phone?: string | null
+          province?: string | null
+          status?: string | null
+          stream?: string | null
           updated_at?: string
           user_id?: string | null
         }
         Update: {
           address?: string | null
           admission_number?: string
+          boarding_status?: string | null
+          class?: string | null
           created_at?: string
           date_of_birth?: string | null
+          email?: string | null
+          emergency_contact?: string | null
+          enrollment_date?: string | null
           enrollment_status?: Database["public"]["Enums"]["enrollment_status"]
           first_name?: string
+          form?: string | null
           full_name?: string | null
           gender?: Database["public"]["Enums"]["gender_type"] | null
+          guardian_email?: string | null
+          guardian_name?: string | null
+          guardian_phone?: string | null
           id?: string
           last_name?: string
           phone?: string | null
+          province?: string | null
+          status?: string | null
+          stream?: string | null
           updated_at?: string
           user_id?: string | null
         }
