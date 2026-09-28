@@ -400,7 +400,7 @@ export type Database = {
       }
       class_subjects: {
         Row: {
-          academic_year_id: string
+          academic_year_id: string | null
           class_id: string
           created_at: string
           id: string
@@ -409,7 +409,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          academic_year_id: string
+          academic_year_id?: string | null
           class_id: string
           created_at?: string
           id?: string
@@ -418,7 +418,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          academic_year_id?: string
+          academic_year_id?: string | null
           class_id?: string
           created_at?: string
           id?: string
@@ -462,6 +462,7 @@ export type Database = {
           academic_year: string | null
           active: boolean
           capacity: number | null
+          class_teacher_id: string | null
           created_at: string
           id: string
           level: string | null
@@ -474,6 +475,7 @@ export type Database = {
           academic_year?: string | null
           active?: boolean
           capacity?: number | null
+          class_teacher_id?: string | null
           created_at?: string
           id?: string
           level?: string | null
@@ -486,6 +488,7 @@ export type Database = {
           academic_year?: string | null
           active?: boolean
           capacity?: number | null
+          class_teacher_id?: string | null
           created_at?: string
           id?: string
           level?: string | null
@@ -1404,6 +1407,170 @@ export type Database = {
             columns: ["academic_year_id"]
             isOneToOne: false
             referencedRelation: "academic_years"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      timetable_entries: {
+        Row: {
+          class_id: string | null
+          created_at: string
+          day_of_week: number
+          description: string | null
+          end_time: string | null
+          id: string
+          room: string | null
+          start_time: string
+          subject_id: string | null
+          teacher_id: string | null
+          term: string | null
+        }
+        Insert: {
+          class_id?: string | null
+          created_at?: string
+          day_of_week: number
+          description?: string | null
+          end_time?: string | null
+          id?: string
+          room?: string | null
+          start_time: string
+          subject_id?: string | null
+          teacher_id?: string | null
+          term?: string | null
+        }
+        Update: {
+          class_id?: string | null
+          created_at?: string
+          day_of_week?: number
+          description?: string | null
+          end_time?: string | null
+          id?: string
+          room?: string | null
+          start_time?: string
+          subject_id?: string | null
+          teacher_id?: string | null
+          term?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "timetable_entries_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "timetable_entries_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tt_definitions: {
+        Row: {
+          academic_year: string | null
+          class_label: string | null
+          created_at: string
+          day_start_time: string
+          description: string | null
+          id: string
+          name: string
+          period_minutes: number
+          periods_per_day: number
+          school_days: number[]
+          status: string
+          term: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          academic_year?: string | null
+          class_label?: string | null
+          created_at?: string
+          day_start_time?: string
+          description?: string | null
+          id?: string
+          name: string
+          period_minutes?: number
+          periods_per_day?: number
+          school_days?: number[]
+          status?: string
+          term?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          academic_year?: string | null
+          class_label?: string | null
+          created_at?: string
+          day_start_time?: string
+          description?: string | null
+          id?: string
+          name?: string
+          period_minutes?: number
+          periods_per_day?: number
+          school_days?: number[]
+          status?: string
+          term?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tt_slots: {
+        Row: {
+          break_label: string | null
+          created_at: string
+          day_of_week: number
+          definition_id: string
+          end_time: string
+          id: string
+          is_break: boolean
+          period_index: number
+          room: string | null
+          start_time: string
+          subject_color: string | null
+          subject_name: string | null
+          teacher_name: string | null
+        }
+        Insert: {
+          break_label?: string | null
+          created_at?: string
+          day_of_week: number
+          definition_id: string
+          end_time: string
+          id?: string
+          is_break?: boolean
+          period_index: number
+          room?: string | null
+          start_time: string
+          subject_color?: string | null
+          subject_name?: string | null
+          teacher_name?: string | null
+        }
+        Update: {
+          break_label?: string | null
+          created_at?: string
+          day_of_week?: number
+          definition_id?: string
+          end_time?: string
+          id?: string
+          is_break?: boolean
+          period_index?: number
+          room?: string | null
+          start_time?: string
+          subject_color?: string | null
+          subject_name?: string | null
+          teacher_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tt_slots_definition_id_fkey"
+            columns: ["definition_id"]
+            isOneToOne: false
+            referencedRelation: "tt_definitions"
             referencedColumns: ["id"]
           },
         ]
