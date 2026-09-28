@@ -35,8 +35,31 @@ type AccountPayload = {
   children?: { admission_number: string; relationship: string }[];
 };
 
-const ACCOUNTS_PER_CALL = 20;
-const PARALLEL_CALLS = 4;
+// Few, large calls: every call re-checks the admin's sign-in with the auth server,
+// which starts refusing when asked too often in a short time.
+const ACCOUNTS_PER_CALL = 50;
+const PARALLEL_CALLS = 2;
+// A refused or failed call is retried after these pauses (seconds) before giving up.
+const RETRY_DELAYS_S = [3, 6, 12, 24, 45];
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Whether a failed account call is worth repeating: the service could not be reached,
+ * was busy (429/5xx), or could not confirm the admin's sign-in just then. Refusals that
+ * will not change (demo mode off, invalid accounts, not an administrator) are not retried.
+ */
+async function isTemporaryFailure(error: unknown): Promise<boolean> {
+  const ctx = (error as { context?: Response })?.context;
+  if (!ctx || typeof ctx.status !== "number") return true;
+  if (ctx.status === 429 || ctx.status >= 500) return true;
+  if (ctx.status !== 403) return false;
+  const message = await functionErrorMessage(error);
+  // The older service gave this bare message when its sign-in check was refused by the
+  // auth server; the newer one says why, and "no administrator role" will not change.
+  return message === "Only a school administrator can seed demo accounts"
+    || /sign-in could not be verified|roles could not be read/i.test(message);
+}
 
 type AccountResult = { email: string; status: string; error?: string };
 type SavedIds = { subIdMap: Map<string, string>; classIdMap: Map<string, string>; staffIdMap: Map<string, string> };
@@ -311,7 +334,12 @@ export default function DemoDataSeederPanel() {
       const worker = async () => {
         while (next < batches.length) {
           const batch = batches[next++];
-          const { data, error } = await supabase.functions.invoke("seed-demo-accounts", { body: { accounts: batch } });
+          let { data, error } = await supabase.functions.invoke("seed-demo-accounts", { body: { accounts: batch } });
+          for (const delay of RETRY_DELAYS_S) {
+            if (!error || !(await isTemporaryFailure(error))) break;
+            await sleep(delay * 1000);
+            ({ data, error } = await supabase.functions.invoke("seed-demo-accounts", { body: { accounts: batch } }));
+          }
           if (error) {
             failed += batch.length;
             note(await functionErrorMessage(error), batch.length);
