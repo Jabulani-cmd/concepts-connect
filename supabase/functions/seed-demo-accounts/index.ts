@@ -54,13 +54,35 @@ function validate(raw: unknown): Account | string {
   return a as unknown as Account;
 }
 
-async function callerIsSchoolAdmin(req: Request, admin: SupabaseClient): Promise<boolean> {
+const ADMIN_ROLES = ["admin", "admin_supervisor", "principal", "deputy_principal", "supervisor"];
+
+/** Returns null when the caller is a school administrator, else why not. */
+async function adminCheckFailure(req: Request, admin: SupabaseClient): Promise<string | null> {
   const token = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) return false;
-  const { data, error } = await admin.auth.getUser(token);
-  if (error || !data.user) return false;
-  const { data: ok } = await admin.rpc("is_school_admin", { _uid: data.user.id });
-  return ok === true;
+  if (!token) return "you are not signed in";
+
+  // getClaims verifies the token with the project's signing keys (works with the
+  // newer asymmetric keys); getUser asks the auth server and is the fallback.
+  let uid: string | undefined;
+  let verifyError = "";
+  try {
+    const { data, error } = await admin.auth.getClaims(token);
+    if (error) verifyError = error.message;
+    uid = typeof data?.claims?.sub === "string" ? data.claims.sub : undefined;
+  } catch (e) {
+    verifyError = e instanceof Error ? e.message : String(e);
+  }
+  if (!uid) {
+    const { data, error } = await admin.auth.getUser(token);
+    if (error) verifyError = error.message;
+    uid = data?.user?.id;
+  }
+  if (!uid) return `your sign-in could not be verified (${verifyError || "no user in token"}). Sign out and sign in again`;
+
+  const { data: roles, error } = await admin.from("user_roles").select("role").eq("user_id", uid);
+  if (error) return `your roles could not be read (${error.message})`;
+  if (!(roles ?? []).some((r) => ADMIN_ROLES.includes(String(r.role)))) return "your account does not have an administrator role";
+  return null;
 }
 
 async function upsertUser(admin: SupabaseClient, a: Account, existingId: string | undefined): Promise<{ id: string; created: boolean }> {
@@ -178,7 +200,8 @@ Deno.serve(async (req) => {
     if (requested.length === 0) {
       accounts = [DEMO_ADMIN];
     } else {
-      if (!(await callerIsSchoolAdmin(req, admin))) return json({ error: "Only a school administrator can seed demo accounts" }, 403);
+      const notAdmin = await adminCheckFailure(req, admin);
+      if (notAdmin) return json({ error: `Only a school administrator can seed demo accounts: ${notAdmin}` }, 403);
       if (requested.length > MAX_ACCOUNTS_PER_CALL) return json({ error: `Send at most ${MAX_ACCOUNTS_PER_CALL} accounts per call` }, 400);
       const checked = requested.map(validate);
       const bad = checked.find((c) => typeof c === "string");
