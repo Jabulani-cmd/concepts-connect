@@ -1,6 +1,7 @@
 import type { Teacher, Subject, SchoolClass } from "@/contexts/AllocationContext";
 import type { DemoStudent, DemoParent } from "@/lib/demoSeeder";
 import { DEMO_EMAIL_DOMAIN, DEMO_PASSWORDS } from "@/lib/demoSeeder";
+import { DEMO_SUPPORT_STAFF, demoHeadsOfDepartment } from "@/lib/demoStaff";
 import { SCHOOL_CONTACT_LINE } from "@/lib/school";
 
 export interface CredentialsInput {
@@ -52,7 +53,8 @@ export async function buildCredentialsWorkbook(input: CredentialsInput): Promise
   const summary: [string, string | number, string][] = [
     ["Sign-in page", input.loginUrl, ""],
     ["Administrator", `admin@${DEMO_EMAIL_DOMAIN}`, DEMO_PASSWORDS.admin],
-    ["Teachers", input.teachers.length, DEMO_PASSWORDS.teacher],
+    ["Leadership & support staff", DEMO_SUPPORT_STAFF.length, DEMO_PASSWORDS.staff],
+    ["Teachers (incl. heads of department)", input.teachers.length, DEMO_PASSWORDS.teacher],
     ["Students", input.students.length, DEMO_PASSWORDS.student],
     ["Parents & guardians", input.parents.length, DEMO_PASSWORDS.parent],
   ];
@@ -67,22 +69,34 @@ export async function buildCredentialsWorkbook(input: CredentialsInput): Promise
   });
   ov.getCell("C6").value = { text: input.loginUrl, hyperlink: input.loginUrl };
   ov.getCell("C6").font = { color: { argb: "FF2563EB" }, underline: true };
-  ov.getCell("B12").value = "Each sheet lists one group. Use the filter arrows in the header row to find a class, form or person.";
-  ov.getCell("B12").font = { size: 10, color: { argb: "FF6B7280" } };
+  ov.getCell("B13").value = "Each sheet lists one group. Use the filter arrows in the header row to find a class, form or person.";
+  ov.getCell("B13").font = { size: 10, color: { argb: "FF6B7280" } };
 
-  // ---- Staff ----
+  // ---- Staff: administrator, leadership and support staff, then teachers ----
+  const heads = demoHeadsOfDepartment(input.teachers, input.subjects);
   addTable(wb, "Staff", [
     { header: "Staff No.", key: "no", width: 11 },
     { header: "Name", key: "name", width: 30 },
+    { header: "Position", key: "position", width: 32 },
     { header: "Subjects", key: "subjects", width: 42 },
     { header: "Class teacher of", key: "classes", width: 18 },
     { header: "Email (login)", key: "email", width: 42 },
     { header: "Password", key: "password", width: 15 },
   ], [
-    { no: "-", name: "Demo Administrator", subjects: "Full system access", classes: "", email: `admin@${DEMO_EMAIL_DOMAIN}`, password: DEMO_PASSWORDS.admin },
+    { no: "-", name: "Demo Administrator", position: "System Administrator", subjects: "Full system access", classes: "", email: `admin@${DEMO_EMAIL_DOMAIN}`, password: DEMO_PASSWORDS.admin },
+    ...DEMO_SUPPORT_STAFF.map((m, i) => ({
+      no: `S${String(i + 1).padStart(3, "0")}`,
+      name: m.name,
+      position: m.position,
+      subjects: "",
+      classes: "",
+      email: m.email,
+      password: DEMO_PASSWORDS.staff,
+    })),
     ...input.teachers.map((t) => ({
       no: t.employeeNumber,
       name: t.name,
+      position: heads.has(t.id) ? `Head of Department (${heads.get(t.id)})` : "Teacher",
       subjects: t.qualifiedSubjects.map((id) => subjectName.get(id)).filter(Boolean).join(", "),
       classes: input.classes.filter((c) => c.classTeacherId === t.id).map((c) => c.name).join(", "),
       email: t.email,

@@ -6,7 +6,8 @@
 // - With `accounts` it requires a signed-in school administrator, only touches
 //   addresses on the demo domain, and links every login to its school record:
 //     student → students.user_id (by admission number)
-//     teacher → staff.user_id (by email)
+//     staff   → staff.user_id (by email): teachers, heads of department (who also
+//               get the teacher role), leadership, office and support staff
 //     parent  → parent_students + parent_student_links for each child, plus a
 //               complimentary access grant so the parent and student portals open.
 // Safe to re-run: existing users are updated, links are upserted.
@@ -19,7 +20,14 @@ const corsHeaders = {
 
 const DEMO_DOMAIN = "schooldemo.com";
 const DEMO_ADMIN = { email: `admin@${DEMO_DOMAIN}`, password: "MbsDemo#Admin26", full_name: "Demo Administrator", role: "admin" as const };
-const ROLES = ["admin", "teacher", "student", "parent"] as const;
+// Staff roles other than admin: each such login is linked to the staff record with its email.
+const STAFF_ROLES = [
+  "teacher", "hod", "principal", "deputy_principal", "admin_supervisor", "bursar", "finance", "finance_clerk",
+  "registration", "boarding", "nurse", "librarian", "storekeeper",
+] as const;
+const ROLES = ["admin", "student", "parent", ...STAFF_ROLES] as const;
+// Heads of department teach as well, so they also get the teacher role.
+const EXTRA_ROLES: Partial<Record<string, string[]>> = { hod: ["teacher"] };
 const MAX_ACCOUNTS_PER_CALL = 60;
 const USER_PAGES = 10; // up to 10,000 users when looking one up by email
 
@@ -126,8 +134,8 @@ async function linkRecords(admin: SupabaseClient, linked: { account: Account; ui
     else if (!byEmail.data?.length) problems.set(account.email, `no student record with admission number ${account.admission_number ?? "?"}. Load the demo data first`);
   }
 
-  // Teachers: attach the login to the staff record.
-  for (const { account, uid } of linked.filter((l) => l.account.role === "teacher")) {
+  // Teachers, heads of department, leadership, office and support staff: attach the login to the staff record.
+  for (const { account, uid } of linked.filter((l) => (STAFF_ROLES as readonly string[]).includes(l.account.role))) {
     const { data, error } = await admin.from("staff").update({ user_id: uid }).eq("email", account.email).select("id");
     if (error) problems.set(account.email, `staff record: ${error.message}`);
     else if (!data?.length) problems.set(account.email, "no staff record with this email. Load the demo data first");
@@ -230,7 +238,8 @@ Deno.serve(async (req) => {
           user = await upsertUser(admin, a, found);
         }
 
-        const { error: roleErr } = await admin.from("user_roles").upsert({ user_id: user.id, role: a.role }, { onConflict: "user_id,role" });
+        const roles = [a.role, ...(EXTRA_ROLES[a.role] ?? [])].map((role) => ({ user_id: user.id, role }));
+        const { error: roleErr } = await admin.from("user_roles").upsert(roles, { onConflict: "user_id,role" });
         if (roleErr) throw new Error(`role: ${roleErr.message}`);
         const { error: profErr } = await admin.from("profiles").upsert({ id: user.id, user_id: user.id, full_name: a.full_name, email: a.email }, { onConflict: "id" });
         if (profErr) throw new Error(`profile: ${profErr.message}`);

@@ -51,6 +51,7 @@ vi.mock("@/integrations/supabase/client", () => ({
 }));
 
 import DemoDataSeederPanel from "@/components/admin/DemoDataSeederPanel";
+import { DEMO_SUPPORT_STAFF } from "@/lib/demoStaff";
 import { AllocationProvider } from "@/contexts/AllocationContext";
 import { DemoPeopleProvider } from "@/contexts/DemoPeopleContext";
 
@@ -82,7 +83,16 @@ describe("Demo data seeder panel", () => {
     expect(invokes.every((b) => b.accounts.length <= 50)).toBe(true);
     expect(new Set(accounts.map((a) => a.email)).size).toBe(accounts.length);
     const count = (role: string) => accounts.filter((a) => a.role === role).length;
-    expect([count("admin"), count("teacher"), count("student")]).toEqual([1, 30, 500]);
+    expect([count("admin"), count("teacher") + count("hod"), count("student")]).toEqual([1, 30, 500]);
+    // A head for each department, and a login for every leadership, office and support post.
+    expect(count("hod")).toBeGreaterThanOrEqual(6);
+    for (const m of DEMO_SUPPORT_STAFF) expect(accounts).toContainEqual(expect.objectContaining({ email: m.email, role: m.role }));
+    for (const role of ["principal", "deputy_principal", "admin_supervisor", "bursar", "finance_clerk", "registration", "boarding", "nurse", "librarian", "storekeeper"]) {
+      expect(count(role)).toBeGreaterThan(0);
+    }
+    // Every staff login has a staff record to link to.
+    const staffEmails = new Set(writes.filter((w) => w.table === "staff").flatMap((w) => w.rows.map((r) => r.email)));
+    for (const a of accounts.filter((x) => !["admin", "student", "parent"].includes(String(x.role)))) expect(staffEmails).toContain(a.email);
     expect(count("parent")).toBeGreaterThan(800);
     expect(accounts.filter((a) => a.role === "student").every((a) => a.admission_number)).toBe(true);
 
@@ -122,7 +132,8 @@ describe("Demo data seeder panel", () => {
     expect(writes).toHaveLength(0);
     const accounts = invokes.flatMap((b) => b.accounts);
     expect(accounts.filter((a) => a.role === "student")).toHaveLength(500);
-    expect(accounts.filter((a) => a.role === "teacher")).toHaveLength(30);
+    expect(accounts.filter((a) => a.role === "teacher" || a.role === "hod")).toHaveLength(30);
+    expect(accounts.filter((a) => DEMO_SUPPORT_STAFF.some((m) => m.email === a.email))).toHaveLength(DEMO_SUPPORT_STAFF.length);
     expect(accounts.filter((a) => a.role === "parent").length).toBeGreaterThan(800);
     respond = ok;
   }, 30000);

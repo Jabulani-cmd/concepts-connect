@@ -43,6 +43,7 @@ const DeputyPrincipalDashboard = lazyPage(() => import("./pages/portal/DeputyPri
 const HODDashboard = lazyPage(() => import("./pages/portal/HODDashboard"));
 const AdminSupervisorDashboard = lazyPage(() => import("./pages/portal/AdminSupervisorDashboard"));
 const RegistrationDashboard = lazyPage(() => import("./pages/portal/RegistrationDashboard"));
+const SupportStaffPortal = lazyPage(() => import("./pages/portal/SupportStaffPortal"));
 const TimetableManagement = lazyPage(() => import("./pages/portal/TimetableManagement"));
 const Downloads = lazyPage(() => import("./pages/Downloads"));
 const Staff = lazyPage(() => import("./pages/Staff"));
@@ -187,6 +188,18 @@ const App = () => (
                 <RegistrationDashboard />
               </ProtectedRoute>
             } />
+            {([
+              ["/portal/boarding", "boarding"],
+              ["/portal/sick-bay", "nurse"],
+              ["/portal/library", "librarian"],
+              ["/portal/stores", "storekeeper"],
+            ] as const).map(([path, role]) => (
+              <Route key={path} path={path} element={
+                <ProtectedRoute allowedRoles={[role]}>
+                  <AuthenticatedLayout><SupportStaffPortal role={role} /></AuthenticatedLayout>
+                </ProtectedRoute>
+              } />
+            ))}
             <Route path="/portal/timetables" element={
               <ProtectedRoute allowedRoles={["admin", "principal", "deputy_principal", "hod", "teacher"]}>
                 <AuthenticatedLayout topBar><TimetableManagement /></AuthenticatedLayout>

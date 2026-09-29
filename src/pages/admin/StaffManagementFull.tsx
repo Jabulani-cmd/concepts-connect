@@ -44,7 +44,7 @@ import { errorMessage } from "@/lib/errors";
 import { STAFF_COLUMNS, saveStaffPrivate, splitStaffPrivate, withStaffPrivate } from "@/lib/staff";
 import { useAuth } from "@/contexts/AuthContext";
 
-const roleOptions = ["principal", "deputy_principal", "hod", "admin", "bursar", "teacher", "senior_teacher", "housemaster", "counsellor", "librarian", "it_administrator", "groundskeeper", "matron", "secretary", "sports_director", "lab_technician", "school_administrator", "admin_clerk", "finance_clerk"];
+const roleOptions = ["principal", "deputy_principal", "hod", "admin", "bursar", "teacher", "senior_teacher", "housemaster", "counsellor", "librarian", "it_administrator", "groundskeeper", "matron", "nurse", "secretary", "sports_director", "lab_technician", "stores_clerk", "school_administrator", "admin_clerk", "finance_clerk"];
 const departmentOptions = [
   "Mathematics",
   "Sciences",
@@ -174,19 +174,37 @@ function buildStaffEmail(fullName: string, existing: string[] = []): string {
   return candidate;
 }
 
+/** The portal each staff position signs in to. Teaching posts use the teacher portal. */
 function getPortalRole(staffRole: string): string {
   switch (staffRole) {
     case "admin":
       return "admin";
     case "principal":
-    case "deputy_principal":
       return "principal";
+    case "deputy_principal":
+      return "deputy_principal";
     case "hod":
       return "hod";
     case "finance_clerk":
       return "finance_clerk";
     case "bursar":
       return "bursar";
+    case "school_administrator":
+    case "it_administrator":
+      return "admin_supervisor";
+    case "secretary":
+    case "admin_clerk":
+      return "registration";
+    case "housemaster":
+    case "matron":
+      return "boarding";
+    case "nurse":
+      return "nurse";
+    case "librarian":
+      return "librarian";
+    case "lab_technician":
+    case "stores_clerk":
+      return "storekeeper";
     case "teacher":
     default:
       return "teacher";

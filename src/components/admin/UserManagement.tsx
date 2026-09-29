@@ -60,9 +60,20 @@ const portalRoles = [
   { value: "finance", label: "Finance Admin Clerk" },
   { value: "finance_clerk", label: "Finance Clerk" },
   { value: "bursar", label: "Bursar" },
+  { value: "registration", label: "Admissions / School Secretary" },
   { value: "teacher", label: "Teacher" },
+  { value: "boarding", label: "Boarding (Boarding Master / Matron)" },
+  { value: "nurse", label: "Sick Bay (School Nurse)" },
+  { value: "librarian", label: "Library (Librarian)" },
+  { value: "storekeeper", label: "Stores (Stores Clerk / Lab Technician)" },
   { value: "student", label: "Student" },
   { value: "parent", label: "Parent" },
+];
+
+// Portal roles that belong to staff members (they get a staff record and staff fields).
+const STAFF_PORTAL_ROLES = [
+  "teacher", "admin", "principal", "deputy_principal", "hod", "finance", "finance_clerk", "bursar",
+  "admin_supervisor", "registration", "boarding", "nurse", "librarian", "storekeeper",
 ];
 
 const staffRoles = [
@@ -77,10 +88,14 @@ const staffRoles = [
   { value: "bursar", label: "Bursar" },
   { value: "librarian", label: "Librarian" },
   { value: "lab_technician", label: "Lab Technician" },
+  { value: "stores_clerk", label: "Stores Clerk" },
   { value: "sports_director", label: "Sports Director" },
+  { value: "counsellor", label: "Guidance & Counselling Teacher" },
   { value: "secretary", label: "Secretary" },
   { value: "groundsman", label: "Groundsman" },
+  { value: "housemaster", label: "Boarding Master / Housemaster" },
   { value: "matron", label: "Matron" },
+  { value: "nurse", label: "Sister-in-Charge (School Nurse)" },
   { value: "it_administrator", label: "IT Administrator" },
 ];
 
@@ -96,6 +111,10 @@ const portalToStaffDefault: Record<string, string> = {
   admin_supervisor: "secretary",
   teacher: "teacher",
   registration: "secretary",
+  boarding: "housemaster",
+  nurse: "nurse",
+  librarian: "librarian",
+  storekeeper: "stores_clerk",
 };
 
 const staffRoleLabels: Record<string, string> = Object.fromEntries(staffRoles.map((r) => [r.value, r.label]));
@@ -358,13 +377,13 @@ export default function UserManagement() {
           email: form.email,
           password: form.password,
           portal_role: form.portal_role,
-          staff_role: ["teacher", "admin", "principal", "deputy_principal", "hod", "finance", "finance_clerk", "bursar", "admin_supervisor", "registration"].includes(form.portal_role) ? form.staff_role : undefined,
+          staff_role: STAFF_PORTAL_ROLES.includes(form.portal_role) ? form.staff_role : undefined,
           department: form.department || undefined,
           phone: form.phone || undefined,
           grade: form.grade || undefined,
           class_name: form.class_name || undefined,
           assigned_class_id:
-            ["teacher", "admin", "principal", "deputy_principal", "hod", "finance", "finance_clerk", "bursar", "admin_supervisor", "registration"].includes(form.portal_role) && form.assigned_class_id
+            STAFF_PORTAL_ROLES.includes(form.portal_role) && form.assigned_class_id
               ? form.assigned_class_id
               : undefined,
           subjects_taught: form.subjects_taught.length > 0 ? form.subjects_taught : undefined,
@@ -535,7 +554,7 @@ export default function UserManagement() {
     let currentClassId = "";
     let staffDetails: Partial<Tables<"staff"> & StaffPrivate> = {};
     let photoUrl = "";
-    if (["teacher", "admin", "principal", "deputy_principal", "hod", "finance", "finance_clerk", "bursar", "admin_supervisor", "registration"].includes(user.portal_role)) {
+    if (STAFF_PORTAL_ROLES.includes(user.portal_role)) {
       const { data: staffRow } = await supabase.from("staff").select(STAFF_COLUMNS).eq("user_id", user.id).maybeSingle();
       if (staffRow) {
         const [staffRecord] = await withStaffPrivate([staffRow]);
@@ -600,7 +619,7 @@ export default function UserManagement() {
         return;
       }
       const token = session.access_token;
-      const isStaff = ["teacher", "admin", "principal", "deputy_principal", "hod", "finance", "finance_clerk", "bursar", "admin_supervisor", "registration"].includes(editForm.portal_role);
+      const isStaff = STAFF_PORTAL_ROLES.includes(editForm.portal_role);
 
       // Detect if email changed
       const emailChanged = editForm.email && editForm.email !== editUser.email;
@@ -695,7 +714,7 @@ export default function UserManagement() {
     }
   };
 
-  const staffPortalRoles = ["teacher", "admin", "principal", "deputy_principal", "hod", "finance", "finance_clerk", "bursar", "admin_supervisor", "registration"];
+  const staffPortalRoles = STAFF_PORTAL_ROLES;
   const isStaffRole = staffPortalRoles.includes(form.portal_role);
 
   return (
@@ -1092,7 +1111,7 @@ export default function UserManagement() {
           <Tabs defaultValue="basic" className="space-y-4">
             <TabsList className="w-full">
               <TabsTrigger value="basic">Basic Info</TabsTrigger>
-              {["teacher", "admin", "principal", "deputy_principal", "hod", "finance", "finance_clerk", "admin_supervisor", "registration"].includes(editForm.portal_role) && (
+              {STAFF_PORTAL_ROLES.includes(editForm.portal_role) && (
                 <>
                   <TabsTrigger value="contact">Contact</TabsTrigger>
                   <TabsTrigger value="employment">Employment</TabsTrigger>
@@ -1197,7 +1216,7 @@ export default function UserManagement() {
                   </SelectContent>
                 </Select>
               </div>
-              {["teacher", "admin", "principal", "deputy_principal", "hod", "finance", "finance_clerk", "admin_supervisor", "registration"].includes(editForm.portal_role) && (
+              {STAFF_PORTAL_ROLES.includes(editForm.portal_role) && (
                 <>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
@@ -1270,7 +1289,7 @@ export default function UserManagement() {
               )}
             </TabsContent>
 
-            {["teacher", "admin", "principal", "deputy_principal", "hod", "finance", "finance_clerk", "admin_supervisor", "registration"].includes(editForm.portal_role) && (
+            {STAFF_PORTAL_ROLES.includes(editForm.portal_role) && (
               <>
                 <TabsContent value="contact" className="space-y-4">
                   <div className="grid gap-4 sm:grid-cols-2">

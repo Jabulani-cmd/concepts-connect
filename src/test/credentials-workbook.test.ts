@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import ExcelJS from "exceljs";
 import { buildCredentialsWorkbook } from "@/lib/credentialsWorkbook";
 import { generateDemoSeed } from "@/lib/demoSeeder";
+import { DEMO_SUPPORT_STAFF } from "@/lib/demoStaff";
 
 describe("login credentials workbook", () => {
   it("has a readable sheet per group with one row per person", async () => {
@@ -25,7 +26,15 @@ describe("login credentials workbook", () => {
     expect(students.rowCount).toBe(1 + seed.students.length);
     expect(students.getRow(2).getCell(4).value).toBe("Form 1A");
     expect(students.getRow(1).getCell(1).font?.bold).toBe(true);
-    expect(wb.getWorksheet("Staff")!.rowCount).toBe(1 + 1 + seed.teachers.length);
+    // Header, administrator, leadership & support staff, then every teacher.
+    const staff = wb.getWorksheet("Staff")!;
+    expect(staff.rowCount).toBe(1 + 1 + DEMO_SUPPORT_STAFF.length + seed.teachers.length);
+    const positions = Array.from({ length: staff.rowCount - 1 }, (_, i) => String(staff.getRow(i + 2).getCell(3).value));
+    expect(positions).toEqual(expect.arrayContaining(["Head (Principal)", "Bursar", "Matron", "Librarian"]));
+    // One head of department per department.
+    const hods = positions.filter((p) => p.startsWith("Head of Department ("));
+    expect(hods.length).toBeGreaterThanOrEqual(6);
+    expect(new Set(hods).size).toBe(hods.length);
     expect(wb.getWorksheet("Parents")!.rowCount).toBe(1 + seed.parents.length);
     const firstParent = wb.getWorksheet("Parents")!.getRow(2);
     expect(String(firstParent.getCell(3).value)).toMatch(/\(Form [1-6][ABC]\)/);
