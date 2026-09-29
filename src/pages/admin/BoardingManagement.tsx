@@ -25,9 +25,17 @@ type StaffOption = Pick<Tables<"staff">, "id" | "full_name" | "role">;
 
 const roomTypes = ["dormitory", "single", "double", "suite"];
 
-export default function BoardingManagement() {
+type BoardingTab = "hostels" | "boarders" | "health";
+
+interface BoardingManagementProps {
+  /** Tabs to show (all by default). The sick bay, for example, shows only "health". */
+  tabs?: BoardingTab[];
+  title?: string;
+}
+
+export default function BoardingManagement({ tabs = ["hostels", "boarders", "health"], title = "Boarding Management" }: BoardingManagementProps = {}) {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("hostels");
+  const [activeTab, setActiveTab] = useState<string>(tabs[0]);
 
   // Hostels
   const [hostels, setHostels] = useState<Hostel[]>([]);
@@ -254,13 +262,13 @@ export default function BoardingManagement() {
 
   return (
     <div className="space-y-6">
-      <h2 className="font-heading text-2xl font-bold text-primary">Boarding Management</h2>
+      <h2 className="font-heading text-2xl font-bold text-primary">{title}</h2>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="hostels"><Building className="mr-1 h-4 w-4" /> Hostels</TabsTrigger>
-          <TabsTrigger value="boarders"><Users className="mr-1 h-4 w-4" /> Boarders</TabsTrigger>
-          <TabsTrigger value="health"><Heart className="mr-1 h-4 w-4" /> Health</TabsTrigger>
+        <TabsList className={tabs.length < 2 ? "hidden" : undefined}>
+          {tabs.includes("hostels") && <TabsTrigger value="hostels"><Building className="mr-1 h-4 w-4" /> Hostels</TabsTrigger>}
+          {tabs.includes("boarders") && <TabsTrigger value="boarders"><Users className="mr-1 h-4 w-4" /> Boarders</TabsTrigger>}
+          {tabs.includes("health") && <TabsTrigger value="health"><Heart className="mr-1 h-4 w-4" /> Health</TabsTrigger>}
         </TabsList>
 
         {/* ============ HOSTELS TAB ============ */}

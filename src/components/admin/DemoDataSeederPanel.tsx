@@ -10,6 +10,7 @@ import { useAllocation } from "@/contexts/AllocationContext";
 import { useDemoPeople } from "@/contexts/DemoPeopleContext";
 import { buildCredentialsWorkbook } from "@/lib/credentialsWorkbook";
 import { generateDemoSeed, DEMO_PERIODS, DEMO_EMAIL_DOMAIN, DEMO_PASSWORDS, type DemoSeed } from "@/lib/demoSeeder";
+import { DEMO_SUPPORT_STAFF, DEPARTMENT, demoHeadsOfDepartment, type SupportRole } from "@/lib/demoStaff";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { errorMessage } from "@/lib/errors";
@@ -17,7 +18,7 @@ import type { TablesInsert } from "@/integrations/supabase/types";
 
 const STEPS = [
   "Generating classes, subjects and venues",
-  "Assigning 30 teachers and solving the weekly timetable",
+  "Assigning 30 teachers, heads of department and support staff, and solving the weekly timetable",
   "Enrolling 500 students across Forms 1–6",
   "Saving the school to the database",
   "Creating login accounts",
@@ -30,7 +31,7 @@ type AccountPayload = {
   email: string;
   password: string;
   full_name: string;
-  role: "admin" | "teacher" | "student" | "parent";
+  role: "admin" | "teacher" | "hod" | "student" | "parent" | SupportRole;
   admission_number?: string;
   children?: { admission_number: string; relationship: string }[];
 };
@@ -97,17 +98,6 @@ async function functionErrorMessage(error: unknown): Promise<string> {
 const chunk = <T,>(items: T[], size: number): T[][] =>
   Array.from({ length: Math.ceil(items.length / size) }, (_, i) => items.slice(i * size, i * size + size));
 
-const DEPARTMENT: Record<string, string> = {
-  Mathematics: "Mathematics", "Pure Mathematics": "Mathematics",
-  "English Language": "Languages", Shona: "Languages",
-  "Combined Science": "Sciences", Physics: "Sciences", Chemistry: "Sciences", Biology: "Sciences",
-  History: "Humanities", Geography: "Humanities", "Heritage Studies": "Humanities",
-  "Computer Science": "Technical", Agriculture: "Technical",
-  "Physical Education": "Sports",
-  "Principles of Accounting": "Commercials", Accounting: "Commercials", Commerce: "Commercials",
-  "Business Studies": "Commercials", Economics: "Commercials",
-};
-
 export default function DemoDataSeederPanel() {
   const alloc = useAllocation();
   const people = useDemoPeople();
@@ -162,35 +152,51 @@ export default function DemoDataSeederPanel() {
     }
     const classIdMap = new Map(seed.classes.map((c) => [c.id, clsByName.get(c.name)!]));
 
-    // Staff - one record per teacher; logins are attached later by email.
-    const teacherEmails = seed.teachers.map((t) => t.email);
-    const { data: existingStaff, error: lookupErr } = await supabase.from("staff").select("id, email").in("email", teacherEmails);
-    if (lookupErr) throw new Error(`Teacher records could not be looked up: ${lookupErr.message}`);
+    // Staff - one record per teacher (heads of department included) and per leadership,
+    // office and support post; logins are attached later by email.
+    const heads = demoHeadsOfDepartment(seed.teachers, seed.subjects);
+    const staffRows = [
+      ...seed.teachers.map((t, i) => {
+        const subjectsTaught = t.qualifiedSubjects.map((sid) => seed.subjects.find((s) => s.id === sid)?.name).filter((n): n is string => !!n);
+        return {
+          key: t.id,
+          row: {
+            full_name: t.name, email: t.email, role: heads.has(t.id) ? "hod" : "teacher", category: "teaching", status: "active",
+            department: DEPARTMENT[subjectsTaught[0] ?? ""] ?? "Teaching",
+            subjects_taught: subjectsTaught,
+            phone: `+26377${2000000 + i}`,
+          },
+        };
+      }),
+      ...DEMO_SUPPORT_STAFF.map((m) => ({
+        key: m.id,
+        row: {
+          full_name: m.name, email: m.email, role: m.staffRole, category: m.category, status: "active",
+          department: m.department, subjects_taught: [] as string[], phone: m.phone,
+        },
+      })),
+    ];
+    const staffEmails = staffRows.map((s) => s.row.email);
+    const { data: existingStaff, error: lookupErr } = await supabase.from("staff").select("id, email").in("email", staffEmails);
+    if (lookupErr) throw new Error(`Staff records could not be looked up: ${lookupErr.message}`);
     const staffByEmail = new Map((existingStaff ?? []).map((s) => [s.email?.toLowerCase(), s.id]));
-    // Each teacher's id comes from the database's reply to its own write, not from a
+    // Each record's id comes from the database's reply to its own write, not from a
     // second lookup: on a hosted database that lookup can briefly miss rows just written.
     const staffIdMap = new Map<string, string>();
-    for (const [i, t] of seed.teachers.entries()) {
-      const subjectsTaught = t.qualifiedSubjects.map((sid) => seed.subjects.find((s) => s.id === sid)?.name).filter((n): n is string => !!n);
-      const row = {
-        full_name: t.name, email: t.email, role: "teacher", category: "teaching", status: "active",
-        department: DEPARTMENT[subjectsTaught[0] ?? ""] ?? "Teaching",
-        subjects_taught: subjectsTaught,
-        phone: `+26377${2000000 + i}`,
-      };
-      const existing = staffByEmail.get(t.email.toLowerCase());
+    for (const { key, row } of staffRows) {
+      const existing = staffByEmail.get(row.email.toLowerCase());
       if (existing) {
         const { data: upd, error } = await supabase.from("staff").update(row).eq("id", existing).select("id");
-        if (error) throw new Error(`Teacher ${t.email} could not be updated: ${error.message}`);
+        if (error) throw new Error(`Staff member ${row.email} could not be updated: ${error.message}`);
         if (upd?.length) {
-          staffIdMap.set(t.id, upd[0].id);
+          staffIdMap.set(key, upd[0].id);
           continue;
         }
         // The record found earlier is gone; create it again below.
       }
       const { data: ins, error } = await supabase.from("staff").insert(row).select("id").single();
-      if (error) throw new Error(`Teacher ${t.email} could not be saved: ${error.message}`);
-      staffIdMap.set(t.id, ins.id);
+      if (error) throw new Error(`Staff member ${row.email} could not be saved: ${error.message}`);
+      staffIdMap.set(key, ins.id);
     }
 
     for (const c of seed.classes) {
@@ -311,9 +317,12 @@ export default function DemoDataSeederPanel() {
   /** Every login, created in parallel batches. Parents go last so their children's logins already exist. */
   async function provisionAccounts(seed: Seed): Promise<{ total: number; failed: number; errors: string[] }> {
     const admission = new Map(seed.students.map((s) => [s.id, s.admissionNumber]));
+    const heads = demoHeadsOfDepartment(seed.teachers, seed.subjects);
     const staffAndStudents: AccountPayload[] = [
       { email: `admin@${DEMO_EMAIL_DOMAIN}`, password: DEMO_PASSWORDS.admin, full_name: "Demo Administrator", role: "admin" },
-      ...seed.teachers.map((t) => ({ email: t.email, password: DEMO_PASSWORDS.teacher, full_name: t.name, role: "teacher" as const })),
+      ...DEMO_SUPPORT_STAFF.map((m) => ({ email: m.email, password: DEMO_PASSWORDS.staff, full_name: m.name, role: m.role })),
+      // Heads of department also teach: the account service gives them the teacher role too.
+      ...seed.teachers.map((t) => ({ email: t.email, password: DEMO_PASSWORDS.teacher, full_name: t.name, role: heads.has(t.id) ? "hod" as const : "teacher" as const })),
       ...seed.students.map((s) => ({ email: s.email, password: s.password, full_name: s.fullName, role: "student" as const, admission_number: s.admissionNumber })),
     ];
     const parents: AccountPayload[] = seed.parents.map((p) => ({
@@ -632,7 +641,8 @@ export default function DemoDataSeederPanel() {
             <div className="space-y-2 text-sm">
               <Row label="Students enrolled"   value={summary.students}  hint="Forms 1–4: 3 classes of 35 · Forms 5–6: Sciences and Commercials, 20 each" />
               <Row label="Parents & guardians" value={summary.parents}   hint="Mother and father logins per family (or one guardian); siblings share them" />
-              <Row label="Teachers"            value={summary.teachers}  hint="All subjects covered" />
+              <Row label="Teachers"            value={summary.teachers}  hint="All subjects covered, with a head of each department" />
+              <Row label="Leadership & support staff" value={DEMO_SUPPORT_STAFF.length} hint="Head, deputy, administrator, bursar, clerks, secretary, boarding, sick bay, library and stores" />
               <Row label="Subjects"            value={summary.subjects}  hint="Linked to relevant forms" />
               <Row label="Classes"             value={summary.classes}   hint="Form 1A–4C, plus Form 5A/5B and Form 6A/6B" />
               <Row label="Venues"              value={summary.rooms}     hint="Classrooms, labs, hall, sports field" />

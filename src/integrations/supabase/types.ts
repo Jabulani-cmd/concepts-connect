@@ -4361,6 +4361,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_role_named: {
+        Args: { _roles: string[]; _uid: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -4425,6 +4429,10 @@ export type Database = {
         | "admin_supervisor"
         | "bursar"
         | "finance_clerk"
+        | "boarding"
+        | "nurse"
+        | "librarian"
+        | "storekeeper"
       grant_type: "paid" | "complimentary" | "trial" | "suspended"
       payment_method:
         | "ecocash"
@@ -4598,6 +4606,10 @@ export const Constants = {
         "admin_supervisor",
         "bursar",
         "finance_clerk",
+        "boarding",
+        "nurse",
+        "librarian",
+        "storekeeper",
       ],
       grant_type: ["paid", "complimentary", "trial", "suspended"],
       payment_method: [

@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { errorMessage } from "@/lib/errors";
 import { DEMO_EMAIL_DOMAIN, DEMO_PASSWORDS } from "@/lib/demoAccounts";
+import { PORTAL_HOME } from "@/lib/portalHome";
 
 export default function Login() {
   const { t } = useTranslation();
@@ -44,18 +45,7 @@ export default function Login() {
   const [justLoggedIn, setJustLoggedIn] = useState(false);
 
   const redirectByRole = useCallback((r: string) => {
-    if (r === "student") navigate("/portal/student");
-    else if (r === "teacher") navigate("/portal/teacher");
-    else if (r === "parent") navigate("/portal/parent-teacher");
-    else if (r === "admin") navigate("/portal/admin");
-    else if (r === "finance") navigate("/portal/finance");
-    else if (r === "finance_clerk") navigate("/portal/finance");
-    else if (r === "bursar") navigate("/portal/finance");
-    else if (r === "principal") navigate("/portal/principal");
-    else if (r === "deputy_principal") navigate("/portal/deputy-principal");
-    else if (r === "hod") navigate("/portal/hod");
-    else if (r === "admin_supervisor") navigate("/portal/admin-supervisor");
-    else if (r === "registration") navigate("/portal/registration");
+    if (PORTAL_HOME[r]) navigate(PORTAL_HOME[r]);
   }, [navigate]);
 
   useEffect(() => {

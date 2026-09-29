@@ -7,6 +7,8 @@ export const DEMO_EMAIL_DOMAIN = "schooldemo.com";
  */
 export const DEMO_PASSWORDS = {
   admin: "MbsDemo#Admin26",
+  /** Leadership, office and support staff (principal, bursar, matron, librarian, ...). */
+  staff: "MbsDemo#Staff26",
   teacher: "MbsDemo#Teacher26",
   student: "MbsDemo#Student26",
   parent: "MbsDemo#Parent26",

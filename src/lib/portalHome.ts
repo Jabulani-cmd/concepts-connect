@@ -12,6 +12,10 @@ export const PORTAL_HOME: Record<string, string> = {
   hod: "/portal/hod",
   admin_supervisor: "/portal/admin-supervisor",
   registration: "/portal/registration",
+  boarding: "/portal/boarding",
+  nurse: "/portal/sick-bay",
+  librarian: "/portal/library",
+  storekeeper: "/portal/stores",
 };
 
 export const portalHomeFor = (role: string | null | undefined): string => (role && PORTAL_HOME[role]) || "/login";

@@ -38,9 +38,16 @@ type Transaction = QueryData<ReturnType<typeof transactionsQuery>>[number];
 const unitOptions = ["piece", "set", "box", "kg", "liter"];
 const conditionOptions = ["new", "good", "fair", "poor", "damaged"];
 
-export default function InventoryManagement() {
+type InventoryTab = "dashboard" | "textbooks" | "transactions" | "categories";
+
+interface InventoryManagementProps {
+  /** Tabs to show, first one open (all by default). The library, for example, opens on "textbooks". */
+  tabs?: InventoryTab[];
+}
+
+export default function InventoryManagement({ tabs = ["dashboard", "textbooks", "transactions", "categories"] }: InventoryManagementProps = {}) {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const [activeTab, setActiveTab] = useState<string>(tabs[0]);
 
   // Data
   const [categories, setCategories] = useState<Category[]>([]);
@@ -386,10 +393,14 @@ export default function InventoryManagement() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="flex-wrap">
-          <TabsTrigger value="dashboard"><BarChart3 className="mr-1 h-4 w-4" /> Items</TabsTrigger>
-          <TabsTrigger value="textbooks"><BookOpen className="mr-1 h-4 w-4" /> Textbooks</TabsTrigger>
-          <TabsTrigger value="transactions"><ArrowDownUp className="mr-1 h-4 w-4" /> Transactions</TabsTrigger>
-          <TabsTrigger value="categories"><Package className="mr-1 h-4 w-4" /> Categories</TabsTrigger>
+          {tabs.map((t) => (
+            <TabsTrigger key={t} value={t}>
+              {t === "dashboard" && <><BarChart3 className="mr-1 h-4 w-4" /> Items</>}
+              {t === "textbooks" && <><BookOpen className="mr-1 h-4 w-4" /> Textbooks</>}
+              {t === "transactions" && <><ArrowDownUp className="mr-1 h-4 w-4" /> Transactions</>}
+              {t === "categories" && <><Package className="mr-1 h-4 w-4" /> Categories</>}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
         {/* Items Tab */}
