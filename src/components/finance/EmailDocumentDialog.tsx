@@ -105,7 +105,7 @@ export default function EmailDocumentDialog({
           </div>
           <div className="space-y-1">
             <Label htmlFor="email-cc">CC <span className="text-muted-foreground font-normal">(optional)</span></Label>
-            <Input id="email-cc" type="email" placeholder="bursar@mavingtech.com" value={cc} onChange={(e) => setCc(e.target.value)} />
+            <Input id="email-cc" type="email" placeholder="bursar@example.com" value={cc} onChange={(e) => setCc(e.target.value)} />
           </div>
           <div className="space-y-1">
             <Label htmlFor="email-subject">Subject</Label>

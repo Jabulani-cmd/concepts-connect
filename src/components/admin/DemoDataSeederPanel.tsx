@@ -538,7 +538,7 @@ export default function DemoDataSeederPanel() {
   return (
     <>
       <Card className="border-2 border-purple-200 dark:border-purple-900 bg-gradient-to-br from-purple-50/60 via-background to-purple-50/40 dark:from-purple-950/30 dark:to-purple-950/20">
-        <CardHeader className="flex flex-row items-start justify-between gap-3">
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <CardTitle className="font-heading flex items-center gap-2">
               <Database className="h-5 w-5 text-purple-600" />

@@ -173,19 +173,19 @@ export default function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-      <div className="container flex items-center justify-between gap-4 py-3">
+      <div className="container flex items-center justify-between gap-2 py-2 sm:gap-4 sm:py-3">
         {/* Logo left */}
-        <Link to="/" className="flex min-w-0 flex-shrink-0 items-center gap-4 rounded-lg outline-none transition-opacity focus-visible:opacity-70 2xl:gap-5">
+        <Link to="/" className="flex min-w-0 items-center gap-2.5 rounded-lg outline-none transition-opacity focus-visible:opacity-70 sm:flex-shrink-0 sm:gap-4 2xl:gap-5">
           <img
             src={schoolLogo}
             alt="Concepts Learning Academy"
-            className="h-auto w-20 flex-shrink-0 object-contain sm:w-24 xl:w-28 2xl:w-32"
+            className="h-auto w-12 flex-shrink-0 object-contain sm:w-24 xl:w-28 2xl:w-32"
           />
-          <div className="hidden flex-col leading-tight sm:flex">
-            <span className="font-heading text-xl font-extrabold tracking-tight text-primary md:text-3xl 2xl:text-4xl">
+          <div className="flex min-w-0 flex-col leading-tight">
+            <span className="truncate font-heading text-[15px] font-extrabold tracking-tight text-primary sm:text-xl md:text-3xl 2xl:text-4xl">
               Concepts Learning
             </span>
-            <span className="text-sm font-semibold uppercase tracking-[0.3em] text-primary md:text-base 2xl:text-lg">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.3em] text-primary sm:text-sm md:text-base 2xl:text-lg">
               Academy
             </span>
           </div>

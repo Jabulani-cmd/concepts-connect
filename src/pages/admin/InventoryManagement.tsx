@@ -370,7 +370,7 @@ export default function InventoryManagement({ tabs = ["dashboard", "textbooks", 
   return (
     <div className="space-y-6">
       {/* Dashboard Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {[
           { label: "Total Items", value: items.length, icon: Package, color: "text-primary" },
           { label: "Low Stock Alerts", value: lowStockItems.length, icon: AlertTriangle, color: "text-orange-500" },
@@ -378,7 +378,7 @@ export default function InventoryManagement({ tabs = ["dashboard", "textbooks", 
           { label: "Overdue Returns", value: overdueIssues.length, icon: AlertTriangle, color: "text-destructive" },
         ].map((s, i) => (
           <Card key={i} className="border-none shadow-maroon">
-            <CardContent className="flex items-center gap-4 p-5">
+            <CardContent className="flex items-center gap-3 sm:gap-4 p-3 sm:p-5">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
                 <s.icon className={`h-5 w-5 ${s.color}`} />
               </div>

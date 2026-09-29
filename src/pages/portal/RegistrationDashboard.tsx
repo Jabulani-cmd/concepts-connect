@@ -249,7 +249,7 @@ export default function RegistrationDashboard() {
 
       <main className="container px-3 sm:px-4 py-4 sm:py-8 space-y-4 sm:space-y-6">
         {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
           <Card>
             <CardContent className="flex items-center gap-4 p-4">
               <div className="rounded-full bg-primary/10 p-3">
@@ -287,7 +287,7 @@ export default function RegistrationDashboard() {
 
         {/* Actions & Filters */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardHeader className="flex flex-col gap-3 pb-2 sm:flex-row sm:items-center sm:justify-between">
             <CardTitle className="font-heading text-lg">Student Registration</CardTitle>
             <Button onClick={() => { setForm(emptyForm); setShowRegister(true); }}>
               <Plus className="mr-1 h-4 w-4" /> Register New Student

@@ -86,7 +86,7 @@
   "login": {
     "title": "Portal Login",
     "subtitle": "Access your Concepts Learning Academy portal",
-    "emailPlaceholder": "you@mavingtech.com",
+    "emailPlaceholder": "you@example.com",
     "signingIn": "Signing in...",
     "signIn": "Sign In",
     "demoNote": "First-time demo? Provision the admin account, then sign in. Inside the admin dashboard use \"Load Demo Data\" to provision all teacher, student & parent logins.",
