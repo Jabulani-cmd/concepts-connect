@@ -56,7 +56,7 @@ export function buildBrandedHtml({ title, subtitle, bodyHtml }: BrandedDocOption
   <img src="${SCHOOL_LOGO_URL}" alt="${escapeHtml(SCHOOL_NAME)} logo" onerror="this.style.display='none'" />
   <div class="school">
     <h1>${escapeHtml(SCHOOL_NAME)}</h1>
-    <div class="motto">${escapeHtml(SCHOOL_MOTTO)}</div>
+    ${SCHOOL_MOTTO ? `<div class="motto">${escapeHtml(SCHOOL_MOTTO)}</div>` : ""}
     <div class="contact">${escapeHtml(SCHOOL_ADDRESS)}<br/>${escapeHtml(SCHOOL_PHONE_EMAIL_LINE)}</div>
   </div>
 </div>

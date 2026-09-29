@@ -69,7 +69,7 @@ export function buildInvoicePdf(input: InvoicePdfInput): jsPDF {
 
   doc.setFont("helvetica", "italic");
   doc.setFontSize(9);
-  doc.text(`"${motto}"`, pageWidth / 2, topY + 6, { align: "center" });
+  if (motto) doc.text(`"${motto}"`, pageWidth / 2, topY + 6, { align: "center" });
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
@@ -209,7 +209,7 @@ export function buildInvoiceHtml(input: InvoicePdfInput): string {
       <img src="${safeHtml(logoUrl)}" alt="School Logo" />
       <div class="brand-text">
         <h1>${safeHtml(name)}</h1>
-        <div class="motto">"${safeHtml(motto)}"</div>
+        ${motto ? `<div class="motto">"${safeHtml(motto)}"</div>` : ""}
         <div class="address">${safeHtml(SCHOOL_ADDRESS)}<br/>${safeHtml(SCHOOL_PHONE_EMAIL_LINE)}</div>
       </div>
     </div>
@@ -308,7 +308,7 @@ export function buildReceiptHtml(input: ReceiptPrintInput) {
       <img src="${safeHtml(logoUrl)}" alt="School Logo" />
       <div class="brand-text">
         <h1>${safeHtml(name)}</h1>
-        <div class="motto">"${safeHtml(motto)}"</div>
+        ${motto ? `<div class="motto">"${safeHtml(motto)}"</div>` : ""}
         <div class="address">${safeHtml(SCHOOL_ADDRESS)}<br/>${safeHtml(SCHOOL_PHONE_EMAIL_LINE)}</div>
       </div>
     </div>
@@ -421,7 +421,7 @@ export function buildStatementHtml(input: StatementPrintInput) {
     <img src="${safeHtml(logoUrl)}" alt="Logo" />
     <div>
       <h1>${safeHtml(SCHOOL_NAME)}</h1>
-      <div class="motto">"${safeHtml(SCHOOL_MOTTO)}"</div>
+      ${SCHOOL_MOTTO ? `<div class="motto">"${safeHtml(SCHOOL_MOTTO)}"</div>` : ""}
       <div class="address">${safeHtml(SCHOOL_ADDRESS)}<br/>${safeHtml(SCHOOL_PHONE_EMAIL_LINE)}</div>
     </div>
   </div>
@@ -551,7 +551,7 @@ export function buildIncomeExpenditureHtml(input: IncomeExpenditureInput): strin
     <img src="${safeHtml(logoUrl)}" alt="School Logo" />
     <div>
       <h1>${safeHtml(SCHOOL_NAME)}</h1>
-      <div class="motto">"${safeHtml(SCHOOL_MOTTO)}"</div>
+      ${SCHOOL_MOTTO ? `<div class="motto">"${safeHtml(SCHOOL_MOTTO)}"</div>` : ""}
       <div class="address">${safeHtml(SCHOOL_ADDRESS)}<br/>${safeHtml(SCHOOL_PHONE_EMAIL_LINE)}</div>
     </div>
   </div>
@@ -664,7 +664,7 @@ export function buildExpensesListHtml(input: ExpensesListInput): string {
     <img src="${safeHtml(logoUrl)}" alt="School Logo" />
     <div>
       <h1>${safeHtml(SCHOOL_NAME)}</h1>
-      <div class="motto">"${safeHtml(SCHOOL_MOTTO)}"</div>
+      ${SCHOOL_MOTTO ? `<div class="motto">"${safeHtml(SCHOOL_MOTTO)}"</div>` : ""}
       <div class="address">${safeHtml(SCHOOL_ADDRESS)}<br/>${safeHtml(SCHOOL_PHONE_EMAIL_LINE)}</div>
     </div>
   </div>

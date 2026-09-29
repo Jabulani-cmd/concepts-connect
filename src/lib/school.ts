@@ -3,7 +3,8 @@
  * statements, report cards, printouts) and on the website. Change them here only.
  */
 export const SCHOOL_NAME = "Concepts Learning Academy";
-export const SCHOOL_MOTTO = "Empowering Your Business Through Technology";
+// No motto is printed until the school chooses one; headers leave the line out while this is empty.
+export const SCHOOL_MOTTO = "";
 export const SCHOOL_ADDRESS = "2456 Gaydon Crescent, Glen Lorne, Harare, Zimbabwe";
 export const SCHOOL_PHONE = "+263 78 982 4741";
 /** The phone number for tel: links. */

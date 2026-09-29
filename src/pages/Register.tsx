@@ -122,7 +122,6 @@ export default function Register() {
             <CardHeader className="text-center">
               <img src={schoolLogo} alt="Concepts Learning Academy" className="mx-auto mb-2 h-auto w-24 object-contain" />
               <CardTitle className="font-heading text-2xl text-primary">Parent Registration</CardTitle>
-              <p className="text-xs italic text-muted-foreground">Empowering Your Business Through Technology</p>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">

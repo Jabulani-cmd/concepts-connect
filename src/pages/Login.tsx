@@ -82,7 +82,6 @@ export default function Login() {
             <CardHeader className="text-center">
               <img src={schoolLogo} alt="Concepts Learning Academy" className="mx-auto mb-2 h-auto w-28 object-contain sm:w-36" />
               <CardTitle className="font-heading text-2xl text-primary">{t("login.title")}</CardTitle>
-              <p className="text-xs italic text-muted-foreground">{t("login.tagline")}</p>
               <p className="text-sm text-muted-foreground">{t("login.subtitle")}</p>
             </CardHeader>
             <CardContent>

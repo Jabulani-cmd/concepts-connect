@@ -146,7 +146,7 @@ export default function ReportCardDownloadButton(props: ReportCardProps) {
   <div class="header">
     <img class="school-logo" src="${SCHOOL_LOGO_URL}" alt="${SCHOOL_NAME} logo" />
     <div class="school-name">${SCHOOL_NAME}</div>
-    <div class="school-motto">"${SCHOOL_MOTTO}"</div>
+    ${SCHOOL_MOTTO ? `<div class="school-motto">"${SCHOOL_MOTTO}"</div>` : ""}
     <div class="school-contact">${SCHOOL_ADDRESS}<br/>${SCHOOL_PHONE_EMAIL_LINE}</div>
     <div class="report-title">Termly Report Card</div>
   </div>
