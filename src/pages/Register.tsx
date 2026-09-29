@@ -12,6 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { errorMessage } from "@/lib/errors";
+import { SCHOOL_MOTTO } from "@/lib/school";
 
 interface ChildEntry {
   admissionNumber: string;
@@ -122,6 +123,7 @@ export default function Register() {
             <CardHeader className="text-center">
               <img src={schoolLogo} alt="Concepts Learning Academy" className="mx-auto mb-2 h-auto w-24 object-contain" />
               <CardTitle className="font-heading text-2xl text-primary">Parent Registration</CardTitle>
+              <p className="text-xs italic text-muted-foreground">{SCHOOL_MOTTO}</p>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">

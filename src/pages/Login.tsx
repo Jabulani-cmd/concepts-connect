@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { SCHOOL_MOTTO } from "@/lib/school";
 import { motion } from "framer-motion";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -82,6 +83,7 @@ export default function Login() {
             <CardHeader className="text-center">
               <img src={schoolLogo} alt="Concepts Learning Academy" className="mx-auto mb-2 h-auto w-28 object-contain sm:w-36" />
               <CardTitle className="font-heading text-2xl text-primary">{t("login.title")}</CardTitle>
+              <p className="text-xs italic text-muted-foreground">{SCHOOL_MOTTO}</p>
               <p className="text-sm text-muted-foreground">{t("login.subtitle")}</p>
             </CardHeader>
             <CardContent>
