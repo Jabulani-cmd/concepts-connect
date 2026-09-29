@@ -465,7 +465,7 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
           {displayRole} Dashboard
         </motion.h1>
 
-        <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mb-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {[
             { label: "Announcements", value: String(announcements.length), icon: Bell, color: "bg-primary/10" },
             { label: "Carousel Slides", value: String(carouselImages.length), icon: Layers, color: "bg-accent/10" },
@@ -474,7 +474,7 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
           ].map((s, i) => (
             <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
               <Card className="border shadow-sm hover:shadow-md transition-shadow">
-                <CardContent className="flex items-center gap-4 p-5">
+                <CardContent className="flex items-center gap-3 sm:gap-4 p-3 sm:p-5">
                   <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${s.color}`}>
                     <s.icon className="h-5 w-5 text-primary" />
                   </div>

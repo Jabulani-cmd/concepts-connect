@@ -16,6 +16,8 @@ export default function AuthenticatedLayout({ children, topBar = false }: Props)
     <>
       {topBar && <PortalTopBar />}
       {children}
+      {/* Room below the page so the chat button never covers the last buttons on a phone. */}
+      {user && <div aria-hidden className="h-24 md:hidden" />}
       {user && <MessagingPanel />}
     </>
   );

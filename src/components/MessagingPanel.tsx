@@ -625,7 +625,7 @@ export default function MessagingPanel() {
       <Button
         onClick={() => setOpen(true)}
         aria-label="Messages"
-        className="fixed bottom-20 right-4 z-40 h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 sm:right-6 sm:h-14 sm:w-14 md:bottom-6"
+        className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-40 h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 sm:right-6 sm:h-14 sm:w-14 md:bottom-[calc(1.5rem+env(safe-area-inset-bottom))]"
         size="icon"
       >
         <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6" />

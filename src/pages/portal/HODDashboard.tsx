@@ -61,14 +61,14 @@ export default function HODDashboard() {
           HOD Dashboard
         </motion.h1>
 
-        <div className="mb-8 grid gap-4 sm:grid-cols-3">
+        <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
           {[
             { label: "Active Students", value: String(stats.students), icon: GraduationCap },
             { label: "Staff Members", value: String(stats.staff), icon: Users },
             { label: "Announcements", value: String(stats.announcements), icon: Bell },
           ].map((s, i) => (
             <Card key={i} className="border-none shadow-maroon">
-              <CardContent className="flex items-center gap-4 p-5">
+              <CardContent className="flex items-center gap-3 sm:gap-4 p-3 sm:p-5">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-maroon-light">
                   <s.icon className="h-5 w-5 text-primary" />
                 </div>

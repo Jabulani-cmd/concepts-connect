@@ -59,7 +59,7 @@ export default function PwaPrompts() {
         <div
           role="dialog"
           aria-label={updateReady ? t("pwa.updateReady") : t("pwa.installTitle")}
-          className="fixed inset-x-3 bottom-3 z-[60] mx-auto max-w-md rounded-xl border border-border bg-card p-4 shadow-2xl sm:bottom-5"
+          className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-[60] mx-auto max-w-md rounded-xl border border-border bg-card p-4 shadow-2xl sm:bottom-[calc(1.25rem+env(safe-area-inset-bottom))]"
         >
           {updateReady ? (
             <div className="flex items-center gap-3">

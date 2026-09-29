@@ -757,7 +757,7 @@ export default function UserManagement() {
                   type="email"
                   value={form.email}
                   onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
-                  placeholder="user@mavingtech.com"
+                  placeholder="user@example.com"
                 />
               </div>
             </div>
