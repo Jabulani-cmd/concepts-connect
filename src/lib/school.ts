@@ -10,6 +10,9 @@ export const SCHOOL_PHONE = "+263 77 478 4185";
 /** The phone number for tel: links. */
 export const SCHOOL_PHONE_LINK = "tel:+263774784185";
 export const SCHOOL_EMAIL = "info@concepts-academy.co.zw";
+export const SCHOOL_FACEBOOK = "https://www.facebook.com/p/Concepts-Learning-Academy-61568843698837/";
+/** WhatsApp chat with the school number. */
+export const SCHOOL_WHATSAPP = "https://wa.me/263774784185";
 /** Phone and email on one line, shown under the address in document headers. */
 export const SCHOOL_PHONE_EMAIL_LINE = `Tel: ${SCHOOL_PHONE} | Email: ${SCHOOL_EMAIL}`;
 /** Address, phone and email on one line, for document footers. */

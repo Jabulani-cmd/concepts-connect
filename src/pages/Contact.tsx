@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
-import { Mail, Phone, MapPin, Clock, CalendarIcon, Send, CheckCircle } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, CalendarIcon, Send, CheckCircle, Facebook } from "lucide-react";
 import { format } from "date-fns";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -22,7 +22,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useSiteMedia } from "@/lib/siteMedia";
-import { SCHOOL_ADDRESS, SCHOOL_EMAIL, SCHOOL_PHONE, SCHOOL_PHONE_LINK } from "@/lib/school";
+import { SCHOOL_ADDRESS, SCHOOL_EMAIL, SCHOOL_FACEBOOK, SCHOOL_PHONE, SCHOOL_PHONE_LINK } from "@/lib/school";
 
 const contactSchema = z.object({
   name: z.string().trim().min(1).max(100),
@@ -136,6 +136,12 @@ export default function Contact() {
                 </p>
               </motion.div>
             ))}
+          </div>
+          <div className="mt-10 text-center">
+            <a href={SCHOOL_FACEBOOK} target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-md bg-[#1877F2] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90">
+              <Facebook className="h-4 w-4" /> {t("contact.followFacebook")}
+            </a>
           </div>
         </div>
       </section>
