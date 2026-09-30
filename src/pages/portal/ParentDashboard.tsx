@@ -59,6 +59,7 @@ import Money from "@/components/Money";
 import { errorMessage } from "@/lib/errors";
 import { gradeFor, gradeBadgeClass } from "@/lib/grading";
 import type { ExamRankings } from "@/types/school";
+import AgentAlerts from "@/components/shared/AgentAlerts";
 
 const Locked = ({ feature, children }: { feature: string; children: React.ReactNode }) => (
   <div className="relative min-h-[60vh]">
@@ -353,6 +354,7 @@ export default function ParentDashboard() {
 
         <main className="flex-1 max-w-4xl space-y-4 p-6">
           {welcome}
+          <AgentAlerts audience="parent" />
           <ChildSelector
             children={children}
             selectedChildId={selectedChildId}
@@ -388,6 +390,7 @@ export default function ParentDashboard() {
       <div className="md:hidden">
         <main className="container px-4 py-4 space-y-4">
           {welcome}
+          <AgentAlerts audience="parent" />
           <ChildSelector
             children={children}
             selectedChildId={selectedChildId}

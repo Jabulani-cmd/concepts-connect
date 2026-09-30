@@ -46,6 +46,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { errorMessage } from "@/lib/errors";
 import AgentConsole from "@/components/agent/AgentConsole";
+import SchoolReportPanel from "@/components/agent/SchoolReportPanel";
 
 const downloadCategories = ["fees", "forms", "policies", "vacancies", "general"];
 const meetingTypes = ["sdc", "parent-teacher", "general"];
@@ -56,6 +57,7 @@ interface AdminDashboardProps {
 }
 
 export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboardProps = {}) {
+  const [tab, setTab] = useState("announcements");
   const { toast } = useToast();
   const { signOut, user, role } = useAuth();
   const isFinanceUser = role === 'finance' || role === 'admin_supervisor' || role === 'principal' || role === 'deputy_principal';
@@ -236,9 +238,10 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
 
         {/* All image croppers rendered outside Tabs so they're always mounted */}
 
+        <div className="mb-4 sm:mb-6"><SchoolReportPanel compact onOpenFull={() => { setTab("agent"); setTimeout(() => document.getElementById("admin-tabs")?.scrollIntoView({ behavior: "smooth" }), 50); }} /></div>
         <div className="mb-4 sm:mb-6"><DemoDataSeederPanel /></div>
 
-        <Tabs defaultValue="announcements" className="space-y-4 sm:space-y-6">
+        <Tabs id="admin-tabs" value={tab} onValueChange={setTab} className="space-y-4 sm:space-y-6">
           <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-hide rounded-xl border bg-card p-1.5">
             <TabsList className="flex-wrap gap-1 bg-transparent h-auto p-0 w-max sm:w-auto">
               <TabsTrigger value="announcements" className="text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"><Bell className="mr-1 h-3.5 w-3.5" /> Notices</TabsTrigger>

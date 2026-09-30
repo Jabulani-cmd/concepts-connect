@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertTriangle, Bot, CheckCircle2, ClipboardX, Eye, Loader2, RefreshCw, Wallet, XCircle } from "lucide-react";
+import { AlertTriangle, Bot, CheckCircle2, ClipboardX, Eye, Loader2, RefreshCw, TrendingDown, UserX, Wallet, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { errorMessage } from "@/lib/errors";
@@ -25,6 +25,8 @@ const KIND_ICON: Record<string, typeof AlertTriangle> = {
   attendance_not_taken: ClipboardX,
   marks_overdue: ClipboardX,
   fee_arrears: Wallet,
+  low_performance: TrendingDown,
+  teacher_absent: UserX,
 };
 const SEVERITY_STYLE: Record<string, string> = {
   high: "bg-red-100 text-red-800 border-red-200",
@@ -33,7 +35,7 @@ const SEVERITY_STYLE: Record<string, string> = {
 };
 const OPEN = ["open", "acknowledged"];
 const SEVERITY_RANK: Record<string, number> = { high: 0, medium: 1, low: 2 };
-const KIND_RANK: Record<string, number> = { at_risk: 0, marks_overdue: 1, fee_arrears: 2, attendance_not_taken: 3 };
+const KIND_RANK: Record<string, number> = { teacher_absent: 0, at_risk: 1, low_performance: 2, marks_overdue: 3, fee_arrears: 4, attendance_not_taken: 5 };
 
 /**
  * Findings from the school monitoring agent that this user may see (the database decides:

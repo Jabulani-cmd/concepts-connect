@@ -1,8 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, BarChart3, BookOpen, ClipboardList, Info, MessageSquareQuote, Ruler, Sparkles, Users } from "lucide-react";
+import { AlertTriangle, BarChart3, BookOpen, CalendarRange, ClipboardList, Info, MessageSquareQuote, Ruler, Sparkles, Users } from "lucide-react";
 import LessonPlanGenerator from "./LessonPlanGenerator";
+import SchemeOfWorkGenerator from "./SchemeOfWorkGenerator";
 import WorksheetGenerator from "./WorksheetGenerator";
 import RubricGenerator from "./RubricGenerator";
 import FeedbackDrafter from "./FeedbackDrafter";
@@ -23,8 +24,8 @@ export default function AIAssistantHub({ students = [] }: Props) {
           <Badge variant="secondary">ZIMSEC aligned</Badge>
         </CardTitle>
         <CardDescription>
-          Plan lessons, build worksheets and rubrics, draft feedback and parent messages, and see which students and
-          topics need attention. Everything is editable before you save or send.
+          Plan the term and each lesson, build worksheets and rubrics, draft feedback and parent messages, and see which
+          students and topics need attention. Everything is editable before you save or send.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -36,6 +37,7 @@ export default function AIAssistantHub({ students = [] }: Props) {
         <Tabs defaultValue="lesson" className="w-full">
           <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
             <TabsTrigger value="lesson" className="text-xs"><BookOpen className="mr-1 h-3.5 w-3.5" /> Lesson plans</TabsTrigger>
+            <TabsTrigger value="scheme" className="text-xs"><CalendarRange className="mr-1 h-3.5 w-3.5" /> Schemes of work</TabsTrigger>
             <TabsTrigger value="worksheet" className="text-xs"><ClipboardList className="mr-1 h-3.5 w-3.5" /> Worksheets</TabsTrigger>
             <TabsTrigger value="rubric" className="text-xs"><Ruler className="mr-1 h-3.5 w-3.5" /> Rubrics</TabsTrigger>
             <TabsTrigger value="feedback" className="text-xs"><MessageSquareQuote className="mr-1 h-3.5 w-3.5" /> Feedback</TabsTrigger>
@@ -45,6 +47,7 @@ export default function AIAssistantHub({ students = [] }: Props) {
           </TabsList>
 
           <TabsContent value="lesson" className="mt-4"><LessonPlanGenerator /></TabsContent>
+          <TabsContent value="scheme" className="mt-4"><SchemeOfWorkGenerator /></TabsContent>
           <TabsContent value="worksheet" className="mt-4"><WorksheetGenerator /></TabsContent>
           <TabsContent value="rubric" className="mt-4"><RubricGenerator /></TabsContent>
           <TabsContent value="feedback" className="mt-4"><FeedbackDrafter students={students} /></TabsContent>

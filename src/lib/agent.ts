@@ -14,6 +14,8 @@ export const KIND_LABELS: Record<string, string> = {
   attendance_not_taken: "Register not taken",
   marks_overdue: "Marks overdue",
   fee_arrears: "Fee arrears",
+  low_performance: "Low marks",
+  teacher_absent: "Teacher away",
 };
 
 export const STATUS_LABELS: Record<string, string> = {
@@ -64,4 +66,26 @@ export async function loadDemoActivity() {
   const { data, error } = await supabase.rpc("seed_demo_activity");
   if (error) throw error;
   return data as Record<string, number>;
+}
+
+export interface AlertSettings {
+  notify_parents: boolean;
+  notify_students: boolean;
+  low_mark: number;
+  excellent_mark: number;
+}
+
+/** Who the agent alerts and at what marks (school leaders and HODs can read; leaders change). */
+export async function getAlertSettings(): Promise<AlertSettings | null> {
+  const { data, error } = await supabase.rpc("get_agent_alert_settings");
+  if (error || !data) return null;
+  const d = data as unknown as AlertSettings;
+  return { notify_parents: !!d.notify_parents, notify_students: !!d.notify_students, low_mark: Number(d.low_mark), excellent_mark: Number(d.excellent_mark) };
+}
+
+export async function saveAlertSettings(s: AlertSettings) {
+  const { error } = await supabase.rpc("set_agent_alert_settings", {
+    _notify_parents: s.notify_parents, _notify_students: s.notify_students, _low_mark: s.low_mark, _excellent_mark: s.excellent_mark,
+  });
+  if (error) throw error;
 }

@@ -67,6 +67,33 @@ export type Database = {
           },
         ]
       }
+      agent_alert_log: {
+        Row: {
+          created_at: string
+          dedupe_key: string
+          id: string
+          kind: string
+          recipients: number
+          student_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          dedupe_key: string
+          id?: string
+          kind: string
+          recipients?: number
+          student_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          dedupe_key?: string
+          id?: string
+          kind?: string
+          recipients?: number
+          student_id?: string | null
+        }
+        Relationships: []
+      }
       agent_findings: {
         Row: {
           assessment_id: string | null
@@ -168,6 +195,36 @@ export type Database = {
           },
         ]
       }
+      agent_reports: {
+        Row: {
+          created_at: string
+          data: Json
+          id: string
+          report_date: string
+          summary: string | null
+          summary_source: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json
+          id?: string
+          report_date: string
+          summary?: string | null
+          summary_source?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          id?: string
+          report_date?: string
+          summary?: string | null
+          summary_source?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       agent_runs: {
         Row: {
           agent: string
@@ -209,18 +266,30 @@ export type Database = {
       }
       agent_settings: {
         Row: {
+          excellent_mark: number
+          low_mark: number
+          notify_parents: boolean
+          notify_students: boolean
           cron_secret: string
           id: number
           schedule: string
           updated_at: string
         }
         Insert: {
+          excellent_mark?: number
+          low_mark?: number
+          notify_parents?: boolean
+          notify_students?: boolean
           cron_secret?: string
           id?: number
           schedule?: string
           updated_at?: string
         }
         Update: {
+          excellent_mark?: number
+          low_mark?: number
+          notify_parents?: boolean
+          notify_students?: boolean
           cron_secret?: string
           id?: number
           schedule?: string
@@ -4332,6 +4401,22 @@ export type Database = {
     }
     Functions: {
       agent_schedule_status: { Args: never; Returns: Json }
+      agent_student_performance: {
+        Args: { _days?: number }
+        Returns: {
+          absent_today: boolean
+          attendance_pct: number
+          class_id: string
+          class_name: string
+          days_absent: number
+          form: string
+          full_name: string
+          marks_count: number
+          recent_avg: number
+          student_id: string
+          subjects: Json
+        }[]
+      }
       agent_student_signals: {
         Args: { _recent_days?: number; _term_days?: number }
         Returns: {
@@ -4479,11 +4564,21 @@ export type Database = {
         Args: { _invoice_id: string }
         Returns: undefined
       }
+      get_agent_alert_settings: { Args: never; Returns: Json }
       review_agent_finding: {
         Args: { _id: string; _note?: string; _status: string }
         Returns: undefined
       }
       seed_demo_activity: { Args: never; Returns: Json }
+      set_agent_alert_settings: {
+        Args: {
+          _excellent_mark: number
+          _low_mark: number
+          _notify_parents: boolean
+          _notify_students: boolean
+        }
+        Returns: undefined
+      }
       submit_quiz: {
         Args: { _answers: Json; _assessment_id: string }
         Returns: Json

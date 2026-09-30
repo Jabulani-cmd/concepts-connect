@@ -2,7 +2,7 @@
 // Records live in the browser (localStorage) - nothing is written to the school database.
 import { useEffect, useState } from "react";
 
-export type StoreKey = "lesson_plans" | "generated_materials" | "rubrics" | "student_risk_flags";
+export type StoreKey = "lesson_plans" | "generated_materials" | "rubrics" | "student_risk_flags" | "schemes_of_work";
 
 const PREFIX = "mbs.demo.ai.";
 const listeners = new Set<() => void>();
