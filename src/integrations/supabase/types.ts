@@ -92,7 +92,15 @@ export type Database = {
           recipients?: number
           student_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "agent_alert_log_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       agent_findings: {
         Row: {
@@ -266,32 +274,32 @@ export type Database = {
       }
       agent_settings: {
         Row: {
+          cron_secret: string
           excellent_mark: number
+          id: number
           low_mark: number
           notify_parents: boolean
           notify_students: boolean
-          cron_secret: string
-          id: number
           schedule: string
           updated_at: string
         }
         Insert: {
+          cron_secret?: string
           excellent_mark?: number
+          id?: number
           low_mark?: number
           notify_parents?: boolean
           notify_students?: boolean
-          cron_secret?: string
-          id?: number
           schedule?: string
           updated_at?: string
         }
         Update: {
+          cron_secret?: string
           excellent_mark?: number
+          id?: number
           low_mark?: number
           notify_parents?: boolean
           notify_students?: boolean
-          cron_secret?: string
-          id?: number
           schedule?: string
           updated_at?: string
         }
@@ -4466,6 +4474,7 @@ export type Database = {
         Args: { _student_id: string }
         Returns: undefined
       }
+      get_agent_alert_settings: { Args: never; Returns: Json }
       get_contact_directory: {
         Args: { _limit?: number; _search?: string }
         Returns: {
@@ -4564,7 +4573,6 @@ export type Database = {
         Args: { _invoice_id: string }
         Returns: undefined
       }
-      get_agent_alert_settings: { Args: never; Returns: Json }
       review_agent_finding: {
         Args: { _id: string; _note?: string; _status: string }
         Returns: undefined
