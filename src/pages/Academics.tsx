@@ -4,8 +4,7 @@ import Layout from "@/components/layout/Layout";
 import PageHero from "@/components/layout/PageHero";
 import { BookOpen, FlaskConical, Languages, Calculator, Palette, Laptop } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import achievementsImg from "@/assets/achievements.jpg";
-import hero from "@/assets/academics-computers.jpg";
+import { useSiteMedia } from "@/lib/siteMedia";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -14,6 +13,7 @@ const fadeUp = {
 
 export default function Academics() {
   const { t } = useTranslation();
+  const media = useSiteMedia();
   const subjects = [
     { icon: Calculator, name: t("academics.subjects.math.name"), desc: t("academics.subjects.math.desc") },
     { icon: FlaskConical, name: t("academics.subjects.sciences.name"), desc: t("academics.subjects.sciences.desc") },
@@ -31,7 +31,7 @@ export default function Academics() {
 
   return (
     <Layout>
-      <PageHero eyebrow={t("academics.eyebrow")} title={t("academics.title")} subtitle={t("academics.subtitle")} image={hero} />
+      <PageHero eyebrow={t("academics.eyebrow")} title={t("academics.title")} subtitle={t("academics.subtitle")} image={media("media:academics.hero")} />
 
       <section className="py-20 md:py-28">
         <div className="container">
@@ -96,7 +96,7 @@ export default function Academics() {
                     </table>
                   </div>
                 </div>
-                <img src={achievementsImg} alt={t("academics.results.title")} className="rounded-lg shadow-lg" />
+                {media("achievements_image") ? <img src={media("achievements_image")} alt={t("academics.results.title")} className="rounded-lg shadow-lg" /> : <div className="aspect-[4/3] rounded-lg bg-muted" />}
               </div>
             </TabsContent>
           </Tabs>

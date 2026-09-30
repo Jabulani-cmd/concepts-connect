@@ -15,12 +15,13 @@ import {
   isVideo,
   type GalleryItem,
 } from "@/lib/gallery";
-import hero from "@/assets/activity-music.jpg";
+import { useSiteMedia } from "@/lib/siteMedia";
 
 type MediaFilter = "all" | "photos" | "videos";
 
 export default function Gallery() {
   const { t } = useTranslation();
+  const siteMedia = useSiteMedia();
   const [items, setItems] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [media, setMedia] = useState<MediaFilter>("all");
@@ -68,7 +69,7 @@ export default function Gallery() {
 
   return (
     <Layout>
-      <PageHero eyebrow={t("gallery.eyebrow")} title={t("gallery.title")} subtitle={t("gallery.subtitle")} image={hero} />
+      <PageHero eyebrow={t("gallery.eyebrow")} title={t("gallery.title")} subtitle={t("gallery.subtitle")} image={siteMedia("media:gallery.hero")} />
 
       <section className="py-12 md:py-20">
         <div className="container">

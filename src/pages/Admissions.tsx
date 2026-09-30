@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle, FileText, Users, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import hero from "@/assets/hero-students-4.jpg";
+import { useSiteMedia } from "@/lib/siteMedia";
 import { FORM_LEVELS } from "@/lib/forms";
 
 const fadeUp = {
@@ -20,6 +20,7 @@ const fadeUp = {
 
 export default function Admissions() {
   const { t } = useTranslation();
+  const media = useSiteMedia();
   const [submitted, setSubmitted] = useState(false);
   const { toast } = useToast();
 
@@ -38,7 +39,7 @@ export default function Admissions() {
 
   return (
     <Layout>
-      <PageHero eyebrow={t("admissions.eyebrow")} title={t("admissions.title")} subtitle={t("admissions.subtitle")} image={hero} />
+      <PageHero eyebrow={t("admissions.eyebrow")} title={t("admissions.title")} subtitle={t("admissions.subtitle")} image={media("media:admissions.hero")} />
 
       <section className="py-20 md:py-28">
         <div className="container">
