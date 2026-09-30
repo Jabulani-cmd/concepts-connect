@@ -7,7 +7,7 @@ import type {
 } from "@/contexts/AllocationContext";
 
 export { DEMO_EMAIL_DOMAIN, DEMO_PASSWORDS } from "@/lib/demoAccounts";
-import { DEMO_EMAIL_DOMAIN, DEMO_PASSWORDS } from "@/lib/demoAccounts";
+import { DEMO_EMAIL_DOMAIN, DEMO_PASSWORDS, demoStudentNumber, studentEmail } from "@/lib/demoAccounts";
 
 export interface DemoStudent {
   id: string;
@@ -284,7 +284,7 @@ export function generateDemoSeed(): DemoSeed {
         fullName: `${first} ${surname}`,
         dob: `${year - age}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`,
         gender: female ? "female" : "male",
-        admissionNumber: `STU${String(n + 1).padStart(4, "0")}`,
+        admissionNumber: demoStudentNumber(n),
         form: c.formLevel,
         stream: streamLetter(c),
         classId: c.id,
@@ -292,7 +292,7 @@ export function generateDemoSeed(): DemoSeed {
         province: home.province,
         address: `${100 + ((n * 37) % 900)} ${pick(["Samora Machel Ave", "Herbert Chitepo St", "Josiah Tongogara Ave", "Nelson Mandela Ave", "Leopold Takawira St", "Kwame Nkrumah Ave", "Enterprise Rd", "Churchill Ave"], n)}, ${suburb}`,
         boarding: n % 5 === 0,
-        email: `${clean(first)}.${clean(surname)}${n + 1}@student.${DEMO_EMAIL_DOMAIN}`,
+        email: studentEmail(demoStudentNumber(n)),
         password: DEMO_PASSWORDS.student,
       });
       childIds.push(id);

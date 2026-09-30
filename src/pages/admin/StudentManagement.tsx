@@ -240,13 +240,8 @@ export default function StudentManagement() {
       await allocateBoarding(editingId);
       toast({ title: "Student updated!" });
     } else {
-      // Generate a guaranteed-unique admission number using timestamp
-      const timestamp = Date.now().toString().slice(-6);
-      const randomSuffix = Math.floor(Math.random() * 100).toString().padStart(2, "0");
-      const nextAdmissionNumber = `MHS${timestamp}${randomSuffix}`;
-
-      const { admission_number, ...rest } = payload;
-      const insertPayload = { ...rest, admission_number: nextAdmissionNumber };
+      // The database gives every new student the next student number (CLA00001, CLA00002, …).
+      const { admission_number: _unused, ...insertPayload } = payload;
       
       
       const { data: newStudent, error } = await supabase

@@ -155,7 +155,7 @@ function FeePaymentForm() {
           Pay School Fees
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Enter the student number (e.g. MHS01001) to link the payment to the correct student account.
+          Enter the student number (e.g. CLA00001) to link the payment to the correct student account.
         </p>
       </CardHeader>
       <CardContent>
@@ -165,7 +165,7 @@ function FeePaymentForm() {
             <Label>Student Number *</Label>
             <div className="flex gap-2">
               <Input
-                placeholder="e.g. MHS01001"
+                placeholder="e.g. CLA00001"
                 value={studentNumber}
                 onChange={(e) => setStudentNumber(e.target.value.toUpperCase())}
                 className="font-mono"
