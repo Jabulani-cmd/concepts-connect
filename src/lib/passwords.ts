@@ -1,12 +1,11 @@
-import { DEMO_EMAIL_DOMAIN, DEMO_PASSWORDS } from "@/lib/demoAccounts";
+import { DEMO_PASSWORDS, isDemoEmail } from "@/lib/demoAccounts";
 
 /**
  * The published password of a demo account, or null for real accounts (whose
  * passwords are stored as one-way hashes and can never be read back).
  */
 export function demoPasswordFor(email: string | null | undefined, role: string | null | undefined): string | null {
-  const e = (email ?? "").toLowerCase();
-  if (!e.endsWith(`@${DEMO_EMAIL_DOMAIN}`) && !e.endsWith(`.${DEMO_EMAIL_DOMAIN}`)) return null;
+  if (!isDemoEmail(email)) return null;
   return role && role in DEMO_PASSWORDS ? DEMO_PASSWORDS[role as keyof typeof DEMO_PASSWORDS] : null;
 }
 

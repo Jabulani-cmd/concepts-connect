@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { FORM_LEVELS, DEFAULT_FORM, formLabel } from "@/lib/forms";
 import { generateDemoSeed } from "@/lib/demoSeeder";
 import { zimPhoneRegex } from "@/lib/validators";
+import { isDemoEmail } from "@/lib/demoAccounts";
 
 describe("Zimbabwean form levels", () => {
   it("covers Form 1 to Form 6", () => {
@@ -56,7 +57,11 @@ describe("Demo seed", () => {
   it("uses unique demo-domain logins and Zimbabwean phone numbers", () => {
     const emails = all.map((p) => p.email);
     expect(new Set(emails).size).toBe(emails.length);
-    expect(emails.every((e) => e.endsWith("schooldemo.com"))).toBe(true);
+    // Every demo login is recognised as demo: staff and parents on the demo domain,
+    // learners as <student number>@concepts-academy.co.zw in the reserved CLA90001 block.
+    expect(emails.every((e) => isDemoEmail(e))).toBe(true);
+    expect(seed.students.every((st) => /^CLA9\d{4}$/.test(st.admissionNumber) && st.email === `${st.admissionNumber.toLowerCase()}@concepts-academy.co.zw`)).toBe(true);
+    expect(isDemoEmail("cla00001@concepts-academy.co.zw")).toBe(false);
     expect(seed.parents.every((p) => zimPhoneRegex.test(p.phone))).toBe(true);
   });
 

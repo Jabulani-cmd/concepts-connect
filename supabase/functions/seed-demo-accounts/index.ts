@@ -19,6 +19,7 @@ const corsHeaders = {
 };
 
 const DEMO_DOMAIN = "schooldemo.com";
+const DEMO_STUDENT_EMAIL = /^cla9\d{4}@concepts-academy\.co\.zw$/i;
 const DEMO_ADMIN = { email: `admin@${DEMO_DOMAIN}`, password: "MbsDemo#Admin26", full_name: "Demo Administrator", role: "admin" as const };
 // Staff roles other than admin: each such login is linked to the staff record with its email.
 const STAFF_ROLES = [
@@ -49,13 +50,15 @@ const json = (body: unknown, status = 200) =>
 
 const isDemoEmail = (email: string) => {
   const e = email.toLowerCase();
-  return e.endsWith(`@${DEMO_DOMAIN}`) || e.endsWith(`.${DEMO_DOMAIN}`);
+  // Demo learners use the school's own format in a reserved block (CLA90001-CLA99999),
+  // so real learners' accounts can never be created or reset from here.
+  return e.endsWith(`@${DEMO_DOMAIN}`) || e.endsWith(`.${DEMO_DOMAIN}`) || DEMO_STUDENT_EMAIL.test(e);
 };
 
 function validate(raw: unknown): Account | string {
   if (!raw || typeof raw !== "object") return "invalid account";
   const a = raw as Record<string, unknown>;
-  if (typeof a.email !== "string" || !isDemoEmail(a.email)) return `only @${DEMO_DOMAIN} addresses can be seeded`;
+  if (typeof a.email !== "string" || !isDemoEmail(a.email)) return `only @${DEMO_DOMAIN} addresses and demo learners (CLA90001 and up) can be seeded`;
   if (typeof a.password !== "string" || a.password.length < 8) return "password must be at least 8 characters";
   if (typeof a.full_name !== "string" || !a.full_name.trim()) return "full_name is required";
   if (!ROLES.includes(a.role as Role)) return `role must be one of ${ROLES.join(", ")}`;

@@ -504,7 +504,7 @@ function LinkChildDialog({ onLinked }: { onLinked: () => void }) {
           <div className="space-y-2">
             <Label>Admission Number</Label>
             <Input
-              placeholder="e.g. MHS-2026-001"
+              placeholder="e.g. CLA00001"
               value={admissionNumber}
               onChange={(e) => setAdmissionNumber(e.target.value)}
             />

@@ -10,6 +10,7 @@ import { useAllocation } from "@/contexts/AllocationContext";
 import { useDemoPeople } from "@/contexts/DemoPeopleContext";
 import { buildCredentialsWorkbook } from "@/lib/credentialsWorkbook";
 import { generateDemoSeed, DEMO_PERIODS, DEMO_EMAIL_DOMAIN, DEMO_PASSWORDS, type DemoSeed } from "@/lib/demoSeeder";
+import { isDemoEmail, legacyDemoStudentNumbers } from "@/lib/demoAccounts";
 import { DEMO_SUPPORT_STAFF, DEPARTMENT, demoHeadsOfDepartment, type SupportRole } from "@/lib/demoStaff";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -203,6 +204,9 @@ export default function DemoDataSeederPanel() {
       const teacher = staffIdMap.get(c.classTeacherId ?? "");
       if (teacher) await supabase.from("classes").update({ class_teacher_id: teacher }).eq("id", classIdMap.get(c.id)!);
     }
+
+    // Demo learners from the first version (STU0001 ...) are replaced by the CLA90001 block.
+    await removeDemoStudents(legacyDemoStudentNumbers(seed.students.length));
 
     // Students - upserted by admission number so re-seeding keeps their logins.
     // The first parent listed for a family (the mother, or the guardian) is the student's contact.
@@ -403,6 +407,27 @@ export default function DemoDataSeederPanel() {
     }
   }
 
+  /**
+   * Removes demo students (and their links) by student number. Only rows whose email is
+   * a demo address are touched, so a real learner can never be removed from here.
+   */
+  async function removeDemoStudents(numbers: string[]) {
+    const ids: string[] = [];
+    for (const nums of chunk(numbers, 100)) {
+      const { data } = await supabase.from("students").select("id, email").in("admission_number", nums);
+      ids.push(...(data ?? []).filter((r) => isDemoEmail(r.email)).map((r) => r.id));
+    }
+    // Links without a foreign key to students are removed explicitly.
+    for (const part of chunk(ids, 100)) {
+      await supabase.from("parent_students").delete().in("student_id", part);
+      await supabase.from("parent_student_links").delete().in("student_id", part);
+      await supabase.from("access_grants").delete().in("student_id", part).eq("reason", "Demo account");
+      await supabase.from("student_classes").delete().in("student_id", part);
+      await supabase.from("students").delete().in("id", part);
+    }
+    return ids.length;
+  }
+
   async function handleLoad() {
     setRunning(true);
     setAccountProgress(null);
@@ -468,19 +493,7 @@ export default function DemoDataSeederPanel() {
     try { window.localStorage.removeItem("mt_demo_allocation_v2"); } catch { /* storage unavailable */ }
     setSummary(null);
     try {
-      const ids: string[] = [];
-      for (const nums of chunk(seed.students.map((s) => s.admissionNumber), 100)) {
-        const { data } = await supabase.from("students").select("id").in("admission_number", nums);
-        ids.push(...(data ?? []).map((r) => r.id));
-      }
-      // Links without a foreign key to students are removed explicitly.
-      for (const part of chunk(ids, 100)) {
-        await supabase.from("parent_students").delete().in("student_id", part);
-        await supabase.from("parent_student_links").delete().in("student_id", part);
-        await supabase.from("access_grants").delete().in("student_id", part).eq("reason", "Demo account");
-        await supabase.from("student_classes").delete().in("student_id", part);
-        await supabase.from("students").delete().in("id", part);
-      }
+      await removeDemoStudents([...seed.students.map((s) => s.admissionNumber), ...legacyDemoStudentNumbers(seed.students.length)]);
       await supabase.from("timetable_entries").delete().eq("term", "DEMO");
       await supabase.from("tt_definitions").delete().like("name", "DEMO %");
       // Homework created by "Load demo activity" (School Monitoring Agent).

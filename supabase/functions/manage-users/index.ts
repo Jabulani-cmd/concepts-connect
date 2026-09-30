@@ -1,5 +1,8 @@
 import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+/** Student logins are <student number>@concepts-academy.co.zw. */
+const STUDENT_EMAIL_DOMAIN = "concepts-academy.co.zw";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -843,8 +846,8 @@ Deno.serve(async (req) => {
         });
       }
 
-      // Canonical school email (always derived from admission number)
-      const studentEmail = `${admission_number.toLowerCase()}@mbsmavingtech.ac.zw`;
+      // Canonical school email: <student number>@concepts-academy.co.zw
+      const studentEmail = `${admission_number.toLowerCase()}@${STUDENT_EMAIL_DOMAIN}`;
       const tempPassword = `${admission_number}@Mbs2026`;
 
       // List auth users once and reuse for both student + parent dedupe
