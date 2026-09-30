@@ -9,6 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import { errorMessage } from "@/lib/errors";
 import { AGENT_INTERVAL_MINUTES, getScheduleStatus, loadDemoActivity, runAgent, type AgentRun } from "@/lib/agent";
 import AgentFindingsPanel from "./AgentFindingsPanel";
+import SchoolReportPanel from "./SchoolReportPanel";
+import AgentAlertSettings from "./AgentAlertSettings";
 
 const INTERVAL_MS = AGENT_INTERVAL_MINUTES * 60 * 1000;
 
@@ -96,6 +98,7 @@ export default function AgentConsole() {
 
   return (
     <div className="space-y-6">
+      <SchoolReportPanel />
       <Card className="border-primary/30">
         <CardHeader className="flex flex-col gap-3 space-y-0 sm:flex-row sm:items-start sm:justify-between">
           <div>
@@ -146,6 +149,7 @@ export default function AgentConsole() {
         </CardContent>
       </Card>
 
+      <AgentAlertSettings />
       <AgentFindingsPanel title="All items" refreshKey={refreshKey} />
 
       <Card>

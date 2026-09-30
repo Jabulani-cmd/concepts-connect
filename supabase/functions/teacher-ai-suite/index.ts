@@ -3,13 +3,13 @@
 const NO_EM_DASH = " Never use em dash characters; use commas, colons or full stops instead.";
 const noEmDash = (s: string) => s.replace(/ \u2014 /g, ", ").replace(/\u2014/g, "-");
 // Teacher AI suite - lesson plans, worksheets, rubrics, feedback, parent messages,
-// at-risk explanations and class insights. ZIMSEC-aligned.
+// at-risk explanations, class insights and termly schemes of work. ZIMSEC-aligned.
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const MODEL = "google/gemini-3.8-flash";
+const MODEL = "google/gemini-3-flash-preview";
 
 const LANGUAGES: Record<string, string> = {
   en: "English",
@@ -60,6 +60,11 @@ function buildPrompt(kind: string, p: Record<string, unknown>): { system: string
       return {
         system: `${zimsec} You explain why a student has been flagged as at risk. Be concrete and quote the numbers given. JSON shape: {"reason":string,"suggested_actions":string[]}. Give 1-2 practical next steps. Never be punitive.`,
         user: `Student: ${p.student}\nSignals: ${JSON.stringify(p.signals)}\nRule-based risk level: ${p.risk_score}`,
+      };
+    case "scheme_of_work":
+      return {
+        system: `${zimsec} Write a termly scheme of work in the format Zimbabwean teachers submit to their HOD, covering the syllabus topics in a sensible order for the term, one row per week, with revision and a test near the end. JSON shape: {"title":string,"aims":string[],"weeks":[{"week":number,"topic":string,"objectives":string[],"content":string,"activities":string,"resources":string,"assessment":string}]}`,
+        user: `Subject: ${p.subject}\nLevel: ${p.level}\nTerm: ${p.term}\nWeeks in the term: ${p.weeks}\nPeriods per week: ${p.periods}\nTopics to cover (may be empty, then follow the ZIMSEC syllabus for this term): ${p.topics || "follow the syllabus"}`,
       };
     case "insights":
       return {

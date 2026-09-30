@@ -27,6 +27,7 @@ import StudentMarksTab from "@/components/student/StudentMarksTab";
 import { useSubscription } from "@/hooks/useSubscription";
 import PrintableSection from "@/components/shared/PrintableSection";
 import AccessStatusPanel from "@/components/subscription/AccessStatusPanel";
+import AgentAlerts from "@/components/shared/AgentAlerts";
 
 function StudentLockedNotice({ feature, loading = false, status = "none" }: { feature: string; loading?: boolean; status?: string }) {
   const pending = status === "pending";
@@ -322,6 +323,8 @@ function TabContent({
             {student?.form} {student?.stream} · {student?.admission_number}
           </p>
         </div>
+
+        <AgentAlerts audience="student" />
 
         {/* Metrics */}
         <StudentMetricsCards

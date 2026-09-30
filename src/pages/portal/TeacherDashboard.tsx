@@ -44,6 +44,7 @@ import ParentCommunicationLog from "@/components/teacher/ParentCommunicationLog"
 import FullWeekTimetable from "@/components/shared/FullWeekTimetable";
 import PublishedTimetableWidget from "@/components/timetable/PublishedTimetableWidget";
 import MyCoverLessons from "@/components/teacher/MyCoverLessons";
+import TeacherMyDay from "@/components/teacher/TeacherMyDay";
 import { gradeFor } from "@/lib/grading";
 const termOptions = ["Term 1", "Term 2", "Term 3"];
 const assessmentTypes = ["test", "exam", "assignment", "project"];
@@ -79,6 +80,7 @@ type StudentRow = Pick<Tables<"students">, "id" | "full_name" | "form" | "stream
 type AttendanceStudent = Pick<Tables<"students">, "id" | "full_name" | "admission_number">;
 
 export default function TeacherDashboard({ embedded = false }: TeacherDashboardProps) {
+  const [teacherTab, setTeacherTab] = useState("materials");
   const { toast } = useToast();
   const { signOut, user } = useAuth();
   const navigate = useNavigate();
@@ -403,12 +405,14 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
           </div>
         </motion.div>
 
+        <TeacherMyDay staffId={staffInfo?.id} userId={user?.id} onOpen={(t) => { setTeacherTab(t); setTimeout(() => document.getElementById("teacher-tabs")?.scrollIntoView({ behavior: "smooth" }), 50); }} />
+
         <MyCoverLessons staffId={staffInfo?.id} />
 
         <PublishedTimetableWidget title="Teaching Timetable" mode="teacher" filterValue={displayName} />
 
 
-        <Tabs defaultValue="materials" className="space-y-4">
+        <Tabs id="teacher-tabs" value={teacherTab} onValueChange={setTeacherTab} className="space-y-4">
           <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-hide">
           <TabsList className="flex-wrap sm:flex-wrap h-auto gap-1 w-max sm:w-auto">
             <TabsTrigger value="materials" className="text-xs sm:text-sm"><FileText className="mr-1 h-3.5 w-3.5 sm:h-4 sm:w-4" /> Materials</TabsTrigger>
