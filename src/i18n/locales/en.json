@@ -377,9 +377,16 @@
   },
   "fees": {
     "title": "School Fees",
-    "intro": "Download the latest fee schedules, payment information, and financial documents below.",
+    "intro": "View or download the current school fees as a PDF, or pay fees online.",
     "payOnline": "Pay Fees Online",
-    "empty": "Fee documents will be available soon."
+    "empty": "Fee documents will be available soon.",
+    "currentLabel": "Current school fees",
+    "updated": "Updated {{date}}",
+    "view": "View PDF",
+    "download": "Download PDF",
+    "payPrompt": "Ready to pay? Pay securely online with the student's admission number.",
+    "earlier": "Earlier fee documents",
+    "allDocuments": "See all fee documents on the Downloads page"
   },
   "facilities": {
     "title": "Our Facilities",
@@ -444,6 +451,8 @@
     "empty": "No vacancies currently available. Please check back later."
   },
   "downloads": {
+    "view": "View",
+    "download": "Download",
     "title": "Downloads",
     "empty": "No documents available for download yet.",
     "categories": {

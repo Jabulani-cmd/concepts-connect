@@ -379,7 +379,14 @@
     "title": "Imali Yesikolo",
     "intro": "Landa uhlelo lwemali lwakamuva, imininingwane yenhlawulo lamadokhumenti emali ngaphansi.",
     "payOnline": "Hlawula Imali Nge-inthanethi",
-    "empty": "Amadokhumenti emali azatholakala masinyane."
+    "empty": "Amadokhumenti emali azatholakala masinyane.",
+    "currentLabel": "Imali yesikolo yamanje",
+    "updated": "Kubuyekezwe {{date}}",
+    "view": "Bona i-PDF",
+    "download": "Dawuniloda i-PDF",
+    "payPrompt": "Usulungele ukubhadala? Bhadala nge-inthanethi usebenzisa inombolo yomfundi.",
+    "earlier": "Amabhuku emali akudala",
+    "allDocuments": "Bona wonke amabhuku emali ekhasini leDownloads"
   },
   "facilities": {
     "title": "Izakhiwo Zethu",
@@ -444,6 +451,8 @@
     "empty": "Akulamathuba omsebenzi akhona khathesi. Buya uzokhangela."
   },
   "downloads": {
+    "view": "Bona",
+    "download": "Dawuniloda",
     "title": "Okulandwayo",
     "empty": "Akulamadokhumenti okulanda khathesi.",
     "categories": {
