@@ -22,7 +22,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import hero from "@/assets/hero-students-5.jpg";
-import { SCHOOL_ADDRESS, SCHOOL_EMAIL, SCHOOL_PHONE } from "@/lib/school";
+import { SCHOOL_ADDRESS, SCHOOL_EMAIL, SCHOOL_PHONE, SCHOOL_PHONE_LINK } from "@/lib/school";
 
 const contactSchema = z.object({
   name: z.string().trim().min(1).max(100),
@@ -120,8 +120,8 @@ export default function Contact() {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[
               { icon: MapPin, title: t("contact.cards.address"), text: SCHOOL_ADDRESS },
-              { icon: Phone, title: t("contact.cards.phone"), text: SCHOOL_PHONE },
-              { icon: Mail, title: t("contact.cards.email"), text: SCHOOL_EMAIL },
+              { icon: Phone, title: t("contact.cards.phone"), text: SCHOOL_PHONE, href: SCHOOL_PHONE_LINK },
+              { icon: Mail, title: t("contact.cards.email"), text: SCHOOL_EMAIL, href: `mailto:${SCHOOL_EMAIL}` },
               { icon: Clock, title: t("contact.cards.hours"), text: t("contact.cards.hoursText") },
             ].map((item, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1, duration: 0.6 }}
@@ -130,7 +130,9 @@ export default function Contact() {
                   <item.icon className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="font-heading text-base font-bold text-purple-900 dark:text-purple-200">{item.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.text}</p>
+                <p className="mt-2 break-words text-sm leading-relaxed text-muted-foreground">
+                  {item.href ? <a href={item.href} className="transition-colors hover:text-primary">{item.text}</a> : item.text}
+                </p>
               </motion.div>
             ))}
           </div>
