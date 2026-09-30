@@ -38,7 +38,7 @@ export async function runAgent(trigger: "manual" | "auto" = "manual") {
       const body = await ctx.clone().json().catch(() => null);
       if (body?.error) message = body.error;
     } else if (error.name === "FunctionsFetchError" || /failed to send|fetch/i.test(message)) {
-      message = "The agent service could not be reached. It may not be deployed yet: publish the project in Lovable (this deploys the school-agent function), then try again.";
+      message = "The agent service could not be reached: the school-agent function is not deployed on this project yet. In Lovable, ask: \"Deploy the Supabase edge function school-agent\", then try again.";
     }
     throw new Error(message);
   }
