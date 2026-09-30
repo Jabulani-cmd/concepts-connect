@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Mail, Phone, MapPin, Twitter, Facebook, Instagram, MessageCircle } from "lucide-react";
+import { Mail, Phone, MapPin, Facebook, MessageCircle } from "lucide-react";
 import schoolLogo from "@/assets/concepts-logo.png";
 import ministryLogo from "@/assets/ministry-of-education-logo.png";
 import zimsecLogo from "@/assets/zimsec-logo.png";
 import cambridgeLogo from "@/assets/cambridge-logo.png";
-import { SCHOOL_ADDRESS, SCHOOL_EMAIL, SCHOOL_PHONE, SCHOOL_PHONE_LINK } from "@/lib/school";
+import { SCHOOL_ADDRESS, SCHOOL_EMAIL, SCHOOL_FACEBOOK, SCHOOL_PHONE, SCHOOL_PHONE_LINK, SCHOOL_WHATSAPP } from "@/lib/school";
 import InstallAppButton from "@/components/pwa/InstallAppButton";
 
 export default function Footer() {
@@ -56,10 +56,8 @@ export default function Footer() {
             </div>
             <p className="text-sm leading-relaxed text-white/70">{t("footer.description")}</p>
             <div className="mt-5 flex items-center gap-3">
-              <a href="#" aria-label="Twitter" className="rounded-full border border-white/20 p-2 transition-colors hover:border-purple-300 hover:text-purple-300"><Twitter className="h-4 w-4" /></a>
-              <a href="#" aria-label="Facebook" className="rounded-full border border-white/20 p-2 transition-colors hover:border-purple-300 hover:text-purple-300"><Facebook className="h-4 w-4" /></a>
-              <a href="#" aria-label="Instagram" className="rounded-full border border-white/20 p-2 transition-colors hover:border-purple-300 hover:text-purple-300"><Instagram className="h-4 w-4" /></a>
-              <a href="https://wa.me/263242550123" aria-label="WhatsApp" className="rounded-full border border-white/20 p-2 transition-colors hover:border-purple-300 hover:text-purple-300"><MessageCircle className="h-4 w-4" /></a>
+              <a href={SCHOOL_FACEBOOK} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="rounded-full border border-white/20 p-2 transition-colors hover:border-purple-300 hover:text-purple-300"><Facebook className="h-4 w-4" /></a>
+              <a href={SCHOOL_WHATSAPP} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="rounded-full border border-white/20 p-2 transition-colors hover:border-purple-300 hover:text-purple-300"><MessageCircle className="h-4 w-4" /></a>
             </div>
           </div>
 

@@ -334,6 +334,7 @@
       "email": "Email",
       "hours": "Office Hours", "hoursText": "Mon – Fri: 07:30 – 15:30"
     },
+    "followFacebook": "Follow us on Facebook",
     "formsEyebrow": "We're Listening",
     "formsTitle": "Send a Message or Book a Visit",
     "tabs": { "message": "Send a Message", "appointment": "Book an Appointment" },
