@@ -120,6 +120,14 @@ async function findUserId(admin: SupabaseClient, email: string): Promise<string 
   return undefined;
 }
 
+/** The staff directory category for a staff role. */
+function staffCategory(role: string): string {
+  if (role === "teacher" || role === "hod") return "teaching";
+  if (role === "principal" || role === "deputy_principal") return "leadership";
+  if (["admin_supervisor", "bursar", "finance", "finance_clerk", "registration"].includes(role)) return "administrative";
+  return "support";
+}
+
 /** Links each login to its school record. Returns a problem per account that could not be linked. */
 async function linkRecords(admin: SupabaseClient, linked: { account: Account; uid: string }[]): Promise<Map<string, string>> {
   const problems = new Map<string, string>();
@@ -138,10 +146,17 @@ async function linkRecords(admin: SupabaseClient, linked: { account: Account; ui
   }
 
   // Teachers, heads of department, leadership, office and support staff: attach the login to the staff record.
+  // If the record can't be found (it may have been cleared, or written a moment ago and not yet
+  // visible), create it, so every demo staff login always ends up with a staff record.
   for (const { account, uid } of linked.filter((l) => (STAFF_ROLES as readonly string[]).includes(l.account.role))) {
     const { data, error } = await admin.from("staff").update({ user_id: uid }).eq("email", account.email).select("id");
-    if (error) problems.set(account.email, `staff record: ${error.message}`);
-    else if (!data?.length) problems.set(account.email, "no staff record with this email. Load the demo data first");
+    if (error) { problems.set(account.email, `staff record: ${error.message}`); continue; }
+    if (data?.length) continue;
+    const { error: insErr } = await admin.from("staff").insert({
+      user_id: uid, full_name: account.full_name, email: account.email, role: account.role,
+      category: staffCategory(account.role), status: "active",
+    });
+    if (insErr) problems.set(account.email, `staff record could not be created: ${insErr.message}`);
   }
 
   // Parents: link every child and open portal access for the demo.
