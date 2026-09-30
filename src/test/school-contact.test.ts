@@ -8,7 +8,7 @@ describe("school contact details", () => {
   it("are the school's address, phone and email", () => {
     expect(SCHOOL_ADDRESS).toBe("2456 Gaydon Crescent, Glen Lorne, Harare, Zimbabwe");
     expect(SCHOOL_PHONE).toBe("+263 78 982 4741");
-    expect(SCHOOL_EMAIL).toBe("info@mavingtech.com");
+    expect(SCHOOL_EMAIL).toBe("info@concepts-academy.co.zw");
     expect(SCHOOL_CONTACT_LINE).toContain(SCHOOL_ADDRESS);
   });
 

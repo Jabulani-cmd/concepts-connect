@@ -9,7 +9,7 @@ export const SCHOOL_ADDRESS = "2456 Gaydon Crescent, Glen Lorne, Harare, Zimbabw
 export const SCHOOL_PHONE = "+263 78 982 4741";
 /** The phone number for tel: links. */
 export const SCHOOL_PHONE_LINK = "tel:+263789824741";
-export const SCHOOL_EMAIL = "info@mavingtech.com";
+export const SCHOOL_EMAIL = "info@concepts-academy.co.zw";
 /** Phone and email on one line, shown under the address in document headers. */
 export const SCHOOL_PHONE_EMAIL_LINE = `Tel: ${SCHOOL_PHONE} | Email: ${SCHOOL_EMAIL}`;
 /** Address, phone and email on one line, for document footers. */
