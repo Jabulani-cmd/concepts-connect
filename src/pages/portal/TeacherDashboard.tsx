@@ -43,6 +43,7 @@ import ResourceLibraryTab from "@/components/teacher/ResourceLibraryTab";
 import ParentCommunicationLog from "@/components/teacher/ParentCommunicationLog";
 import FullWeekTimetable from "@/components/shared/FullWeekTimetable";
 import PublishedTimetableWidget from "@/components/timetable/PublishedTimetableWidget";
+import MyCoverLessons from "@/components/teacher/MyCoverLessons";
 import { gradeFor } from "@/lib/grading";
 const termOptions = ["Term 1", "Term 2", "Term 3"];
 const assessmentTypes = ["test", "exam", "assignment", "project"];
@@ -401,6 +402,8 @@ export default function TeacherDashboard({ embedded = false }: TeacherDashboardP
             </CardContent></Card>
           </div>
         </motion.div>
+
+        <MyCoverLessons staffId={staffInfo?.id} />
 
         <PublishedTimetableWidget title="Teaching Timetable" mode="teacher" filterValue={displayName} />
 

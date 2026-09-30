@@ -3888,6 +3888,86 @@ export type Database = {
           },
         ]
       }
+      timetable_cover: {
+        Row: {
+          absent_staff_id: string | null
+          class_id: string | null
+          cover_date: string
+          cover_staff_id: string | null
+          created_at: string
+          created_by: string | null
+          end_time: string
+          id: string
+          note: string | null
+          reason: string | null
+          room: string | null
+          start_time: string
+          status: string
+          subject_id: string | null
+        }
+        Insert: {
+          absent_staff_id?: string | null
+          class_id?: string | null
+          cover_date: string
+          cover_staff_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          end_time: string
+          id?: string
+          note?: string | null
+          reason?: string | null
+          room?: string | null
+          start_time: string
+          status?: string
+          subject_id?: string | null
+        }
+        Update: {
+          absent_staff_id?: string | null
+          class_id?: string | null
+          cover_date?: string
+          cover_staff_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          end_time?: string
+          id?: string
+          note?: string | null
+          reason?: string | null
+          room?: string | null
+          start_time?: string
+          status?: string
+          subject_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "timetable_cover_absent_staff_id_fkey"
+            columns: ["absent_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "timetable_cover_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "timetable_cover_cover_staff_id_fkey"
+            columns: ["cover_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "timetable_cover_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       timetable_entries: {
         Row: {
           class_id: string | null
