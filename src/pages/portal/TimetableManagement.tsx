@@ -13,7 +13,8 @@ import TimetableGridBuilder from "@/components/timetable/TimetableGridBuilder";
 import AIGenerationOverlay from "@/components/timetable/AIGenerationOverlay";
 import TimetableViewModes from "@/components/timetable/TimetableViewModes";
 import TimetableAnalytics from "@/components/timetable/TimetableAnalytics";
-import SubstitutionFinder from "@/components/timetable/SubstitutionFinder";
+import CoverAgent from "@/components/timetable/CoverAgent";
+import { useAuth } from "@/contexts/AuthContext";
 import ExamTimetableBuilder from "@/components/timetable/ExamTimetableBuilder";
 import { buildPeriodSchedule, colorForSubject, dayName, SlotRow, printableTimetableHtml, type BreakSpec } from "@/lib/timetableUtils";
 import type { Json, Tables, TablesInsert } from "@/integrations/supabase/types";
@@ -33,6 +34,7 @@ const toDef = (row: Tables<"tt_definitions">) => row as unknown as Def;
 type AiSlot = { day: number; period: number; subject: string; teacher?: string; room?: string; reasoning?: string };
 
 export default function TimetableManagement() {
+  const { role } = useAuth();
   const { toast } = useToast();
   const [tab, setTab] = useState<"class" | "exam">("class");
   const [aiMode, setAiMode] = useState(false);
@@ -397,7 +399,7 @@ export default function TimetableManagement() {
             mode={viewMode} setMode={setViewMode}
             filter={viewFilter} setFilter={setViewFilter}
           />
-          <SubstitutionFinder allSlots={allSlots} />
+          {role !== "teacher" && <CoverAgent />}
         </div>
       )}
 

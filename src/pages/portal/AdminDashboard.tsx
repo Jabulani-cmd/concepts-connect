@@ -13,8 +13,8 @@ import BoardingManagement from "@/pages/admin/BoardingManagement";
 import InventoryManagement from "@/pages/admin/InventoryManagement";
 import CommunicationModule from "@/pages/admin/CommunicationModule";
 import PublishedTimetableWidget from "@/components/timetable/PublishedTimetableWidget";
-import AISmartTimetable from "@/components/timetable/AISmartTimetable";
-import AITimetableBuilderAgent from "@/components/timetable/AITimetableBuilderAgent";
+import TimetableAgent from "@/components/timetable/TimetableAgent";
+import CoverAgent from "@/components/timetable/CoverAgent";
 import DemoDataSeederPanel from "@/components/admin/DemoDataSeederPanel";
 import EMISReports from "@/pages/admin/EMISReports";
 import AuditLogs from "@/pages/admin/AuditLogs";
@@ -441,8 +441,8 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
 
           {/* Timetable Tab */}
           <TabsContent value="timetable" className="space-y-4">
-            <AITimetableBuilderAgent />
-            <AISmartTimetable />
+            <TimetableAgent />
+            <CoverAgent />
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="font-heading">Advanced Tools</CardTitle>
