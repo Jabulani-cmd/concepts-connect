@@ -16,26 +16,9 @@ import {
   galleryThumbnail,
   isVideo,
   isVideoLink,
-  shrinkPhoto,
   type GalleryItem,
 } from "@/lib/gallery";
-
-const BUCKET = "school-media";
-
-async function upload(file: File): Promise<string> {
-  const ext = file.name.split(".").pop()?.toLowerCase() || file.type.split("/")[1] || "bin";
-  const path = `gallery/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-  const { error } = await supabase.storage.from(BUCKET).upload(path, file, { cacheControl: "31536000", upsert: false, contentType: file.type || undefined });
-  if (error) throw error;
-  return supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
-}
-
-/** Path of a file in the school-media bucket, from its public address. */
-function storagePath(url: string): string | null {
-  const marker = `/storage/v1/object/public/${BUCKET}/`;
-  const i = url.indexOf(marker);
-  return i >= 0 ? decodeURIComponent(url.slice(i + marker.length).split("?")[0]) : null;
-}
+import { removeMedia, uploadMedia } from "@/lib/mediaUpload";
 
 /** Admin screen for the public gallery: add photos, videos and video links; hide or remove them. */
 export default function GalleryManagement() {
@@ -71,7 +54,7 @@ export default function GalleryManagement() {
     try {
       for (const [i, f] of list.entries()) {
         setBusy(`Uploading photo ${i + 1} of ${list.length}…`);
-        urls.push(await upload(await shrinkPhoto(f)));
+        urls.push(await uploadMedia(f, "gallery"));
       }
       await save(urls);
       toast({ title: list.length === 1 ? "Photo added to the gallery" : `${list.length} photos added to the gallery` });
@@ -98,7 +81,7 @@ export default function GalleryManagement() {
     }
     try {
       setBusy(`Uploading video (${(file.size / 1024 / 1024).toFixed(1)} MB)…`);
-      await save([await upload(file)]);
+      await save([await uploadMedia(file, "gallery")]);
       toast({ title: "Video added to the gallery" });
       setCaption("");
     } catch (e) {
@@ -143,8 +126,7 @@ export default function GalleryManagement() {
       toast({ title: "Could not remove", description: errorMessage(error), variant: "destructive" });
       return;
     }
-    const path = storagePath(item.image_url);
-    if (path) await supabase.storage.from(BUCKET).remove([path]);
+    await removeMedia(item.image_url);
     toast({ title: "Removed from the gallery" });
     load();
   };

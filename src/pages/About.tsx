@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import Layout from "@/components/layout/Layout";
 import PageHero from "@/components/layout/PageHero";
 import { Users, Award, Globe } from "lucide-react";
-import hero from "@/assets/hero-students-2.jpg";
+import { useSiteMedia } from "@/lib/siteMedia";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -18,6 +18,7 @@ const alumni = [
 
 export default function About() {
   const { t } = useTranslation();
+  const media = useSiteMedia();
   const stats = [
     { icon: Users, value: "800+", label: t("about.stats.students") },
     { icon: Award, value: "95%", label: t("about.stats.passRate") },
@@ -31,7 +32,7 @@ export default function About() {
 
   return (
     <Layout>
-      <PageHero eyebrow={t("about.eyebrow")} title={t("about.title")} subtitle={t("about.subtitle")} image={hero} />
+      <PageHero eyebrow={t("about.eyebrow")} title={t("about.title")} subtitle={t("about.subtitle")} image={media("media:about.hero")} />
 
       <section className="py-20 md:py-28">
         <div className="container grid items-start gap-14 lg:grid-cols-5">

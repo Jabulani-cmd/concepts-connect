@@ -21,7 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import hero from "@/assets/hero-students-5.jpg";
+import { useSiteMedia } from "@/lib/siteMedia";
 import { SCHOOL_ADDRESS, SCHOOL_EMAIL, SCHOOL_PHONE, SCHOOL_PHONE_LINK } from "@/lib/school";
 
 const contactSchema = z.object({
@@ -64,6 +64,7 @@ const timeSlots = [
 
 export default function Contact() {
   const { t } = useTranslation();
+  const media = useSiteMedia();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const defaultTab = searchParams.get("tab") === "appointment" ? "appointment" : "contact";
@@ -108,7 +109,7 @@ export default function Contact() {
 
   return (
     <Layout>
-      <PageHero eyebrow={t("contact.eyebrow")} title={t("contact.title")} subtitle={t("contact.subtitle")} image={hero} />
+      <PageHero eyebrow={t("contact.eyebrow")} title={t("contact.title")} subtitle={t("contact.subtitle")} image={media("media:contact.hero")} />
 
       <section className="py-20 md:py-24">
         <div className="container">

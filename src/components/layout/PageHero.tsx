@@ -1,21 +1,37 @@
 import { motion } from "framer-motion";
+import { galleryKind } from "@/lib/gallery";
 
 interface PageHeroProps {
   eyebrow?: string;
   title: string;
   subtitle?: string;
-  image: string;
+  /** Picture or short video behind the title; left empty while it is still loading. */
+  image?: string;
 }
 
 export default function PageHero({ eyebrow, title, subtitle, image }: PageHeroProps) {
   return (
     <section className="relative isolate h-[52vh] min-h-[380px] w-full overflow-hidden bg-foreground">
-      <img
-        src={image}
-        alt=""
-        className="absolute inset-0 h-full w-full object-cover"
-        style={{ objectPosition: "center 45%" }}
-      />
+      {image && galleryKind(image) === "video" ? (
+        <video
+          key={image}
+          src={image}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 h-full w-full object-cover"
+          style={{ objectPosition: "center 45%" }}
+        />
+      ) : image ? (
+        <img
+          key={image}
+          src={image}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+          style={{ objectPosition: "center 45%" }}
+        />
+      ) : null}
       <div className="absolute inset-0 bg-gradient-to-r from-purple-950/85 via-purple-900/45 to-black/10" />
       <div className="container relative z-10 flex h-full items-end pb-14">
         <motion.div

@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 
 import AcademicManagement from "@/pages/admin/AcademicManagement";
 import AdminAttendanceViewer from "@/components/admin/AdminAttendanceViewer";
-import ImageCropper from "@/components/ImageCropper";
 import StaffManagement from "@/components/admin/StaffManagement";
 import ProjectsManagement from "@/components/admin/ProjectsManagement";
 import AwardsManagement from "@/components/admin/AwardsManagement";
@@ -35,6 +34,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import GalleryManagement from "@/components/admin/GalleryManagement";
+import CarouselManagement from "@/components/admin/CarouselManagement";
+import SiteMediaManagement from "@/components/admin/SiteMediaManagement";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Bell, Image, Calendar, LogOut, Plus, Trash2, Upload, Layers, GraduationCap, Download, FileText, HandshakeIcon, Settings, UserCheck, Building, FolderKanban, BookOpen, Briefcase, DollarSign, Shield, BedDouble, Package, MessageSquare, ClipboardList, ShieldCheck, Database, Rocket, Megaphone, Trophy, ShieldAlert, CheckCircle2, CalendarOff, Bot } from "lucide-react";
 import schoolLogo from "@/assets/concepts-logo.png";
@@ -70,9 +71,6 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
 
   // Carousel images
   const [carouselImages, setCarouselImages] = useState<Tables<"carousel_images">[]>([]);
-  const carouselFileRef = useRef<HTMLInputElement>(null);
-  const [carouselCropSrc, setCarouselCropSrc] = useState<string | null>(null);
-  const [carouselCropOpen, setCarouselCropOpen] = useState(false);
 
   // Downloads
   const [downloads, setDownloads] = useState<Tables<"downloads">[]>([]);
@@ -90,179 +88,6 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
   const [meetingLocation, setMeetingLocation] = useState("");
 
   const [uploading, setUploading] = useState(false);
-
-  // Site images (achievements etc.)
-  const [achievementsImageUrl, setAchievementsImageUrl] = useState<string | null>(null);
-  const achievementsFileRef = useRef<HTMLInputElement>(null);
-  const [achievementsCropSrc, setAchievementsCropSrc] = useState<string | null>(null);
-  const [achievementsCropOpen, setAchievementsCropOpen] = useState(false);
-
-  // Tradition image
-  const [traditionImageUrl, setTraditionImageUrl] = useState<string | null>(null);
-  const traditionFileRef = useRef<HTMLInputElement>(null);
-  const [traditionCropSrc, setTraditionCropSrc] = useState<string | null>(null);
-  const [traditionCropOpen, setTraditionCropOpen] = useState(false);
-
-  // CTA image
-  const [ctaImageUrl, setCtaImageUrl] = useState<string | null>(null);
-  const ctaFileRef = useRef<HTMLInputElement>(null);
-  const [ctaCropSrc, setCtaCropSrc] = useState<string | null>(null);
-  const [ctaCropOpen, setCtaCropOpen] = useState(false);
-
-  // Principal photo
-  const [principalPhotoUrl, setPrincipalPhotoUrl] = useState<string | null>(null);
-  const principalFileRef = useRef<HTMLInputElement>(null);
-  const [principalCropSrc, setPrincipalCropSrc] = useState<string | null>(null);
-  const [principalCropOpen, setPrincipalCropOpen] = useState(false);
-
-  const fetchSiteSettings = async () => {
-    const { data } = await supabase.from("site_settings").select("*").in("setting_key", ["achievements_image", "principal_photo", "tradition_image", "cta_image"]);
-    if (data) {
-      data.forEach((s) => {
-        if (s.setting_key === "achievements_image") setAchievementsImageUrl(s.setting_value);
-        if (s.setting_key === "principal_photo") setPrincipalPhotoUrl(s.setting_value);
-        if (s.setting_key === "tradition_image") setTraditionImageUrl(s.setting_value);
-        if (s.setting_key === "cta_image") setCtaImageUrl(s.setting_value);
-      });
-    }
-  };
-
-  const handlePrincipalFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setPrincipalCropSrc(reader.result as string);
-      setPrincipalCropOpen(true);
-    };
-    reader.readAsDataURL(file);
-    if (principalFileRef.current) principalFileRef.current.value = "";
-  };
-
-  const handlePrincipalCropComplete = async (blob: Blob) => {
-    setUploading(true);
-    try {
-      const file = new File([blob], `principal_${Date.now()}.jpg`, { type: "image/jpeg" });
-      const url = await uploadFile(file, "site-images");
-      const { data: existing } = await supabase.from("site_settings").select("id").eq("setting_key", "principal_photo");
-      if (existing && existing.length > 0) {
-        await supabase.from("site_settings").update({ setting_value: url, updated_at: new Date().toISOString() }).eq("setting_key", "principal_photo");
-      } else {
-        await supabase.from("site_settings").insert({ setting_key: "principal_photo", setting_value: url });
-      }
-      setPrincipalPhotoUrl(url);
-      toast({ title: "Principal photo updated!" });
-    } catch (err) {
-      toast({ title: "Upload failed", description: errorMessage(err), variant: "destructive" });
-    }
-    setUploading(false);
-  };
-
-  const handleAchievementsFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setAchievementsCropSrc(reader.result as string);
-      setAchievementsCropOpen(true);
-    };
-    reader.readAsDataURL(file);
-    if (achievementsFileRef.current) achievementsFileRef.current.value = "";
-  };
-
-  const handleAchievementsCropComplete = async (blob: Blob) => {
-    setUploading(true);
-    try {
-      const file = new File([blob], `achievements_${Date.now()}.jpg`, { type: "image/jpeg" });
-      const url = await uploadFile(file, "site-images");
-      const { data: existing } = await supabase.from("site_settings").select("id").eq("setting_key", "achievements_image");
-      if (existing && existing.length > 0) {
-        await supabase.from("site_settings").update({ setting_value: url, updated_at: new Date().toISOString() }).eq("setting_key", "achievements_image");
-      } else {
-        await supabase.from("site_settings").insert({ setting_key: "achievements_image", setting_value: url });
-      }
-      setAchievementsImageUrl(url);
-      toast({ title: "Achievements image updated!" });
-    } catch (err) {
-      toast({ title: "Upload failed", description: errorMessage(err), variant: "destructive" });
-    }
-    setUploading(false);
-  };
-
-  const handleTraditionFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setTraditionCropSrc(reader.result as string);
-      setTraditionCropOpen(true);
-    };
-    reader.readAsDataURL(file);
-    if (traditionFileRef.current) traditionFileRef.current.value = "";
-  };
-
-  const handleTraditionCropComplete = async (blob: Blob) => {
-    setUploading(true);
-    try {
-      const file = new File([blob], `tradition_${Date.now()}.jpg`, { type: "image/jpeg" });
-      const url = await uploadFile(file, "site-images");
-      const { data: existing } = await supabase.from("site_settings").select("id").eq("setting_key", "tradition_image");
-      if (existing && existing.length > 0) {
-        await supabase.from("site_settings").update({ setting_value: url, updated_at: new Date().toISOString() }).eq("setting_key", "tradition_image");
-      } else {
-        await supabase.from("site_settings").insert({ setting_key: "tradition_image", setting_value: url });
-      }
-      setTraditionImageUrl(url);
-      toast({ title: "Tradition image updated!" });
-    } catch (err) {
-      toast({ title: "Upload failed", description: errorMessage(err), variant: "destructive" });
-    }
-    setUploading(false);
-  };
-
-  const handleCtaFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setCtaCropSrc(reader.result as string);
-      setCtaCropOpen(true);
-    };
-    reader.readAsDataURL(file);
-    if (ctaFileRef.current) ctaFileRef.current.value = "";
-  };
-
-  const handleCtaCropComplete = async (blob: Blob) => {
-    setUploading(true);
-    try {
-      const file = new File([blob], `cta_${Date.now()}.jpg`, { type: "image/jpeg" });
-      const url = await uploadFile(file, "site-images");
-      const { data: existing } = await supabase.from("site_settings").select("id").eq("setting_key", "cta_image");
-      if (existing && existing.length > 0) {
-        await supabase.from("site_settings").update({ setting_value: url, updated_at: new Date().toISOString() }).eq("setting_key", "cta_image");
-      } else {
-        await supabase.from("site_settings").insert({ setting_key: "cta_image", setting_value: url });
-      }
-      setCtaImageUrl(url);
-      toast({ title: "CTA image updated!" });
-    } catch (err) {
-      toast({ title: "Upload failed", description: errorMessage(err), variant: "destructive" });
-    }
-    setUploading(false);
-  };
-
-  const handleDeleteSiteImage = async (settingKey: string, setter: (v: string | null) => void) => {
-    if (!confirm("Are you sure you want to delete this image?")) return;
-    setUploading(true);
-    try {
-      await supabase.from("site_settings").delete().eq("setting_key", settingKey);
-      setter(null);
-      toast({ title: "Image deleted successfully" });
-    } catch (err) {
-      toast({ title: "Delete failed", description: errorMessage(err), variant: "destructive" });
-    }
-    setUploading(false);
-  };
 
   const fetchAnnouncements = async () => {
     const { data } = await supabase.from("announcements").select("*").order("created_at", { ascending: false });
@@ -286,7 +111,6 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
     fetchCarouselImages();
     fetchDownloads();
     fetchMeetings();
-    fetchSiteSettings();
   }, []);
 
   const addAnnouncement = async () => {
@@ -314,39 +138,6 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
     if (error) throw error;
     const { data: urlData } = supabase.storage.from("school-media").getPublicUrl(path);
     return urlData.publicUrl;
-  };
-
-  const handleCarouselFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setCarouselCropSrc(reader.result as string);
-      setCarouselCropOpen(true);
-    };
-    reader.readAsDataURL(file);
-    if (carouselFileRef.current) carouselFileRef.current.value = "";
-  };
-
-  const handleCarouselCropComplete = async (blob: Blob) => {
-    setUploading(true);
-    try {
-      const file = new File([blob], `carousel_${Date.now()}.jpg`, { type: "image/jpeg" });
-      const url = await uploadFile(file, "carousel");
-      const { error } = await supabase.from("carousel_images").insert({ image_url: url, display_order: carouselImages.length });
-      if (error) throw error;
-      toast({ title: "Carousel image added!" });
-      fetchCarouselImages();
-    } catch (err) {
-      toast({ title: "Upload failed", description: errorMessage(err), variant: "destructive" });
-    }
-    setUploading(false);
-  };
-
-  const deleteCarouselImage = async (id: string) => {
-    await supabase.from("carousel_images").delete().eq("id", id);
-    toast({ title: "Carousel image removed" });
-    fetchCarouselImages();
   };
 
   const handleDownloadUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -444,61 +235,6 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
         </div>
 
         {/* All image croppers rendered outside Tabs so they're always mounted */}
-        {carouselCropSrc && (
-          <ImageCropper
-            imageSrc={carouselCropSrc}
-            open={carouselCropOpen}
-            onClose={() => { setCarouselCropOpen(false); setCarouselCropSrc(null); }}
-            onCropComplete={handleCarouselCropComplete}
-            aspectRatio={16 / 9}
-            cropShape="rect"
-            title="Crop Carousel Image"
-          />
-        )}
-        {principalCropSrc && (
-          <ImageCropper
-            imageSrc={principalCropSrc}
-            open={principalCropOpen}
-            onClose={() => { setPrincipalCropOpen(false); setPrincipalCropSrc(null); }}
-            onCropComplete={handlePrincipalCropComplete}
-            aspectRatio={3 / 4}
-            cropShape="rect"
-            title="Crop Principal Photo"
-          />
-        )}
-        {achievementsCropSrc && (
-          <ImageCropper
-            imageSrc={achievementsCropSrc}
-            open={achievementsCropOpen}
-            onClose={() => { setAchievementsCropOpen(false); setAchievementsCropSrc(null); }}
-            onCropComplete={handleAchievementsCropComplete}
-            aspectRatio={16 / 9}
-            cropShape="rect"
-            title="Crop Achievements Image"
-          />
-        )}
-        {traditionCropSrc && (
-          <ImageCropper
-            imageSrc={traditionCropSrc}
-            open={traditionCropOpen}
-            onClose={() => { setTraditionCropOpen(false); setTraditionCropSrc(null); }}
-            onCropComplete={handleTraditionCropComplete}
-            aspectRatio={16 / 9}
-            cropShape="rect"
-            title="Crop Tradition Image"
-          />
-        )}
-        {ctaCropSrc && (
-          <ImageCropper
-            imageSrc={ctaCropSrc}
-            open={ctaCropOpen}
-            onClose={() => { setCtaCropOpen(false); setCtaCropSrc(null); }}
-            onCropComplete={handleCtaCropComplete}
-            aspectRatio={1}
-            cropShape="rect"
-            title="Crop CTA Image"
-          />
-        )}
 
         <div className="mb-4 sm:mb-6"><DemoDataSeederPanel /></div>
 
@@ -509,7 +245,7 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
               <TabsTrigger value="carousel" className="text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"><Layers className="mr-1 h-3.5 w-3.5" /> Carousel</TabsTrigger>
               <TabsTrigger value="gallery" className="text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"><Image className="mr-1 h-3.5 w-3.5" /> Gallery</TabsTrigger>
               <TabsTrigger value="downloads" className="text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"><Download className="mr-1 h-3.5 w-3.5" /> Downloads</TabsTrigger>
-              <TabsTrigger value="site-images" className="text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"><Settings className="mr-1 h-3.5 w-3.5" /> Images</TabsTrigger>
+              <TabsTrigger value="site-images" className="text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"><Settings className="mr-1 h-3.5 w-3.5" /> Site Images</TabsTrigger>
               <TabsTrigger value="student-mgmt" className="text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"><BookOpen className="mr-1 h-3.5 w-3.5" /> Students</TabsTrigger>
               <TabsTrigger value="staff-mgmt" className="text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"><UserCheck className="mr-1 h-3.5 w-3.5" /> Staff</TabsTrigger>
               <TabsTrigger value="staff-full" className="text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"><Briefcase className="mr-1 h-3.5 w-3.5" /> Directory</TabsTrigger>
@@ -593,31 +329,7 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
 
           {/* Carousel Tab */}
           <TabsContent value="carousel">
-            <div className="grid gap-6 lg:grid-cols-2">
-              <Card>
-                <CardHeader><CardTitle className="font-heading">Upload Carousel Image</CardTitle></CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm text-muted-foreground">Recommended: 1920×1080px.</p>
-                  <input type="file" accept="image/*" ref={carouselFileRef} onChange={handleCarouselFileSelect} className="hidden" />
-                  <Button onClick={() => carouselFileRef.current?.click()} disabled={uploading}>
-                    <Upload className="mr-1 h-4 w-4" /> {uploading ? "Uploading…" : "Choose Image"}
-                  </Button>
-                </CardContent>
-              </Card>
-              <div className="space-y-3">
-                <h3 className="font-heading text-sm font-semibold text-muted-foreground uppercase tracking-wider">Current Slides ({carouselImages.length})</h3>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {carouselImages.map((img) => (
-                    <div key={img.id} className="group relative overflow-hidden rounded-lg border">
-                      <img src={img.image_url} alt="Carousel slide" className="h-32 w-full object-cover" />
-                      <Button variant="destructive" size="icon" className="absolute right-2 top-2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => deleteCarouselImage(img.id)}>
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <CarouselManagement />
           </TabsContent>
 
           {/* Gallery Tab */}
@@ -746,87 +458,7 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
 
           {/* Site Images Tab */}
           <TabsContent value="site-images">
-            <div className="grid gap-6 lg:grid-cols-2">
-              {/* Principal Photo */}
-              <Card>
-                <CardHeader><CardTitle className="font-heading">Principal Photo</CardTitle></CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm text-muted-foreground">This photo appears on the homepage in the "From the Principal's Desk" section.</p>
-                  <input type="file" accept="image/*" ref={principalFileRef} onChange={handlePrincipalFileSelect} className="hidden" />
-                  <Button onClick={() => principalFileRef.current?.click()} disabled={uploading}>
-                    <Upload className="mr-1 h-4 w-4" /> {uploading ? "Uploading…" : "Upload Principal Photo"}
-                  </Button>
-                  {principalPhotoUrl && (
-                    <div className="relative mt-2 inline-block">
-                      <img src={principalPhotoUrl} alt="Principal" className="h-48 w-36 rounded-lg border object-cover object-top" />
-                      <Button variant="destructive" size="icon" className="absolute right-1 top-1 h-7 w-7" onClick={() => handleDeleteSiteImage("principal_photo", setPrincipalPhotoUrl)} disabled={uploading}>
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Achievements Image */}
-              <Card>
-                <CardHeader><CardTitle className="font-heading">Achievements Section Image</CardTitle></CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm text-muted-foreground">This image appears on the homepage next to the "Celebrating Achievement" section.</p>
-                  <input type="file" accept="image/*" ref={achievementsFileRef} onChange={handleAchievementsFileSelect} className="hidden" />
-                  <Button onClick={() => achievementsFileRef.current?.click()} disabled={uploading}>
-                    <Upload className="mr-1 h-4 w-4" /> {uploading ? "Uploading…" : "Upload Image"}
-                  </Button>
-                  {achievementsImageUrl && (
-                    <div className="relative mt-2">
-                      <img src={achievementsImageUrl} alt="Achievements section" className="rounded-lg border max-h-64 w-full object-cover" />
-                      <Button variant="destructive" size="icon" className="absolute right-1 top-1 h-7 w-7" onClick={() => handleDeleteSiteImage("achievements_image", setAchievementsImageUrl)} disabled={uploading}>
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Tradition Image */}
-              <Card>
-                <CardHeader><CardTitle className="font-heading">Tradition of Excellence Image</CardTitle></CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm text-muted-foreground">This image appears on the homepage next to the "A Tradition of Excellence" section.</p>
-                  <input type="file" accept="image/*" ref={traditionFileRef} onChange={handleTraditionFileSelect} className="hidden" />
-                  <Button onClick={() => traditionFileRef.current?.click()} disabled={uploading}>
-                    <Upload className="mr-1 h-4 w-4" /> {uploading ? "Uploading…" : "Upload Image"}
-                  </Button>
-                  {traditionImageUrl && (
-                    <div className="relative mt-2">
-                      <img src={traditionImageUrl} alt="Tradition section" className="rounded-lg border max-h-64 w-full object-cover" />
-                      <Button variant="destructive" size="icon" className="absolute right-1 top-1 h-7 w-7" onClick={() => handleDeleteSiteImage("tradition_image", setTraditionImageUrl)} disabled={uploading}>
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-               </Card>
-
-              {/* CTA Section Image */}
-              <Card>
-                <CardHeader><CardTitle className="font-heading">CTA Section Image</CardTitle></CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm text-muted-foreground">This image appears on the homepage next to the "Ready to Join the Concepts Learning Academy Family?" section.</p>
-                  <input type="file" accept="image/*" ref={ctaFileRef} onChange={handleCtaFileSelect} className="hidden" />
-                  <Button onClick={() => ctaFileRef.current?.click()} disabled={uploading}>
-                    <Upload className="mr-1 h-4 w-4" /> {uploading ? "Uploading…" : "Upload Image"}
-                  </Button>
-                  {ctaImageUrl && (
-                    <div className="relative mt-2">
-                      <img src={ctaImageUrl} alt="CTA section" className="rounded-lg border max-h-64 w-full object-cover" />
-                      <Button variant="destructive" size="icon" className="absolute right-1 top-1 h-7 w-7" onClick={() => handleDeleteSiteImage("cta_image", setCtaImageUrl)} disabled={uploading}>
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+            <SiteMediaManagement />
           </TabsContent>
 
           {/* Staff Management Tab */}

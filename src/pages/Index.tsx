@@ -10,25 +10,20 @@ import hero2 from "@/assets/hero-students-2.jpg";
 import hero3 from "@/assets/hero-students-3.jpg";
 import hero4 from "@/assets/hero-students-4.jpg";
 import hero5 from "@/assets/hero-students-5.jpg";
-import currCs from "@/assets/curriculum-cs.jpg";
-import currMath from "@/assets/curriculum-math.jpg";
-import currLit from "@/assets/curriculum-literature.jpg";
-import currSci from "@/assets/curriculum-science.jpg";
-import currArts from "@/assets/curriculum-arts.jpg";
-import currPerf from "@/assets/curriculum-performing.jpg";
-import actSports from "@/assets/activity-sports.jpg";
-import actMusic from "@/assets/activity-music.jpg";
-import actArts from "@/assets/activity-arts.jpg";
-import actClubs from "@/assets/activity-clubs.jpg";
 import { supabase } from "@/integrations/supabase/client";
-import principalPhoto from "@/assets/principal-moyo.jpg";
+import { galleryKind } from "@/lib/gallery";
+import { useCarouselSlides, useSiteMedia } from "@/lib/siteMedia";
 
 const heroImages = [hero1, hero2, hero3, hero4, hero5];
 
-const DirectorPhoto = forwardRef<HTMLDivElement>(function DirectorPhoto(_props, ref) {
+const DirectorPhoto = forwardRef<HTMLDivElement, { src?: string }>(function DirectorPhoto({ src }, ref) {
   return (
     <div ref={ref} className="relative">
-      <img src={principalPhoto} alt="Mr. F.J. Moyo, Principal" className="aspect-[4/5] w-full rounded-lg object-cover object-top shadow-xl" />
+      {src ? (
+        <img src={src} alt="Mr. F.J. Moyo, Principal" className="aspect-[4/5] w-full rounded-lg object-cover object-top shadow-xl" />
+      ) : (
+        <div className="aspect-[4/5] w-full rounded-lg bg-muted" />
+      )}
     </div>
   );
 });
@@ -42,6 +37,11 @@ export default function Home() {
   const { t } = useTranslation();
   const [announcements, setAnnouncements] = useState<{ id: string; title: string; content: string | null; created_at: string }[]>([]);
   const [slide, setSlide] = useState(0);
+  const media = useSiteMedia();
+  const slides = useCarouselSlides(heroImages);
+  const slideCount = slides?.length ?? 0;
+  const current = slides?.[slide % Math.max(slideCount, 1)];
+  const currentIsVideo = !!current && galleryKind(current.image_url) === "video";
 
   const stats = [
     { value: "800+", label: t("home.stats.enrollments") },
@@ -51,19 +51,19 @@ export default function Home() {
   ];
 
   const curriculum = [
-    { title: t("home.curriculum.cs.title"), desc: t("home.curriculum.cs.desc"), img: currCs },
-    { title: t("home.curriculum.math.title"), desc: t("home.curriculum.math.desc"), img: currMath },
-    { title: t("home.curriculum.lit.title"), desc: t("home.curriculum.lit.desc"), img: currLit },
-    { title: t("home.curriculum.sci.title"), desc: t("home.curriculum.sci.desc"), img: currSci },
-    { title: t("home.curriculum.arts.title"), desc: t("home.curriculum.arts.desc"), img: currArts },
-    { title: t("home.curriculum.perf.title"), desc: t("home.curriculum.perf.desc"), img: currPerf },
+    { title: t("home.curriculum.cs.title"), desc: t("home.curriculum.cs.desc"), img: media("media:home.curriculum.cs") },
+    { title: t("home.curriculum.math.title"), desc: t("home.curriculum.math.desc"), img: media("media:home.curriculum.math") },
+    { title: t("home.curriculum.lit.title"), desc: t("home.curriculum.lit.desc"), img: media("media:home.curriculum.lit") },
+    { title: t("home.curriculum.sci.title"), desc: t("home.curriculum.sci.desc"), img: media("media:home.curriculum.sci") },
+    { title: t("home.curriculum.arts.title"), desc: t("home.curriculum.arts.desc"), img: media("media:home.curriculum.arts") },
+    { title: t("home.curriculum.perf.title"), desc: t("home.curriculum.perf.desc"), img: media("media:home.curriculum.perf") },
   ];
 
   const activities = [
-    { title: t("home.activities.sports"), img: actSports },
-    { title: t("home.activities.music"), img: actMusic },
-    { title: t("home.activities.arts"), img: actArts },
-    { title: t("home.activities.clubs"), img: actClubs },
+    { title: t("home.activities.sports"), img: media("media:home.activities.sports") },
+    { title: t("home.activities.music"), img: media("media:home.activities.music") },
+    { title: t("home.activities.arts"), img: media("media:home.activities.arts") },
+    { title: t("home.activities.clubs"), img: media("media:home.activities.clubs") },
   ];
 
   useEffect(() => {
@@ -76,26 +76,47 @@ export default function Home() {
       .then(({ data }) => { if (data) setAnnouncements(data); });
   }, []);
 
+  // Pictures change every few seconds; a video slide moves on when it finishes.
   useEffect(() => {
-    const tm = setInterval(() => setSlide((s) => (s + 1) % heroImages.length), 3800);
-    return () => clearInterval(tm);
-  }, []);
+    if (slideCount < 2 || currentIsVideo) return;
+    const tm = setTimeout(() => setSlide((s) => (s + 1) % slideCount), 3800);
+    return () => clearTimeout(tm);
+  }, [slide, slideCount, currentIsVideo]);
 
   return (
     <Layout>
       <section className="relative isolate h-[80vh] min-h-[560px] w-full overflow-hidden bg-foreground">
         <AnimatePresence initial={false}>
-          <motion.img
-            key={slide}
-            src={heroImages[slide]}
-            alt={t("home.hero.title")}
-            initial={{ opacity: 0, scale: 1.05 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1.2 }}
-            className="absolute inset-0 h-full w-full object-cover"
-            style={{ objectPosition: "center 30%" }}
-          />
+          {current && currentIsVideo && (
+            <motion.video
+              key={current.id}
+              src={current.image_url}
+              autoPlay
+              muted
+              playsInline
+              loop={slideCount < 2}
+              onEnded={() => setSlide((s) => (s + 1) % slideCount)}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.2 }}
+              className="absolute inset-0 h-full w-full object-cover"
+              style={{ objectPosition: "center 30%" }}
+            />
+          )}
+          {current && !currentIsVideo && (
+            <motion.img
+              key={current.id}
+              src={current.image_url}
+              alt={current.caption || t("home.hero.title")}
+              initial={{ opacity: 0, scale: 1.05 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.2 }}
+              className="absolute inset-0 h-full w-full object-cover"
+              style={{ objectPosition: "center 30%" }}
+            />
+          )}
         </AnimatePresence>
         <div className="absolute inset-0 bg-gradient-to-r from-purple-950/70 via-purple-900/30 to-transparent" />
 
@@ -122,9 +143,9 @@ export default function Home() {
         </div>
 
         <div className="absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 gap-2">
-          {heroImages.map((_, i) => (
+          {slideCount > 1 && slides!.map((_, i) => (
             <button key={i} onClick={() => setSlide(i)} aria-label={`Slide ${i + 1}`}
-              className={`h-2 rounded-full transition-all ${i === slide ? "w-8 bg-white" : "w-2 bg-white/50 hover:bg-white/80"}`} />
+              className={`h-2 rounded-full transition-all ${i === slide % slideCount ? "w-8 bg-white" : "w-2 bg-white/50 hover:bg-white/80"}`} />
           ))}
         </div>
       </section>
@@ -161,7 +182,7 @@ export default function Home() {
       <section className="py-20 md:py-28">
         <div className="container grid items-center gap-12 lg:grid-cols-5">
           <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }} className="lg:col-span-2">
-            <DirectorPhoto />
+            <DirectorPhoto src={media("principal_photo")} />
           </motion.div>
           <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }} className="lg:col-span-3">
             <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">{t("home.director.eyebrow")}</span>
@@ -193,7 +214,7 @@ export default function Home() {
               <motion.div key={c.title} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
                 className="group overflow-hidden rounded-lg bg-card shadow-sm ring-1 ring-border/60 transition-shadow hover:shadow-lg">
                 <div className="aspect-[4/3] overflow-hidden bg-muted">
-                  <img src={c.img} alt={c.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  {c.img && <img src={c.img} alt={c.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />}
                 </div>
                 <div className="p-6">
                   <h3 className="font-heading text-lg font-bold text-purple-900 dark:text-purple-200">{c.title}</h3>
@@ -216,7 +237,7 @@ export default function Home() {
             {activities.map((a, i) => (
               <motion.div key={a.title} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
                 className="group relative aspect-[4/5] overflow-hidden rounded-lg">
-                <img src={a.img} alt={a.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                {a.img && <img src={a.img} alt={a.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-5">
                   <h3 className="font-heading text-xl font-semibold text-white">{a.title}</h3>
