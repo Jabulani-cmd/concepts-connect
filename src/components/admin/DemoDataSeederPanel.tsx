@@ -142,8 +142,13 @@ export default function DemoDataSeederPanel() {
     const classRow = (c: Seed["classes"][number]) => ({
       name: c.name, level: `Form ${c.formLevel}`, stream: c.name.slice(-1), capacity: 40, academic_year: year,
     });
+    // Trust only the database's reply to each write: a class found by the lookup but gone
+    // by the time it is updated (e.g. just cleared) is created again below, so nothing
+    // later points at a class that no longer exists.
     for (const c of seed.classes.filter((x) => clsByName.has(x.name))) {
-      await supabase.from("classes").update(classRow(c)).eq("id", clsByName.get(c.name)!);
+      const { data: upd, error } = await supabase.from("classes").update(classRow(c)).eq("id", clsByName.get(c.name)!).select("id");
+      if (error) throw error;
+      if (!upd?.length) clsByName.delete(c.name);
     }
     const missingCls = seed.classes.filter((c) => !clsByName.has(c.name)).map(classRow);
     if (missingCls.length) {
