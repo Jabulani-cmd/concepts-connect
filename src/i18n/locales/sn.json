@@ -379,7 +379,14 @@
     "title": "Mari yeChikoro",
     "intro": "Dhaunirodha chirongwa chemari chazvino, mashoko ekubhadhara nemagwaro emari pazasi.",
     "payOnline": "Bhadhara Mari Paindaneti",
-    "empty": "Magwaro emari achawanikwa munguva pfupi."
+    "empty": "Magwaro emari achawanikwa munguva pfupi.",
+    "currentLabel": "Mari yechikoro yazvino",
+    "updated": "Yakagadziridzwa {{date}}",
+    "view": "Ona PDF",
+    "download": "Dhawunirodha PDF",
+    "payPrompt": "Wagadzirira kubhadhara? Bhadhara pamhepo uchishandisa nhamba yemudzidzi.",
+    "earlier": "Magwaro emari ekare",
+    "allDocuments": "Ona magwaro ese emari papeji reDownloads"
   },
   "facilities": {
     "title": "Zvivakwa Zvedu",
@@ -444,6 +451,8 @@
     "empty": "Hapana mikana yebasa iripo parizvino. Dzoka utarise zvakare."
   },
   "downloads": {
+    "view": "Ona",
+    "download": "Dhawunirodha",
     "title": "Zvinodhaunirodhwa",
     "empty": "Hapana magwaro ekudhaunirodha parizvino.",
     "categories": {

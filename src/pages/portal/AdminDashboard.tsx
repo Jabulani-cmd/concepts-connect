@@ -341,7 +341,13 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
           <TabsContent value="downloads">
             <div className="grid gap-6 lg:grid-cols-2">
               <Card>
-                <CardHeader><CardTitle className="font-heading">Upload Document</CardTitle></CardHeader>
+                <CardHeader>
+                  <CardTitle className="font-heading">Upload Document</CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Documents appear on the website's Downloads page. For school fees, choose the category <strong>Fees</strong> and upload the PDF: the newest Fees
+                    document is shown as the current fees, with View and Download buttons, on the School Fees page.
+                  </p>
+                </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2"><Label>Title *</Label><Input value={downloadTitle} onChange={e => setDownloadTitle(e.target.value)} placeholder="e.g. Fee Structure 2026" /></div>
                   <div className="space-y-2"><Label>Description</Label><Input value={downloadDesc} onChange={e => setDownloadDesc(e.target.value)} placeholder="Brief description" /></div>
