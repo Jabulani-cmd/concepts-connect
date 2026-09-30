@@ -70,6 +70,7 @@ export default function Footer() {
               <li><Link to="/academics" className="transition-colors hover:text-purple-300">{t("nav.academics")}</Link></li>
               <li><Link to="/admissions" className="transition-colors hover:text-purple-300">{t("nav.admissions")}</Link></li>
               <li><Link to="/school-life" className="transition-colors hover:text-purple-300">{t("nav.schoolLife")}</Link></li>
+              <li><Link to="/gallery" className="transition-colors hover:text-purple-300">{t("nav.gallery")}</Link></li>
               <li><Link to="/news" className="transition-colors hover:text-purple-300">{t("nav.news")}</Link></li>
             </ul>
           </div>

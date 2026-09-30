@@ -29,6 +29,7 @@ const About = lazyPage(() => import("./pages/About"));
 const Academics = lazyPage(() => import("./pages/Academics"));
 const Admissions = lazyPage(() => import("./pages/Admissions"));
 const SchoolLife = lazyPage(() => import("./pages/SchoolLife"));
+const Gallery = lazyPage(() => import("./pages/Gallery"));
 const News = lazyPage(() => import("./pages/News"));
 const Login = lazyPage(() => import("./pages/Login"));
 const Register = lazyPage(() => import("./pages/Register"));
@@ -90,6 +91,7 @@ const App = () => (
             <Route path="/academics" element={<Academics />} />
             <Route path="/admissions" element={<Admissions />} />
             <Route path="/school-life" element={<SchoolLife />} />
+            <Route path="/gallery" element={<Gallery />} />
             <Route path="/facilities" element={<Facilities />} />
             <Route path="/downloads" element={<Downloads />} />
             <Route path="/fees" element={<Fees />} />

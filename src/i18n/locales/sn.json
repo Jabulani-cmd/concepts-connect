@@ -65,7 +65,8 @@
     "contact": "Taura Nesu",
     "portalLogin": "Pinda muPortal",
     "menu": "Menyu",
-    "sportsCulture": "Mitambo neTsika"
+    "sportsCulture": "Mitambo neTsika",
+    "gallery": "Mifananidzo"
   },
   "auth": {
     "signIn": "Pinda",
@@ -502,5 +503,30 @@
     "errorBody": "Peji iri harina kukwanisa kuvhurika. Kuvhurazve kazhinji kunozvigadzirisa.",
     "reload": "Vhurazve",
     "home": "Peji rekutanga"
+  },
+  "gallery": {
+    "eyebrow": "Nguva dzeConcepts",
+    "title": "Mifananidzo yeChikoro",
+    "subtitle": "Mifananidzo nemavhidhiyo kubva mumakirasi, mumitambo, mutsika nemhemberero muchikoro chose.",
+    "all": "Zvese",
+    "photos": "Mifananidzo",
+    "videos": "Mavhidhiyo",
+    "allAlbums": "Maarubhamu ese",
+    "empty": "Mifananidzo nemavhidhiyo zvichaonekwa pano munguva pfupi.",
+    "emptyFilter": "Hapana chiripo pano. Edza imwe arubhamu.",
+    "playVideo": "Tamba vhidhiyo",
+    "openPhoto": "Vhura mufananidzo",
+    "swipe": "Svaira kuti uone zvimwe",
+    "viewAll": "Ona mifananidzo yese",
+    "categories": {
+      "general": "Upenyu hweChikoro",
+      "academics": "Zvidzidzo",
+      "sports": "Mitambo",
+      "culture": "Tsika neUnyanzvi",
+      "events": "Zviitiko neMhemberero",
+      "prize-giving": "Kupa Mibayiro",
+      "boarding": "Hositeri",
+      "facilities": "Nzvimbo"
+    }
   }
 }

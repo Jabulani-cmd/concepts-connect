@@ -65,7 +65,8 @@
     "contact": "Xhumana Lathi",
     "portalLogin": "Ngena Kuportal",
     "menu": "Imenyu",
-    "sportsCulture": "Ezemidlalo Lamasiko"
+    "sportsCulture": "Ezemidlalo Lamasiko",
+    "gallery": "Imifanekiso"
   },
   "auth": {
     "signIn": "Ngena",
@@ -502,5 +503,30 @@
     "errorBody": "Ikhasi leli alivulekanga. Ukuvula kabusha kuvamisa ukukulungisa.",
     "reload": "Vula kabusha",
     "home": "Ikhasi lokuqala"
+  },
+  "gallery": {
+    "eyebrow": "Izikhathi eConcepts",
+    "title": "Imifanekiso yeSikolo",
+    "subtitle": "Imifanekiso lamavidiyo avela emakilasini, kwezemidlalo, amasiko lemikhosi esikolo sonke.",
+    "all": "Konke",
+    "photos": "Imifanekiso",
+    "videos": "Amavidiyo",
+    "allAlbums": "Wonke ama-albhamu",
+    "empty": "Imifanekiso lamavidiyo kuzavela lapha maduze.",
+    "emptyFilter": "Akukho lutho lapha. Zama enye i-albhamu.",
+    "playVideo": "Dlala ividiyo",
+    "openPhoto": "Vula umfanekiso",
+    "swipe": "Swayipha ubone okunye",
+    "viewAll": "Bona yonke imifanekiso",
+    "categories": {
+      "general": "Impilo yeSikolo",
+      "academics": "Ezemfundo",
+      "sports": "Ezemidlalo",
+      "culture": "Amasiko lobuciko",
+      "events": "Imicimbi lemikhosi",
+      "prize-giving": "Ukuphiwa kwemiklomelo",
+      "boarding": "Ihositeli",
+      "facilities": "Izakhiwo"
+    }
   }
 }

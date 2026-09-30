@@ -7,6 +7,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HandshakeIcon, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { isVideo } from "@/lib/gallery";
 
 export default function SchoolLife() {
   const { t } = useTranslation();
@@ -17,7 +20,7 @@ export default function SchoolLife() {
     supabase.from("meetings").select("*").order("meeting_date", { ascending: true })
       .then(({ data }) => { if (data) setMeetings(data); });
     supabase.from("gallery_images").select("id, image_url, caption").eq("is_active", true).order("created_at", { ascending: false })
-      .then(({ data }) => { if (data) setGalleryImages(data); });
+      .then(({ data }) => { if (data) setGalleryImages(data.filter((g) => !isVideo(g.image_url)).slice(0, 6)); });
   }, []);
 
   const sdcMeetings = meetings.filter(m => m.meeting_type === "sdc");
@@ -107,6 +110,11 @@ export default function SchoolLife() {
               ) : (
                 <p className="text-center text-muted-foreground italic py-8">{t("schoolLife.galleryEmpty")}</p>
               )}
+              <div className="mt-8 text-center">
+                <Button asChild>
+                  <Link to="/gallery">{t("gallery.viewAll")}</Link>
+                </Button>
+              </div>
             </TabsContent>
           </Tabs>
         </div>

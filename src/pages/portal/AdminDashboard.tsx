@@ -34,6 +34,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import GalleryManagement from "@/components/admin/GalleryManagement";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Bell, Image, Calendar, LogOut, Plus, Trash2, Upload, Layers, GraduationCap, Download, FileText, HandshakeIcon, Settings, UserCheck, Building, FolderKanban, BookOpen, Briefcase, DollarSign, Shield, BedDouble, Package, MessageSquare, ClipboardList, ShieldCheck, Database, Rocket, Megaphone, Trophy, ShieldAlert, CheckCircle2, CalendarOff, Bot } from "lucide-react";
 import schoolLogo from "@/assets/concepts-logo.png";
@@ -72,13 +73,6 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
   const carouselFileRef = useRef<HTMLInputElement>(null);
   const [carouselCropSrc, setCarouselCropSrc] = useState<string | null>(null);
   const [carouselCropOpen, setCarouselCropOpen] = useState(false);
-
-  // Gallery images
-  const [galleryImages, setGalleryImages] = useState<Tables<"gallery_images">[]>([]);
-  const galleryFileRef = useRef<HTMLInputElement>(null);
-  const [galleryCaption, setGalleryCaption] = useState("");
-  const [galleryCropSrc, setGalleryCropSrc] = useState<string | null>(null);
-  const [galleryCropOpen, setGalleryCropOpen] = useState(false);
 
   // Downloads
   const [downloads, setDownloads] = useState<Tables<"downloads">[]>([]);
@@ -278,10 +272,6 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
     const { data } = await supabase.from("carousel_images").select("*").order("display_order");
     if (data) setCarouselImages(data);
   };
-  const fetchGalleryImages = async () => {
-    const { data } = await supabase.from("gallery_images").select("*").order("created_at", { ascending: false });
-    if (data) setGalleryImages(data);
-  };
   const fetchDownloads = async () => {
     const { data } = await supabase.from("downloads").select("*").order("created_at", { ascending: false });
     if (data) setDownloads(data);
@@ -294,7 +284,6 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
   useEffect(() => {
     fetchAnnouncements();
     fetchCarouselImages();
-    fetchGalleryImages();
     fetchDownloads();
     fetchMeetings();
     fetchSiteSettings();
@@ -358,40 +347,6 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
     await supabase.from("carousel_images").delete().eq("id", id);
     toast({ title: "Carousel image removed" });
     fetchCarouselImages();
-  };
-
-  const handleGalleryFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setGalleryCropSrc(reader.result as string);
-      setGalleryCropOpen(true);
-    };
-    reader.readAsDataURL(file);
-    if (galleryFileRef.current) galleryFileRef.current.value = "";
-  };
-
-  const handleGalleryCropComplete = async (blob: Blob) => {
-    setUploading(true);
-    try {
-      const file = new File([blob], `gallery_${Date.now()}.jpg`, { type: "image/jpeg" });
-      const url = await uploadFile(file, "gallery");
-      const { error } = await supabase.from("gallery_images").insert({ image_url: url, caption: galleryCaption || null });
-      if (error) throw error;
-      toast({ title: "Gallery image added!" });
-      setGalleryCaption("");
-      fetchGalleryImages();
-    } catch (err) {
-      toast({ title: "Upload failed", description: errorMessage(err), variant: "destructive" });
-    }
-    setUploading(false);
-  };
-
-  const deleteGalleryImage = async (id: string) => {
-    await supabase.from("gallery_images").delete().eq("id", id);
-    toast({ title: "Gallery image removed" });
-    fetchGalleryImages();
   };
 
   const handleDownloadUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -498,17 +453,6 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
             aspectRatio={16 / 9}
             cropShape="rect"
             title="Crop Carousel Image"
-          />
-        )}
-        {galleryCropSrc && (
-          <ImageCropper
-            imageSrc={galleryCropSrc}
-            open={galleryCropOpen}
-            onClose={() => { setGalleryCropOpen(false); setGalleryCropSrc(null); }}
-            onCropComplete={handleGalleryCropComplete}
-            aspectRatio={4 / 3}
-            cropShape="rect"
-            title="Crop Gallery Image"
           />
         )}
         {principalCropSrc && (
@@ -678,35 +622,7 @@ export default function AdminDashboard({ portalTitle, portalRole }: AdminDashboa
 
           {/* Gallery Tab */}
           <TabsContent value="gallery">
-            <div className="grid gap-6 lg:grid-cols-2">
-              <Card>
-                <CardHeader><CardTitle className="font-heading">Upload Gallery Image</CardTitle></CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Caption (optional)</Label>
-                    <Input value={galleryCaption} onChange={e => setGalleryCaption(e.target.value)} placeholder="e.g. Inter-house Athletics 2026" />
-                  </div>
-                  <input type="file" accept="image/*" ref={galleryFileRef} onChange={handleGalleryFileSelect} className="hidden" />
-                  <Button onClick={() => galleryFileRef.current?.click()} disabled={uploading}>
-                    <Upload className="mr-1 h-4 w-4" /> {uploading ? "Uploading…" : "Choose Image"}
-                  </Button>
-                </CardContent>
-              </Card>
-              <div className="space-y-3">
-                <h3 className="font-heading text-sm font-semibold text-muted-foreground uppercase tracking-wider">Gallery ({galleryImages.length})</h3>
-                <div className="grid gap-3 sm:grid-cols-3">
-                  {galleryImages.map((img) => (
-                    <div key={img.id} className="group relative overflow-hidden rounded-lg border">
-                      <img src={img.image_url} alt={img.caption || "Gallery"} className="h-28 w-full object-cover" />
-                      {img.caption && <p className="px-2 py-1 text-xs text-muted-foreground truncate">{img.caption}</p>}
-                      <Button variant="destructive" size="icon" className="absolute right-1 top-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => deleteGalleryImage(img.id)}>
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <GalleryManagement />
           </TabsContent>
 
           {/* Downloads Tab */}

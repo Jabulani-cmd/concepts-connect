@@ -65,7 +65,8 @@
     "contact": "Contact",
     "portalLogin": "Portal Login",
     "menu": "Menu",
-    "sportsCulture": "Sports & Culture"
+    "sportsCulture": "Sports & Culture",
+    "gallery": "Gallery"
   },
   "auth": {
     "signIn": "Sign in",
@@ -502,5 +503,30 @@
     "errorBody": "This screen could not be loaded. Reloading usually fixes it.",
     "reload": "Reload",
     "home": "Home page"
+  },
+  "gallery": {
+    "eyebrow": "Moments at Concepts",
+    "title": "School Gallery",
+    "subtitle": "Photos and videos from classrooms, sports, culture and celebrations across the academy.",
+    "all": "All",
+    "photos": "Photos",
+    "videos": "Videos",
+    "allAlbums": "All albums",
+    "empty": "Photos and videos will appear here soon.",
+    "emptyFilter": "Nothing here yet. Try another album.",
+    "playVideo": "Play video",
+    "openPhoto": "Open photo",
+    "swipe": "Swipe to see more",
+    "viewAll": "View the full gallery",
+    "categories": {
+      "general": "School Life",
+      "academics": "Academics",
+      "sports": "Sports",
+      "culture": "Culture & Arts",
+      "events": "Events & Celebrations",
+      "prize-giving": "Prize-Giving",
+      "boarding": "Boarding",
+      "facilities": "Facilities"
+    }
   }
 }
