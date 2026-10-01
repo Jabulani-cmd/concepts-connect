@@ -22,7 +22,7 @@ describe("login credentials workbook", () => {
 
     expect(wb.worksheets.map((w) => w.name)).toEqual(["Overview", "Staff", "Students", "Parents"]);
     const students = wb.getWorksheet("Students")!;
-    expect(students.getRow(1).values).toEqual([undefined, "Admission No.", "Name", "Form", "Class", "Boarding", "Email (login)", "Password"]);
+    expect(students.getRow(1).values).toEqual([undefined, "Admission No.", "Name", "Form", "Class", "Boarding", "Portal access", "School fees", "Email (login)", "Password"]);
     expect(students.rowCount).toBe(1 + seed.students.length);
     expect(students.getRow(2).getCell(4).value).toBe("Form 1A");
     expect(students.getRow(1).getCell(1).font?.bold).toBe(true);

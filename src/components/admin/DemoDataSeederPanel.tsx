@@ -25,6 +25,7 @@ const STEPS = [
   "Creating login accounts",
   "Linking parents to their children",
   "Publishing to all portals",
+  "Setting up subscriptions and school fees",
 ];
 
 type Seed = DemoSeed;
@@ -64,6 +65,10 @@ async function isTemporaryFailure(error: unknown): Promise<boolean> {
 }
 
 type AccountResult = { email: string; status: string; error?: string };
+type DemoBilling = {
+  term: string; subscribed: number; not_subscribed: number;
+  invoices: number; fees_paid: number; fees_part_paid: number; fees_unpaid: number;
+};
 type SavedIds = { subIdMap: Map<string, string>; classIdMap: Map<string, string>; staffIdMap: Map<string, string> };
 type WriteResult = PromiseLike<{ error: { code?: string; message: string } | null }>;
 
@@ -111,6 +116,7 @@ export default function DemoDataSeederPanel() {
   const [summary, setSummary] = useState<null | {
     students: number; parents: number; teachers: number; logins: number; failedLogins: number; errors: string[];
     subjects: number; classes: number; rooms: number; periods: number;
+    billing: DemoBilling | null;
   }>(null);
   const [showSummary, setShowSummary] = useState(false);
 
@@ -426,11 +432,29 @@ export default function DemoDataSeederPanel() {
     for (const part of chunk(ids, 100)) {
       await supabase.from("parent_students").delete().in("student_id", part);
       await supabase.from("parent_student_links").delete().in("student_id", part);
-      await supabase.from("access_grants").delete().in("student_id", part).eq("reason", "Demo account");
+      // Demo billing: fee payments and invoices, then subscriptions and the access they gave.
+      await supabase.from("payments").delete().in("student_id", part);
+      await supabase.from("invoices").delete().in("student_id", part);
+      const { data: subs } = await supabase.from("subscriptions").select("id").in("student_id", part);
+      if (subs?.length) await supabase.from("payments").delete().in("subscription_id", subs.map((x) => x.id));
+      await supabase.from("access_grants").delete().in("student_id", part);
+      await supabase.from("subscriptions").delete().in("student_id", part);
       await supabase.from("student_classes").delete().in("student_id", part);
       await supabase.from("students").delete().in("id", part);
     }
     return ids.length;
+  }
+
+  /** Demo subscriptions (most paid, some not) and this term's school fees. */
+  async function loadDemoBilling(warnings: string[]): Promise<DemoBilling | null> {
+    const { data, error } = await supabase.rpc("seed_demo_billing");
+    if (error) {
+      warnings.push(/seed_demo_billing|schema cache|does not exist/i.test(error.message)
+        ? "Demo subscriptions and fees not set up yet: run the new billing SQL file in the database, then re-seed."
+        : `Demo subscriptions and fees not set up: ${error.message}`);
+      return null;
+    }
+    return data as unknown as DemoBilling;
   }
 
   async function handleLoad() {
@@ -464,6 +488,9 @@ export default function DemoDataSeederPanel() {
       } catch (e) {
         warnings = [`Timetable not saved: ${errorMessage(e, "unknown error")}`];
       }
+      // Subscriptions and school fees, after the logins so parents are linked to their children.
+      setStepIdx(7);
+      const billing = await loadDemoBilling(warnings);
       setLoginErrors((prev) => [...prev, ...warnings]);
 
       const summ = {
@@ -477,6 +504,7 @@ export default function DemoDataSeederPanel() {
         classes: seed.classes.length,
         rooms: seed.rooms.length,
         periods: seed.slots.filter((s) => s.subjectId).length,
+        billing,
       };
       setSummary(summ);
       setShowSummary(true);
@@ -666,6 +694,12 @@ export default function DemoDataSeederPanel() {
               <Row label="Venues"              value={summary.rooms}     hint="Classrooms, labs, hall, sports field" />
               <Row label="Login accounts"      value={summary.logins}    hint={summary.failedLogins ? `${summary.failedLogins} failed: ${summary.errors[0] ?? "unknown error"}. Use "Create missing logins" to retry` : "Admin, teachers, students and parents. All linked"} />
               <Row label="Timetable periods"   value={summary.periods}   hint="Lessons plus supervised study periods, with teacher, venue and time" />
+              {summary.billing && (
+                <>
+                  <Row label="Portal subscriptions" value={summary.billing.subscribed} hint={`${summary.billing.not_subscribed} families have not paid: their portals are locked until the parent pays (see the credentials file)`} />
+                  <Row label="Fee invoices" value={summary.billing.invoices} hint={`${summary.billing.term}: ${summary.billing.fees_paid} paid, ${summary.billing.fees_part_paid} part-paid, ${summary.billing.fees_unpaid} unpaid, ready to pay online`} />
+                </>
+              )}
             </div>
           )}
           <div className="flex gap-2 pt-2">

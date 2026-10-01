@@ -28,6 +28,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import PrintableSection from "@/components/shared/PrintableSection";
 import AccessStatusPanel from "@/components/subscription/AccessStatusPanel";
 import AgentAlerts from "@/components/shared/AgentAlerts";
+import { AskParentToPay } from "@/components/subscription/PaymentChannels";
 
 function StudentLockedNotice({ feature, loading = false, status = "none" }: { feature: string; loading?: boolean; status?: string }) {
   const pending = status === "pending";
@@ -49,6 +50,7 @@ function StudentLockedNotice({ feature, loading = false, status = "none" }: { fe
               ? "Your parent or guardian's payment is being verified. Access will unlock once it is approved."
               : `Your parent or guardian must subscribe from the parent portal before you can access ${feature}.`}
           </p>
+          {!loading && !pending && <AskParentToPay />}
         </CardContent>
       </Card>
     </div>

@@ -101,7 +101,7 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
     }
 
     try {
-      const receiptNumber = "MTR-" + Math.floor(100000 + Math.random() * 900000);
+      const receiptNumber = "CLA-" + Math.floor(100000 + Math.random() * 900000);
       const txId = "SPS-" + Date.now().toString(36).toUpperCase();
       const payDate = new Date().toISOString().slice(0, 10);
 
@@ -233,6 +233,7 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
                 { id: "eft", label: "Internet Banking", icon: Building2, note: "ZIPIT: CBZ, Stanbic, Steward, ZB…" },
                 { id: "ecocash", label: "EcoCash", icon: CreditCard, note: "Mobile money" },
                 { id: "onemoney", label: "OneMoney", icon: CreditCard, note: "Mobile money" },
+                { id: "innbucks", label: "InnBucks", icon: CreditCard, note: "Mobile money" },
               ] satisfies { id: PaymentMethod; label: string; icon: typeof CreditCard; note: string }[]).map((m) => (
                 <button key={m.id} onClick={() => pickMethod(m.id)}
                   className="p-4 rounded-lg border-2 border-border hover:border-purple-500 hover:bg-purple-50/40 text-left transition">
@@ -308,7 +309,7 @@ export default function PayInvoiceDialog({ open, onOpenChange, invoice, student,
 
         {step === "qr" && (
           <div className="text-center space-y-3">
-            <h3 className="font-semibold">Paynow Zimbabwe: {method === "ecocash" ? "EcoCash" : "OneMoney"}</h3>
+            <h3 className="font-semibold">Paynow Zimbabwe: {paymentMethodLabel(method)}</h3>
             <p className="text-sm text-muted-foreground">
               Scan to pay {formatMoney(payAmount)}
             </p>

@@ -8,8 +8,10 @@
 //     student → students.user_id (by admission number)
 //     staff   → staff.user_id (by email): teachers, heads of department (who also
 //               get the teacher role), leadership, office and support staff
-//     parent  → parent_students + parent_student_links for each child, plus a
-//               complimentary access grant so the parent and student portals open.
+//     parent  → parent_students + parent_student_links for each child.
+//               Portal access is not granted here: the demo billing (seed_demo_billing)
+//               gives most families a paid subscription and leaves some unpaid, so the
+//               locked portals and the payment journey can be shown.
 // Safe to re-run: existing users are updated, links are upserted.
 import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -159,7 +161,7 @@ async function linkRecords(admin: SupabaseClient, linked: { account: Account; ui
     if (insErr) problems.set(account.email, `staff record could not be created: ${insErr.message}`);
   }
 
-  // Parents: link every child and open portal access for the demo.
+  // Parents: link every child (portal access comes from the demo billing).
   const parents = linked.filter((l) => l.account.role === "parent" && l.account.children?.length);
   if (!parents.length) return problems;
   const admissionNumbers = [...new Set(parents.flatMap((p) => p.account.children!.map((c) => c.admission_number)))];
@@ -192,19 +194,6 @@ async function linkRecords(admin: SupabaseClient, linked: { account: Account; ui
     if (lErr) throw lErr;
   }
 
-  const { data: grants } = await admin
-    .from("access_grants")
-    .select("parent_id, student_id")
-    .in("parent_id", parentIds)
-    .eq("is_active", true);
-  const haveGrant = new Set((grants ?? []).map(key));
-  const newGrants = pairs
-    .filter((p) => !haveGrant.has(key(p)))
-    .map((p) => ({ parent_id: p.parent_id, student_id: p.student_id, grant_type: "complimentary", is_active: true, reason: "Demo account" }));
-  if (newGrants.length) {
-    const { error: gErr } = await admin.from("access_grants").insert(newGrants);
-    if (gErr) throw gErr;
-  }
   return problems;
 }
 
