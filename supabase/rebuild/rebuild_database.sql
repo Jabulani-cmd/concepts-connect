@@ -7,7 +7,7 @@
 -- STEP 1 deletes the tables, functions and storage policies the new
 --        Lovable project created, and ALL data in them. Logins and
 --        uploaded files are kept.
--- STEP 2 builds the website's database from its 74 setup files in
+-- STEP 2 builds the website's database from its 75 setup files in
 --        supabase/migrations, starting at the 22 May 2026 catch-up. Earlier
 --        files belonged to previous projects and are superseded by it.
 --        Each file is committed on its own.
@@ -6016,11 +6016,11 @@ COMMIT;
 BEGIN;
 -- ============================================
 -- SUBSCRIPTION PLANS AND DEMO BILLING
--- * Three starter portal plans (Monthly, Termly, Annual) when the school has none;
+-- * Starter portal plans (Monthly Access US$ 10, Term Access US$ 25) when the school has none;
 --   admins change prices in Payments.
 -- * seed_demo_billing(): for the demo school only (learners CLA90001 and up), a
 --   realistic billing picture so the whole payment journey can be shown:
---     - portal subscriptions: about three in four families have paid (a Termly plan
+--     - portal subscriptions: about three in four families have paid (a Term Access plan
 --       with a receipt in their payment history); the rest have NOT paid, so their
 --       parent and child portals stay locked until the parent pays in the portal;
 --     - school fees: this term's invoice for every demo learner, with payments by
@@ -6032,15 +6032,12 @@ BEGIN;
 
 INSERT INTO public.subscription_plans (name, plan_type, amount_usd, duration_days, description, features, is_active, is_recommended, sibling_discount_2, sibling_discount_3_plus)
 SELECT * FROM (VALUES
-  ('Monthly', 'monthly'::public.subscription_plan_type, 5::numeric, 30,
+  ('Monthly Access', 'monthly'::public.subscription_plan_type, 10::numeric, 30,
    'Full parent and student portal access for one month.',
-   '["Timetables, marks and results","Attendance and school news","Study materials and assessments","Messages with teachers"]'::jsonb, true, false, 10::numeric, 15::numeric),
-  ('Termly', 'term'::public.subscription_plan_type, 12::numeric, 120,
-   'Full access for the whole term. Best value for most families.',
-   '["Everything in Monthly","Term reports and exam timetable","AI progress alerts","Save 20% against monthly"]'::jsonb, true, true, 10::numeric, 15::numeric),
-  ('Annual', 'custom'::public.subscription_plan_type, 30::numeric, 365,
-   'Full access for the whole school year.',
-   '["Everything in Termly","All three terms","Save 50% against monthly"]'::jsonb, true, false, 10::numeric, 15::numeric)
+   '["Timetables, marks and results","Attendance and school news","Study materials and assessments","Messages with teachers"]'::jsonb, true, false, 10::numeric, 20::numeric),
+  ('Term Access', 'term'::public.subscription_plan_type, 25::numeric, 90,
+   'Full parent and student portal access for one academic term. Save $5.',
+   '["Everything in Monthly Access","Term reports and exam timetable","AI progress alerts","Save $5 vs monthly"]'::jsonb, true, true, 10::numeric, 20::numeric)
 ) AS v(name, plan_type, amount_usd, duration_days, description, features, is_active, is_recommended, sibling_discount_2, sibling_discount_3_plus)
 WHERE NOT EXISTS (SELECT 1 FROM public.subscription_plans);
 
@@ -6161,6 +6158,26 @@ REVOKE ALL ON FUNCTION public.seed_demo_billing() FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.seed_demo_billing() TO authenticated, service_role;
 
 NOTIFY pgrst, 'reload schema';
+;
+COMMIT;
+
+-- ---- 20261001090000_7c2e9a41-5b8d-4f36-9e1a-2d6b8c4f3a95.sql ----
+BEGIN;
+-- Portal subscription prices: US$ 10 per month, US$ 25 per term.
+UPDATE public.subscription_plans
+   SET amount_usd = 10.00,
+       description = 'Full Parent + Student portal access, billed monthly.'
+ WHERE plan_type = 'monthly';
+
+UPDATE public.subscription_plans
+   SET amount_usd = 25.00,
+       description = 'Full Parent + Student portal access for one academic term. Save $5.',
+       is_recommended = true
+ WHERE plan_type = 'term';
+
+-- Only the monthly and term plans are offered.
+UPDATE public.subscription_plans SET is_active = false
+ WHERE plan_type NOT IN ('monthly', 'term');
 ;
 COMMIT;
 
