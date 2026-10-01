@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useAuth } from "@/contexts/AuthContext";
+import { AskParentToPay, PaymentChannelList } from "./PaymentChannels";
 
 interface Props {
   children: ReactNode;
@@ -53,6 +54,8 @@ export default function SubscriptionGate({ children, feature = "this feature", h
             ? `Your subscription expired. Renew now to restore access to ${feature} and all premium features.`
             : `Unlock full access to ${feature}, the timetable, results, materials, messaging, and more.`}
         </p>
+        {!pending && isStudent && <AskParentToPay />}
+        {!pending && !isStudent && <PaymentChannelList className="mb-4" />}
         {!pending && !isStudent && (
           <Button asChild className="bg-gradient-to-r from-purple-600 to-purple-700 hover:opacity-90">
             <Link to="/portal/parent/subscribe">

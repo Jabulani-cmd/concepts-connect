@@ -138,7 +138,7 @@ export default function ParentSubscribe() {
     setMethod(m); setError(null);
     if (m === "card") setStep("card");
     else if (m === "eft") setStep("gateway");
-    else if (m === "ecocash" || m === "onemoney") setStep("qr");
+    else if (m === "ecocash" || m === "onemoney" || m === "innbucks") setStep("qr");
     else setStep("eft");
   }
 
@@ -233,7 +233,7 @@ export default function ParentSubscribe() {
     const accessStart = new Date();
     const accessEnd = new Date(accessStart.getTime() + plan.duration_days * 86_400_000);
     const txId = "SPS-" + Date.now().toString(36).toUpperCase();
-    const receiptNumber = "MTR-" + Math.floor(100000 + Math.random() * 900000);
+    const receiptNumber = "CLA-" + Math.floor(100000 + Math.random() * 900000);
 
     const { data: subRow, error: subErr } = await supabase.from("subscriptions").insert({
       parent_id: user.id,
@@ -365,7 +365,7 @@ export default function ParentSubscribe() {
             <QrView plan={plan} method={method} processing={processing} onConfirm={processQrGateway} forceOutcome={forceOutcome} setForceOutcome={setForceOutcome} />
           )}
           {step === "failed" && (
-            <FailedView reason={failureReason} onRetry={() => setStep(method === "card" ? "card" : method === "ecocash" || method === "onemoney" ? "qr" : "gateway")} onChangeMethod={() => setStep("method")} />
+            <FailedView reason={failureReason} onRetry={() => setStep(method === "card" ? "card" : method === "ecocash" || method === "onemoney" || method === "innbucks" ? "qr" : "gateway")} onChangeMethod={() => setStep("method")} />
           )}
           {step === "success" && completed && (
             <SuccessView
@@ -468,6 +468,7 @@ function MethodView({ plan, onPick }: { plan: Plan; onPick: (m: PaymentMethod) =
     { id: "eft", label: "Internet Banking", icon: Building2, note: "ZIPIT: CBZ, Stanbic, Steward, ZB Bank" },
     { id: "ecocash", label: "EcoCash", icon: CreditCard, note: "Pay from your EcoCash wallet" },
     { id: "onemoney", label: "OneMoney", icon: CreditCard, note: "Pay from your OneMoney wallet" },
+    { id: "innbucks", label: "InnBucks", icon: CreditCard, note: "Pay from your InnBucks wallet" },
     { id: "bank_transfer", label: "Bank Transfer", icon: Building2, note: "RTGS transfer: upload proof of payment" },
   ];
   return (
@@ -601,8 +602,8 @@ function GatewayView({ plan, processing, onStart, forceOutcome, setForceOutcome 
 }
 
 function QrView({ plan, method, processing, onConfirm, forceOutcome, setForceOutcome }: OutcomeControls & { plan: Plan; method: PaymentMethod; processing: boolean; onConfirm: () => void }) {
-  const brand = method === "ecocash" ? "EcoCash" : "OneMoney";
-  const brandColor = method === "ecocash" ? "from-gray-500 to-purple-600" : "from-emerald-500 to-purple-600";
+  const brand = method === "ecocash" ? "EcoCash" : method === "innbucks" ? "InnBucks" : "OneMoney";
+  const brandColor = method === "ecocash" ? "from-gray-500 to-purple-600" : method === "innbucks" ? "from-amber-500 to-purple-600" : "from-emerald-500 to-purple-600";
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-md mx-auto">
       <Card className="p-6 text-center">

@@ -34,3 +34,16 @@ export const DEMO_PASSWORDS = {
   student: "MbsDemo#Student26",
   parent: "MbsDemo#Parent26",
 } as const;
+
+/**
+ * The demo billing picture, decided by the student number exactly as the database
+ * function seed_demo_billing() does (keep the two in step): one family in four has
+ * not paid the portal subscription; of the fee invoices about 45% are paid in full,
+ * 30% part-paid and 25% unpaid.
+ */
+const demoNumber = (admissionNumber: string) => Number(admissionNumber.replace(/\D/g, "")) || 0;
+export const demoSubscriptionPaid = (admissionNumber: string) => demoNumber(admissionNumber) % 4 !== 3;
+export function demoFeeStatus(admissionNumber: string): "Paid" | "Part-paid" | "Unpaid" {
+  const r = demoNumber(admissionNumber) % 20;
+  return r < 9 ? "Paid" : r < 15 ? "Part-paid" : "Unpaid";
+}

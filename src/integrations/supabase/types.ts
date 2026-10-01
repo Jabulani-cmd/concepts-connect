@@ -4578,6 +4578,7 @@ export type Database = {
         Returns: undefined
       }
       seed_demo_activity: { Args: never; Returns: Json }
+      seed_demo_billing: { Args: never; Returns: Json }
       set_agent_alert_settings: {
         Args: {
           _excellent_mark: number
@@ -4620,6 +4621,7 @@ export type Database = {
       payment_method:
         | "ecocash"
         | "onemoney"
+        | "innbucks"
         | "telecash"
         | "paynow_web"
         | "bank_transfer"
@@ -4798,6 +4800,7 @@ export const Constants = {
       payment_method: [
         "ecocash",
         "onemoney",
+        "innbucks",
         "telecash",
         "paynow_web",
         "bank_transfer",

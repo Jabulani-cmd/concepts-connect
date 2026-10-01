@@ -1,6 +1,7 @@
 import type { Teacher, Subject, SchoolClass } from "@/contexts/AllocationContext";
 import type { DemoStudent, DemoParent } from "@/lib/demoSeeder";
 import { DEMO_EMAIL_DOMAIN, DEMO_PASSWORDS } from "@/lib/demoSeeder";
+import { demoFeeStatus, demoSubscriptionPaid } from "@/lib/demoAccounts";
 import { DEMO_SUPPORT_STAFF, demoHeadsOfDepartment } from "@/lib/demoStaff";
 import { SCHOOL_CONTACT_LINE } from "@/lib/school";
 
@@ -71,6 +72,8 @@ export async function buildCredentialsWorkbook(input: CredentialsInput): Promise
   ov.getCell("C6").font = { color: { argb: "FF2563EB" }, underline: true };
   ov.getCell("B13").value = "Each sheet lists one group. Use the filter arrows in the header row to find a class, form or person.";
   ov.getCell("B13").font = { size: 10, color: { argb: "FF6B7280" } };
+  ov.getCell("B14").value = "Payments demo: parents marked \"Not paid\" in the Parents sheet see locked portals (and so do their children) until they choose a plan and pay. School fee balances can be paid online from any parent's Fees tab. All payments are demo payments: no real money moves.";
+  ov.getCell("B14").font = { size: 10, color: { argb: "FF6508C5" } };
 
   // ---- Staff: administrator, leadership and support staff, then teachers ----
   const heads = demoHeadsOfDepartment(input.teachers, input.subjects);
@@ -114,6 +117,8 @@ export async function buildCredentialsWorkbook(input: CredentialsInput): Promise
     { header: "Form", key: "form", width: 9 },
     { header: "Class", key: "class", width: 10 },
     { header: "Boarding", key: "boarding", width: 11 },
+    { header: "Portal access", key: "access", width: 26 },
+    { header: "School fees", key: "fees", width: 12 },
     { header: "Email (login)", key: "email", width: 46 },
     { header: "Password", key: "password", width: 15 },
   ], students.map((s) => ({
@@ -122,6 +127,8 @@ export async function buildCredentialsWorkbook(input: CredentialsInput): Promise
     form: `Form ${s.form}`,
     class: className(s),
     boarding: s.boarding ? "Boarder" : "Day",
+    access: demoSubscriptionPaid(s.admissionNumber) ? "Open (parent subscribed)" : "Locked (parent not paid)",
+    fees: demoFeeStatus(s.admissionNumber),
     email: s.email,
     password: s.password,
   })));
@@ -133,6 +140,7 @@ export async function buildCredentialsWorkbook(input: CredentialsInput): Promise
     { header: "Relationship", key: "rel", width: 14 },
     { header: "Children (class)", key: "children", width: 44 },
     { header: "Phone", key: "phone", width: 16 },
+    { header: "Subscription", key: "sub", width: 34 },
     { header: "Email (login)", key: "email", width: 48 },
     { header: "Password", key: "password", width: 15 },
   ], parents.map((p) => ({
@@ -144,6 +152,13 @@ export async function buildCredentialsWorkbook(input: CredentialsInput): Promise
       .map((s) => `${s.fullName} (${className(s)})`)
       .join(", "),
     phone: p.phone,
+    sub: (() => {
+      const kids = (p.childIds ?? []).map((id) => studentById.get(id)).filter((s): s is DemoStudent => !!s);
+      const unpaid = kids.filter((k) => !demoSubscriptionPaid(k.admissionNumber));
+      if (!unpaid.length) return "Paid";
+      if (unpaid.length === kids.length) return "Not paid: use to demo the payment";
+      return `Not paid for ${unpaid.map((k) => k.fullName.split(" ")[0]).join(", ")}`;
+    })(),
     email: p.email,
     password: p.password,
   })));

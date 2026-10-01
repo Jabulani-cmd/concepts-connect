@@ -9,6 +9,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 type Row = Record<string, unknown>;
 const writes: { table: string; op: string; rows: Row[] }[] = [];
 const invokes: { accounts: Row[] }[] = [];
+const rpcCalls: string[] = [];
 type InvokeResult = { data: unknown; error: unknown };
 const ok = (): InvokeResult => ({ data: { ok: true, errors: 0 }, error: null });
 let respond: (body: { accounts: Row[] }) => InvokeResult = ok;
@@ -41,6 +42,10 @@ function fakeQuery(table: string) {
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: {
     from: (table: string) => fakeQuery(table),
+    rpc: vi.fn(async (name: string) => {
+      rpcCalls.push(name);
+      return { data: { term: "Term 3 2026", subscribed: 375, not_subscribed: 125, invoices: 500, fees_paid: 225, fees_part_paid: 150, fees_unpaid: 125 }, error: null };
+    }),
     functions: {
       invoke: vi.fn(async (_name: string, { body }: { body: { accounts: Row[] } }) => {
         invokes.push(body);
@@ -66,6 +71,9 @@ describe("Demo data seeder panel", () => {
     );
     fireEvent.click(screen.getByRole("button", { name: /load demo data/i }));
     await waitFor(() => expect(screen.getByText(/demo data loaded successfully/i)).toBeInTheDocument(), { timeout: 15000 });
+
+    // Subscriptions and fees are set up after the logins, so parents are already linked.
+    expect(rpcCalls).toContain("seed_demo_billing");
 
     // Classes are written before students, so the roster trigger can link each student.
     const firstClass = writes.findIndex((w) => w.table === "classes" && w.op === "insert");
